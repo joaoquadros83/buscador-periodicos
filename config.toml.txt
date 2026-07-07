@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#1E3A8A" # Azul Escuro Institucional
+backgroundColor = "#F8FAFC" # Fundo Cinza Claro bem suave
+secondaryBackgroundColor = "#FFFFFF" # Elementos e barras laterais em Branco puro
+textColor = "#0F172A" # Texto Grafite Escuro (melhor leitura que preto)
+font = "sans serif"
