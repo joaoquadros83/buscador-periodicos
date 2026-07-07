@@ -209,4 +209,66 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
             q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", sorted([str(x).strip() for x in df_original[col_q_jcr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_jcr].dropna().unique()])) if col_q_jcr else []
         with col_f5:
             col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
-            q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()])) if col_q_sjr
+            q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()])) if col_q_sjr else []
+        with col_f6:
+            opcoes_ordenacao = ["Título"]
+            if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
+            if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
+            criterio_ordem = st.selectbox("Ordenar Resultados por:", options=opcoes_ordenacao)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Lógica de Filtros
+    df_filtrado = df_original.copy()
+    if busca:
+        df_filtrado = df_filtrado[df_filtrado[df_filtrado.columns[0]].str.contains(busca, case=False, na=False) | df_filtrado["ISSN"].str.contains(busca, case=False, na=False)]
+    if cnpq_selecionado != "Todas":
+        df_filtrado = df_filtrado[(df_filtrado[col_cnpq1] == cnpq_selecionado) | (df_filtrado[col_cnpq2] == cnpq_selecionado)]
+    if area_especifica_sel != "Todas":
+        df_filtrado = df_filtrado[df_filtrado[col_area_especifica].str.contains(area_especifica_sel, case=False, na=False)]
+    if col_indexador and indexador_sel:
+        df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
+    if col_q_jcr and q_jcr_sel:
+        df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+    if col_q_sjr and q_sjr_sel:
+        df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
+
+    mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
+    col_ordenar, ascendente = mapa_ordem[criterio_ordem]
+    if col_ordenar in df_filtrado.columns: df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+
+    # Métricas
+    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+    with col_m1: st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
+    with col_m2: st.metric("H-Index Topo", int(df_filtrado["H index"].max()) if "H index" in df_filtrado.columns else 0)
+    with col_m3: st.metric("Fator JIF Máximo", f"{df_filtrado['JIF'].max():.2f}" if 'JIF' in df_filtrado.columns and pd.notna(df_filtrado['JIF'].max()) else "0.00")
+    with col_m4: st.metric("SJR Score Ápice", f"{df_filtrado['SJR'].max():.3f}" if 'SJR' in df_filtrado.columns and pd.notna(df_filtrado['SJR'].max()) else "0.000")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Exibição Final
+    st.markdown("#### 📋 Catálogo de Periódicos")
+    itens_por_pagina = 40
+    total_itens = len(df_filtrado)
+    if total_itens > 0:
+        total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
+        col_pag1, _ = st.columns([1, 5])
+        with col_pag1: pagina_atual = st.number_input(f"Página (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
+        
+        st.dataframe(df_filtrado.iloc[(pagina_atual - 1) * itens_por_pagina : pagina_atual * itens_por_pagina], use_container_width=True, hide_index=True)
+        st.download_button(label="📥 Exportar Dados Selecionados (CSV)", data=df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig'), file_name="relatorio_sciindex.csv", mime="text/csv")
+    else:
+        st.warning("Nenhum periódico atende aos critérios aplicados.")
+
+# ==============================================================================
+# SEÇÕES INFORMATIVAS (Substitua o conteúdo livremente)
+# ==============================================================================
+elif menu_selecionado == "📄 Inteligência de Escrita":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Central de Escrita de Alto Impacto</h1><p class='premium-subtitle'>Diretrizes editoriais para submissões internacionais.</p></div>", unsafe_allow_html=True)
+    st.markdown("### 🎯 Estrutura de uma Cover Letter Vencedora\nO conteúdo desta página está pronto para edição no seu código.")
+
+elif menu_selecionado == "🌐 Ecossistema & Mídia":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Divulgação e Ciência Aberta</h1><p class='premium-subtitle'>Estratégias altmétricas para impulsionar suas citações.</p></div>", unsafe_allow_html=True)
+
+elif menu_selecionado == "📅 Simpósios e Eventos":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Agenda Acadêmica Integrada</h1><p class='premium-subtitle'>Cronograma de conferências nacionais e internacionais.</p></div>", unsafe_allow_html=True)
