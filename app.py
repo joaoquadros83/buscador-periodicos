@@ -246,23 +246,21 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-  # --- 7. EXIBIÇÃO FINAL COM PAGINAÇÃO DINÂMICA ---
+  ## --- 7. EXIBIÇÃO FINAL COM PAGINAÇÃO E DOWNLOAD RESTRITO DA PÁGINA ---
     st.markdown("#### 📋 Catálogo de Periódicos")
     total_itens = len(df_filtrado)
     
     if total_itens > 0:
-        # Duas colunas elegantes logo acima da tabela para os controles de navegação
+        # Colunas de controle de navegação
         col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
         
         with col_pag1:
-            # Novo seletor de quantidade de itens por página
             itens_por_pagina = st.selectbox(
                 "Exibir por página:",
                 options=[20, 50, 100],
-                index=1 # Define 50 como o padrão atual do seu site
+                index=1 # 50 itens como padrão
             )
             
-        # Calcula o total de páginas com base na escolha dinâmica do usuário
         total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
         
         with col_pag2:
@@ -273,18 +271,22 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
                 value=1
             )
         
-        # Calcula os limites exatos das linhas a serem fatiadas no Pandas
+        # Definição dos limites da página atual
         inicio = (pagina_atual - 1) * itens_por_pagina
         fim = inicio + itens_por_pagina
         
-        # Renderiza a tabela de forma ultra veloz
-        st.dataframe(df_filtrado.iloc[inicio:fim], use_container_width=True, hide_index=True)
+        # Extrai estritamente as linhas que estão sendo exibidas na tela
+        df_da_pagina = df_filtrado.iloc[inicio:fim]
         
-        # Botão de Exportação Premium
+        # Renderiza a tabela na tela
+        st.dataframe(df_da_pagina, use_container_width=True, hide_index=True)
+        
+        # Botão de Exportação Restrito (Gera o CSV apenas com os dados da página atual)
+        csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
         st.download_button(
-            label="📥 Exportar Dados Selecionados (CSV)", 
-            data=df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig'), 
-            file_name="relatorio_sciindex.csv", 
+            label=f"📥 Exportar apenas esta página ({len(df_da_pagina)} itens)", 
+            data=csv_pagina, 
+            file_name="sciindex_pagina_atual.csv", 
             mime="text/csv"
         )
     else:
