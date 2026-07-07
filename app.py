@@ -1,104 +1,137 @@
-import streamlit as st
+import streamlit as str
 import pandas as pd
-import os
+import plotly.express as px
 
-# 1. Configuração da Página
-st.set_page_config(page_title="Buscador Multibases de Periódicos", layout="wide", page_icon="📚")
+# Configuração da página (Aparência profissional em modo amplo)
+str.set_page_config(
+    page_title="Portal de Periódicos Científicos",
+    page_icon="📚",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# 2. Carregamento com Cache Inteligente (Limpa a memória a cada 1 hora para não travar atualizações)
-@st.cache_data(ttl=3600)
-def carregar_base(nome_arquivo):
-    if os.path.exists(nome_arquivo):
-        if nome_arquivo.endswith('.xlsx'):
-            return pd.read_excel(nome_arquivo)
-        elif nome_arquivo.endswith('.csv'):
-            return pd.read_csv(nome_arquivo)
-    return None
+# Função com Cache para carregar os dados uma única vez e economizar memória
+@str.cache_data
+def carregar_dados():
+    # Carrega o arquivo unificado
+    df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False)
+    
+    # Remove duplicatas residuais pelo Título da Revista (Coluna 1) por segurança
+    col_titulo = df.columns[0]
+    df = df.drop_duplicates(subset=[col_titulo])
+    
+    # Garante que colunas numéricas sejam tratadas corretamente (substituindo vírgula por ponto se necessário)
+    for col in ['SJR', 'JIF', 'Citations / Doc. (2years)']:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.replace(',', '.').astype(float, errors='ignore')
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            
+    return df
 
-base_scielo = carregar_base("scielo_original.csv")
-base_educa = carregar_base("educa_original.csv")
-base_scopus = carregar_base("scopus_original.xlsx")
-base_wos = carregar_base("wos_original.xlsx")
+# Inicializa a base de dados
+try:
+    df_original = carregar_dados()
+except Exception as e:
+    str.error(f"Erro ao carregar o arquivo 'dados_revistas.csv'. Verifique o nome e o separador. Erro: {e}")
+    str.stop()
 
-# 3. Cabeçalho Principal
-st.title("📚 Buscador Multibases de Periódicos Acadêmicos")
-st.markdown("Consulte e exporte listas de periódicos de forma independente por indexador científico.")
-st.markdown("---")
+# --- BARRA LATERAL: FILTROS AVANÇADOS ---
+str.sidebar.header("🔍 Filtros de Busca")
 
-# 4. Criação das Abas
-abas = st.tabs(["🟢 SciELO", "🟠 Educ@", "💚 Scopus", "🔷 Web of Science (WoS)"])
+# 1. Filtro por Palavra-Chave (Título ou ISSN)
+busca = str.sidebar.text_input("Buscar por Nome da Revista ou ISSN:")
 
-# --- ABA 1: SciELO ---
-with abas[0]:
-    st.header("Periódicos SciELO")
-    if base_scielo is not None:
-        busca = st.text_input("Buscar por título na SciELO:", key="b_scielo")
-        df_f = base_scielo.copy()
-        col_t = next((c for c in df_f.columns if 'tit' in c.lower() or 'nome' in c.lower()), df_f.columns[0])
-        if busca:
-            df_f = df_f[df_f[col_t].astype(str).str.contains(busca, case=False, na=False)]
-        
-        st.metric("Revistas Encontradas", len(df_f))
-        st.dataframe(df_f, use_container_width=True)
-        
-        # Botão de Download Independente
-        st.download_button("📥 Baixar Resultado SciELO", df_f.to_csv(index=False).encode('utf-8-sig'), "scielo_filtrado.csv", "text/csv", key='dl_scielo')
-    else:
-        st.warning("Arquivo da base SciELO não encontrado.")
+# 2. Filtro por Área do Conhecimento
+col_area = "Áreas do Conhecimento" if "Áreas do Conhecimento" in df_original.columns else df_original.columns[5]
+# Extrai as áreas únicas tratando células que têm múltiplas áreas separadas por vírgula
+todas_areas = set()
+for x in df_original[col_area].dropna():
+    for area in str(x).split(","):
+        todas_areas.add(area.strip())
+lista_areas = sorted(list(todas_areas))
 
-# --- ABA 2: Educ@ ---
-with abas[1]:
-    st.header("Periódicos Educ@ (FCC)")
-    if base_educa is not None:
-        busca = st.text_input("Buscar por título no Educ@:", key="b_educa")
-        df_f = base_educa.copy()
-        col_t = next((c for c in df_f.columns if 'tit' in c.lower() or 'nome' in c.lower()), df_f.columns[0])
-        if busca:
-            df_f = df_f[df_f[col_t].astype(str).str.contains(busca, case=False, na=False)]
-        
-        st.metric("Revistas Encontradas", len(df_f))
-        st.dataframe(df_f, use_container_width=True)
-        
-        st.download_button("📥 Baixar Resultado Educ@", df_f.to_csv(index=False).encode('utf-8-sig'), "educa_filtrado.csv", "text/csv", key='dl_educa')
-    else:
-        st.warning("Arquivo da base Educ@ não encontrado.")
+area_selecionada = str.sidebar.selectbox("Selecione a Área:", ["Todas"] + lista_areas)
 
-# --- ABA 3: Scopus ---
-with abas[2]:
-    st.header("Periódicos Scopus (Base Oficial)")
-    if base_scopus is not None:
-        busca = st.text_input("Buscar por título na Scopus:", key="b_scopus")
-        df_f = base_scopus.copy()
-        col_t = next((c for c in df_f.columns if 'title' in c.lower() or 'tit' in c.lower()), df_f.columns[0])
-        
-        # Filtro de Colunas para a Scopus não ficar gigante na tela
-        colunas_visiveis = [c for c in ['Source Title', 'Print-ISSN', 'E-ISSN', 'Publisher', 'Active or Inactive'] if c in df_f.columns]
-        if not colunas_visiveis: colunas_visiveis = df_f.columns[:5]
-        
-        if busca:
-            df_f = df_f[df_f[col_t].astype(str).str.contains(busca, case=False, na=False)]
-        
-        st.metric("Revistas Encontradas", len(df_f))
-        st.dataframe(df_f[colunas_visiveis], use_container_width=True)
-        
-        st.download_button("📥 Baixar Resultado Scopus", df_f.to_csv(index=False).encode('utf-8-sig'), "scopus_filtrado.csv", "text/csv", key='dl_scopus')
-    else:
-        st.warning("Arquivo 'scopus_original.xlsx' não encontrado.")
+# 3. Filtros por Quartil
+col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else "Quartil"
+quartis_disponiveis = sorted(df_original[col_q_sjr].dropna().unique())
+quartil_sjr_sel = str.sidebar.multiselect("Quartil SJR (Scopus):", quartis_disponiveis, default=quartis_disponiveis)
 
-# --- ABA 4: Web of Science ---
-with abas[3]:
-    st.header("Periódicos Web of Science (WoS)")
-    if base_wos is not None:
-        busca = st.text_input("Buscar por título na WoS:", key="b_wos")
-        df_f = base_wos.copy()
-        col_t = next((c for c in df_f.columns if 'title' in c.lower() or 'tit' in c.lower()), df_f.columns[0])
-        
-        if busca:
-            df_f = df_f[df_f[col_t].astype(str).str.contains(busca, case=False, na=False)]
-        
-        st.metric("Revistas Encontradas", len(df_f))
-        st.dataframe(df_f, use_container_width=True)
-        
-        st.download_button("📥 Baixar Resultado WoS", df_f.to_csv(index=False).encode('utf-8-sig'), "wos_filtrado.csv", "text/csv", key='dl_wos')
-    else:
-        st.warning("Arquivo 'wos_original.xlsx' não encontrado.")
+# 4. Ordenação dos Resultados
+criterio_ordem = str.sidebar.selectbox(
+    "Ordenar resultados por:",
+    options=["SJR (Prestígio)", "H index (Impacto Histórico)", "JIF (Fator de Impacto JCR)", "Título"]
+)
+
+# --- CORPO PRINCIPAL DO APLICATIVO ---
+str.title("📚 Localizador de Periódicos para Publicação Científica")
+str.markdown("---")
+
+# Aplicação dos filtros no DataFrame
+df_filtrado = df_original.copy()
+
+if busca:
+    col_titulo = df_filtrado.columns[0]
+    col_issn = [c for c in df_filtrado.columns if 'issn' in c.lower()][0]
+    df_filtrado = df_filtrado[
+        df_filtrado[col_titulo].str.contains(busca, case=False, na=False) |
+        df_filtrado[col_issn].str.contains(busca, case=False, na=False)
+    ]
+
+if area_selecionada != "Todas":
+    df_filtrado = df_filtrado[df_filtrado[col_area].str.contains(area_selecionada, case=False, na=False)]
+
+if quartil_sjr_sel:
+    df_filtrado = df_filtrado[df_filtrado[col_q_sjr].isin(quartil_sjr_sel)]
+
+# Aplicação da Ordenação
+mapa_ordem = {
+    "SJR (Prestígio)": ("SJR", False),
+    "H index (Impacto Histórico)": ("H index", False),
+    "JIF (Fator de Impacto JCR)": ("JIF", False),
+    "Título": (df_filtrado.columns[0], True)
+}
+col_ordenar, ascendente = mapa_ordem[criterio_ordem]
+if col_ordenar in df_filtrado.columns:
+    df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+
+# --- MÉTRICAS DE DESTAQUE (CARDS) ---
+col1, col2, col3 = str.columns(3)
+with col1:
+    str.metric("Revistas Encontradas", f"{len(df_filtrado):,}".replace(",", "."))
+with col2:
+    maior_h = int(df_filtrado['H index'].max()) if 'H index' in df_filtrado.columns and not df_filtrado['H index'].isna().all() else 0
+    str.metric("Maior Índice H da Seleção", maior_h)
+with col3:
+    total_q1 = len(df_filtrado[df_filtrado[col_q_sjr] == "Q1"])
+    str.metric("Revistas de Elite (Q1)", total_q1)
+
+str.markdown("### 📋 Resultados da Pesquisa")
+
+# PAGINAÇÃO: Exibir 53 mil linhas de uma vez trava a tela. Vamos exibir de 50 em 50.
+itens_por_pagina = 50
+total_itens = len(df_filtrado)
+if total_itens > 0:
+    total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
+    pagina_atual = str.number_input(f"Página (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
+    
+    inicio = (pagina_atual - 1) * itens_por_pagina
+    fim = inicio + itens_por_pagina
+    
+    # Exibe a tabela elegante contendo apenas o bloco de páginas atual
+    str.dataframe(
+        df_filtrado.iloc[inicio:fim], 
+        use_container_width=True,
+        hide_index=True
+    )
+    
+    # Botão para o pesquisador baixar a lista customizada que ele filtrou
+    csv_download = df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig')
+    str.download_button(
+        label="📥 Baixar esta lista filtrada em CSV",
+        data=csv_download,
+        file_name="revistas_filtradas.csv",
+        mime="text/csv"
+    )
+else:
+    str.warning("Nenhuma revista encontrada com as combinações de filtros selecionadas.")
