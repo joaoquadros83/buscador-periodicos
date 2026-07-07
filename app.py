@@ -246,17 +246,47 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Exibição Final
+  # --- 7. EXIBIÇÃO FINAL COM PAGINAÇÃO DINÂMICA ---
     st.markdown("#### 📋 Catálogo de Periódicos")
-    itens_por_pagina = 40
     total_itens = len(df_filtrado)
+    
     if total_itens > 0:
-        total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
-        col_pag1, _ = st.columns([1, 5])
-        with col_pag1: pagina_atual = st.number_input(f"Página (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
+        # Duas colunas elegantes logo acima da tabela para os controles de navegação
+        col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
         
-        st.dataframe(df_filtrado.iloc[(pagina_atual - 1) * itens_por_pagina : pagina_atual * itens_por_pagina], use_container_width=True, hide_index=True)
-        st.download_button(label="📥 Exportar Dados Selecionados (CSV)", data=df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig'), file_name="relatorio_sciindex.csv", mime="text/csv")
+        with col_pag1:
+            # Novo seletor de quantidade de itens por página
+            itens_por_pagina = st.selectbox(
+                "Exibir por página:",
+                options=[20, 50, 100],
+                index=1 # Define 50 como o padrão atual do seu site
+            )
+            
+        # Calcula o total de páginas com base na escolha dinâmica do usuário
+        total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
+        
+        with col_pag2:
+            pagina_atual = st.number_input(
+                f"Página (1 de {total_paginas}):", 
+                min_value=1, 
+                max_value=max(1, total_paginas), 
+                value=1
+            )
+        
+        # Calcula os limites exatos das linhas a serem fatiadas no Pandas
+        inicio = (pagina_atual - 1) * itens_por_pagina
+        fim = inicio + itens_por_pagina
+        
+        # Renderiza a tabela de forma ultra veloz
+        st.dataframe(df_filtrado.iloc[inicio:fim], use_container_width=True, hide_index=True)
+        
+        # Botão de Exportação Premium
+        st.download_button(
+            label="📥 Exportar Dados Selecionados (CSV)", 
+            data=df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig'), 
+            file_name="relatorio_sciindex.csv", 
+            mime="text/csv"
+        )
     else:
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
