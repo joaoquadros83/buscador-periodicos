@@ -1,6 +1,6 @@
 [theme]
-primaryColor = "#1E3A8A" # Azul Escuro Institucional
-backgroundColor = "#F8FAFC" # Fundo Cinza Claro bem suave
-secondaryBackgroundColor = "#FFFFFF" # Elementos e barras laterais em Branco puro
-textColor = "#0F172A" # Texto Grafite Escuro (melhor leitura que preto)
+primaryColor = "#0F172A"          # Azul Slate Escuro (Super Premium)
+backgroundColor = "#F8FAFC"       # Fundo Off-White Ultra Clean
+secondaryBackgroundColor = "#FFFFFF" # Elementos em Branco Puro
+textColor = "#334155"             # Texto Cinza Grafite Confortável
 font = "sans serif"
