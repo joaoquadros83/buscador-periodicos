@@ -9,17 +9,49 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. INJEÇÃO DE CSS DE ALTA QUALIDADE (Estilo Website Premium)
+# 2. INJEÇÃO DE CSS AVANÇADO (Menu Claro em Contraste com Elementos Escuros)
 st.markdown("""
     <style>
-    /* Importação de Fonte Moderna */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Inter', sans-serif !important;
     }
     
-    /* Hero Banner Minimalista e Sofisticado */
+    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        border-right: 1px solid #E2E8F0 !important;
+        box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.03) !important;
+    }
+    
+    /* Ajuste de cor dos textos e labels dentro do menu lateral */
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
+        color: #334155 !important;
+    }
+    
+    /* Estilização elegante dos Radio Buttons do menu para combinar com o fundo claro */
+    div[data-testid="stSidebar"] div[role="radiogroup"] label {
+        background-color: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        transition: all 0.2s ease;
+    }
+    div[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+        background-color: #F1F5F9 !important;
+        border-color: #CBD5E1 !important;
+    }
+    div[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+        background-color: #0F172A !important;  /* Destaque escuro no item selecionado */
+        border-color: #0F172A !important;
+    }
+    div[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] span {
+        color: #FFFFFF !important; /* Texto branco no item ativo */
+    }
+
+    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
     .premium-hero {
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
         padding: 50px 40px;
@@ -44,18 +76,18 @@ st.markdown("""
         line-height: 1.6;
     }
     
-    /* Refatoração Completa dos Cards de Métricas */
+    /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
         padding: 24px 28px !important;
         border-radius: 14px !important;
         border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     div[data-testid="stMetric"]:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+        box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04) !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
@@ -68,39 +100,17 @@ st.markdown("""
         font-size: 2rem !important;
         color: #0F172A !important;
         font-weight: 700 !important;
-        letter-spacing: -0.03em;
     }
     
-    /* Customização Lateral Menu */
-    .css-17o9839 {
-        background-color: #FFFFFF !important;
-    }
-    
-    /* Ajustes Finos de Inputs e Tabelas */
-    .stTextInput input {
-        border-radius: 10px !important;
-        padding: 12px 16px !important;
-        border: 1px solid #CBD5E1 !important;
-    }
-    .stSelectbox div[data-baseweb="select"] {
-        border-radius: 10px !important;
-    }
-    
-    /* Tabs Corporativos */
-    button[data-baseweb="tab"] {
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-        color: #64748B;
-        padding: 12px 20px !important;
-    }
-    button[data-baseweb="tab"][aria-selected="true"] {
-        color: #0F172A !important;
-        border-bottom-color: #0F172A !important;
-    }
+    /* Inputs, Selectboxes e Tabs */
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
+    .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# 3. BASE DE DADOS COM CACHE SEGURO
+# 3. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False)
@@ -120,13 +130,12 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL PREMIUM ---
+# --- 4. ESTRUTURA DO MENU LATERAL (AGORA CLARO) ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
-# Ícone elegante e minimalista para o topo do menu
 st.sidebar.markdown("""
-    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
-        <span style='font-size: 2rem;'>💎</span>
-        <h2 style='margin: 0; font-size: 1.4rem; font-weight: 700; color: #0F172A;'>SciIndex Hub</h2>
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
+        <span style='font-size: 1.8rem;'>💎</span>
+        <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>SciIndex Hub</h2>
     </div>
 """, unsafe_allow_html=True)
 
@@ -143,10 +152,10 @@ menu_selecionado = st.sidebar.radio(
 
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
-    <div style='color: #94A3B8; font-size: 0.8rem; padding-left: 5px;'>
-        <b>Status do Sistema:</b> Online<br>
-        <b>Versão da Base:</b> 2026.1<br>
-        <b>Padrão CNPq:</b> Atualizado
+    <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.5;'>
+        <span style='color: #10B981;'>●</span> <b>Sistema:</b> Operacional<br>
+        <b>Versão Base:</b> 2026.1<br>
+        <b>Padrão CNPq:</b> Ativo
     </div>
 """, unsafe_allow_html=True)
 
@@ -156,7 +165,6 @@ st.sidebar.markdown("""
 # ==============================================================================
 if menu_selecionado == "🔍 Indexador Dinâmico":
     
-    # Hero Section Premium
     st.markdown("""
         <div class="premium-hero">
             <h1 class="premium-title">Portal de Inteligência Periódica</h1>
@@ -164,11 +172,9 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
         </div>
     """, unsafe_allow_html=True)
     
-    # Container centralizado de buscas
     st.markdown("#### 🛠️ Filtros Inteligentes de Pesquisa")
     busca = st.text_input("Buscar registro específico:", placeholder="Digite uma palavra-chave do título da revista, ISSN ou assunto...")
 
-    # Organização das abas com visual corporativo
     aba_escopo, aba_impacto = st.tabs(["📂 Escopo Acadêmico & CNPq", "📈 Métricas de Performance & Quartis"])
 
     with aba_escopo:
@@ -203,119 +209,4 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
             q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", sorted([str(x).strip() for x in df_original[col_q_jcr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_jcr].dropna().unique()])) if col_q_jcr else []
         with col_f5:
             col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
-            q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()])) if col_q_sjr else []
-        with col_f6:
-            opcoes_ordenacao = ["Título"]
-            if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
-            if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
-            criterio_ordem = st.selectbox("Ordenar Resultados por:", options=opcoes_ordenacao)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Lógica de processamento de filtros
-    df_filtrado = df_original.copy()
-    if busca:
-        df_filtrado = df_filtrado[df_filtrado[df_filtrado.columns[0]].str.contains(busca, case=False, na=False) | df_filtrado["ISSN"].str.contains(busca, case=False, na=False)]
-    if cnpq_selecionado != "Todas":
-        df_filtrado = df_filtrado[(df_filtrado[col_cnpq1] == cnpq_selecionado) | (df_filtrado[col_cnpq2] == cnpq_selecionado)]
-    if area_especifica_sel != "Todas":
-        df_filtrado = df_filtrado[df_filtrado[col_area_especifica].str.contains(area_especifica_sel, case=False, na=False)]
-    if col_indexador and indexador_sel:
-        df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
-    if col_q_jcr and q_jcr_sel:
-        df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
-    if col_q_sjr and q_sjr_sel:
-        df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
-
-    # Ordenação
-    mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
-    col_ordenar, ascendente = mapa_ordem[criterio_ordem]
-    if col_ordenar in df_filtrado.columns: df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
-
-    # --- INDICADORES EXECUTIVOS (Cards com efeitos CSS de Hover) ---
-    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    with col_m1: st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
-    with col_m2: st.metric("H-Index Topo", int(df_filtrado["H index"].max()) if "H index" in df_filtrado.columns else 0)
-    with col_m3: st.metric("Fator JIF Máximo", f"{df_filtrado['JIF'].max():.2f}" if 'JIF' in df_filtrado.columns and pd.notna(df_filtrado['JIF'].max()) else "0.00")
-    with col_m4: st.metric("SJR Score Ápice", f"{df_filtrado['SJR'].max():.3f}" if 'SJR' in df_filtrado.columns and pd.notna(df_filtrado['SJR'].max()) else "0.000")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Tabela de dados integrada
-    st.markdown("#### 📋 Catálogo de Periódicos")
-    itens_por_pagina = 40
-    total_itens = len(df_filtrado)
-    if total_itens > 0:
-        total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
-        col_pag1, _ = st.columns([1, 5])
-        with col_pag1: pagina_atual = st.number_input(f"Página (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
-        
-        # Dataframe limpo, sem indexador poluidora lateral
-        st.dataframe(df_filtrado.iloc[(pagina_atual - 1) * itens_por_pagina : pagina_atual * itens_por_pagina], use_container_width=True, hide_index=True)
-        
-        # Botão de Exportação Premium
-        st.download_button(label="📥 Exportar Dados Selecionados (CSV)", data=df_filtrado.to_csv(index=False, sep=';', encoding='utf-8-sig'), file_name="relatorio_sciindex.csv", mime="text/csv")
-    else:
-        st.warning("Nenhum periódico atende aos critérios aplicados.")
-
-# ==============================================================================
-# SEÇÃO 2: INTELIGÊNCIA DE ESCRITA (PÁGINA EXCLUSIVA COM DESIGN EDITORIAL)
-# ==============================================================================
-elif menu_selecionado == "📄 Inteligência de Escrita":
-    st.markdown("""
-        <div class="premium-hero">
-            <h1 class="premium-title">Central de Escrita de Alto Impacto</h1>
-            <p class="premium-subtitle">Recursos avançados para a redação, estruturação e submissão de manuscritos científicos para periódicos internacionais de elite.</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    col_conteudo1, col_conteudo2 = st.columns(2)
-    with col_conteudo1:
-        st.markdown("""
-        ### 🎯 Estrutura de uma Cover Letter Vencedora
-        A *Cover Letter* é o primeiro contato com o Editor-Chefe. Ela deve explicar por que seu artigo é relevante **especificamente** para aquela revista.
-        
-        * **Parágrafo 1:** Título do manuscrito e declaração clara de originalidade.
-        * **Parágrafo 2:** O problema de pesquisa e a grande descoberta do seu grupo.
-        * **Parágrafo 3:** Por que o escopo da revista se alinha perfeitamente com o tema.
-        """)
-    with col_conteudo2:
-        st.markdown("""
-        ### 🧠 Ferramentas Úteis Recomendadas
-        Otimize seu fluxo de trabalho científico com ferramentas profissionais:
-        * **Overleaf / LaTeX:** Essencial para formatação automatizada matemática e de engenharia.
-        * **Zotero / Mendeley:** Gerenciadores de referências para evitar erros de citação.
-        * **DeepL / Grammarly:** Apoio linguístico fino para redação em língua inglesa.
-        """)
-
-# ==============================================================================
-# SEÇÃO 3: ECOSSISTEMA E MÍDIA
-# ==============================================================================
-elif menu_selecionado == "🌐 Ecossistema & Mídia":
-    st.markdown("""
-        <div class="premium-hero">
-            <h1 class="premium-title">Divulgação e Ciência Aberta</h1>
-            <p class="premium-subtitle">Aprenda a transformar o seu artigo científico publicado em impacto social e engajamento acadêmico digital.</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
-    ### 📈 Como Aumentar as Citações do seu Artigo (Estratégia Altmétrica)
-    Publicar a pesquisa é apenas metade do trabalho. Para gerar relevância real no h-index, utilize estratégias de divulgação científica:
-    1.  **Visual Abstracts:** Crie um infográfico resumindo a metodologia e a conclusão principal do manuscrito.
-    2.  **Repositórios Institucionais:** Disponibilize a versão pré-print em plataformas de acesso aberto (como SciELO ou o repositório da sua Universidade).
-    3.  **Redes Sociais Acadêmicas:** Mantenha seus perfis atualizados no ORCID, ResearchGate e LinkedIn Acadêmico.
-    """)
-
-# ==============================================================================
-# SEÇÃO 4: SIMPÓSIOS E EVENTOS
-# ==============================================================================
-elif menu_selecionado == "📅 Simpósios e Eventos":
-    st.markdown("""
-        <div class="premium-hero">
-            <h1 class="premium-title">Agenda Acadêmica Integrada</h1>
-            <p class="premium-subtitle">Acompanhe as janelas de submissão de resumos, chamadas abertas (Special Issues) e grandes congressos.</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    st.info("📅 **Calendário de Eventos:** Esta seção apresentará o cronograma unificado de conferências nacionais e internacionais divididas por Grandes Áreas do CNPq.")
+            q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()]), default=sorted([str(x).strip() for x in df_original[col_q_sjr].dropna().unique()])) if col_q_sjr
