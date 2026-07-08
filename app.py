@@ -130,7 +130,7 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL (AGORA CLARO) ---
+# --- 4. ESTRUTURA DO MENU LATERAL ATUALIZADA ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
@@ -142,15 +142,20 @@ st.sidebar.markdown("""
 menu_selecionado = st.sidebar.radio(
     label="Menu de Navegação",
     options=[
-        "🔍 Indexador Dinâmico",
-        "📄 Inteligência de Escrita",
-        "🌐 Ecossistema & Mídia",
-        "📅 Simpósios e Eventos"
+        "🔍 Indexador dinâmico",
+        "🌐 Buscador da Web of Science",
+        "🧬 Buscador da Scopus",
+        "📚 Buscador da Scielo",
+        "📖 Buscador da Educ@",
+        "🏛️ Site do CNPq",
+        "🎓 Site da Capes",
+        "🏫 Site do PPGE-UFOP",
+        "👤 Site pessoal"
     ],
     label_visibility="collapsed"
 )
 
-# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ATUALIZADA ---
+# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -167,10 +172,11 @@ st.sidebar.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+
 # ==============================================================================
-# SEÇÃO 1: INDEXADOR DINÂMICO DE REVISTAS
+# SEÇÃO 1: INDEXADOR DINÂMICO (Seu motor de busca principal)
 # ==============================================================================
-if menu_selecionado == "🔍 Indexador Dinâmico":
+if menu_selecionado == "🔍 Indexador dinâmico":
     
     st.markdown("""
         <div class="premium-hero">
@@ -253,61 +259,63 @@ if menu_selecionado == "🔍 Indexador Dinâmico":
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-  ## --- 7. EXIBIÇÃO FINAL COM PAGINAÇÃO E DOWNLOAD RESTRITO DA PÁGINA ---
+    # Exibição Final de Dados e Download Restrito da Página
     st.markdown("#### 📋 Catálogo de Periódicos")
     total_itens = len(df_filtrado)
-    
     if total_itens > 0:
-        # Colunas de controle de navegação
         col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
-        
         with col_pag1:
-            itens_por_pagina = st.selectbox(
-                "Exibir por página:",
-                options=[20, 50, 100],
-                index=1 # 50 itens como padrão
-            )
+            itens_por_pagina = st.selectbox("Exibir por página:", options=[20, 50, 100], index=1)
             
         total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
-        
         with col_pag2:
-            pagina_atual = st.number_input(
-                f"Página (1 de {total_paginas}):", 
-                min_value=1, 
-                max_value=max(1, total_paginas), 
-                value=1
-            )
+            pagina_atual = st.number_input(f"Página (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
         
-        # Definição dos limites da página atual
         inicio = (pagina_atual - 1) * itens_por_pagina
         fim = inicio + itens_por_pagina
-        
-        # Extrai estritamente as linhas que estão sendo exibidas na tela
         df_da_pagina = df_filtrado.iloc[inicio:fim]
         
-        # Renderiza a tabela na tela
         st.dataframe(df_da_pagina, use_container_width=True, hide_index=True)
         
-        # Botão de Exportação Restrito (Gera o CSV apenas com os dados da página atual)
         csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
-        st.download_button(
-            label=f"📥 Exportar apenas esta página ({len(df_da_pagina)} itens)", 
-            data=csv_pagina, 
-            file_name="sciindex_pagina_atual.csv", 
-            mime="text/csv"
-        )
+        st.download_button(label=f"📥 Exportar apenas esta página ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
     else:
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
 # ==============================================================================
-# SEÇÕES INFORMATIVAS (Substitua o conteúdo livremente)
+# NOVAS SEÇÕES RESERVADAS (BUSCADORES EXTERNOS)
 # ==============================================================================
-elif menu_selecionado == "📄 Inteligência de Escrita":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Central de Escrita de Alto Impacto</h1><p class='premium-subtitle'>Diretrizes editoriais para submissões internacionais.</p></div>", unsafe_allow_html=True)
-    st.markdown("### 🎯 Estrutura de uma Cover Letter Vencedora\nO conteúdo desta página está pronto para edição no seu código.")
+elif menu_selecionado == "🌐 Buscador da Web of Science":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Web of Science (Clarivate)</h1><p class='premium-subtitle'>Espaço reservado para integração ou links de busca da base Web of Science.</p></div>", unsafe_allow_html=True)
+    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da Web of Science aqui.")
 
-elif menu_selecionado == "🌐 Ecossistema & Mídia":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Divulgação e Ciência Aberta</h1><p class='premium-subtitle'>Estratégias altmétricas para impulsionar suas citações.</p></div>", unsafe_allow_html=True)
+elif menu_selecionado == "🧬 Buscador da Scopus":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Scopus (Elsevier)</h1><p class='premium-subtitle'>Espaço reservado para consultas focadas na base Scopus e métricas SJR.</p></div>", unsafe_allow_html=True)
+    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da Scopus aqui.")
 
-elif menu_selecionado == "📅 Simpósios e Eventos":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Agenda Acadêmica Integrada</h1><p class='premium-subtitle'>Cronograma de conferências nacionais e internacionais.</p></div>", unsafe_allow_html=True)
+elif menu_selecionado == "📚 Buscador da Scielo":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>SciELO</h1><p class='premium-subtitle'>Espaço reservado para a busca unificada de periódicos da rede Scientific Electronic Library Online.</p></div>", unsafe_allow_html=True)
+    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da SciELO aqui.")
+
+elif menu_selecionado == "📖 Buscador da Educ@":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Educ@</h1><p class='premium-subtitle'>Espaço reservado para indexação de periódicos online de Educação (FCC).</p></div>", unsafe_allow_html=True)
+    st.info("💡 Futuramente, você poderá inserir o buscador específico da Educ@ aqui.")
+
+# ==============================================================================
+# LINKS EXTERNOS E DIRECIONAMENTOS COM BOTÕES ACADÊMICOS
+# ==============================================================================
+elif menu_selecionado == "🏛️ Site do CNPq":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Conselho Nacional de Desenvolvimento Científico e Tecnológico</h1><p class='premium-subtitle'>Acesso direto ao portal oficial de fomento e Plataforma Lattes.</p></div>", unsafe_allow_html=True)
+    st.link_button("Ir para o Site do CNPq", "https://www.gov.br/cnpq/pt-br", type="primary")
+
+elif menu_selecionado == "🎓 Site da Capes":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Coordenação de Aperfeiçoamento de Pessoal de Nível Superior</h1><p class='premium-subtitle'>Acesso ao portal de periódicos, Sucupira e avaliações Capes.</p></div>", unsafe_allow_html=True)
+    st.link_button("Ir para o Site da CAPES", "https://www.gov.br/capes/pt-br", type="primary")
+
+elif menu_selecionado == "🏫 Site do PPGE-UFOP":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Programa de Pós-Graduação em Educação</h1><p class='premium-subtitle'>Universidade Federal de Ouro Preto.</p></div>", unsafe_allow_html=True)
+    st.link_button("Visitar Site do PPGE-UFOP", "https://www.posedu.ufop.br", type="primary")
+
+elif menu_selecionado == "👤 Site pessoal":
+    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Gabinete Virtual do Autor</h1><p class='premium-subtitle'>Produção acadêmica, contato e projetos do Professor João F. Soares-Quadros Jr.</p></div>", unsafe_allow_html=True)
+    st.link_button("Acessar Site Pessoal", "https://www.professor.ufop.br/joaoquadros", type="primary")
