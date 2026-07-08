@@ -9,145 +9,124 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. INJEÇÃO DE CSS AVANÇADO (Estética Inspirada na Dialnet)
+# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Configuração Geral de Fonte e Fundo - Padrão Dialnet */
     html, body, [data-testid="stAppViewContainer"] {
-        font-family: 'Roboto', sans-serif !important;
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* --- BARRA LATERAL ESQUERDA (MENU DIALNET CLEAN) --- */
+    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
     [data-testid="stSidebar"] {
-        background-color: #FAFAFA !important; /* Fundo off-white ultra leve */
-        border-right: 1px solid #E5E7EB !important; /* Linha divisória fina */
-        box-shadow: none !important;
+        background-color: #FFFFFF !important;
+        border-right: 1px solid #E2E8F0 !important;
+        box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.03) !important;
     }
     
-    /* Título do Menu Lateral */
-    div[data-testid="stSidebar"] h2 {
-        color: #002D62 !important; /* Azul Escuro Dialnet */
-        font-weight: 700 !important;
-        font-size: 1.4rem !important;
+    /* Textos e labels gerais do menu lateral */
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
+        color: #334155 !important;
     }
     
-    /* Labels e subtítulos do menu */
-    [data-testid="stSidebar"] p {
-        color: #666666 !important;
-        font-size: 0.8rem !important;
-        letter-spacing: 0.05em;
-    }
-    
-    /* --- BOTÕES DO MENU LATERAL (ESTILO DIALNET LINKS) --- */
+   /* --- REESTILIZAÇÃO CLEAN ACADEMIC DOS BOTÕES DE LINK NA SIDEBAR --- */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
-        background-color: transparent !important; /* Sem fundo "dark" */
-        color: #004B87 !important;                 /* Azul Clássico de Link Acadêmico */
-        border: none !important;                   /* Remove bordas pesadas */
-        border-bottom: 1px solid #F0F0F0 !important; /* Linha sutil separadora entre itens */
-        border-radius: 0px !important;              /* Layout plano/flat */
-        padding: 12px 5px !important;
-        font-weight: 400 !important;
-        font-size: 0.95rem !important;
-        transition: all 0.15s ease-in-out !important;
+        background-color: #FFFFFF !important;  /* Fundo Branco */
+        color: #475569 !important;              /* Letra Grafite Suave */
+        border: 1px solid #F1F5F9 !important;   /* Borda Quase Invisível */
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.01) !important;
         text-align: left !important;
         display: flex !important;
         align-items: center !important;
     }
     
-    /* Efeito de passar o mouse (Hover) - Inspirado no vinho/vermelho Dialnet */
+    /* Efeito de passar o mouse (Hover) - Clean Academic */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
-        background-color: transparent !important;
-        color: #A91D22 !important;                  /* Vermelho/Vinho Dialnet ao passar o mouse */
-        text-decoration: underline !important;      /* Comportamento clássico de portal de buscas */
-        padding-left: 10px !important;              /* Pequeno recuo dinâmico e atraente */
+        background-color: #EFF6FF !important;  /* Fundo Azul-Celeste Claro */
+        border-color: #BFDBFE !important;      /* Borda Azul Suave */
+        color: #2563EB !important;              /* Letra Azul Vivo */
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05) !important;
     }
 
-    /* Ajuste para o item do Indexador Dinâmico (Destaque Nativo da Página Atual) */
+    /* Ajuste para o checkbox fixo do Indexador Dinâmico (Removido o Dark) */
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
-        background-color: #FFF5F5 !important;      /* Fundo suave Dialnet */
-        padding: 12px 10px !important;
-        border-left: 4px solid #A91D22 !important; /* Barra lateral indicando "Página Ativa" */
-        border-radius: 0px !important;
-        margin-bottom: 20px !important;
+        background-color: #F8FAFC !important;  /* Fundo cinza bem clarinho */
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+        border: 1px solid #E2E8F0 !important;
+        margin-bottom: 15px !important;
     }
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
-        color: #A91D22 !important;                  /* Texto em destaque */
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
+        color: #0F172A !important;              /* Letra escura legível */
+        font-weight: 600 !important;
     }
 
-    /* --- ESTILIZAÇÃO DO CORPO PRINCIPAL (DASHBOARD DIALNET STYLE) --- */
-    /* Cabeçalho principal limpo e de alto contraste */
+    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
     .premium-hero {
-        background-color: #FFFFFF !important;
-        border-bottom: 3px solid #A91D22 !important; /* Linha vermelha de assinatura Dialnet */
-        padding: 30px 0px 15px 0px;
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        padding: 50px 40px;
+        border-radius: 16px;
+        color: #F8FAFC;
         margin-bottom: 35px;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .premium-title {
-        font-size: 2.4rem !important;
+        font-size: 2.6rem !important;
         font-weight: 700 !important;
-        color: #002D62 !important; /* Azul Escuro Real */
-        margin-bottom: 5px;
+        letter-spacing: -0.04em;
+        color: #FFFFFF !important;
+        margin-bottom: 10px;
     }
     .premium-subtitle {
-        font-size: 1.1rem !important;
-        color: #555555 !important;
+        font-size: 1.15rem !important;
+        color: #94A3B8 !important;
         font-weight: 400;
-        line-height: 1.5;
+        line-height: 1.6;
     }
     
-    /* Módulos de Métricas (Fundo branco e borda limpa) */
+    /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
-        padding: 20px !important;
-        border-radius: 4px !important;
-        border: 1px solid #E5E7EB !important;
+        padding: 24px 28px !important;
+        border-radius: 14px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
-        color: #666666 !important;
-        font-weight: 500 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748B !important;
+        font-weight: 600 !important;
     }
     div[data-testid="stMetricValue"] {
-        font-size: 1.8rem !important;
-        color: #A91D22 !important; /* Destaque numérico em vinho */
+        font-size: 2rem !important;
+        color: #0F172A !important;
         font-weight: 700 !important;
     }
     
-    /* Elementos de Formulário e Abas */
-    .stTextInput input { 
-        border-radius: 4px !important; 
-        border: 1px solid #CCCCCC !important; 
-    }
-    .stTextInput input:focus { 
-        border-color: #004B87 !important; 
-    }
-    button[data-baseweb="tab"] { 
-        font-size: 0.95rem !important; 
-        color: #666666; 
-    }
-    button[data-baseweb="tab"][aria-selected="true"] { 
-        color: #002D62 !important; 
-        border-bottom-color: #A91D22 !important; 
-    }
+    /* Inputs, Selectboxes e Tabs */
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
+    .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
     
-    /* Botão de download estilo Dialnet */
+    /* Botão de download customizado */
     div[data-testid="stDownloadButton"] button {
-        background-color: #004B87 !important;
+        background-color: #0F172A !important;
         color: #FFFFFF !important;
-        border-radius: 4px !important;
+        border-radius: 8px !important;
         border: none !important;
-        padding: 8px 16px !important;
+        padding: 10px 20px !important;
         font-weight: 500 !important;
-        transition: background 0.2s;
-    }
-    div[data-testid="stDownloadButton"] button:hover {
-        background-color: #002D62 !important;
     }
     </style>
 """, unsafe_allow_html=True)
