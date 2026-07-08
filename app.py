@@ -9,46 +9,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões) ---
+# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
 st.markdown("""
     <style>
-    /* ... (outras regras de estilo, se houver) ... */
-
-    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
-    [data-testid="stSidebar"] {
-        /* ... (estilos da sidebar, se houver) ... */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    html, body, [data-testid="stAppViewContainer"] {
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* ... (outras regras de estilo da sidebar, se houver) ... */
-
-    /* --- REESTILIZAÇÃO PREMIUM DOS BOTÕES DE LINK NA SIDEBAR --- */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
-        background-color: #F8FAFC !important;
-        color: #1E3A8A !important;
-        border: 1px solid #E2E8F0 !important;
-        border-radius: 8px !important;
+  /* --- CUSTOMIZAÇÃO EXCLUSIVA DOS BOTÕES DA BARRA LATERAL ESQUERDA --- */
+    
+    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e Fonte Branca */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+        background-color: #A91D22 !important;  /* Tom avermelhado Dialnet */
         padding: 10px 14px !important;
-        font-weight: 500 !important;
-        font-size: 0.9rem !important;
-        transition: all 0.2s ease-in-out !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
-        text-align: left !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    
-    /* Efeito de passar o mouse (Hover) nos botões da barra lateral */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
-        background-color: #FF2B2B !important; /* Cor de fundo vermelha solicitada */
-        border-color: #FF2B2B !important;     /* Cor da borda vermelha correspondente */
-        color: #FFFFFF !important;              /* Texto branco */
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(255, 43, 43, 0.15) !important; /* Sombra sutil para realce */
+        border: 1px solid #A91D22 !important;
+        border-radius: 6px !important;
+        margin-bottom: 8px !important;
     }
 
-    /* ... (outros estilos, se houver) ... */
-    </style>
-""", unsafe_allow_html=True)
+/* --- BARRA LATERAL ESQUERDA (CORREÇÃO DE CONTRASTE DOS BOTÕES) --- */
+    [data-testid="stSidebar"] {
+        background-color: #FAF9F6 !important;
+        border-right: 1px solid #EAE8E4 !important;
+        box-shadow: none !important;
+    }
     
     /* 1. TEXTOS INFORMATIVOS (Fora dos botões: Títulos, Labels e Rodapé) */
     [data-testid="stSidebar"] h2,
@@ -226,27 +212,25 @@ links_menu = {
     "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
 }
 
-# 4.2 RENDERIZAÇÃO DOS BOTÕES COM HOVER EM VERMELHO (#FF2B2B) E TEXTO BRANCO
+# 4.2 RENDERIZAÇÃO DOS BOTÕES COM A COR EXATA (#FF2B2B) E TEXTO BRANCO
 for texto_botao, url_destino in links_menu.items():
     st.sidebar.markdown(f"""
         <a href="{url_destino}" target="_blank" style="text-decoration: none;">
             <div style="
-                background-color: #004B87;
+                background-color: #FF2B2B !important;
                 color: #FFFFFF !important;
                 padding: 10px 14px;
                 border-radius: 6px;
                 margin-bottom: 8px;
                 font-weight: 500;
                 font-size: 0.9rem;
-                border: 1px solid #004B87;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                border: 1px solid #FF2B2B;
+                box-shadow: 0 2px 4px rgba(255, 43, 43, 0.15);
                 display: flex;
                 align-items: center;
-                transition: all 0.2s ease-in-out;
-            " 
-            onmouseover="this.style.backgroundColor='#FF2B2B'; this.style.borderColor='#FF2B2B'; this.querySelector('span').style.color='#FFFFFF';" 
-            onmouseout="this.style.backgroundColor='#004B87'; this.style.borderColor='#004B87'; this.querySelector('span').style.color='#FFFFFF';">
-                <span style="color: #FFFFFF !important; transition: color 0.2s;">{texto_botao}</span>
+                transition: background-color 0.2s ease;
+            " onmouseover="this.style.backgroundColor='#A91D22'" onmouseout="this.style.backgroundColor='#FF2B2B'">
+                <span style="color: #FFFFFF !important;">{texto_botao}</span>
             </div>
         </a>
     """, unsafe_allow_html=True)
