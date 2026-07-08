@@ -190,16 +190,10 @@ st.sidebar.markdown("<br>", unsafe_allow_html=True)
 # CABEÇALHO DO MENU
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
-        <span style='font-size: 1.8rem;'>💎</span>
+        <span style='font-size: 1.8rem;'></span>
         <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
-
-# 4.0 SISTEMA INTERNO (Indexador Dinâmico)
-st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 10px 0;'>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:8px; letter-spacing: 0.05em;'>SISTEMA INTERNO</p>", unsafe_allow_html=True)
-menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disabled=True) 
-
 
 # --- ESTILO GLOBAL DOS BOTÕES (Injetado uma única vez com segurança) ---
 st.sidebar.markdown("""
