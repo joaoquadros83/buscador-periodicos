@@ -199,16 +199,16 @@ st.sidebar.markdown("<br><p style='font-size:0.85rem; font-weight:700; color:#0F
 
 # Dicionário com os links do seu sistema
 links_menu = {
-    "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
-    "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
-    "📚 Buscador da Scielo BR": "https://www.scielo.br/",
-    "📖 Buscador da Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
-    "🏛️ Site do CNPq": "https://cnpq.br/",
-    "📄 Site Currículo Lattes": "https://lattes.cnpq.br/",
-    "🎓 Site da Capes": "https://www.gov.br/capes/pt-br",
+    "🌐 Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
+    "🧬 Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
+    "📚 Scielo BR": "https://www.scielo.br/",
+    "📖 Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
+    "🏛️ CNPq": "https://cnpq.br/",
+    "📄 Currículo Lattes": "https://lattes.cnpq.br/",
+    "🎓 Capes": "https://www.gov.br/capes/pt-br",
     "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/",
-    "🏫 Site da UFOP": "https://www.ufop.br",
-    "🎒 Site do PPGE-UFOP": "https://www.posedu.ufop.br",
+    "🏫 UFOP": "https://www.ufop.br",
+    "🎒 PPGE-UFOP": "https://www.posedu.ufop.br",
     "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
 }
 
