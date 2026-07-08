@@ -171,6 +171,7 @@ st.sidebar.markdown("""
         🌐 <a href='https://www.professor.ufop.br/joaoquadros' target='_blank' style='color: #1E3A8A; text-decoration: none; font-weight: 500;'>Gabinete Virtual do Autor</a>
     </div>
 """, unsafe_allow_html=True)
+
 # ==============================================================================
 # SEÇÃO 1: INDEXADOR DINÂMICO DE REVISTAS
 # ==============================================================================
