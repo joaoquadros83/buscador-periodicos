@@ -184,11 +184,11 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL (BOTÕES HTML PERSONALIZADOS) ---
+# --- 4. ESTRUTURA DO MENU LATERAL (BOTÕES COM HOVER #FF2B2B E LETRA BRANCA) ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
-        <span style='font-size: 1.8rem;'></span>
+        <span style='font-size: 1.8rem;'>💎</span>
         <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
@@ -199,45 +199,74 @@ menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disab
 
 st.sidebar.markdown("<br><p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px;'>LINKS DE INTERESSE</p>", unsafe_allow_html=True)
 
-# Dicionário com os links do seu sistema
+# Dicionário com a lista de portais acadêmicos
 links_menu = {
-    "🌐 Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
-    "🧬 Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
-    "📚 Scielo BR": "https://www.scielo.br/",
-    "📖 Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
-    "🏛️ CNPq": "https://cnpq.br/",
-    "📄 Currículo Lattes": "https://lattes.cnpq.br/",
-    "🎓 Capes": "https://www.gov.br/capes/pt-br",
+    "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
+    "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
+    "📚 Buscador da Scielo BR": "https://www.scielo.br/",
+    "📖 Buscador da Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
+    "🏛️ Site do CNPq": "https://cnpq.br/",
+    "📄 Site Currículo Lattes": "https://lattes.cnpq.br/",
+    "🎓 Site da Capes": "https://www.gov.br/capes/pt-br",
     "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/",
-    "🏫 UFOP": "https://www.ufop.br",
-    "🎒 PPGE-UFOP": "https://www.posedu.ufop.br",
+    "🏫 Site da UFOP": "https://www.ufop.br",
+    "🎒 Site do PPGE-UFOP": "https://www.posedu.ufop.br",
     "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
 }
 
-# 4.2 RENDERIZAÇÃO DOS BOTÕES COM A COR EXATA (#FF2B2B) E TEXTO BRANCO
-for texto_botao, url_destino in links_menu.items():
-    st.sidebar.markdown(f"""
-        <a href="{url_destino}" target="_blank" style="text-decoration: none;">
-            <div style="
-                background-color: #FF2B2B !important;
-                color: #FFFFFF !important;
-                padding: 10px 14px;
-                border-radius: 6px;
-                margin-bottom: 8px;
-                font-weight: 500;
-                font-size: 0.9rem;
-                border: 1px solid #FF2B2B;
-                box-shadow: 0 2px 4px rgba(255, 43, 43, 0.15);
-                display: flex;
-                align-items: center;
-                transition: background-color 0.2s ease;
-            " onmouseover="this.style.backgroundColor='#A91D22'" onmouseout="this.style.backgroundColor='#FF2B2B'">
-                <span style="color: #FFFFFF !important;">{texto_botao}</span>
-            </div>
-        </a>
-    """, unsafe_allow_html=True)
+# 4.2 CONSTRUÇÃO DO HTML CONSOLIDADO DOS BOTÕES
+# Injetamos o estilo específico para garantir que as fontes fiquem 100% brancas no repouso e no hover
+html_botoes = """
+<style>
+    .btn-menu-lateral {
+        background-color: #004B87 !important;
+        border: 1px solid #004B87 !important;
+        border-radius: 6px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 8px !important;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .btn-menu-lateral span {
+        color: #FFFFFF !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* GATILHO SOLICITADO: Ao passar o mouse, o balão fica vermelho vibrante e preserva a fonte branca */
+    .btn-menu-lateral:hover {
+        background-color: #FF2B2B !important;
+        border-color: #FF2B2B !important;
+        box-shadow: 0 4px 8px rgba(255, 43, 43, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .btn-menu-lateral:hover span {
+        color: #FFFFFF !important;
+    }
+</style>
+<div style="display: flex; flex-direction: column;">
+"""
 
-# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
+# Alimenta o bloco único unificando os links do dicionário
+for texto_botao, url_destino in links_menu.items():
+    html_botoes += f"""
+        <a class="btn-menu-lateral" href="{url_destino}" target="_blank">
+            <span>{texto_botao}</span>
+        </a>
+    """
+
+html_botoes += "</div>"
+
+# Renderização segura
+st.sidebar.markdown(html_botoes, unsafe_allow_html=True)
+
+# --- 4.3 SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
