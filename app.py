@@ -383,17 +383,15 @@ with aba_impacto:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Lógica de Filtros aplicados sequencialmente (Ajustado para as colunas reais)
+# Lógica de Filtros aplicados sequencialmente (Corrigido para o novo CSV)
 df_filtrado = df_original.copy()
 
 if busca:
-    # Filtra usando a primeira coluna (Título) e a coluna ISSN
     df_filtrado = df_filtrado[
         df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(busca, case=False, na=False) | 
         df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
     ]
 
-# Filtros com base nas colunas exatas do novo CSV
 if grande_area_sel != "Todas":
     df_filtrado = df_filtrado[df_filtrado["Grande Area"] == grande_area_sel]
 
@@ -409,9 +407,17 @@ if col_q_jcr and q_jcr_sel:
 if col_q_sjr and q_sjr_sel:
     df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
-mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
+# Ordenação dos resultados
+mapa_ordem = {
+    "SJR (Prestígio)": ("SJR", False), 
+    "JIF (Fator de Impacto)": ("JIF", False), 
+    "Título": (df_filtrado.columns[0], True)
+}
+criterio_ordem = criterio_ordem if 'criterio_ordem' in locals() else "Título"
 col_ordenar, ascendente = mapa_ordem[criterio_ordem]
-if col_ordenar in df_filtrado.columns: df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+
+if col_ordenar in df_filtrado.columns:
+    df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
 # Painel de Métricas Dinâmicas Tratado com Segurança
 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
