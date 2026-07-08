@@ -289,13 +289,13 @@ with aba_impacto:
         col_q_jcr = "Quartil JCR"
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-"]]) if col_q_jcr in df_original.columns else []
         # Inicia totalmente limpo (sem preenchimento prévio)
-        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr)
+        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", default: opcoes_jcr)
     with col_f5:
         # Define o nome exato da coluna SJR
         col_q_sjr = "SJR Best Quartile"
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-"]]) if col_q_sjr in df_original.columns else []
         # Inicia totalmente limpo (sem preenchimento prévio)
-        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr)
+        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", default: opcoes_sjr)
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
