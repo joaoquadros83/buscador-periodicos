@@ -287,11 +287,11 @@ with aba_impacto:
     with col_f4:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
-        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default="Choose options")
+        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=Choose options)
     with col_f5:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
-        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default="Choose options")
+        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=Choose options)
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
