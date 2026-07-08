@@ -206,7 +206,7 @@ st.sidebar.markdown("""
 <style>
     .btn-custom-menu {
         background-color: #E2E8F0 !important;
-        border: 1px solid #FF2B2B !important;
+        border: 1px solid #004B87 !important;
         border-radius: 6px !important;
         padding: 10px 14px !important;
         margin-bottom: 8px !important;
@@ -243,11 +243,11 @@ st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INDEXADORES</p>
 <div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true" target="_blank"><span>🌐 Site Web of Science</span></a>
-    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home?display=basic#basic" target="_blank"><span>🧬 Buscador da Scopus</span></a>
-    <a class="btn-custom-menu" href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><span>🏥 Buscador da PubMed</span></a>
-    <a class="btn-custom-menu" href="https://www.scielo.br/" target="_blank"><span>📚 Buscador da Scielo BR</span></a>
-    <a class="btn-custom-menu" href="http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p" target="_blank"><span>📖 Buscador da Educ@</span></a>
+    <a class="btn-custom-menu" href="https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true" target="_blank"><span>🌐 Web of Science</span></a>
+    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home?display=basic#basic" target="_blank"><span>🧬 Scopus</span></a>
+    <a class="btn-custom-menu" href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><span>🏥 PubMed</span></a>
+    <a class="btn-custom-menu" href="https://www.scielo.br/" target="_blank"><span>📚 Scielo BR</span></a>
+    <a class="btn-custom-menu" href="http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p" target="_blank"><span>📖 Educ@</span></a>
 </div>
 """, unsafe_allow_html=True)
 
@@ -259,9 +259,9 @@ st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>SITES GOVERNAMENTAIS</p>
 <div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span>🏛️ Site do CNPq</span></a>
-    <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span>🎓 Site da Capes</span></a>
-    <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank"><span>📄 Site Currículo Lattes</span></a>
+    <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span>🏛️ CNPq</span></a>
+    <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span>🎓 Capes</span></a>
+    <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank"><span>📄 Currículo Lattes</span></a>
     <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank"><span>📑 Portal de Periódicos Capes</span></a>
 </div>
 """, unsafe_allow_html=True)
