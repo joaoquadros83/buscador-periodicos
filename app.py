@@ -16,7 +16,7 @@ st.markdown("""
     [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
-        color: #004B87 !important;
+        color: #FFFFFF !important;
     }
     .premium-hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
