@@ -130,7 +130,7 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL ATUALIZADA ---
+# --- 4. ESTRUTURA DO MENU LATERAL COMPLETA ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
@@ -143,13 +143,16 @@ menu_selecionado = st.sidebar.radio(
     label="Menu de Navegação",
     options=[
         "🔍 Indexador dinâmico",
-        "🌐 Buscador da Web of Science",
+        "🌐 Site Web of Science",
         "🧬 Buscador da Scopus",
-        "📚 Buscador da Scielo",
+        "📚 Buscador da Scielo BR",
         "📖 Buscador da Educ@",
         "🏛️ Site do CNPq",
+        "📄 Site Currículo Lattes",
         "🎓 Site da Capes",
-        "🏫 Site do PPGE-UFOP",
+        "📑 Portal de Periódicos Capes",
+        "🏫 Site da UFOP",
+        "🎒 Site do PPGE-UFOP",
         "👤 Site pessoal"
     ],
     label_visibility="collapsed"
@@ -174,10 +177,9 @@ st.sidebar.markdown("""
 
 
 # ==============================================================================
-# SEÇÃO 1: INDEXADOR DINÂMICO (Seu motor de busca principal)
+# SEÇÃO 1: INDEXADOR DINÂMICO
 # ==============================================================================
 if menu_selecionado == "🔍 Indexador dinâmico":
-    
     st.markdown("""
         <div class="premium-hero">
             <h1 class="premium-title">Portal de Inteligência Periódica</h1>
@@ -231,7 +233,7 @@ if menu_selecionado == "🔍 Indexador dinâmico":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Lógica de Filtros
+    # Lógica de Filtros e Ordenação
     df_filtrado = df_original.copy()
     if busca:
         df_filtrado = df_filtrado[df_filtrado[df_filtrado.columns[0]].str.contains(busca, case=False, na=False) | df_filtrado["ISSN"].str.contains(busca, case=False, na=False)]
@@ -250,7 +252,7 @@ if menu_selecionado == "🔍 Indexador dinâmico":
     col_ordenar, ascendente = mapa_ordem[criterio_ordem]
     if col_ordenar in df_filtrado.columns: df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-    # Métricas
+    # Painel de Métricas
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1: st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
     with col_m2: st.metric("H-Index Topo", int(df_filtrado["H index"].max()) if "H index" in df_filtrado.columns else 0)
@@ -259,7 +261,7 @@ if menu_selecionado == "🔍 Indexador dinâmico":
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Exibição Final de Dados e Download Restrito da Página
+    # Exibição Paginada e Download Seguro
     st.markdown("#### 📋 Catálogo de Periódicos")
     total_itens = len(df_filtrado)
     if total_itens > 0:
@@ -283,39 +285,40 @@ if menu_selecionado == "🔍 Indexador dinâmico":
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
 # ==============================================================================
-# NOVAS SEÇÕES RESERVADAS (BUSCADORES EXTERNOS)
+# AMBIENTES EMBUTIDOS VIA IFRAME (HTML ADVANCED RENDER)
 # ==============================================================================
-elif menu_selecionado == "🌐 Buscador da Web of Science":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Web of Science (Clarivate)</h1><p class='premium-subtitle'>Espaço reservado para integração ou links de busca da base Web of Science.</p></div>", unsafe_allow_html=True)
-    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da Web of Science aqui.")
-
-elif menu_selecionado == "🧬 Buscador da Scopus":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Scopus (Elsevier)</h1><p class='premium-subtitle'>Espaço reservado para consultas focadas na base Scopus e métricas SJR.</p></div>", unsafe_allow_html=True)
-    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da Scopus aqui.")
-
-elif menu_selecionado == "📚 Buscador da Scielo":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>SciELO</h1><p class='premium-subtitle'>Espaço reservado para a busca unificada de periódicos da rede Scientific Electronic Library Online.</p></div>", unsafe_allow_html=True)
-    st.info("💡 Futuramente, você poderá inserir o buscador específico ou API da SciELO aqui.")
-
-elif menu_selecionado == "📖 Buscador da Educ@":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Educ@</h1><p class='premium-subtitle'>Espaço reservado para indexação de periódicos online de Educação (FCC).</p></div>", unsafe_allow_html=True)
-    st.info("💡 Futuramente, você poderá inserir o buscador específico da Educ@ aqui.")
-
-# ==============================================================================
-# LINKS EXTERNOS E DIRECIONAMENTOS COM BOTÕES ACADÊMICOS
-# ==============================================================================
-elif menu_selecionado == "🏛️ Site do CNPq":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Conselho Nacional de Desenvolvimento Científico e Tecnológico</h1><p class='premium-subtitle'>Acesso direto ao portal oficial de fomento e Plataforma Lattes.</p></div>", unsafe_allow_html=True)
-    st.link_button("Ir para o Site do CNPq", "https://www.gov.br/cnpq/pt-br", type="primary")
-
-elif menu_selecionado == "🎓 Site da Capes":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Coordenação de Aperfeiçoamento de Pessoal de Nível Superior</h1><p class='premium-subtitle'>Acesso ao portal de periódicos, Sucupira e avaliações Capes.</p></div>", unsafe_allow_html=True)
-    st.link_button("Ir para o Site da CAPES", "https://www.gov.br/capes/pt-br", type="primary")
-
-elif menu_selecionado == "🏫 Site do PPGE-UFOP":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Programa de Pós-Graduação em Educação</h1><p class='premium-subtitle'>Universidade Federal de Ouro Preto.</p></div>", unsafe_allow_html=True)
-    st.link_button("Visitar Site do PPGE-UFOP", "https://www.posedu.ufop.br", type="primary")
-
-elif menu_selecionado == "👤 Site pessoal":
-    st.markdown("<div class='premium-hero'><h1 class='premium-title'>Gabinete Virtual do Autor</h1><p class='premium-subtitle'>Produção acadêmica, contato e projetos do Professor João F. Soares-Quadros Jr.</p></div>", unsafe_allow_html=True)
-    st.link_button("Acessar Site Pessoal", "https://www.professor.ufop.br/joaoquadros", type="primary")
+else:
+    # Dicionário mapeando cada opção ao seu respectivo link fornecido
+    mapeamento_urls = {
+        "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
+        "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
+        "📚 Buscador da Scielo BR": "https://www.scielo.br/",
+        "📖 Buscador da Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
+        "🏛️ Site do CNPq": "https://cnpq.br/",
+        "📄 Site Currículo Lattes": "https://lattes.cnpq.br/",
+        "🎓 Site da Capes": "https://www.gov.br/capes/pt-br",
+        "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/",
+        "🏫 Site da UFOP": "https://www.ufop.br",
+        "🎒 Site do PPGE-UFOP": "https://www.posedu.ufop.br",
+        "👤 Site pessoal": "https://www.professor.ufop.br/joaoquadros"
+    }
+    
+    url_alvo = mapeamento_urls[menu_selecionado]
+    
+    # Cabeçalho sutil indicando navegação embutida
+    st.markdown(f"### 🌐 Navegação Integrada: {menu_selecionado.split(' ', 1)[1]}")
+    
+    # Barra de ferramentas para facilitar se o iFrame for bloqueado pelo servidor remoto
+    col_info, col_btn = st.columns([3, 1])
+    with col_info:
+        st.caption("O site abaixo está sendo executado de forma sutil dentro do SciIndex Hub.")
+    with col_btn:
+        st.link_button("Abrir em tela cheia ↗", url_alvo, type="secondary", use_container_width=True)
+    
+    # Renderizador HTML do iFrame (com altura de 800px para excelente visualização)
+    st.markdown(f"""
+        <iframe src="{url_alvo}" 
+                style="width:100%; height:800px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
+                allowfullscreen>
+        </iframe>
+    """, unsafe_allow_html=True)
