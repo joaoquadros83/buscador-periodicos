@@ -350,15 +350,16 @@ if total_itens > 0:
     fim = inicio + itens_por_pagina
     df_da_pagina = df_filtrado.iloc[inicio:fim]
     
+   # Tabela corrigida com a configuração de colunas em formato de dicionário
     st.dataframe(
-    df_da_pagina, 
-    use_container_width=True, 
-    hide_index=True,
-    column_config={
-        "Grande Area": {"visible": False},
-        "Area do Conhecimento": {"visible": False}
-    }
-)
+        df_da_pagina, 
+        use_container_width=True, 
+        hide_index=True,
+        column_config={
+            "Grande Area": {"visible": False},
+            "Area do Conhecimento": {"visible": False}
+        }
+    )
     
     csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
     st.download_button(label=f"📥 Exportar apenas esta página ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
