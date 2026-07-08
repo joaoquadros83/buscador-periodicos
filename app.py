@@ -4,7 +4,7 @@ import pandas as pd
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
     page_title="SciIndex | Portal de Inteligência Científica",
-    page_icon="<img src="https://png.pngtree.com/png-vector/20190302/ourmid/pngtree-atom-science-icon-design-template-vector-isolated-png-image_746905.jpg" jsaction="" class="sFlh5c FyHeAf iPVvYb" style="max-width: 360px; height: 343px; margin: 0px; width: 343px;" alt="Imagens ícones Da Ciência PNG e Vetor, com Fundo ..." jsname="kn3ccd">",
+    page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
