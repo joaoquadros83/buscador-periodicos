@@ -150,15 +150,22 @@ menu_selecionado = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
+# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ATUALIZADA ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
-    <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.5;'>
+    <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
         <span style='color: #10B981;'>●</span> <b>Sistema:</b> Operacional<br>
         <b>Versão Base:</b> 2026.1<br>
         <b>Padrão CNPq:</b> Ativo
+        <br><br>
+        <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
+        <b>Direitos Autorais & Propriedade:</b><br>
+        © 2026 <b>João F. Soares-Quadros Jr.</b><br>
+        Universidade Federal de Ouro Preto<br>
+        Minas Gerais, Brasil.<br>
+        <i>Todos os direitos reservados.</i>
     </div>
 """, unsafe_allow_html=True)
-
 
 # ==============================================================================
 # SEÇÃO 1: INDEXADOR DINÂMICO DE REVISTAS
