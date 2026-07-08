@@ -257,16 +257,12 @@ busca = st.text_input("Buscar registro específico:", placeholder="Digite o tít
 aba_escopo, aba_impacto = st.tabs(["📂 Escopo Acadêmico & CNPq", "📈 Métricas de Performance & Quartis"])
 
 with aba_escopo:
-    col_f1, col_f2, col_f3 = st.columns(3)
+    col_f1, col_f2 = st.columns(2)
     with col_f1:
-        col_grande_area = "Grande Area"
-        lista_grande_area = sorted([str(x).strip() for x in df_original[col_grande_area].unique() if str(x).strip() not in ["", "-"]])
-        grande_area_sel = st.selectbox("Grande Área CNPq (Brasil):", ["Todas"] + lista_grande_area)
+        col_subarea = "Subárea do Conhecimento"
+        lista_subareas = sorted([str(x).strip() for x in df_original[col_subarea].unique() if str(x).strip() not in ["", "-"]])
+        subarea_sel = st.selectbox("Subárea do Conhecimento (CNPq):", ["Todas"] + lista_subareas)
     with col_f2:
-        col_area = "Area do Conhecimento"
-        lista_areas = sorted([str(x).strip() for x in df_original[col_area].unique() if str(x).strip() not in ["", "-"]])
-        area_sel = st.selectbox("Área do Conhecimento (1º Nível):", ["Todas"] + lista_areas)
-    with col_f3:
         col_indexador = "Indexador" if "Indexador" in df_original.columns else None
         if col_indexador:
             set_indexadores = set()
