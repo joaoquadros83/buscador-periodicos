@@ -340,14 +340,27 @@ col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: 
     df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-# Painel de Métricas Dinâmicas
+# Painel de Métricas Dinâmicas (Tratado para ignorar os traços '-' nos cálculos)
 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-with col_m1: st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
-with col_m2: st.metric("H-Index Topo", int(df_filtrado["H index"].max()) if "H index" in df_filtrado.columns and pd.notna(df_filtrado["H index"].max()) else 0)
-with col_m3: st.metric("Fator JIF Máximo", f"{df_filtrado['JIF'].max():.2f}" if 'JIF' in df_filtrado.columns and pd.notna(df_filtrado['JIF'].max()) else "0.00")
-with col_m4: st.metric("SJR Score Ápice", f"{df_filtrado['SJR'].max():.3f}" if 'SJR' in df_filtrado.columns and pd.notna(df_filtrado['SJR'].max()) else "0.000")
 
-st.markdown("<br>", unsafe_allow_html=True)
+with col_m1: 
+    st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
+
+with col_m2: 
+    # Converte temporariamente para numérico forçando erros a virarem NaN para calcular o max() com segurança
+    h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
+    max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
+    st.metric("H-Index Topo", max_h)
+
+with col_m3: 
+    jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
+    max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
+    st.metric("Fator JIF Máximo", max_jif)
+
+with col_m4: 
+    sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
+    max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
+    st.metric("SJR Score Ápice", max_sjr)
 
 # Exibição do Catálogo Paginado
 st.markdown("#### 📋 Catálogo de Periódicos")
