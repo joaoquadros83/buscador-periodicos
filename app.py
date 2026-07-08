@@ -101,7 +101,7 @@ st.markdown("""
         color: #FFFFFF !important;              /* CONTINUA BRANCO */
     }
 
-# 3. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
+# 2. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
 st.markdown("""
 <style>
     [data-testid="stMetricValue"] {
@@ -171,7 +171,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 4. BASE DE DADOS COM CACHE
+# 3. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados_revistas.csv", sep=",", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
@@ -197,7 +197,7 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# 5. MENU LATERAL
+# 4. MENU LATERAL
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
@@ -250,7 +250,7 @@ st.sidebar.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 6. PAINEL PRINCIPAL
+# 5. PAINEL PRINCIPAL
 st.markdown("""
     <div class="premium-hero">
         <h1 class="premium-title">Portal do Pesquisador</h1>
@@ -299,7 +299,7 @@ with aba_impacto:
         if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
         criterio_ordem = st.selectbox("Ordenar Resultados por:", options=opcoes_ordenacao)
 
-# 7. FILTRAGEM SEQUENCIAL DE DADOS
+# 6. FILTRAGEM SEQUENCIAL DE DADOS
 df_filtrado = df_original.copy()
 
 if busca:
@@ -323,7 +323,7 @@ col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: 
     df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-# 8. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
+# 7. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
 with col_m1: 
     st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
@@ -342,7 +342,7 @@ with col_m4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 9. EXIBIÇÃO E PAGINAÇÃO
+# 8. EXIBIÇÃO E PAGINAÇÃO
 st.markdown("#### 📋 Catálogo de Periódicos")
 total_itens = len(df_filtrado)
 if total_itens > 0:
