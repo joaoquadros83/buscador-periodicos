@@ -247,7 +247,7 @@ st.sidebar.markdown("""
 st.markdown("""
     <div class="premium-hero">
         <h1 class="premium-title">Portal do Pesquisador</h1>
-        <p class="premium-subtitle">Cruze indexadores internacionais com as grandes áreas de fomento do CNPq para descobrir o periódico estratégico ideal.</p>
+        <p class="premium-subtitle">Cruze indexadores internacionais com as subáreas de fomento do CNPq para descobrir o periódico estratégico ideal.</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -273,16 +273,16 @@ with aba_escopo:
         else: indexador_sel = []
 
 with aba_impacto:
-    col_f3, col_f4, col_f5 = st.columns(3)
-    with col_f3:
+    col_f4, col_f5, col_f6 = st.columns(3)
+    with col_f4:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
         q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
-    with col_f4:
+    with col_f5:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
         q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
-    with col_f5:
+    with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
         if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
@@ -296,10 +296,11 @@ if busca:
         df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(busca, case=False, na=False) | 
         df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
     ]
-if grande_area_sel != "Todas":
-    df_filtrado = df_filtrado[df_filtrado[col_grande_area] == grande_area_sel]
-if area_sel != "Todas":
-    df_filtrado = df_filtrado[df_filtrado[col_area] == area_sel]
+
+# Filtro por Subárea do Conhecimento
+if subarea_sel != "Todas":
+    df_filtrado = df_filtrado[df_filtrado[col_subarea] == subarea_sel]
+
 if col_indexador and indexador_sel:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
 if col_q_jcr and q_jcr_sel:
