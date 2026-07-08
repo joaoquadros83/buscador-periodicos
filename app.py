@@ -383,18 +383,29 @@ with aba_impacto:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Lógica de Filtros e Ordenação
+# Lógica de Filtros aplicados sequencialmente (Ajustado para as colunas reais)
 df_filtrado = df_original.copy()
+
 if busca:
-    df_filtrado = df_filtrado[df_filtrado[df_filtrado.columns[0]].str.contains(busca, case=False, na=False) | df_filtrado["ISSN"].str.contains(busca, case=False, na=False)]
-if cnpq_selecionado != "Todas":
-    df_filtrado = df_filtrado[(df_filtrado[col_cnpq1] == cnpq_selecionado) | (df_filtrado[col_cnpq2] == cnpq_selecionado)]
-if area_especifica_sel != "Todas":
-    df_filtrado = df_filtrado[df_filtrado[col_area_especifica].str.contains(area_especifica_sel, case=False, na=False)]
+    # Filtra usando a primeira coluna (Título) e a coluna ISSN
+    df_filtrado = df_filtrado[
+        df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(busca, case=False, na=False) | 
+        df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
+    ]
+
+# Filtros com base nas colunas exatas do novo CSV
+if grande_area_sel != "Todas":
+    df_filtrado = df_filtrado[df_filtrado["Grande Area"] == grande_area_sel]
+
+if area_sel != "Todas":
+    df_filtrado = df_filtrado[df_filtrado["Area do Conhecimento"] == area_sel]
+
 if col_indexador and indexador_sel:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
+
 if col_q_jcr and q_jcr_sel:
     df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+
 if col_q_sjr and q_sjr_sel:
     df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
