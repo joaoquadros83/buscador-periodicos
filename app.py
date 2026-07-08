@@ -53,7 +53,7 @@ st.markdown("""
         font-size: 0.85rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
-        color: #FFFFFF !important;
+        color: #64748B !important;
         font-weight: 600 !important;
     }
     div[data-testid="stMetricValue"] {
@@ -63,10 +63,10 @@ st.markdown("""
     }
     
     /* Inputs, Selectboxes e Tabs */
-    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #FFFFFF !important; }
     .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
-    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #FFFFFF; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #FFFFFF !important; border-bottom-color: #FFFFFF !important; }
     
     /* Botão de download customizado */
     div[data-testid="stDownloadButton"] button {
