@@ -12,7 +12,26 @@ st.set_page_config(
 # 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* --- CORREÇÃO DEFINITIVA DO HOVER DOS BOTÕES NATIVOS --- */
+    
+    /* 1. Estado padrão (Mantenha como você já configurou, ou limpo) */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    /* 2. QUANDO PASSAR O MOUSE (HOVER): O balão fica #FF2B2B e as letras brancas */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
+        background-color: #FF2B2B !important;  /* Fundo do balão vermelho */
+        border-color: #FF2B2B !important;      /* Borda do balão vermelha */
+    }
+
+    /* Target direto no container de texto do Streamlit para forçar a letra branca no hover */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover data-testid="stMarkdownContainer" p,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover p,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover span {
+        color: #FFFFFF !important;              /* Letras rigorosamente brancas */
+    }
+	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Inter', sans-serif !important;
@@ -212,60 +231,30 @@ links_menu = {
     "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
 }
 
-# 4.2 RENDERIZAÇÃO CONSOLIDADA DOS BOTÕES (CORREÇÃO DEFINITIVA DE HOVER)
-html_botoes = """
-<style>
-    /* Estilo padrão de repouso dos botões */
-    .btn-links-interesse {
-        background-color: #004B87 !important;
-        border: 1px solid #004B87 !important;
-        border-radius: 6px !important;
-        padding: 10px 14px !important;
-        margin-bottom: 8px !important;
-        text-align: left !important;
-        display: flex !important;
-        align-items: center !important;
-        text-decoration: none !important;
-        transition: all 0.2s ease-in-out !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-    }
-    
-    /* Força a fonte a ser estritamente branca no estado padrão */
-    .btn-links-interesse span {
-        color: #FFFFFF !important;
-        font-weight: 500 !important;
-        font-size: 0.9rem !important;
-        font-family: 'Roboto', sans-serif !important;
-    }
-    
-    /* EFEITO HOVER: Quando o mouse passa por cima, o balão fica #FF2B2B e a letra #FFFFFF */
-    .btn-links-interesse:hover {
-        background-color: #FF2B2B !important;
-        border-color: #FF2B2B !important;
-        box-shadow: 0 4px 8px rgba(255, 43, 43, 0.3) !important;
-        transform: translateY(-1px) !important;
-    }
-    
-    /* Garante que a letra continue branca no hover */
-    .btn-links-interesse:hover span {
-        color: #FFFFFF !important;
-    }
-</style>
-<div style="display: flex; flex-direction: column;">
-"""
-
-# Monta o HTML unificado combinando os links
+# 4.2 RENDERIZAÇÃO DOS BOTÕES COM HOVER EM VERMELHO (#FF2B2B) E TEXTO BRANCO
 for texto_botao, url_destino in links_menu.items():
-    html_botoes += f"""
-        <a class="btn-links-interesse" href="{url_destino}" target="_blank">
-            <span>{texto_botao}</span>
+    st.sidebar.markdown(f"""
+        <a href="{url_destino}" target="_blank" style="text-decoration: none;">
+            <div style="
+                background-color: #004B87;
+                color: #FFFFFF !important;
+                padding: 10px 14px;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                font-weight: 500;
+                font-size: 0.9rem;
+                border: 1px solid #004B87;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                display: flex;
+                align-items: center;
+                transition: all 0.2s ease-in-out;
+            " 
+            onmouseover="this.style.backgroundColor='#FF2B2B'; this.style.borderColor='#FF2B2B'; this.querySelector('span').style.color='#FFFFFF';" 
+            onmouseout="this.style.backgroundColor='#004B87'; this.style.borderColor='#004B87'; this.querySelector('span').style.color='#FFFFFF';">
+                <span style="color: #FFFFFF !important; transition: color 0.2s;">{texto_botao}</span>
+            </div>
         </a>
-    """
-
-html_botoes += "</div>"
-
-# Injeta o bloco completo de uma só vez na barra lateral
-st.sidebar.markdown(html_botoes, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
