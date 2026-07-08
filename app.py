@@ -273,16 +273,16 @@ with aba_escopo:
         else: indexador_sel = []
 
 with aba_impacto:
-    col_f4, col_f5, col_f6 = st.columns(3)
-    with col_f4:
+    col_f3, col_f4, col_f5 = st.columns(3)
+    with col_f3:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
         q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
-    with col_f5:
+    with col_f4:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
         q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
-    with col_f6:
+    with col_f5:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
         if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
