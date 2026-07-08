@@ -19,7 +19,7 @@ st.markdown("""
         color: #004B87 !important;
     }
     .premium-hero {
-        background: linear-gradient(135deg, #FFFFFF 0%, #1e3a8a 100%);
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
         padding: 35px;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
@@ -53,7 +53,7 @@ st.markdown("""
         font-size: 0.85rem !important;
         text-transform: uppercase !important;
         letter-spacing: 0.05em !important;
-        color: #64748B !important;
+        color: #FFFFFF !important;
         font-weight: 600 !important;
     }
     div[data-testid="stMetricValue"] {
