@@ -28,10 +28,11 @@ st.markdown("""
         border-radius: 6px !important;
         margin-bottom: 8px !important;
     }
-    div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
-        color: #FFFFFF !important;              /* Fonte Branca */
-        font-weight: 500 !important;
-        font-size: 0.9rem !important;
+    /* --- COR DE FUNDO DO MENU LATERAL (OFF-WHITE/BEGE CLARO) --- */
+    [data-testid="stSidebar"] {
+        background-color: #FAF9F6 !important;  /* Bege claro/Off-white sutil e elegante */
+        border-right: 1px solid #EAE8E4 !important; /* Linha divisória acompanhando o tom */
+        box-shadow: none !important;
     }
 
     /* 2. Botões Não Selecionados (Links Externos) - Fundo Branco e Fonte Azul */
