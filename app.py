@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-# 1. CONFIGURAÇÃO DA PÁGINA (Deve ser estritamente a primeira linha de código do Streamlit)
+# 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
-    page_title="Portal de Inteligência Periódica",
-    page_icon="https://png.pngtree.com/png-vector/20190302/ourmid/pngtree-atom-science-icon-design-template-vector-isolated-png-image_746905.jpg",
-    layout="wide"
+    page_title="SciIndex | Portal de Inteligência Científica",
+    page_icon="🔬",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
@@ -185,7 +186,7 @@ except Exception as e:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
-        <span style='font-size: 1.8rem;'>"https://png.pngtree.com/png-vector/20190302/ourmid/pngtree-atom-science-icon-design-template-vector-isolated-png-image_746905.jpg"</span>
+        <span style='font-size: 1.8rem;'></span>
         <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
