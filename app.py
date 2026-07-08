@@ -9,51 +9,46 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
+# --- 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões) ---
 st.markdown("""
     <style>
-    /* --- CORREÇÃO DEFINITIVA DO HOVER DOS BOTÕES NATIVOS --- */
-    
-    /* 1. Estado padrão (Mantenha como você já configurou, ou limpo) */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
-        transition: all 0.2s ease-in-out !important;
-    }
+    /* ... (outras regras de estilo, se houver) ... */
 
-    /* 2. QUANDO PASSAR O MOUSE (HOVER): O balão fica #FF2B2B e as letras brancas */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
-        background-color: #FF2B2B !important;  /* Fundo do balão vermelho */
-        border-color: #FF2B2B !important;      /* Borda do balão vermelha */
-    }
-
-    /* Target direto no container de texto do Streamlit para forçar a letra branca no hover */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover data-testid="stMarkdownContainer" p,
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover p,
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover span {
-        color: #FFFFFF !important;              /* Letras rigorosamente brancas */
-    }
-	@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    html, body, [data-testid="stAppViewContainer"] {
-        font-family: 'Inter', sans-serif !important;
-    }
-    
-  /* --- CUSTOMIZAÇÃO EXCLUSIVA DOS BOTÕES DA BARRA LATERAL ESQUERDA --- */
-    
-    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e Fonte Branca */
-    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
-        background-color: #A91D22 !important;  /* Tom avermelhado Dialnet */
-        padding: 10px 14px !important;
-        border: 1px solid #A91D22 !important;
-        border-radius: 6px !important;
-        margin-bottom: 8px !important;
-    }
-
-/* --- BARRA LATERAL ESQUERDA (CORREÇÃO DE CONTRASTE DOS BOTÕES) --- */
+    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
     [data-testid="stSidebar"] {
-        background-color: #FAF9F6 !important;
-        border-right: 1px solid #EAE8E4 !important;
-        box-shadow: none !important;
+        /* ... (estilos da sidebar, se houver) ... */
     }
+    
+    /* ... (outras regras de estilo da sidebar, se houver) ... */
+
+    /* --- REESTILIZAÇÃO PREMIUM DOS BOTÕES DE LINK NA SIDEBAR --- */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
+        background-color: #F8FAFC !important;
+        color: #1E3A8A !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    /* Efeito de passar o mouse (Hover) nos botões da barra lateral */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
+        background-color: #FF2B2B !important; /* Cor de fundo vermelha solicitada */
+        border-color: #FF2B2B !important;     /* Cor da borda vermelha correspondente */
+        color: #FFFFFF !important;              /* Texto branco */
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(255, 43, 43, 0.15) !important; /* Sombra sutil para realce */
+    }
+
+    /* ... (outros estilos, se houver) ... */
+    </style>
+""", unsafe_allow_html=True)
     
     /* 1. TEXTOS INFORMATIVOS (Fora dos botões: Títulos, Labels e Rodapé) */
     [data-testid="stSidebar"] h2,
