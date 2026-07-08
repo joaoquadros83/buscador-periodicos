@@ -287,11 +287,11 @@ with aba_impacto:
     with col_f4:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
-        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=Choose options)
+        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
     with col_f5:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
-        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=Choose options)
+        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
@@ -312,13 +312,19 @@ if busca:
 if subarea_sel != "Todas":
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
+# Só aplica a filtragem se o pesquisador tiver selecionado alguma base detentora
 if col_indexador and indexador_sel:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
+
+# Só aplica a filtragem se o pesquisador tiver selecionado algum quartil JCR
 if col_q_jcr and q_jcr_sel:
     df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+
+# Só aplica a filtragem se o pesquisador tiver selecionado algum quartil SJR
 if col_q_sjr and q_sjr_sel:
     df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
+🔄 Próximo passo:
 mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
 col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: 
