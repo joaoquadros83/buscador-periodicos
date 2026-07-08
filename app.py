@@ -263,10 +263,11 @@ with aba_escopo:
         
         # PROCESSAMENTO PARA EXTRAIR SUBÁREAS INDIVIDUAIS E ÚNICAS
         set_subareas = set()
-        for x in df_original[col_subarea].unique():
-            if str(x).strip() not in ["", "-", "nan", "None"]:
-                for sub in str(x).split(","):
-                    set_subareas.add(sub.strip())
+        if col_subarea in df_original.columns:
+            for x in df_original[col_subarea].unique():
+                if str(x).strip() not in ["", "-", "nan", "None"]:
+                    for sub in str(x).split(","):
+                        set_subareas.add(sub.strip())
         lista_subareas = sorted(list(set_subareas))
         
         subarea_sel = st.selectbox("Subárea do Conhecimento (CNPq):", ["Todas"] + lista_subareas)
@@ -278,24 +279,32 @@ with aba_escopo:
             for x in df_original[col_indexador].unique():
                 if x != "-":
                     for idx in str(x).split(","): set_indexadores.add(idx.strip())
-            # Inicia totalmente limpo (sem preenchimento prévio)
+            # Inicia totalmente limpo
             indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)))
         else: indexador_sel = []
 
 with aba_impacto:
     col_f4, col_f5, col_f6 = st.columns(3)
     with col_f4:
-        # Define o nome exato da coluna JCR
         col_q_jcr = "Quartil JCR"
-        opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-"]]) if col_q_jcr in df_original.columns else []
-        # Inicia totalmente limpo (sem preenchimento prévio)
+        # Coleta os quartis da planilha. Se falhar ou vier vazio, define a lista padrão de segurança para o filtro não sumir
+        opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_jcr in df_original.columns else []
+        if not opcoes_jcr:
+            opcoes_jcr = ["Q1", "Q2", "Q3", "Q4"]
+        
+        # Garante a exibição visual iniciando sem preenchimento prévio
         q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr)
+        
     with col_f5:
-        # Define o nome exato da coluna SJR
         col_q_sjr = "SJR Best Quartile"
-        opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-"]]) if col_q_sjr in df_original.columns else []
-        # Inicia totalmente limpo (sem preenchimento prévio)
+        # Coleta os quartis da planilha. Se falhar ou vier vazio, define a lista padrão de segurança para o filtro não sumir
+        opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_sjr in df_original.columns else []
+        if not opcoes_sjr:
+            opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
+            
+        # Garante a exibição visual iniciando sem preenchimento prévio
         q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr)
+        
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
@@ -312,7 +321,7 @@ if busca:
     ]
 
 # Filtro por Subárea do Conhecimento
-if subarea_sel != "Todas":
+if col_subarea in df_filtrado.columns and subarea_sel != "Todas":
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
 # Filtragem das Bases Detentoras (apenas se houver seleção)
