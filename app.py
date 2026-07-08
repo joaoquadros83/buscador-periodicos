@@ -285,10 +285,10 @@ if menu_selecionado == "🔍 Indexador dinâmico":
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
 # ==============================================================================
-# AMBIENTES EMBUTIDOS VIA IFRAME (HTML ADVANCED RENDER)
+# AMBIENTES COMPATÍVEIS E DIRECIONAMENTO SEGURO (RESOLUÇÃO DE ERRO DE IFRAME)
 # ==============================================================================
 else:
-    # Dicionário mapeando cada opção ao seu respectivo link fornecido
+    # Banco de links fornecido
     mapeamento_urls = {
         "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
         "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
@@ -304,21 +304,41 @@ else:
     }
     
     url_alvo = mapeamento_urls[menu_selecionado]
+    nome_servico = menu_selecionado.split(' ', 1)[1]
+
+    # Lista de sites que aceitam iFrame sem quebrar o layout (Scielo permite)
+    sites_permitidos_iframe = ["📚 Buscador da Scielo BR"]
+
+    if menu_selecionado in sites_permitidos_iframe:
+        st.markdown(f"### {menu_selecionado}")
+        st.caption("Acesso direto e integrado ao ecossistema de pesquisa.")
+        st.markdown(f"""
+            <iframe src="{url_alvo}" 
+                    style="width:100%; height:800px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
+                    allowfullscreen>
+            </iframe>
+        """, unsafe_allow_html=True)
     
-    # Cabeçalho sutil indicando navegação embutida
-    st.markdown(f"### 🌐 Navegação Integrada: {menu_selecionado.split(' ', 1)[1]}")
-    
-    # Barra de ferramentas para facilitar se o iFrame for bloqueado pelo servidor remoto
-    col_info, col_btn = st.columns([3, 1])
-    with col_info:
-        st.caption("O site abaixo está sendo executado de forma sutil dentro do SciIndex Hub.")
-    with col_btn:
-        st.link_button("Abrir em tela cheia ↗", url_alvo, type="secondary", use_container_width=True)
-    
-    # Renderizador HTML do iFrame (com altura de 800px para excelente visualização)
-    st.markdown(f"""
-        <iframe src="{url_alvo}" 
-                style="width:100%; height:800px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
-                allowfullscreen>
-        </iframe>
-    """, unsafe_allow_html=True)
+    else:
+        # Layout de Card Executivo para os sites que bloqueiam iFrame corporativo
+        st.markdown(f"""
+            <div class="premium-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; color: #0F172A;">
+                <h2 style="color: #0F172A !important; font-weight: 700; font-size: 1.8rem; margin-bottom: 8px;">{nome_servico}</h2>
+                <p style="color: #64748B !important; font-size: 1.05rem; max-width: 650px; margin-bottom: 25px;">
+                    Para sua segurança e proteção de dados, esta plataforma externa requer autenticação direta ou restringe a exibição interna em painéis secundários.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Centralização do botão com destaque elegante
+        col_esqueda, col_central, col_direita = st.columns([1, 2, 1])
+        with col_central:
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.link_button(
+                label=f"🚀 Acessar Oficialmente o {nome_servico}", 
+                url=url_alvo, 
+                type="primary",
+                use_container_width=True
+            )
+            st.markdown("<br><br>", unsafe_allow_html=True)
+            st.caption("🔒 Conexão criptografada ponta a ponta redirecionada para o domínio institucional legítimo.")
