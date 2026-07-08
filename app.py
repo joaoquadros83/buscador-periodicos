@@ -185,7 +185,7 @@ except Exception as e:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
-        <span style='font-size: 1.8rem;'>💎</span>
+        <span style='font-size: 1.8rem;'>"https://png.pngtree.com/png-vector/20190302/ourmid/pngtree-atom-science-icon-design-template-vector-isolated-png-image_746905.jpg"</span>
         <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
