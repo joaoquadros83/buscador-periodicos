@@ -265,7 +265,6 @@ with aba_escopo:
         set_subareas = set()
         for x in df_original[col_subarea].unique():
             if str(x).strip() not in ["", "-", "nan", "None"]:
-                # Separa caso existam subáreas juntas em uma única linha separadas por vírgula
                 for sub in str(x).split(","):
                     set_subareas.add(sub.strip())
         lista_subareas = sorted(list(set_subareas))
@@ -279,7 +278,8 @@ with aba_escopo:
             for x in df_original[col_indexador].unique():
                 if x != "-":
                     for idx in str(x).split(","): set_indexadores.add(idx.strip())
-            indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)), default=sorted(list(set_indexadores)))
+            # MODIFICAÇÃO: Removido o parâmetro 'default' para iniciar vazio
+            indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)))
         else: indexador_sel = []
 
 with aba_impacto:
@@ -287,11 +287,13 @@ with aba_impacto:
     with col_f4:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
-        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
+        # MODIFICAÇÃO: Removido o parâmetro 'default' para iniciar vazio
+        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr)
     with col_f5:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
-        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
+        # MODIFICAÇÃO: Removido o parâmetro 'default' para iniciar vazio
+        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr)
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
