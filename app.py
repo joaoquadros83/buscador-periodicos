@@ -3,7 +3,7 @@ import pandas as pd
 
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
-    page_title="SciIndex | Portal de Inteligência Científica",
+    page_title="SciIndex | Portal do Pesquisador",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -317,7 +317,7 @@ st.sidebar.markdown("""
 # Como o indexador é a única página ativa, o código roda direto sem precisar de "if/else"
 st.markdown("""
     <div class="premium-hero">
-        <h1 class="premium-title">Portal de Inteligência Periódica</h1>
+        <h1 class="premium-title">Portal do Pesquisador</h1>
         <p class="premium-subtitle">Cruze indexadores internacionais com as grandes áreas de fomento do CNPq para descobrir o periódico estratégico ideal para o seu manuscrito.</p>
     </div>
 """, unsafe_allow_html=True)
