@@ -164,29 +164,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. BASE DE DADOS COM CACHE (Ajustada com substituição rápida de None por '-')
+# 3. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
-    # Lendo com separador de vírgula padrão e ignorando falhas de quebra de linha
-    df = pd.read_csv("dados_revistas.csv", sep=",", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
+    df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False)
     df = df.drop_duplicates(subset=[df.columns[0]])
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     df.columns = [c.strip() for c in df.columns]
     
-    # Tratamento de dados numéricos para as métricas
     for col in ['SJR', 'JIF', 'h-index', 'H index']:
         if col in df.columns:
             df[col] = df[col].astype(str).str.replace(',', '.').astype(float, errors='ignore')
             df[col] = pd.to_numeric(df[col], errors='coerce')
-            
-    # --- SUBSTITUIÇÃO RÁPIDA E VETORIZADA POR '-' ---
-    # Substitui os valores nulos oficiais do Python (NaN)
-    df = df.fillna("-")
-    
-    # Substitui variações de texto "None" escritas nas células de forma instantânea
-    df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
-        
     return df
+
 try:
     df_original = carregar_dados()
 except Exception as e:
@@ -402,27 +393,14 @@ mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JI
 col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-# Painel de Métricas Dinâmicas (Tratado para ignorar os traços '-' nos cálculos)
+# Painel de Métricas
 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+with col_m1: st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
+with col_m2: st.metric("H-Index Topo", int(df_filtrado["H index"].max()) if "H index" in df_filtrado.columns else 0)
+with col_m3: st.metric("Fator JIF Máximo", f"{df_filtrado['JIF'].max():.2f}" if 'JIF' in df_filtrado.columns and pd.notna(df_filtrado['JIF'].max()) else "0.00")
+with col_m4: st.metric("SJR Score Ápice", f"{df_filtrado['SJR'].max():.3f}" if 'SJR' in df_filtrado.columns and pd.notna(df_filtrado['SJR'].max()) else "0.000")
 
-with col_m1: 
-    st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
-
-with col_m2: 
-    # Converte temporariamente para numérico forçando erros a virarem NaN para calcular o max() com segurança
-    h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
-    max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
-    st.metric("H-Index Topo", max_h)
-
-with col_m3: 
-    jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
-    max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
-    st.metric("Fator JIF Máximo", max_jif)
-
-with col_m4: 
-    sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
-    max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
-    st.metric("SJR Score Ápice", max_sjr)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Exibição Paginada e Download Seguro
 st.markdown("#### 📋 Catálogo de Periódicos")
