@@ -15,7 +15,7 @@ st.markdown("""
 <style>
     /* ALTERAÇÃO AQUI: Força o fundo do menu lateral a ficar branco */
     [data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
+        background-color: #F8F0E3 !important;
     }   
  [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
