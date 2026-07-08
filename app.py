@@ -356,7 +356,8 @@ if total_itens > 0:
         use_container_width=True, 
         hide_index=True,
         column_config={
-            "Grande Area": None,
+            "Homepage": None,
+	    "Grande Area": None,
             "Area do Conhecimento": None
         }
     )
