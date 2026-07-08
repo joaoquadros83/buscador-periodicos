@@ -257,16 +257,9 @@ busca = st.text_input("Buscar registro específico:", placeholder="Digite o tít
 aba_escopo, aba_impacto = st.tabs(["📂 Escopo Acadêmico & CNPq", "📈 Métricas de Performance & Quartis"])
 
 with aba_escopo:
-    col_f1, col_f2, col_f3 = st.columns(3)
+    col_f1 = st.columns(1)
+  
     with col_f1:
-        col_grande_area = "Grande Area"
-        lista_grande_area = sorted([str(x).strip() for x in df_original[col_grande_area].unique() if str(x).strip() not in ["", "-"]])
-        grande_area_sel = st.selectbox("Grande Área CNPq (Brasil):", ["Todas"] + lista_grande_area)
-    with col_f2:
-        col_area = "Area do Conhecimento"
-        lista_areas = sorted([str(x).strip() for x in df_original[col_area].unique() if str(x).strip() not in ["", "-"]])
-        area_sel = st.selectbox("Área do Conhecimento (1º Nível):", ["Todas"] + lista_areas)
-    with col_f3:
         col_indexador = "Indexador" if "Indexador" in df_original.columns else None
         if col_indexador:
             set_indexadores = set()
@@ -277,16 +270,16 @@ with aba_escopo:
         else: indexador_sel = []
 
 with aba_impacto:
-    col_f4, col_f5, col_f6 = st.columns(3)
-    with col_f4:
+    col_f2, col_f3, col_f4 = st.columns(3)
+    with col_f2:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
         q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
-    with col_f5:
+    with col_f3:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
         q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
-    with col_f6:
+    with col_f4:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
         if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
