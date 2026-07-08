@@ -319,14 +319,6 @@ if subarea_sel != "Todas":
 if col_indexador and len(indexador_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
 
-# Filtragem do Quartil JCR (apenas se houver seleção)
-if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
-    df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
-
-# Filtragem do Quartil SJR (apenas se houver seleção)
-if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
-    df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
-
 mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
 col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: 
