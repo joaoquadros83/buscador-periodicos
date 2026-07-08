@@ -262,7 +262,7 @@ st.sidebar.markdown("""
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>SciSpace</span></a>
         <a class="btn-custom-menu" href="https://elicit.com/" target="_blank">
-        <img src="https://elicit.com/images/logo-icon.svg" style="width: 16px; height: 16px; margin-right: 10px; filter: brightness(0) invert(1);" onerror="this.onerror=null; this.src='https://elicit.com/favicon.ico';">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDFHl4vR2gL1q4KY2ESSUPtRncD1BmAm__YmFGHl5Ptw&s=10" style="width: 16px; height: 16px; margin-right: 10px; filter: brightness(0) invert(1);" onerror="this.onerror=null; this.src='https://elicit.com/favicon.ico';">
         <span>Elicit</span></a>   
      <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>Logically</span>
