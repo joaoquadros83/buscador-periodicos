@@ -256,7 +256,8 @@ st.sidebar.markdown("""
     <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><span>🤖 Scopus AI</span></a>
     <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><span>🚀 LeapSpace</span></a>
     <a class="btn-custom-menu" href="https://www.researchrabbit.ai/" target="_blank"><span>🐇 ResearchRabbit</span></a>
-    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank"><span>🔍 Perplexity</span></a>
+    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank">
+        <img src="https://framerusercontent.com/images/gcMkPKyj2RX8EOEja8A1GWvCb7E.jpg?width=2000&height=2000" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Perplexity</span></a>
     <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><span>📊 Consensus</span></a>
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>SciSpace</span></a>
