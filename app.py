@@ -212,28 +212,60 @@ links_menu = {
     "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
 }
 
-# 4.2 RENDERIZAÇÃO DOS BOTÕES COM A COR EXATA (#FF2B2B) E TEXTO BRANCO
+# 4.2 RENDERIZAÇÃO CONSOLIDADA DOS BOTÕES (CORREÇÃO DEFINITIVA DE HOVER)
+html_botoes = """
+<style>
+    /* Estilo padrão de repouso dos botões */
+    .btn-links-interesse {
+        background-color: #004B87 !important;
+        border: 1px solid #004B87 !important;
+        border-radius: 6px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 8px !important;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Força a fonte a ser estritamente branca no estado padrão */
+    .btn-links-interesse span {
+        color: #FFFFFF !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    
+    /* EFEITO HOVER: Quando o mouse passa por cima, o balão fica #FF2B2B e a letra #FFFFFF */
+    .btn-links-interesse:hover {
+        background-color: #FF2B2B !important;
+        border-color: #FF2B2B !important;
+        box-shadow: 0 4px 8px rgba(255, 43, 43, 0.3) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Garante que a letra continue branca no hover */
+    .btn-links-interesse:hover span {
+        color: #FFFFFF !important;
+    }
+</style>
+<div style="display: flex; flex-direction: column;">
+"""
+
+# Monta o HTML unificado combinando os links
 for texto_botao, url_destino in links_menu.items():
-    st.sidebar.markdown(f"""
-        <a href="{url_destino}" target="_blank" style="text-decoration: none;">
-            <div style="
-                background-color: #FF2B2B !important;
-                color: #FFFFFF !important;
-                padding: 10px 14px;
-                border-radius: 6px;
-                margin-bottom: 8px;
-                font-weight: 500;
-                font-size: 0.9rem;
-                border: 1px solid #FF2B2B;
-                box-shadow: 0 2px 4px rgba(255, 43, 43, 0.15);
-                display: flex;
-                align-items: center;
-                transition: background-color 0.2s ease;
-            " onmouseover="this.style.backgroundColor='#A91D22'" onmouseout="this.style.backgroundColor='#FF2B2B'">
-                <span style="color: #FFFFFF !important;">{texto_botao}</span>
-            </div>
+    html_botoes += f"""
+        <a class="btn-links-interesse" href="{url_destino}" target="_blank">
+            <span>{texto_botao}</span>
         </a>
-    """, unsafe_allow_html=True)
+    """
+
+html_botoes += "</div>"
+
+# Injeta o bloco completo de uma só vez na barra lateral
+st.sidebar.markdown(html_botoes, unsafe_allow_html=True)
 
 # --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
