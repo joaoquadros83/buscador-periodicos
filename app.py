@@ -28,6 +28,16 @@ st.markdown("""
         border-radius: 6px !important;
         margin-bottom: 8px !important;
     }
+
+/* --- UNIFICAÇÃO DE CORES DOS TEXTOS DA BARRA LATERAL --- */
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] b,
+    [data-testid="stSidebar"] i {
+        color: #0F172A !important;  /* Mesma cor do Painel de Navegação */
+    }
+
     /* --- COR DE FUNDO DO MENU LATERAL (OFF-WHITE/BEGE CLARO) --- */
     [data-testid="stSidebar"] {
         background-color: #FAF9F6 !important;  /* Bege claro/Off-white sutil e elegante */
@@ -144,7 +154,7 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL (LINKS DIRETOS AUTOMÁTICOS) ---
+# --- 4. ESTRUTURA DO MENU LATERAL (CORES UNIFICADAS) ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
@@ -153,14 +163,13 @@ st.sidebar.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 4.1 A ÚNICA PÁGINA INTERNA (NATIVA)
-st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:600; color:#64748B; margin-bottom:4px;'>SISTEMA INTERNO</p>", unsafe_allow_html=True)
+# 4.1 SISTEMA INTERNO
+st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:4px;'>SISTEMA INTERNO</p>", unsafe_allow_html=True)
 menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disabled=True) 
-# Nota: Deixamos marcado e fixo, pois é a única página do sistema principal.
 
-st.sidebar.markdown("<br><p style='font-size:0.85rem; font-weight:600; color:#64748B; margin-bottom:4px;'>PORTAIS EXTERNOS (ABRE EM NOVA ABA)</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<br><p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:4px;'>LINKS DE INTERESSE</p>", unsafe_allow_html=True)
 
-# 4.2 BOTÕES DE REDIRECIONAMENTO AUTOMÁTICO
+# 4.2 BOTÕES DE ACESSO EXTEMO
 st.sidebar.link_button("🌐 Site Web of Science", "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true", use_container_width=True)
 st.sidebar.link_button("🧬 Buscador da Scopus", "https://www.scopus.com/pages/home?display=basic#basic", use_container_width=True)
 st.sidebar.link_button("📚 Buscador da Scielo BR", "https://www.scielo.br/", use_container_width=True)
@@ -173,11 +182,11 @@ st.sidebar.link_button("🏫 Site da UFOP", "https://www.ufop.br", use_container
 st.sidebar.link_button("🎒 Site do PPGE-UFOP", "https://www.posedu.ufop.br", use_container_width=True)
 st.sidebar.link_button("👤 Site pessoal", "https://professor.ufop.br/joaoquadros", use_container_width=True)
 
-# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
+# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS COMPLETA ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
-    <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
-        <span style='color: #10B981;'>●</span> <b>Sistema:</b> Operacional<br>
+    <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
+        <span style='color: #A91D22;'>●</span> <b>Sistema:</b> Operacional<br>
         <b>Versão Base:</b> 2026.1<br>
         <b>Padrão CNPq:</b> Ativo
         <br><br>
@@ -189,7 +198,6 @@ st.sidebar.markdown("""
         <i>Todos os direitos reservados.</i>
     </div>
 """, unsafe_allow_html=True)
-
 
 # ==============================================================================
 # SEÇÃO ÚNICA DO SISTEMA: INDEXADOR DINÂMICO
