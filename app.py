@@ -130,12 +130,12 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL COMPLETA ---
+# --- 4. ESTRUTURA DO MENU LATERAL (PAINEL DE NAVEGAÇÃO CLARO) ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
         <span style='font-size: 1.8rem;'>💎</span>
-        <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>SciIndex Hub</h2>
+        <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
 
@@ -177,7 +177,7 @@ st.sidebar.markdown("""
 
 
 # ==============================================================================
-# SEÇÃO 1: INDEXADOR DINÂMICO
+# SEÇÃO 1: INDEXADOR DINÂMICO (Mantém a ferramenta nativa rodando)
 # ==============================================================================
 if menu_selecionado == "🔍 Indexador dinâmico":
     st.markdown("""
@@ -285,10 +285,10 @@ if menu_selecionado == "🔍 Indexador dinâmico":
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
 # ==============================================================================
-# AMBIENTES MISTOS: INTEGRAÇÃO INTEGRAL OU DIRECIONAMENTO SEGURO (CORREÇÃO)
+# SEÇÕES DIRECIONAIS COMPLETAS (PORTAIS EXTERNOS EM NOVA ABA VIA HUB PREMIUM)
 # ==============================================================================
 else:
-    # Banco de links fornecido
+    # Banco de links oficiais atualizado
     mapeamento_urls = {
         "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
         "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
@@ -300,52 +300,31 @@ else:
         "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/",
         "🏫 Site da UFOP": "https://www.ufop.br",
         "🎒 Site do PPGE-UFOP": "https://www.posedu.ufop.br",
-        "👤 Site pessoal": "https://www.professor.ufop.br/joaoquadros"
+        "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
     }
     
     url_alvo = mapeamento_urls[menu_selecionado]
     nome_servico = menu_selecionado.split(' ', 1)[1]
 
-    # Lista das opções que funcionam perfeitamente embutidas em seu ambiente
-    sites_permitidos_iframe = [
-        "📚 Buscador da Scielo BR",
-        "📄 Site Currículo Lattes",
-        "🎓 Site da Capes",
-        "📑 Portal de Periódicos Capes",
-        "👤 Site pessoal"
-    ]
-
-    # SEÇÃO A: Para os sites que funcionam, mantém o iFrame aberto direto
-    if menu_selecionado in sites_permitidos_iframe:
-        st.markdown(f"### {menu_selecionado}")
-        st.caption("Acesso direto e integrado ao ecossistema de pesquisa.")
-        st.markdown(f"""
-            <iframe src="{url_alvo}" 
-                    style="width:100%; height:850px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
-                    allowfullscreen>
-            </iframe>
-        """, unsafe_allow_html=True)
+    # Interface de direcionamento corporativa (Hero Clean)
+    st.markdown(f"""
+        <div class="premium-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; color: #0F172A; margin-top: 20px;">
+            <h2 style="color: #0F172A !important; font-weight: 700; font-size: 1.8rem; margin-bottom: 8px;">{nome_servico}</h2>
+            <p style="color: #64748B !important; font-size: 1.05rem; max-width: 700px; margin-bottom: 5px;">
+                Você selecionou um portal externo. Clique no botão abaixo para abrir a plataforma em um ambiente isolado de alta performance.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    # SEÇÃO B: Modifica estritamente as opções que dão erro no servidor externo
-    else:
-        st.markdown(f"""
-            <div class="premium-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; color: #0F172A; margin-top: 20px;">
-                <h2 style="color: #0F172A !important; font-weight: 700; font-size: 1.8rem; margin-bottom: 8px;">{nome_servico}</h2>
-                <p style="color: #64748B !important; font-size: 1.05rem; max-width: 650px; margin-bottom: 5px;">
-                    Para sua segurança e proteção de dados institucionais, esta plataforma requer autenticação direta ou restringe a exibição interna em painéis secundários.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Estrutura elegante com botão centralizado
-        col_esqueda, col_central, col_direita = st.columns([1, 2, 1])
-        with col_central:
-            st.markdown("<br>", unsafe_allow_html=True)
-            st.link_button(
-                label=f"🚀 Acessar Oficialmente o {nome_servico}", 
-                url=url_alvo, 
-                type="primary",
-                use_container_width=True
-            )
-            st.markdown("<br><br>", unsafe_allow_html=True)
-            st.caption("🔒 Conexão criptografada ponta a ponta redirecionada para o domínio institucional legítimo.")
+    # Estrutura com botão centralizado de redirecionamento nativo do navegador
+    col_esquerda, col_central, col_direita = st.columns([1, 2, 1])
+    with col_central:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.link_button(
+            label=f"🚀 Redirecionar para o {nome_servico}", 
+            url=url_alvo, 
+            type="primary",
+            use_container_width=True
+        )
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.caption("🔒 O site solicitado será aberto de forma segura em uma nova janela do seu navegador.")
