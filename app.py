@@ -184,63 +184,115 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# --- 4. ESTRUTURA DO MENU LATERAL (BOTÕES HTML PERSONALIZADOS) ---
+# --- 4. ESTRUTURA DO MENU LATERAL ORGANIZADA EM BLOCOS TEMÁTICOS ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+# CABEÇALHO DO MENU
 st.sidebar.markdown("""
-    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 25px;'>
-        <span style='font-size: 1.8rem;'></span>
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
+        <span style='font-size: 1.8rem;'>💎</span>
         <h2 style='margin: 0; font-size: 1.35rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
 
-# 4.1 SISTEMA INTERNO
-st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:4px;'>SISTEMA INTERNO</p>", unsafe_allow_html=True)
+# 4.0 SISTEMA INTERNO (Indexador Dinâmico)
+st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 10px 0;'>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:8px; letter-spacing: 0.05em;'>SISTEMA INTERNO</p>", unsafe_allow_html=True)
 menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disabled=True) 
 
-st.sidebar.markdown("<br><p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px;'>LINKS DE INTERESSE</p>", unsafe_allow_html=True)
 
-# Dicionário com os links do seu sistema
-links_menu = {
-    "🌐 Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
-    "🧬 Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
-    "📚 Scielo BR": "https://www.scielo.br/",
-    "📖 Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p",
-    "🏛️ CNPq": "https://cnpq.br/",
-    "📄 Currículo Lattes": "https://lattes.cnpq.br/",
-    "🎓 Capes": "https://www.gov.br/capes/pt-br",
-    "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/",
-    "🏫 UFOP": "https://www.ufop.br",
-    "🎒 PPGE-UFOP": "https://www.posedu.ufop.br",
-    "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
-}
-
-# 4.2 RENDERIZAÇÃO DOS BOTÕES COM A COR EXATA (#FF2B2B) E TEXTO BRANCO
-for texto_botao, url_destino in links_menu.items():
-    st.sidebar.markdown(f"""
-        <a href="{url_destino}" target="_blank" style="text-decoration: none;">
+# --- FUNÇÃO AUXILIAR PARA GERAR OS BOTÕES PADRONIZADOS DO MENU ---
+def gerar_bloco_links(titulo_bloco, dicionario_links):
+    """Gera um bloco visual com títulos e botões com hover inline #FF2B2B"""
+    html = f"""
+    <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
+    <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{titulo_bloco}</p>
+    <div style="display: flex; flex-direction: column;">
+    """
+    for texto, url in dicionario_links.items():
+        html += f"""
+        <a href="{url}" target="_blank" style="text-decoration: none !important;">
             <div style="
-                background-color: #FF2B2B !important;
+                background-color: #004B87 !important;
                 color: #FFFFFF !important;
                 padding: 10px 14px;
                 border-radius: 6px;
                 margin-bottom: 8px;
                 font-weight: 500;
                 font-size: 0.9rem;
-                border: 1px solid #FF2B2B;
-                box-shadow: 0 2px 4px rgba(255, 43, 43, 0.15);
+                font-family: 'Roboto', sans-serif;
+                border: 1px solid #004B87 !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                 display: flex;
                 align-items: center;
-                transition: background-color 0.2s ease;
-            " onmouseover="this.style.backgroundColor='#A91D22'" onmouseout="this.style.backgroundColor='#FF2B2B'">
-                <span style="color: #FFFFFF !important;">{texto_botao}</span>
+                transition: all 0.2s ease-in-out;
+            " 
+            onmouseover="this.style.backgroundColor='#FF2B2B'; this.style.borderColor='#FF2B2B'; this.querySelector('span').style.color='#FFFFFF';" 
+            onmouseout="this.style.backgroundColor='#004B87'; this.style.borderColor='#004B87'; this.querySelector('span').style.color='#FFFFFF';">
+                <span style="color: #FFFFFF !important; font-weight: 500 !important;">{texto}</span>
             </div>
         </a>
-    """, unsafe_allow_html=True)
+        """
+    html += "</div>"
+    return html
 
-# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ---
-st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
+
+# -------------------------------------------------------------------------
+# BLOCO 1: INDEXADORES
+# -------------------------------------------------------------------------
+links_indexadores = {
+    "🌐 Site Web of Science": "https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true",
+    "🧬 Buscador da Scopus": "https://www.scopus.com/pages/home?display=basic#basic",
+    "🏥 Buscador da PubMed": "https://pubmed.ncbi.nlm.nih.gov/",
+    "📚 Buscador da Scielo BR": "https://www.scielo.br/",
+    "📖 Buscador da Educ@": "http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p"
+}
+st.sidebar.markdown(gerar_bloco_links("INDEXADORES", links_indexadores), unsafe_allow_html=True)
+
+
+# -------------------------------------------------------------------------
+# BLOCO 2: SITES GOVERNAMENTAIS
+# -------------------------------------------------------------------------
+links_governo = {
+    "🏛️ Site do CNPq": "https://cnpq.br/",
+    "🎓 Site da Capes": "https://www.gov.br/capes/pt-br",
+    "📄 Site Currículo Lattes": "https://lattes.cnpq.br/",
+    "📑 Portal de Periódicos Capes": "https://www.periodicos.capes.gov.br/"
+}
+st.sidebar.markdown(gerar_bloco_links("SITES GOVERNAMENTAIS", links_governo), unsafe_allow_html=True)
+
+
+# -------------------------------------------------------------------------
+# BLOCO 3: IA PARA USO ACADÊMICO
+# -------------------------------------------------------------------------
+links_ia = {
+    "🤖 Scopus AI": "https://www.scopus.com/pages/home#scopus-ai",
+    "🚀 LeapSpace": "https://researcher.elsevier.com/",
+    "🐇 ResearchRabbit": "https://www.researchrabbit.ai/",
+    "🔍 Perplexity": "https://www.perplexity.ai/",
+    "📊 Consensus": "https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE"
+}
+st.sidebar.markdown(gerar_bloco_links("IA PARA USO ACADÊMICO", links_ia), unsafe_allow_html=True)
+
+
+# -------------------------------------------------------------------------
+# BLOCO 4: INFORMAÇÕES INSTITUCIONAIS DO AUTOR
+# -------------------------------------------------------------------------
+links_institucional = {
+    "🏫 Site da UFOP": "https://www.ufop.br",
+    "🎒 Site do PPGE-UFOP": "https://www.posedu.ufop.br",
+    "👤 Site pessoal": "https://professor.ufop.br/joaoquadros"
+}
+st.sidebar.markdown(gerar_bloco_links("INFORMAÇÕES INSTITUCIONAIS", links_institucional), unsafe_allow_html=True)
+
+
+# -------------------------------------------------------------------------
+# RODAPÉ: DIREITOS AUTORAIS
+# -------------------------------------------------------------------------
+st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
+        <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin:0 0 8px 0; letter-spacing: 0.05em;'>METADADOS</p>
         <span style='color: #A91D22;'>●</span> <b>Sistema:</b> Operacional<br>
         <b>Versão Base:</b> 2026.1<br>
         <b>Padrão CNPq:</b> Ativo
