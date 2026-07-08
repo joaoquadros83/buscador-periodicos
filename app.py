@@ -260,8 +260,18 @@ with aba_escopo:
     col_f1, col_f2 = st.columns(2)
     with col_f1:
         col_subarea = "Subárea do Conhecimento"
-        lista_subareas = sorted([str(x).strip() for x in df_original[col_subarea].unique() if str(x).strip() not in ["", "-"]])
+        
+        # --- PROCESSAMENTO PARA EXTRAIR SUBÁREAS INDIVIDUAIS E ÚNICAS ---
+        set_subareas = set()
+        for x in df_original[col_subarea].unique():
+            if str(x).strip() not in ["", "-", "nan", "None"]:
+                # Separa caso existam subáreas juntas em uma única linha separadas por vírgula
+                for sub in str(x).split(","):
+                    set_subareas.add(sub.strip())
+        lista_subareas = sorted(list(set_subareas))
+        
         subarea_sel = st.selectbox("Subárea do Conhecimento (CNPq):", ["Todas"] + lista_subareas)
+        
     with col_f2:
         col_indexador = "Indexador" if "Indexador" in df_original.columns else None
         if col_indexador:
@@ -297,9 +307,10 @@ if busca:
         df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
     ]
 
-# Filtro por Subárea do Conhecimento
+# --- LÓGICA DE FILTRAGEM INDIVIDUAL ---
+# Procura se a subárea selecionada está presente mesmo no meio de strings compostas
 if subarea_sel != "Todas":
-    df_filtrado = df_filtrado[df_filtrado[col_subarea] == subarea_sel]
+    df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
 if col_indexador and indexador_sel:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
