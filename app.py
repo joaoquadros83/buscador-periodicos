@@ -72,7 +72,7 @@ except Exception as e:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
-        <h2 style='margin: 0; font-size: 1.60rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
+        <h2 style='margin: 0; font-size: 1.90rem; font-weight: 700; color: #FFFFF;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
 
