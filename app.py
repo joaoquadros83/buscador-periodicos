@@ -355,8 +355,8 @@ if total_itens > 0:
     use_container_width=True, 
     hide_index=True,
     column_config={
-        "Grande Area": st.column_config.Column(visible=False),
-        "Area do Conhecimento": st.column_config.Column(visible=False)
+        "Grande Area": {"visible": False},
+        "Area do Conhecimento": {"visible": False}
     }
 )
     
