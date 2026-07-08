@@ -24,7 +24,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "Cruze indexadores internacionais com as subáreas de fomento do CNPq para descobrir o periódico estratégico ideal.",
+        "subtitulo": "Informação e Inteligência de dados aplicadas à produção científica de alto impacto - Encontre em segundos o periódico ideal alinhado às métricas nacionais e internacionais.",
         "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
