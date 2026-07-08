@@ -18,54 +18,46 @@ st.markdown("""
         font-family: 'Inter', sans-serif !important;
     }
     
-    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF !important;
-        border-right: 1px solid #E2E8F0 !important;
-        box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.03) !important;
-    }
+  /* --- CUSTOMIZAÇÃO EXCLUSIVA DOS BOTÕES DA BARRA LATERAL ESQUERDA --- */
     
-    /* Textos e labels gerais do menu lateral */
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
-        color: #334155 !important;
+    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e Fonte Branca */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+        background-color: #A91D22 !important;  /* Tom avermelhado Dialnet */
+        padding: 10px 14px !important;
+        border: 1px solid #A91D22 !important;
+        border-radius: 6px !important;
+        margin-bottom: 8px !important;
     }
-    
-   /* --- REESTILIZAÇÃO CLEAN ACADEMIC DOS BOTÕES DE LINK NA SIDEBAR --- */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
+        color: #FFFFFF !important;              /* Fonte Branca */
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* 2. Botões Não Selecionados (Links Externos) - Fundo Branco e Fonte Azul */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
         background-color: #FFFFFF !important;  /* Fundo Branco */
-        color: #475569 !important;              /* Letra Grafite Suave */
-        border: 1px solid #F1F5F9 !important;   /* Borda Quase Invisível */
-        border-radius: 8px !important;
+        color: #004B87 !important;              /* Fonte Azul Acadêmica */
+        border: 1px solid #E5E7EB !important;   /* Borda fina sutil */
+        border-radius: 6px !important;
         padding: 10px 14px !important;
         font-weight: 500 !important;
         font-size: 0.9rem !important;
         transition: all 0.2s ease-in-out !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.01) !important;
         text-align: left !important;
         display: flex !important;
         align-items: center !important;
+        margin-bottom: 8px !important;
     }
     
-    /* Efeito de passar o mouse (Hover) - Clean Academic */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
-        background-color: #EFF6FF !important;  /* Fundo Azul-Celeste Claro */
-        border-color: #BFDBFE !important;      /* Borda Azul Suave */
-        color: #2563EB !important;              /* Letra Azul Vivo */
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05) !important;
-    }
-
-    /* Ajuste para o checkbox fixo do Indexador Dinâmico (Removido o Dark) */
-    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
-        background-color: #F8FAFC !important;  /* Fundo cinza bem clarinho */
-        padding: 12px 16px !important;
-        border-radius: 8px !important;
-        border: 1px solid #E2E8F0 !important;
-        margin-bottom: 15px !important;
-    }
-    div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
-        color: #0F172A !important;              /* Letra escura legível */
-        font-weight: 600 !important;
+    /* 3. Comportamento ao Selecionar/Passar o mouse (Hover) - Fundo Vermelho e Fonte Branca */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:focus,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:active {
+        background-color: #A91D22 !important;  /* Mesma cor do item ativo */
+        color: #FFFFFF !important;              /* Fonte Branca */
+        border-color: #A91D22 !important;
+        text-decoration: none !important;
     }
 
     /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
