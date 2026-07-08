@@ -30,7 +30,7 @@ st.markdown("""
         color: #334155 !important;
     }
     
-/* --- REESTILIZAÇÃO CLEAN ACADEMIC DOS BOTÕES DE LINK NA SIDEBAR --- */
+   /* --- REESTILIZAÇÃO CLEAN ACADEMIC DOS BOTÕES DE LINK NA SIDEBAR --- */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
         background-color: #FFFFFF !important;  /* Fundo Branco */
         color: #475569 !important;              /* Letra Grafite Suave */
@@ -67,6 +67,69 @@ st.markdown("""
         color: #0F172A !important;              /* Letra escura legível */
         font-weight: 600 !important;
     }
+
+    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
+    .premium-hero {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        padding: 50px 40px;
+        border-radius: 16px;
+        color: #F8FAFC;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .premium-title {
+        font-size: 2.6rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.04em;
+        color: #FFFFFF !important;
+        margin-bottom: 10px;
+    }
+    .premium-subtitle {
+        font-size: 1.15rem !important;
+        color: #94A3B8 !important;
+        font-weight: 400;
+        line-height: 1.6;
+    }
+    
+    /* Cards de Métricas */
+    div[data-testid="stMetric"] {
+        background: #FFFFFF !important;
+        padding: 24px 28px !important;
+        border-radius: 14px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    }
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748B !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        color: #0F172A !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Inputs, Selectboxes e Tabs */
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
+    .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
+    
+    /* Botão de download customizado */
+    div[data-testid="stDownloadButton"] button {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        font-weight: 500 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # 3. BASE DE DADOS COM CACHE
 @st.cache_data
