@@ -204,9 +204,9 @@ menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disab
 # --- FUNÇÃO AUXILIAR PARA GERAR OS BOTÕES PADRONIZADOS DO MENU ---
 def gerar_bloco_links(titulo_bloco, dicionario_links):
     """Gera um bloco visual com títulos e botões com hover inline #FF2B2B"""
-    html = f"""
+    html = """
     <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-    <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{titulo_bloco}</p>
+    <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>""" + titulo_bloco + """</p>
     <div style="display: flex; flex-direction: column;">
     """
     for texto, url in dicionario_links.items():
