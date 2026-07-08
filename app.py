@@ -9,37 +9,159 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
+# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
 st.markdown("""
-<style>
-    [data-testid="stMetricValue"] {
-        font-size: 2.2rem !important;
-        font-weight: 700 !important;
-        color: #004B87 !important;
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    html, body, [data-testid="stAppViewContainer"] {
+        font-family: 'Inter', sans-serif !important;
     }
+    
+  /* --- CUSTOMIZAÇÃO EXCLUSIVA DOS BOTÕES DA BARRA LATERAL ESQUERDA --- */
+    
+    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e Fonte Branca */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+        background-color: #A91D22 !important;  /* Tom avermelhado Dialnet */
+        padding: 10px 14px !important;
+        border: 1px solid #A91D22 !important;
+        border-radius: 6px !important;
+        margin-bottom: 8px !important;
+    }
+
+/* --- BARRA LATERAL ESQUERDA (CORREÇÃO DE CONTRASTE DOS BOTÕES) --- */
+    [data-testid="stSidebar"] {
+        background-color: #FAF9F6 !important;
+        border-right: 1px solid #EAE8E4 !important;
+        box-shadow: none !important;
+    }
+    
+    /* 1. TEXTOS INFORMATIVOS (Fora dos botões: Títulos, Labels e Rodapé) */
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] b,
+    [data-testid="stSidebar"] i {
+        color: #0F172A !important; /* Mesma cor do Painel de Navegação */
+    }
+    
+    /* 2. ITEM ATIVO (Indexador Dinâmico) - Fundo Vermelho e Texto Branco */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+        background-color: #A91D22 !important;
+        padding: 10px 14px !important;
+        border: 1px solid #A91D22 !important;
+        border-radius: 6px !important;
+        margin-bottom: 8px !important;
+    }
+    /* Força fonte branca em qualquer elemento de texto dentro do Indexador */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] p,
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] span,
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] label {
+        color: #FFFFFF !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* 3. LINKS DE INTERESSE (Botões Escuros) - Fundo Azul e TEXTO BRANCO OBRIGATÓRIO */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
+        background-color: #004B87 !important;  /* Fundo Escuro */
+        border: 1px solid #004B87 !important;
+        border-radius: 6px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 8px !important;
+        text-align: left !important;
+	color: #FFFFFF !important;
+        display: flex !important;
+        align-items: center !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        text-decoration: none !important;
+    }
+    
+    /* Seletor ultra-específico para anular a cor escura e forçar BRANCO nas letras internas dos links */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a p,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a span {
+        color: #FFFFFF !important;              /* TEXTO BRANCO GARANTIDO */
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* 4. COMPORTAMENTO HOVER (Passar o Mouse) - Muda para Vermelho e MANTÉM TEXTO BRANCO */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
+        background-color: #A91D22 !important;  /* Vermelho Dialnet */
+        border-color: #A91D22 !important;
+        box-shadow: 0 4px 8px rgba(169, 29, 34, 0.2) !important;
+	onmouseover="this.style.backgroundColor='#FF2B2B'; this.style.borderColor='#FF2B2B';" 
+	onmouseout="this.style.backgroundColor='#004B87'; this.style.borderColor='#004B87';"
+    }
+    /* Mantém as letras brancas durante o hover */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover p,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover span {
+        color: #FFFFFF !important;              /* CONTINUA BRANCO */
+    }
+
+    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
     .premium-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-        padding: 35px;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        margin-bottom: 25px;
-        border-left: 6px solid #FF2B2B;
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        padding: 50px 40px;
+        border-radius: 16px;
+        color: #F8FAFC;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .premium-title {
-        color: #ffffff !important;
-        font-family: 'Inter', sans-serif;
         font-size: 2.6rem !important;
-        font-weight: 800 !important;
-        margin-bottom: 8px !important;
-        letter-spacing: -0.5px;
+        font-weight: 700 !important;
+        letter-spacing: -0.04em;
+        color: #FFFFFF !important;
+        margin-bottom: 10px;
     }
     .premium-subtitle {
-        color: #94a3b8 !important;
         font-size: 1.15rem !important;
-        max-width: 800px;
-        line-height: 1.5;
+        color: #94A3B8 !important;
+        font-weight: 400;
+        line-height: 1.6;
     }
-</style>
+    
+    /* Cards de Métricas */
+    div[data-testid="stMetric"] {
+        background: #FFFFFF !important;
+        padding: 24px 28px !important;
+        border-radius: 14px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    }
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748B !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        color: #0F172A !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Inputs, Selectboxes e Tabs */
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
+    .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
+    
+    /* Botão de download customizado */
+    div[data-testid="stDownloadButton"] button {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        font-weight: 500 !important;
+    }
+    </style>
 """, unsafe_allow_html=True)
 
 # 3. BASE DE DADOS COM CACHE
@@ -72,7 +194,7 @@ except Exception as e:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
-        <h2 style='margin: 0; font-size: 1.90rem; font-weight: 700; color: #FFFFF;'>Painel de Navegação</h2>
+        <h2 style='margin: 0; font-size: 1.75rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
 
