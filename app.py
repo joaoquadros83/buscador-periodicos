@@ -29,14 +29,14 @@ st.markdown("""
         margin-bottom: 8px !important;
     }
 
-/* --- BARRA LATERAL ESQUERDA (ESTRUTURA E CORES UNIFICADAS) --- */
+/* --- BARRA LATERAL ESQUERDA (BOTÕES COM FONTE 100% BRANCA) --- */
     [data-testid="stSidebar"] {
         background-color: #FAF9F6 !important;
         border-right: 1px solid #EAE8E4 !important;
         box-shadow: none !important;
     }
     
-    /* Unificação de cores para textos comuns, títulos e rodapé */
+    /* Unificação de cores para textos comuns, títulos e rodapé (Fora dos botões) */
     [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] p, 
     [data-testid="stSidebar"] span, 
@@ -46,7 +46,7 @@ st.markdown("""
         color: #0F172A !important;  /* Mesma cor do Painel de Navegação */
     }
     
-    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e TEXTO BRANCO FIXO */
+    /* 1. Item Ativo (Indexador Dinâmico) - Fundo Vermelho e TEXTO BRANCO */
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
         background-color: #A91D22 !important;
         padding: 10px 14px !important;
@@ -54,7 +54,7 @@ st.markdown("""
         border-radius: 6px !important;
         margin-bottom: 8px !important;
     }
-    /* Força especificamente o texto do botão ativo a ser branco */
+    /* Garante fonte branca para o Indexador */
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] p,
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] span {
         color: #FFFFFF !important;
@@ -62,11 +62,11 @@ st.markdown("""
         font-size: 0.9rem !important;
     }
 
-    /* 2. Botões Não Selecionados (Links Externos) - Fundo Branco e Fonte Azul */
+    /* 2. Botões Não Selecionados (Links Externos) - Fundo Azul e FONTE BRANCA */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
-        background-color: #FFFFFF !important;
-        color: #004B87 !important;
-        border: 1px solid #E5E7EB !important;
+        background-color: #004B87 !important;  /* Fundo Azul Acadêmico */
+        color: #FFFFFF !important;              /* FONTE BRANCA SOLICITADA */
+        border: 1px solid #004B87 !important;
         border-radius: 6px !important;
         padding: 10px 14px !important;
         font-weight: 500 !important;
@@ -76,16 +76,18 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         margin-bottom: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
     }
     
-    /* 3. Comportamento ao Passar o mouse / Acessar - Fundo Vermelho e TEXTO BRANCO */
+    /* 3. Comportamento ao Passar o mouse (Hover) - Transição para Fundo Vermelho e FONTE BRANCA */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover,
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:focus,
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:active {
-        background-color: #A91D22 !important;
-        color: #FFFFFF !important;  /* Força o texto do botão a ficar branco no hover */
+        background-color: #A91D22 !important;  /* Muda para o Vermelho Dialnet */
+        color: #FFFFFF !important;              /* Permanece BRANCA */
         border-color: #A91D22 !important;
         text-decoration: none !important;
+        box-shadow: 0 4px 8px rgba(169, 29, 34, 0.2) !important;
     }
 
     /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
