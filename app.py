@@ -13,7 +13,11 @@ st.set_page_config(
 # 2. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
 st.markdown("""
 <style>
-    [data-testid="stMetricValue"] {
+    /* ALTERAÇÃO AQUI: Força o fundo do menu lateral a ficar branco */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+    }   
+ [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
         color: #004B87 !important;
@@ -63,10 +67,10 @@ st.markdown("""
     }
     
     /* Inputs, Selectboxes e Tabs */
-    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #FFFFFF !important; }
+    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
     .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
-    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #FFFFFF; padding: 12px 20px !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #FFFFFF !important; border-bottom-color: #FFFFFF !important; }
+    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
     
     /* Botão de download customizado */
     div[data-testid="stDownloadButton"] button {
