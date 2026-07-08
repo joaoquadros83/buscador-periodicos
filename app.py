@@ -261,11 +261,10 @@ with aba_escopo:
     with col_f1:
         col_subarea = "Subárea do Conhecimento"
         
-        # --- PROCESSAMENTO PARA EXTRAIR SUBÁREAS INDIVIDUAIS E ÚNICAS ---
+        # PROCESSAMENTO PARA EXTRAIR SUBÁREAS INDIVIDUAIS E ÚNICAS
         set_subareas = set()
         for x in df_original[col_subarea].unique():
             if str(x).strip() not in ["", "-", "nan", "None"]:
-                # Separa caso existam subáreas juntas em uma única linha separadas por vírgula
                 for sub in str(x).split(","):
                     set_subareas.add(sub.strip())
         lista_subareas = sorted(list(set_subareas))
@@ -279,7 +278,8 @@ with aba_escopo:
             for x in df_original[col_indexador].unique():
                 if x != "-":
                     for idx in str(x).split(","): set_indexadores.add(idx.strip())
-            indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)), default=sorted(list(set_indexadores)))
+            # Sem o parâmetro 'default', inicia totalmente limpo
+            indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)))
         else: indexador_sel = []
 
 with aba_impacto:
@@ -287,11 +287,13 @@ with aba_impacto:
     with col_f4:
         col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
         opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
-        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr, default=opcoes_jcr)
+        # Sem o parâmetro 'default', inicia totalmente limpo
+        q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr)
     with col_f5:
         col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
         opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
-        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr, default=opcoes_sjr)
+        # Sem o parâmetro 'default', inicia totalmente limpo
+        q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr)
     with col_f6:
         opcoes_ordenacao = ["Título"]
         if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
@@ -307,21 +309,18 @@ if busca:
         df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
     ]
 
-# --- LÓGICA DE FILTRAGEM INDIVIDUAL ---
-# Procura se a subárea selecionada está presente mesmo no meio de strings compostas
+# Filtro por Subárea do Conhecimento
 if subarea_sel != "Todas":
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
-# Só aplica a filtragem se o pesquisador tiver selecionado alguma base detentora
-if col_indexador and indexador_sel:
+# CORREÇÃO CRÍTICA: Só filtra se o usuário realmente selecionou alguma opção (se a lista não estiver vazia)
+if col_indexador and len(indexador_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
 
-# Só aplica a filtragem se o pesquisador tiver selecionado algum quartil JCR
-if col_q_jcr and q_jcr_sel:
+if col_q_jcr and len(q_jcr_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
 
-# Só aplica a filtragem se o pesquisador tiver selecionado algum quartil SJR
-if col_q_sjr and q_sjr_sel:
+if col_q_sjr and len(q_sjr_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
 mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
