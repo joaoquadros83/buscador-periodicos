@@ -121,7 +121,7 @@ st.sidebar.markdown("""
 st.sidebar.markdown("""
 <style>
     .btn-custom-menu {
-        background-color: #E2E8F0 !important;
+        background-color: #FFFFFF !important;
         border: 1px solid #004B87 !important;
         border-radius: 6px !important;
         padding: 10px 14px !important;
