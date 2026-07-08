@@ -202,10 +202,10 @@ st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>SITES GOVERNAMENTAIS</p>
 <div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span>🏛️ CNPq</span></a>
-    <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span>🎓 Capes</span></a>
-    <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank"><span>📄 Currículo Lattes</span></a>
-    <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank"><span>📑 Portal de Periódicos Capes</span></a>
+    <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span><img src="https://images.seeklogo.com/logo-png/18/1/cnpq-logo-png_seeklogo-181432.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>CNPq</span></a>
+    <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span><img src="https://www.clipartmax.com/png/middle/289-2899434_previous-next-capes-logo.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>CAPES</span></a>
+    <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank"><span><img src="https://ppghp.unespar.edu.br/imagens/plataforma-lattes-logo.jpg/@@images/e29e9c29-a848-4a8f-a2a5-c16b980326ae.jpeg"width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Currículo Lattes</span></a>
+    <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank"><span><img src="https://www.periodicos.capes.gov.br/templates/periodicos_gov/images/icon-periodicos.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Portal de Periódicos CAPES</span></a>
 </div>
 """, unsafe_allow_html=True)
 
