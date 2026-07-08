@@ -16,10 +16,10 @@ st.markdown("""
     [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
-        color: #FFFFFF !important;
+        color: #004B87 !important;
     }
     .premium-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        background: linear-gradient(135deg, #FFFFFF 0%, #1e3a8a 100%);
         padding: 35px;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
