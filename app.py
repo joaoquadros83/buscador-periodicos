@@ -254,19 +254,26 @@ st.sidebar.markdown("""
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>IA PARA USO ACADÊMICO</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><img src="https://www.scopus.com/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>Scopus AI</span></a>
+        <span>Scopus AI</span>
+    </a>
     <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><img src="https://researcher.elsevier.com/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>LeapSpace</span></a>
+        <span>LeapSpace</span>
+    </a>
     <a class="btn-custom-menu" href="https://www.researchrabbit.ai/" target="_blank"><img src="https://www.researchrabbit.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>ResearchRabbit</span></a>
+        <span>ResearchRabbit</span>
+    </a>
     <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank"><img src="https://www.perplexity.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>Perplexity</span></a>
+        <span>Perplexity</span>
+    </a>
     <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><img src="https://consensus.app/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>Consensus</span></a>
+        <span>Consensus</span>
+    </a>
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>SciSpace</span></a>
+        <span>SciSpace</span>
+    </a>
     <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><img src="https://elicit.com/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
-        <span>Elicit</span></a>
+        <span>Elicit</span>
+    </a>
     <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>Logically</span>
     </a>
