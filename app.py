@@ -278,21 +278,23 @@ with aba_escopo:
             for x in df_original[col_indexador].unique():
                 if x != "-":
                     for idx in str(x).split(","): set_indexadores.add(idx.strip())
-            # Sem o parâmetro 'default', inicia totalmente limpo
+            # Inicia totalmente limpo (sem preenchimento prévio)
             indexador_sel = st.multiselect("Bases Detentoras:", sorted(list(set_indexadores)))
         else: indexador_sel = []
 
 with aba_impacto:
     col_f4, col_f5, col_f6 = st.columns(3)
     with col_f4:
-        col_q_jcr = "Quartil JCR" if "Quartil JCR" in df_original.columns else None
-        opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() != "-"]) if col_q_jcr else []
-        # Sem o parâmetro 'default', inicia totalmente limpo
+        # Define o nome exato da coluna JCR
+        col_q_jcr = "Quartil JCR"
+        opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-"]]) if col_q_jcr in df_original.columns else []
+        # Inicia totalmente limpo (sem preenchimento prévio)
         q_jcr_sel = st.multiselect("Quartil JCR (Clarivate):", opcoes_jcr)
     with col_f5:
-        col_q_sjr = "SJR Best Quartile" if "SJR Best Quartile" in df_original.columns else None
-        opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() != "-"]) if col_q_sjr else []
-        # Sem o parâmetro 'default', inicia totalmente limpo
+        # Define o nome exato da coluna SJR
+        col_q_sjr = "SJR Best Quartile"
+        opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-"]]) if col_q_sjr in df_original.columns else []
+        # Inicia totalmente limpo (sem preenchimento prévio)
         q_sjr_sel = st.multiselect("Quartil SJR (Scopus):", opcoes_sjr)
     with col_f6:
         opcoes_ordenacao = ["Título"]
@@ -313,14 +315,16 @@ if busca:
 if subarea_sel != "Todas":
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
-# CORREÇÃO CRÍTICA: Só filtra se o usuário realmente selecionou alguma opção (se a lista não estiver vazia)
+# Filtragem das Bases Detentoras (apenas se houver seleção)
 if col_indexador and len(indexador_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
 
-if col_q_jcr and len(q_jcr_sel) > 0:
+# Filtragem do Quartil JCR (apenas se houver seleção)
+if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
 
-if col_q_sjr and len(q_sjr_sel) > 0:
+# Filtragem do Quartil SJR (apenas se houver seleção)
+if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
     df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
 mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
