@@ -24,7 +24,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "Informação e Inteligência de dados aplicadas à produção científica de alto impacto",
+        "subtitulo": "Ciência de dados aplicadas à produção científica de alto impacto.",
         "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -49,7 +49,7 @@ dic = {
     },
     "English": {
         "titulo": "Researcher's Portal",
-        "subtitulo": "Cross-reference international indexers with CNPq funding subareas to discover the ideal strategic journal.",
+        "subtitulo": "Data science applied to high-impact scientific output.",
         "filtros_tit": "#### 🛠️ Smart Search Filters",
         "placeholder_busca": "Enter journal title, ISSN...",
         "buscar_reg": "Search specific record:",
@@ -74,7 +74,7 @@ dic = {
     },
     "Español": {
         "titulo": "Portal del Investigador",
-        "subtitulo": "Cruce indexadores internacionales con las subáreas de fomento del CNPq para descubrir la revista estratégica ideal.",
+        "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
         "filtros_tit": "#### 🛠️ Filtros de Búsqueda Inteligentes",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
