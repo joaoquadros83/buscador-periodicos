@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. INJEÇÃO DE CSS AVANÇADO (Menu Claro em Contraste com Elementos Escuros)
+# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -25,30 +25,47 @@ st.markdown("""
         box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.03) !important;
     }
     
-    /* Ajuste de cor dos textos e labels dentro do menu lateral */
+    /* Textos e labels gerais do menu lateral */
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
         color: #334155 !important;
     }
     
-    /* Estilização elegante dos Radio Buttons do menu para combinar com o fundo claro */
-    div[data-testid="stSidebar"] div[role="radiogroup"] label {
+    /* --- REESTILIZAÇÃO PREMIUM DOS BOTÕES DE LINK NA SIDEBAR --- */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
         background-color: #F8FAFC !important;
+        color: #1E3A8A !important;
         border: 1px solid #E2E8F0 !important;
-        padding: 12px 16px !important;
-        border-radius: 10px !important;
-        margin-bottom: 8px !important;
-        transition: all 0.2s ease;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+        text-align: left !important;
+        display: flex !important;
+        align-items: center !important;
     }
-    div[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+    
+    /* Efeito de passar o mouse (Hover) nos botões da barra lateral */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
         background-color: #F1F5F9 !important;
         border-color: #CBD5E1 !important;
+        color: #0F172A !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
     }
-    div[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
-        background-color: #0F172A !important;  /* Destaque escuro no item selecionado */
-        border-color: #0F172A !important;
+
+    /* Ajuste para o checkbox fixo do Indexador Dinâmico */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
+        background-color: #0F172A !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+        color: #FFFFFF !important;
+        margin-bottom: 15px !important;
     }
-    div[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] span {
-        color: #FFFFFF !important; /* Texto branco no item ativo */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
     }
 
     /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
@@ -58,7 +75,7 @@ st.markdown("""
         border-radius: 16px;
         color: #F8FAFC;
         margin-bottom: 35px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .premium-title {
@@ -72,7 +89,6 @@ st.markdown("""
         font-size: 1.15rem !important;
         color: #94A3B8 !important;
         font-weight: 400;
-        max-width: 800px;
         line-height: 1.6;
     }
     
@@ -83,11 +99,6 @@ st.markdown("""
         border-radius: 14px !important;
         border: 1px solid #E2E8F0 !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    div[data-testid="stMetric"]:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.04) !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
@@ -107,6 +118,16 @@ st.markdown("""
     .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
     button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
     button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
+    
+    /* Botão de download customizado */
+    div[data-testid="stDownloadButton"] button {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        font-weight: 500 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
