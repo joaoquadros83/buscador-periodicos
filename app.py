@@ -150,7 +150,7 @@ menu_selecionado = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
-# --- SEÇÃO DE CRÉDITOS E DIREITOS AUTORAIS ATUALIZADA ---
+# --- SEÇÃO DE CRÉDITOS, DIREITOS AUTORAIS E CHANCELAS ---
 st.sidebar.markdown("<br><br><hr style='border: 0; border-top: 1px solid #E2E8F0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #64748B; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -159,14 +159,18 @@ st.sidebar.markdown("""
         <b>Padrão CNPq:</b> Ativo
         <br><br>
         <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
-        <b>Direitos Autorais & Propriedade:</b><br>
+        
+        <b>Propriedade Intelectual</b><br>
         © 2026 <b>João F. Soares-Quadros Jr.</b><br>
-        Universidade Federal de Ouro Preto<br>
-        Minas Gerais, Brasil.<br>
         <i>Todos os direitos reservados.</i>
+        <br><br>
+        
+        <b>Chancelas & Identidade Digital</b><br>
+        🏛️ <a href='https://www.ufop.br' target='_blank' style='color: #1E3A8A; text-decoration: none; font-weight: 500;'>Universidade Federal de Ouro Preto</a><br>
+        🎓 <a href='https://www.posedu.ufop.br' target='_blank' style='color: #1E3A8A; text-decoration: none; font-weight: 500;'>PPGE / UFOP</a><br>
+        🌐 <a href='https://www.professor.ufop.br/joaoquadros' target='_blank' style='color: #1E3A8A; text-decoration: none; font-weight: 500;'>Gabinete Virtual do Autor</a>
     </div>
 """, unsafe_allow_html=True)
-
 # ==============================================================================
 # SEÇÃO 1: INDEXADOR DINÂMICO DE REVISTAS
 # ==============================================================================
