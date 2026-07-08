@@ -101,31 +101,38 @@ st.markdown("""
         color: #FFFFFF !important;              /* CONTINUA BRANCO */
     }
 
-    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
+# 3. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
+st.markdown("""
+<style>
+    [data-testid="stMetricValue"] {
+        font-size: 2.2rem !important;
+        font-weight: 700 !important;
+        color: #004B87 !important;
+    }
     .premium-hero {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        padding: 50px 40px;
-        border-radius: 16px;
-        color: #F8FAFC;
-        margin-bottom: 35px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        margin-bottom: 25px;
+        border-left: 6px solid #FF2B2B;
     }
     .premium-title {
+        color: #ffffff !important;
+        font-family: 'Inter', sans-serif;
         font-size: 2.6rem !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.04em;
-        color: #FFFFFF !important;
-        margin-bottom: 10px;
+        font-weight: 800 !important;
+        margin-bottom: 8px !important;
+        letter-spacing: -0.5px;
     }
     .premium-subtitle {
+        color: #94a3b8 !important;
         font-size: 1.15rem !important;
-        color: #94A3B8 !important;
-        font-weight: 400;
-        line-height: 1.6;
-    }
-    
-    /* Cards de Métricas */
+        max-width: 800px;
+        line-height: 1.5;
+ } 
+ 
+ /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
         padding: 24px 28px !important;
@@ -164,7 +171,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. BASE DE DADOS COM CACHE
+# 4. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados_revistas.csv", sep=",", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
@@ -190,7 +197,7 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# 4. MENU LATERAL
+# 5. MENU LATERAL
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
@@ -243,7 +250,7 @@ st.sidebar.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 5. PAINEL PRINCIPAL
+# 6. PAINEL PRINCIPAL
 st.markdown("""
     <div class="premium-hero">
         <h1 class="premium-title">Portal do Pesquisador</h1>
@@ -292,7 +299,7 @@ with aba_impacto:
         if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
         criterio_ordem = st.selectbox("Ordenar Resultados por:", options=opcoes_ordenacao)
 
-# 6. FILTRAGEM SEQUENCIAL DE DADOS
+# 7. FILTRAGEM SEQUENCIAL DE DADOS
 df_filtrado = df_original.copy()
 
 if busca:
@@ -316,7 +323,7 @@ col_ordenar, ascendente = mapa_ordem[criterio_ordem]
 if col_ordenar in df_filtrado.columns: 
     df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-# 7. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
+# 8. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
 col_m1, col_m2, col_m3, col_m4 = st.columns(4)
 with col_m1: 
     st.metric("Revistas Selecionadas", f"{len(df_filtrado):,}".replace(",", "."))
@@ -335,7 +342,7 @@ with col_m4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 8. EXIBIÇÃO E PAGINAÇÃO
+# 9. EXIBIÇÃO E PAGINAÇÃO
 st.markdown("#### 📋 Catálogo de Periódicos")
 total_itens = len(df_filtrado)
 if total_itens > 0:
