@@ -260,8 +260,10 @@ st.sidebar.markdown("""
     <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><span>📊 Consensus</span></a>
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>SciSpace</span></a>
-    <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><span>🐇 Elicit</span></a>
-    <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
+        <a class="btn-custom-menu" href="https://elicit.com/" target="_blank">
+        <img src="https://elicit.com/images/logo-icon.svg" style="width: 16px; height: 16px; margin-right: 10px; filter: brightness(0) invert(1);" onerror="this.onerror=null; this.src='https://elicit.com/favicon.ico';">
+        <span>Elicit</span></a>   
+     <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
         <span>Logically</span>
     </a>
 
