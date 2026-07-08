@@ -205,7 +205,7 @@ menu_interno = st.sidebar.checkbox("🔍 Indexador dinâmico", value=True, disab
 st.sidebar.markdown("""
 <style>
     .btn-custom-menu {
-        background-color: #004B87 !important;
+        background-color: #E2E8F0 !important;
         border: 1px solid #004B87 !important;
         border-radius: 6px !important;
         padding: 10px 14px !important;
@@ -288,7 +288,7 @@ st.sidebar.markdown("""
 # -------------------------------------------------------------------------
 st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#E2E8F0; margin-bottom:12px; letter-spacing: 0.05em;'>INFORMAÇÕES INSTITUCIONAIS</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INFORMAÇÕES INSTITUCIONAIS</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://www.ufop.br" target="_blank"><span>🏫 Site da UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.posedu.ufop.br" target="_blank"><span>🎒 Site do PPGE-UFOP</span></a>
