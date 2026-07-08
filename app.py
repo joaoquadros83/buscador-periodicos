@@ -350,7 +350,7 @@ if total_itens > 0:
     fim = inicio + itens_por_pagina
     df_da_pagina = df_filtrado.iloc[inicio:fim]
     
-   st.dataframe(
+    st.dataframe(
     df_da_pagina, 
     use_container_width=True, 
     hide_index=True,
