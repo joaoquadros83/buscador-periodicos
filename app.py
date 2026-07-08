@@ -107,7 +107,13 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
     }   
-    [data-testid="stMetricValue"] {
+    /* ALTERAÇÃO AQUI: Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
+    [data-testid="stSidebar"] label {
+        color: #004B87 !important; /* Substitua pelo código da cor que desejar */
+        font-weight: 600 !important; /* Opcional: deixa o texto levemente em negrito */
+    }
+   
+   [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
         color: #004B87 !important;
