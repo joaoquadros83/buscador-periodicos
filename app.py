@@ -247,7 +247,25 @@ st.sidebar.markdown("""
 
 
 # -------------------------------------------------------------------------
-# BLOCO 2: SITES GOVERNAMENTAIS
+# BLOCO 2: IA PARA USO ACADÊMICO
+# -------------------------------------------------------------------------
+st.sidebar.markdown("""
+<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>IA PARA USO ACADÊMICO</p>
+<div style="display: flex; flex-direction: column;">
+    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><span>🤖 Scopus AI</span></a>
+    <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><span>🚀 LeapSpace</span></a>
+    <a class="btn-custom-menu" href="https://www.researchrabbit.ai/" target="_blank"><span>🐇 ResearchRabbit</span></a>
+    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank"><span>🔍 Perplexity</span></a>
+    <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><span>📊 Consensus</span></a>
+    <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><span>🐇 Scispace</span></a>
+    <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><span>🐇 Elicit</span></a>
+    <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><span>🐇 Logically</span></a>
+</div>
+""", unsafe_allow_html=True)
+
+# -------------------------------------------------------------------------
+# BLOCO 3: SITES GOVERNAMENTAIS
 # -------------------------------------------------------------------------
 st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -259,23 +277,6 @@ st.sidebar.markdown("""
     <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank"><span>📑 Portal de Periódicos Capes</span></a>
 </div>
 """, unsafe_allow_html=True)
-
-
-# -------------------------------------------------------------------------
-# BLOCO 3: IA PARA USO ACADÊMICO
-# -------------------------------------------------------------------------
-st.sidebar.markdown("""
-<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>IA PARA USO ACADÊMICO</p>
-<div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><span>🤖 Scopus AI</span></a>
-    <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><span>🚀 LeapSpace</span></a>
-    <a class="btn-custom-menu" href="https://www.researchrabbit.ai/" target="_blank"><span>🐇 ResearchRabbit</span></a>
-    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank"><span>🔍 Perplexity</span></a>
-    <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><span>📊 Consensus</span></a>
-</div>
-""", unsafe_allow_html=True)
-
 
 # -------------------------------------------------------------------------
 # BLOCO 4: INFORMAÇÕES INSTITUCIONAIS DO AUTOR
