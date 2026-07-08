@@ -138,7 +138,7 @@ st.sidebar.markdown("""
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
     }
     .btn-custom-menu span {
-        color: #FFFFFF !important;
+        color: #004B87 !important;
         font-weight: 500 !important;
         font-size: 0.9rem !important;
         font-family: 'Roboto', sans-serif !important;
