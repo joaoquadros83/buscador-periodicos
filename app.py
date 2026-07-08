@@ -9,124 +9,150 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. INJEÇÃO DE CSS AVANÇADO (Design de Alto Padrão e Ajuste de Botões)
+# 2. INJEÇÃO DE CSS AVANÇADO (Estética Dialnet com Botões Avermelhados)
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
     
+    /* Configuração Geral de Fonte e Fundo */
     html, body, [data-testid="stAppViewContainer"] {
-        font-family: 'Inter', sans-serif !important;
-    }
-    
-    /* --- CUSTOMIZAÇÃO RADICAL DA BARRA LATERAL (MENU CLARO) --- */
-    [data-testid="stSidebar"] {
+        font-family: 'Roboto', sans-serif !important;
         background-color: #FFFFFF !important;
-        border-right: 1px solid #E2E8F0 !important;
-        box-shadow: 4px 0 10px -5px rgba(0, 0, 0, 0.03) !important;
+        color: #333333 !important;
     }
     
-    /* Textos e labels gerais do menu lateral */
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
-        color: #334155 !important;
+    /* --- BARRA LATERAL ESQUERDA (MENU DIALNET CLEAN) --- */
+    [data-testid="stSidebar"] {
+        background-color: #FAFAFA !important;
+        border-right: 1px solid #E5E7EB !important;
+        box-shadow: none !important;
     }
     
-   /* --- REESTILIZAÇÃO CLEAN ACADEMIC DOS BOTÕES DE LINK NA SIDEBAR --- */
+    /* Título do Menu Lateral */
+    div[data-testid="stSidebar"] h2 {
+        color: #002D62 !important;
+        font-weight: 700 !important;
+        font-size: 1.4rem !important;
+    }
+    
+    /* Labels e subtítulos do menu */
+    [data-testid="stSidebar"] p {
+        color: #666666 !important;
+        font-size: 0.8rem !important;
+        letter-spacing: 0.05em;
+    }
+    
+    /* --- BOTÕES DO MENU LATERAL (PADRÃO SELECIONADO / NÃO SELECIONADO) --- */
     div[data-testid="stSidebar"] [data-testid="stLinkButton"] a {
-        background-color: #FFFFFF !important;  /* Fundo Branco */
-        color: #475569 !important;              /* Letra Grafite Suave */
-        border: 1px solid #F1F5F9 !important;   /* Borda Quase Invisível */
-        border-radius: 8px !important;
+        background-color: #FFFFFF !important;  /* Fundo Branco quando NÃO selecionado */
+        color: #004B87 !important;              /* Fonte Azul Atual */
+        border: 1px solid #E5E7EB !important;   /* Borda fina sutil */
+        border-radius: 6px !important;          /* Botões levemente arredondados e elegantes */
         padding: 10px 14px !important;
         font-weight: 500 !important;
         font-size: 0.9rem !important;
         transition: all 0.2s ease-in-out !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.01) !important;
         text-align: left !important;
         display: flex !important;
         align-items: center !important;
+        margin-bottom: 8px !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
     }
     
-    /* Efeito de passar o mouse (Hover) - Clean Academic */
-    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover {
-        background-color: #EFF6FF !important;  /* Fundo Azul-Celeste Claro */
-        border-color: #BFDBFE !important;      /* Borda Azul Suave */
-        color: #2563EB !important;              /* Letra Azul Vivo */
+    /* Efeito de Seleção / Foco / Hover (Tom Avermelhado com Fonte Branca) */
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:hover,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:focus,
+    div[data-testid="stSidebar"] [data-testid="stLinkButton"] a:active {
+        background-color: #A91D22 !important;  /* Tom avermelhado idêntico às abas/Dialnet */
+        color: #FFFFFF !important;              /* Fonte Branca solicitada */
+        border-color: #A91D22 !important;
+        text-decoration: none !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05) !important;
+        box-shadow: 0 4px 12px rgba(169, 29, 34, 0.15) !important;
     }
 
-    /* Ajuste para o checkbox fixo do Indexador Dinâmico (Removido o Dark) */
+    /* Ajuste Fixo para o Indexador Dinâmico (Como ele é a única página interna fixa, fica sempre "Selecionado") */
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] {
-        background-color: #F8FAFC !important;  /* Fundo cinza bem clarinho */
-        padding: 12px 16px !important;
-        border-radius: 8px !important;
-        border: 1px solid #E2E8F0 !important;
-        margin-bottom: 15px !important;
+        background-color: #A91D22 !important;  /* Sempre no tom avermelhado */
+        padding: 12px 14px !important;
+        border: 1px solid #A91D22 !important;
+        border-radius: 6px !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px rgba(169, 29, 34, 0.15) !important;
     }
     div[data-testid="stSidebar"] [data-testid="stCheckbox"] p {
-        color: #0F172A !important;              /* Letra escura legível */
+        color: #FFFFFF !important;              /* Fonte Branca fixa */
         font-weight: 600 !important;
+        font-size: 0.9rem !important;
+    }
+    /* Esconde o quadradinho do checkbox para parecer um botão limpo selecionado */
+    div[data-testid="stSidebar"] [data-testid="stCheckbox"] data-testid="stMarkdownContainer"] {
+        color: #FFFFFF !important;
     }
 
-    /* --- ESTILIZAÇÃO DO CONTEÚDO PRINCIPAL (DASHBOARD) --- */
+    /* --- ESTILIZAÇÃO DO CORPO PRINCIPAL (DASHBOARD DIALNET STYLE) --- */
     .premium-hero {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        padding: 50px 40px;
-        border-radius: 16px;
-        color: #F8FAFC;
+        background-color: #FFFFFF !important;
+        border-bottom: 3px solid #A91D22 !important;
+        padding: 30px 0px 15px 0px;
         margin-bottom: 35px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .premium-title {
-        font-size: 2.6rem !important;
+        font-size: 2.4rem !important;
         font-weight: 700 !important;
-        letter-spacing: -0.04em;
-        color: #FFFFFF !important;
-        margin-bottom: 10px;
+        color: #002D62 !important;
+        margin-bottom: 5px;
     }
     .premium-subtitle {
-        font-size: 1.15rem !important;
-        color: #94A3B8 !important;
+        font-size: 1.1rem !important;
+        color: #555555 !important;
         font-weight: 400;
-        line-height: 1.6;
+        line-height: 1.5;
     }
     
-    /* Cards de Métricas */
+    /* Módulos de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
-        padding: 24px 28px !important;
-        border-radius: 14px !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+        padding: 20px !important;
+        border-radius: 6px !important;
+        border: 1px solid #E5E7EB !important;
     }
     div[data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
-        color: #64748B !important;
-        font-weight: 600 !important;
+        color: #666666 !important;
+        font-weight: 500 !important;
     }
     div[data-testid="stMetricValue"] {
-        font-size: 2rem !important;
-        color: #0F172A !important;
+        font-size: 1.8rem !important;
+        color: #A91D22 !important;
         font-weight: 700 !important;
     }
     
-    /* Inputs, Selectboxes e Tabs */
-    .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
-    .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
-    button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
-    button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
+    /* Elementos de Formulário e Abas Ativas */
+    .stTextInput input { 
+        border-radius: 4px !important; 
+        border: 1px solid #CCCCCC !important; 
+    }
+    button[data-baseweb="tab"] { 
+        font-size: 0.95rem !important; 
+        color: #666666; 
+    }
+    button[data-baseweb="tab"][aria-selected="true"] { 
+        color: #002D62 !important; 
+        border-bottom-color: #A91D22 !important; /* Cor vermelha ativa das abas */
+    }
     
-    /* Botão de download customizado */
+    /* Botão de download */
     div[data-testid="stDownloadButton"] button {
-        background-color: #0F172A !important;
+        background-color: #004B87 !important;
         color: #FFFFFF !important;
-        border-radius: 8px !important;
+        border-radius: 4px !important;
         border: none !important;
-        padding: 10px 20px !important;
+        padding: 8px 16px !important;
         font-weight: 500 !important;
+    }
+    div[data-testid="stDownloadButton"] button:hover {
+        background-color: #002D62 !important;
     }
     </style>
 """, unsafe_allow_html=True)
