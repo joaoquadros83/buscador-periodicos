@@ -106,14 +106,18 @@ except Exception as e:
     st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
     st.stop()
 
-# 4. MENU LATERAL
+# --- 4. ESTRUTURA DO MENU LATERAL ORGANIZADA EM BLOCOS TEMÁTICOS (HTML ESTÁTICO) ---
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+# CABEÇALHO DO MENU
 st.sidebar.markdown("""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
-        <h2 style='margin: 0; font-size: 1.75rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
+        <span style='font-size: 1.8rem;'></span>
+        <h2 style='margin: 0; font-size: 1.60rem; font-weight: 700; color: #0F172A;'>Painel de Navegação</h2>
     </div>
 """, unsafe_allow_html=True)
 
+# --- ESTILO GLOBAL DOS BOTÕES (Injetado uma única vez com segurança) ---
 st.sidebar.markdown("""
 <style>
     .btn-custom-menu {
@@ -126,36 +130,112 @@ st.sidebar.markdown("""
         display: flex !important;
         align-items: center !important;
         text-decoration: none !important;
+        transition: all 0.2s ease-in-out !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
     }
-    .btn-custom-menu span { color: #0F172A !important; font-weight: 500 !important; font-size: 0.9rem !important; }
+    .btn-custom-menu span {
+        color: #FFFFFF !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    .btn-custom-menu:hover {
+        background-color: #FF2B2B !important;
+        border-color: #FF2B2B !important;
+        box-shadow: 0 4px 8px rgba(255, 43, 43, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+    .btn-custom-menu:hover span {
+        color: #FFFFFF !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
+
+# -------------------------------------------------------------------------
+# BLOCO 1: INDEXADORES
+# -------------------------------------------------------------------------
 st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px;'>INDEXADORES</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INDEXADORES</p>
 <div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://www.webofknowledge.com" target="_blank"><span>🌐 Web of Science</span></a>
-    <a class="btn-custom-menu" href="https://www.scopus.com" target="_blank"><span>🧬 Scopus</span></a>
+    <a class="btn-custom-menu" href="https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com&shibShireURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fauth%3DShibboleth&shibReturnURL=https:%2F%2Fwww.webofknowledge.com%2F%3Fmode%3DNextgen%26action%3Dtransfer%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA&referrer=mode%3DNextgen%26path%3D%252Fwos%252Fwoscc%252Fbasic-search%26DestApp%3DUA%26action%3Dtransfer&roaming=true" target="_blank"><span>🌐 Web of Science</span></a>
+    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home?display=basic#basic" target="_blank"><span>🧬 Scopus</span></a>
     <a class="btn-custom-menu" href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><span>🏥 PubMed</span></a>
     <a class="btn-custom-menu" href="https://www.scielo.br/" target="_blank"><span>📚 Scielo BR</span></a>
+    <a class="btn-custom-menu" href="http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p" target="_blank"><span>📖 Educ@</span></a>
 </div>
 """, unsafe_allow_html=True)
 
+
+# -------------------------------------------------------------------------
+# BLOCO 2: IA PARA USO ACADÊMICO
+# -------------------------------------------------------------------------
 st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px;'>IA PARA USO ACADÊMICO</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>IA PARA USO ACADÊMICO</p>
 <div style="display: flex; flex-direction: column;">
-    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank"><span>🤖 Perplexity AI</span></a>
-    <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><span>🚀 SciSpace</span></a>
-    <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><span>🔍 Elicit</span></a>
+    <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><span><img src="https://images.icon-icons.com/2389/PNG/512/elsevier_logo_icon_145310.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>ScopusAI</span></a>
+    <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><span><img src="https://content-media.pamedia.io/press-release/picture/2025/11/19/01KADJ2EW8YDYQABYJFZFVZ5YR.jpg?format=jpg&dl=pr-newswire-associated0.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>ScopusAI</span></a>
+    <a class="btn-custom-menu" href="https://www.researchrabbit.ai/" target="_blank"><span><img src="https://pbs.twimg.com/profile_images/1983772825812189184/IXDTOqLX_400x400.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px;object-fit: cover;"><span>ResearchRabbit</span></a>
+    <a class="btn-custom-menu" href="https://www.perplexity.ai/" target="_blank">
+        <img src="https://framerusercontent.com/images/gcMkPKyj2RX8EOEja8A1GWvCb7E.jpg?width=2000&height=2000" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Perplexity</span></a>
+    <a class="btn-custom-menu" href="https://consensus.app/?utm_source=google&utm_medium=paid&utm_campaign=search_competitor_latam&utm_term=scispace+agent&gad_source=1&gad_campaignid=23637964535&gbraid=0AAAAAqgO5PKTHKhADELl5WWPvhFYlKZ4G&gclid=CjwKCAjw6rfSBhAqEiwA_yocpk46F5xZlZGXi1jJFvil1cNmjZcmvFHcb_uDn758yGvyA3gJbnKdfhoCE_UQAvD_BwE" target="_blank"><img src="https://logosandtypes.com/wp-content/uploads/2025/04/Consensus-scaled.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Consensus</span></a>
+    <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>SciSpace</span></a>
+        <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><img src="https://zonalogo.com/assets/elicit-logo-png-svg.webp?asset=2444&w=320" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
+        <span>Elicit</span></a>   
+        <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;">
+        <span>Logically</span>
+    </a>
+
 </div>
 """, unsafe_allow_html=True)
 
+# -------------------------------------------------------------------------
+# BLOCO 3: SITES GOVERNAMENTAIS
+# -------------------------------------------------------------------------
+st.sidebar.markdown("""
+<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>SITES GOVERNAMENTAIS</p>
+<div style="display: flex; flex-direction: column;">
+    <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span>🏛️ CNPq</span></a>
+    <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span>🎓 Capes</span></a>
+    <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank"><span>📄 Currículo Lattes</span></a>
+    <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank"><span>📑 Portal de Periódicos Capes</span></a>
+</div>
+""", unsafe_allow_html=True)
+
+# -------------------------------------------------------------------------
+# BLOCO 4: INFORMAÇÕES INSTITUCIONAIS DO AUTOR
+# -------------------------------------------------------------------------
+st.sidebar.markdown("""
+<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INFORMAÇÕES INSTITUCIONAIS</p>
+<div style="display: flex; flex-direction: column;">
+    <a class="btn-custom-menu" href="https://www.ufop.br" target="_blank"><span>🏫 Site da UFOP</span></a>
+    <a class="btn-custom-menu" href="https://www.posedu.ufop.br" target="_blank"><span>🎒 Site do PPGE-UFOP</span></a>
+    <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>👤 Site pessoal</span></a>
+</div>
+""", unsafe_allow_html=True)
+
+
+# -------------------------------------------------------------------------
+# RODAPÉ: DIREITOS AUTORAIS
+# -------------------------------------------------------------------------
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
-        © 2026 <b>João F. Soares-Quadros Jr.</b><br>UFOP | Todos os direitos reservados.
+        <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin:0 0 8px 0; letter-spacing: 0.05em;'>METADADOS</p>
+        <span style='color: #A91D22;'>●</span> <b>Sistema:</b> Operacional<br>
+        <b>Versão Base:</b> 2026.1<br>
+        <b>Padrão CNPq:</b> Ativo
+        <br><br>
+        <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
+        <b>Direitos Autorais & Propriedade:</b><br>
+        © 2026 <b>João F. Soares-Quadros Jr.</b><br>
+        Universidade Federal Ouro Preto<br>
+        Minas Gerais, Brasil.<br>
+        <i>Todos os direitos reservados.</i>
     </div>
 """, unsafe_allow_html=True)
 
