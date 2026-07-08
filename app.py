@@ -164,7 +164,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 3. BASE DE DADOS COM CACHE (Ajustada com substituição de None por '-')
+# 3. BASE DE DADOS COM CACHE (Ajustada para o novo dados_revistas.csv)
 @st.cache_data
 def carregar_dados():
     # Lendo com separador de vírgula padrão e ignorando falhas de quebra de linha
@@ -185,9 +185,8 @@ def carregar_dados():
     
     # 2. Varre todas as colunas limpando textos como "None", "none" ou espaços vazios
     for col in df.columns:
-        df[col] = df[col].apply(lambda x: "-" if str(x).strip().lower() in ["none", "nan", "", "null"] else x)
-        
-    return df
+        df[col] = df[col].apply(lambda x: "-" if str(x).strip().lower() in ["none", "nan", "", "null"] else x)    
+return df
 
 try:
     df_original = carregar_dados()
