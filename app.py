@@ -285,7 +285,7 @@ if menu_selecionado == "🔍 Indexador dinâmico":
         st.warning("Nenhum periódico atende aos critérios aplicados.")
 
 # ==============================================================================
-# AMBIENTES COMPATÍVEIS E DIRECIONAMENTO SEGURO (RESOLUÇÃO DE ERRO DE IFRAME)
+# AMBIENTES MISTOS: INTEGRAÇÃO INTEGRAL OU DIRECIONAMENTO SEGURO (CORREÇÃO)
 # ==============================================================================
 else:
     # Banco de links fornecido
@@ -306,31 +306,38 @@ else:
     url_alvo = mapeamento_urls[menu_selecionado]
     nome_servico = menu_selecionado.split(' ', 1)[1]
 
-    # Lista de sites que aceitam iFrame sem quebrar o layout (Scielo permite)
-    sites_permitidos_iframe = ["📚 Buscador da Scielo BR"]
+    # Lista das opções que funcionam perfeitamente embutidas em seu ambiente
+    sites_permitidos_iframe = [
+        "📚 Buscador da Scielo BR",
+        "📄 Site Currículo Lattes",
+        "🎓 Site da Capes",
+        "📑 Portal de Periódicos Capes",
+        "👤 Site pessoal"
+    ]
 
+    # SEÇÃO A: Para os sites que funcionam, mantém o iFrame aberto direto
     if menu_selecionado in sites_permitidos_iframe:
         st.markdown(f"### {menu_selecionado}")
         st.caption("Acesso direto e integrado ao ecossistema de pesquisa.")
         st.markdown(f"""
             <iframe src="{url_alvo}" 
-                    style="width:100%; height:800px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
+                    style="width:100%; height:850px; border:1px solid #E2E8F0; border-radius:12px; background-color: #FFFFFF;" 
                     allowfullscreen>
             </iframe>
         """, unsafe_allow_html=True)
     
+    # SEÇÃO B: Modifica estritamente as opções que dão erro no servidor externo
     else:
-        # Layout de Card Executivo para os sites que bloqueiam iFrame corporativo
         st.markdown(f"""
-            <div class="premium-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; color: #0F172A;">
+            <div class="premium-hero" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; color: #0F172A; margin-top: 20px;">
                 <h2 style="color: #0F172A !important; font-weight: 700; font-size: 1.8rem; margin-bottom: 8px;">{nome_servico}</h2>
-                <p style="color: #64748B !important; font-size: 1.05rem; max-width: 650px; margin-bottom: 25px;">
-                    Para sua segurança e proteção de dados, esta plataforma externa requer autenticação direta ou restringe a exibição interna em painéis secundários.
+                <p style="color: #64748B !important; font-size: 1.05rem; max-width: 650px; margin-bottom: 5px;">
+                    Para sua segurança e proteção de dados institucionais, esta plataforma requer autenticação direta ou restringe a exibição interna em painéis secundários.
                 </p>
             </div>
         """, unsafe_allow_html=True)
         
-        # Centralização do botão com destaque elegante
+        # Estrutura elegante com botão centralizado
         col_esqueda, col_central, col_direita = st.columns([1, 2, 1])
         with col_central:
             st.markdown("<br>", unsafe_allow_html=True)
