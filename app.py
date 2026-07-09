@@ -286,18 +286,45 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO (VERSÃO SEGURA SHIELDS) ---
+# --- BLOCO ADICIONADO: CONTADOR NATIVO E SEGURO (SEM DEPENDÊNCIAS EXTERNAS) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>ESTATÍSTICAS</p>", unsafe_allow_html=True)
 
-# Este link utiliza a API estável do Shields.io que o Streamlit aceita nativamente e NÃO gera erro 403
-link_contador = "https://img.shields.io/badge/dynamic/json?color=79C83D&label=Visitas&query=%24.value&url=https%3A%2F%2Fapi.countapi.xyz%2Fhit%2Fbuscador-periodicos.streamlit.app%2Fvisits"
-
-# Exibe o contador centralizado na barra lateral utilizando colunas nativas
-col_cnt1, col_cnt2, col_cnt3 = st.sidebar.columns([1, 3, 1])
-with col_cnt2:
-    st.image(link_contador)
-# ------------------------------------------------------
+try:
+    import os
+    arquivo_contador = "contador_visitas.txt"
+    
+    # Se o ficheiro não existir no servidor, inicia com zero
+    if not os.path.exists(arquivo_contador):
+        with open(arquivo_contador, "w") as f:
+            f.write("0")
+            
+    # Lê o valor atual de visitas
+    with open(arquivo_contador, "r") as f:
+        conteudo = f.read().strip()
+        visitas = int(conteudo) if conteudo.isdigit() else 0
+        
+    # Incrementa apenas uma vez por carregamento (evita contar cliques nos filtros)
+    if 'visitou' not in st.session_state:
+        st.session_state.visitou = True
+        visitas += 1
+        with open(arquivo_contador, "w") as f:
+            f.write(str(visitas))
+            
+    # Desenha um selo visual moderno na barra lateral
+    st.sidebar.markdown(f"""
+        <div style="background-color: #79C83D; color: white; padding: 8px 12px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            👤 Visitas ao Portal: {visitas}
+        </div>
+    """, unsafe_allow_html=True)
+except Exception:
+    # Salvaguarda caso o servidor restrinja temporariamente a escrita de ficheiros
+    st.sidebar.markdown("""
+        <div style="background-color: #555555; color: white; padding: 8px 12px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9rem;">
+            📊 Portal Online
+        </div>
+    """, unsafe_allow_html=True)
+# ----------------------------------------------------------------------------
 
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
