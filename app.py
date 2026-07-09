@@ -1,13 +1,22 @@
 import streamlit as st
 import pandas as pd
+import streamlit_analytics  # <-- 1. Importe a biblioteca aqui
 
-# 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
-st.set_page_config(
-    page_title="Portal do Pesquisador v3.0",
-    page_icon="📚",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# 2. Ative o rastreamento com uma senha que só você sabe
+# Coloque todo o seu código atual dentro deste bloco 'with'
+with streamlit_analytics.track(password="sua_senha_secreta_aqui"):
+
+    # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
+    st.set_page_config(
+        page_title="Portal do Pesquisador v3.0",
+        page_icon="📚",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    
+    # ... TODO O RESTO DO SEU CÓDIGO DO ARQUIVO CONTINUA EXATAMENTE IGUAL AQUI ...
+    
+    # (Remova aquele bloco do 'contador_html' que estava dando o erro 403)
 
 # --- SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
