@@ -286,46 +286,52 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- BLOCO ADICIONADO: CONTADOR NATIVO E SEGURO (SEM DEPENDÊNCIAS EXTERNAS) ---
+# --- BLOCO ATUALIZADO: CONTADOR FLUIDO E RESPONSIVO ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>ESTATÍSTICAS</p>", unsafe_allow_html=True)
 
 try:
     import os
     arquivo_contador = "contador_visitas.txt"
     
-    # Se o ficheiro não existir no servidor, inicia com zero
     if not os.path.exists(arquivo_contador):
         with open(arquivo_contador, "w") as f:
             f.write("0")
             
-    # Lê o valor atual de visitas
     with open(arquivo_contador, "r") as f:
         conteudo = f.read().strip()
         visitas = int(conteudo) if conteudo.isdigit() else 0
         
-    # Incrementa apenas uma vez por carregamento (evita contar cliques nos filtros)
     if 'visitou' not in st.session_state:
         st.session_state.visitou = True
         visitas += 1
         with open(arquivo_contador, "w") as f:
             f.write(str(visitas))
             
-    # Desenha um selo visual moderno na barra lateral
+    # HTML Otimizado para Mobile: padding menor, cantos arredondados suaves e largura total responsiva
     st.sidebar.markdown(f"""
-        <div style="background-color: #79C83D; color: white; padding: 8px 12px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div style="
+            background-color: #79C83D; 
+            color: white; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 0.88rem; 
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            width: 100%;
+            box-sizing: border-box;
+        ">
             👤 Visitas ao Portal: {visitas}
         </div>
     """, unsafe_allow_html=True)
 except Exception:
-    # Salvaguarda caso o servidor restrinja temporariamente a escrita de ficheiros
     st.sidebar.markdown("""
-        <div style="background-color: #555555; color: white; padding: 8px 12px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 0.9rem;">
+        <div style="background-color: #475569; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; width: 100%;">
             📊 Portal Online
         </div>
     """, unsafe_allow_html=True)
 # ----------------------------------------------------------------------------
-
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
