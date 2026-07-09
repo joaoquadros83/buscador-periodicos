@@ -169,6 +169,17 @@ t = dic[st.session_state.idioma]
 # 2. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
 st.markdown("""
 <style>
+    /* Esconde a logo apenas em telas de celulares (menores que 768px) */
+    @media (max-width: 768px) {
+    .premium-hero img {
+        display: none !important;
+    }
+    /* Opcional: Centraliza o texto no celular já que a logo sumiu */
+    .premium-hero {
+        text-align: center;
+        justify-content: center;
+    }
+}
     /* Força o fundo do menu lateral com a cor definida */
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
@@ -425,26 +436,16 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
-# Função inteligente para converter a imagem guardada localmente em Base64
-def obter_imagem_local_base64(caminho_arquivo):
-    try:
-        with open(caminho_arquivo, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
-    except FileNotFoundError:
-        return ""
-
-# Procura pelo ficheiro 'logo.png' que enviaste para o GitHub
 imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    # Se encontrar a imagem, cria a tag HTML com o código binário seguro
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 120px; width: auto; object-fit: contain;">'
 else:
-    # Caso o ficheiro não seja encontrado (ou ainda esteja a atualizar), usa o emoji temporariamente
-    tag_imagem = '<div style="font-size: 2.5rem; margin-right: 10px;">📚</div>'
+    # Se usar o emoji reserva, colocamos uma tag <span> para o CSS também conseguir escondê-lo no celular se quiser
+    tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
 
 st.markdown(f"""
-    <div class="premium-hero" style="display: flex; align-items: center; gap: 20px;">
+    <div class="premium-hero" style="display: flex; align-items: center; gap: 25px;">
         {tag_imagem}
         <div>
             <h1 class="premium-title" style="margin:0 !important;">{t['titulo']}</h1>
