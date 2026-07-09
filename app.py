@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import base64
-import re
 
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
@@ -17,7 +16,11 @@ def obter_imagem_local_base64(caminho_arquivo):
         return "" # Retorna vazio se não encontrar o arquivo
 
 # --- PREPARAÇÃO DO NOVO ÍCONE DA PÁGINA ---
-imagem_base64_icon = obter_imagem_local_base64("favicon.png")
+# Procura pelo arquivo 'logo.png' que você já enviou para o GitHub
+imagem_base64_icon = obter_imagem_local_base64("logo.png")
+
+# --- PREPARAÇÃO DO ÍCONE DA PÁGINA (Apontando para a versão simplificada) ---
+imagem_base64_icon = obter_imagem_local_base64("favicon.png") # Nova imagem focada em tamanho pequeno
 
 if imagem_base64_icon:
     novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
@@ -68,7 +71,8 @@ dic = {
         "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
         "nav_tit": "Painel de Navegação",
         "todas": "Todas",
-        "col_h5": "Índice h5 (Scholar)",
+        "col_h5": "Índice h5 (Scholar)", # certifique-se que a última chave existente tenha uma vírgula no final
+        # NOVAS CHAVES:
         "meta_tit": "METADADOS",
         "meta_sistema": "Sistema",
         "meta_versao": "Versão Base",
@@ -81,7 +85,7 @@ dic = {
         "gov_tit": "SITES GOVERNAMENTAIS",
         "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
         "pessoal_lbl": "👤 Site pessoal",
-        # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
+# TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
         "ia_tit": "IA ACADÊMICA"
     },
@@ -110,6 +114,7 @@ dic = {
         "nav_tit": "Navigation Panel",
         "todas": "All",
         "col_h5": "h5-Index (Scholar)",
+        # NOVAS CHAVES:
         "meta_tit": "METADATA",
         "meta_sistema": "System",
         "meta_versao": "Base Version",
@@ -119,10 +124,10 @@ dic = {
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
         "visitas_lbl": "Portal Visits",
-        "gov_tit": "GOVERNMENT WEBSITES",
+	"gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
         "pessoal_lbl": "👤 Personal website",
-        # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
+# TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXERS",
         "ia_tit": "ACADEMIC AI"
     },
@@ -151,6 +156,7 @@ dic = {
         "nav_tit": "Panel de Navegación",
         "todas": "Todas",
         "col_h5": "Índice h5 (Scholar)",
+        # NOVAS CHAVES:
         "meta_tit": "METADATOS",
         "meta_sistema": "Sistema",
         "meta_versao": "Versión Base",
@@ -160,10 +166,10 @@ dic = {
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
         "visitas_lbl": "Visitas al Portal",
-        "gov_tit": "SITIOS DEL GOBIERNO",
+	"gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
         "pessoal_lbl": "👤 Sitio personal",
-        # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
+# TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
         "ia_tit": "IA ACADÉMICA"
     }
@@ -173,18 +179,40 @@ t = dic[st.session_state.idioma]
 # 2. DESIGN DO HERO DA PÁGINA (CSS CUSTOMIZADO)
 st.markdown("""
 <style>
+    /* Esconde a logo apenas em telas de celulares (menores que 768px) */
     @media (max-width: 768px) {
-        .premium-hero img { display: none !important; }
-        .premium-hero { text-align: center; justify-content: center; }
+    .premium-hero img {
+        display: none !important;
     }
-    [data-testid="stSidebar"] { background-color: #F8F0E3 !important; }   
-    .stExpander details summary p {
-        font-size: 1.35rem !important;
-        font-weight: 600 !important;
-        color: #FFFFF !important;
+    /* Opcional: Centraliza o texto no celular já que a logo sumiu */
+    .premium-hero {
+        text-align: center;
+        justify-content: center;
     }
-    [data-testid="stSidebar"] label { color: #004B87 !important; font-weight: 600 !important; }
-    [data-testid="stMetricValue"] { font-size: 2.2rem !important; font-weight: 700 !important; color: #004B87 !important; }
+}
+    /* Força o fundo do menu lateral com a cor definida */
+    [data-testid="stSidebar"] {
+        background-color: #F8F0E3 !important;
+    }   
+    
+/* Aumenta o tamanho da fonte e destaca o título do expander */
+.stExpander details summary p {
+    font-size: 1.35rem !important; /* Ajuste este valor para o tamanho que desejar */
+    font-weight: 600 !important;   /* Deixa o título em negrito */
+    color: #FFFFF !important;     /* Mantém a cor no tom escuro padrão do seu site */
+}
+
+/* Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
+    [data-testid="stSidebar"] label {
+        color: #004B87 !important; 
+        font-weight: 600 !important; 
+    }
+   
+   [data-testid="stMetricValue"] {
+        font-size: 2.2rem !important;
+        font-weight: 700 !important;
+        color: #004B87 !important;
+    }
     .premium-hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
         padding: 35px;
@@ -201,7 +229,14 @@ st.markdown("""
         margin-bottom: 8px !important;
         letter-spacing: -0.5px;
     }
-    .premium-subtitle { color: #FFFFFF !important; font-size: 1.45rem !important; max-width: 900px; line-height: 1.5; margin-top: 10px; }
+.premium-subtitle {
+    color: #FFFFFF !important;
+    font-size: 1.45rem !important; 
+    max-width: 900px;              
+    line-height: 1.5;
+    margin-top: 10px; /* Adiciona um espaço elegante entre o título e o subtítulo */
+}
+    /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
         padding: 24px 28px !important;
@@ -209,24 +244,45 @@ st.markdown("""
         border: 1px solid #E2E8F0 !important;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
     }
-    div[data-testid="stMetricLabel"] { font-size: 0.85rem !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; color: #64748B !important; font-weight: 600 !important; }
-    div[data-testid="stMetricValue"] { font-size: 2rem !important; color: #0F172A !important; font-weight: 700 !important; }
+    div[data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        color: #64748B !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        color: #0F172A !important;
+        font-weight: 700 !important;
+    }
+    
     .stTextInput input { border-radius: 10px !important; padding: 12px 16px !important; border: 1px solid #CBD5E1 !important; }
     .stSelectbox div[data-baseweb="select"] { border-radius: 10px !important; }
     button[data-baseweb="tab"] { font-size: 1rem !important; font-weight: 500 !important; color: #64748B; padding: 12px 20px !important; }
     button[data-baseweb="tab"][aria-selected="true"] { color: #0F172A !important; border-bottom-color: #0F172A !important; }
-    div[data-testid="stDownloadButton"] button { background-color: #0F172A !important; color: #FFFFFF !important; border-radius: 8px !important; border: none !important; padding: 10px 20px !important; font-weight: 500 !important; }
+    
+    div[data-testid="stDownloadButton"] button {
+        background-color: #0F172A !important;
+        color: #FFFFFF !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        font-weight: 500 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # 3. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
+    # CORREÇÃO CRÍTICA: Lendo com sep=";" conforme estrutura real do seu arquivo dados_revistas.csv
     df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
     df = df.drop_duplicates(subset=[df.columns[0]])
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     df.columns = [c.strip() for c in df.columns]
     
+    # Tratamento numérico padrão das métricas
     for col in ['SJR', 'JIF', 'h-index', 'H index']:
         if col in df.columns:
             df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
@@ -264,7 +320,12 @@ st.sidebar.markdown("""
         transition: all 0.2s ease-in-out !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
     }
-    .btn-custom-menu span { color: #004B87 !important; font-weight: 500 !important; font-size: 0.9rem !important; font-family: 'Roboto', sans-serif !important; }
+    .btn-custom-menu span {
+        color: #004B87 !important;
+        font-weight: 500 !important;
+        font-size: 0.9rem !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
     .btn-custom-menu:hover {
         background-color: #FF2B2B !important;
         border-color: #FF2B2B !important;
@@ -275,10 +336,9 @@ st.sidebar.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# INDEXADORES VIA METADADO DINÂMICO
-st.sidebar.markdown(f"""
+st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['indexadores_tit']}</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INDEXADORES</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com" target="_blank"><span>🌐 Web of Science</span></a>
     <a class="btn-custom-menu" href="https://www.scopus.com/pages/home?display=basic#basic" target="_blank"><span>🧬 Scopus</span></a>
@@ -288,10 +348,9 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# IA ACADÊMICA VIA METADADO DINÂMICO
-st.sidebar.markdown(f"""
+st.sidebar.markdown("""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['ia_tit']}</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>IA ACADÊMICA</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://www.scopus.com/pages/home#scopus-ai" target="_blank"><span><img src="https://images.icon-icons.com/2389/PNG/512/elsevier_logo_icon_145310.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>ScopusAI</span></a>
     <a class="btn-custom-menu" href="https://researcher.elsevier.com/" target="_blank"><span><img src="https://content-media.pamedia.io/press-release/picture/2025/11/19/01KADJ2EW8YDYQABYJFZFVZ5YR.jpg?format=jpg&dl=pr-newswire-associated0.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>LeapSpace</span></a>
@@ -392,6 +451,7 @@ imagem_base64 = obter_imagem_local_base64("logo.png")
 if imagem_base64:
     tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 200px; width: auto; object-fit: contain;">'
 else:
+    # Se usar o emoji reserva, colocamos uma tag <span> para o CSS também conseguir escondê-lo no celular se quiser
     tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
 
 st.markdown(f"""
@@ -428,23 +488,24 @@ elif st.session_state.idioma == "English":
     3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
     4. **Data Export:** Filter results according to your needs and download the customized table immediately.
     """
-else: 
+else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
     ### ¡Bienvenido al Portal del Investigador!
-    Esta es una herramienta gratuita que fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para suas producciones científicas.
+   Esta es una herramienta gratuita que fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
     
     #### 🛠️ ¿Qué puedes hacer aquí?
     1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
     2. **Filtros por Subárea:** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
-    3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
+    3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
     4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
     """
-
+# Renderiza o Expander na tela de forma limpa
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
 
 st.markdown("<br>", unsafe_allow_html=True)
+# --- FIM DA NOVA SEÇÃO ---
 
 st.markdown(t['filtros_tit'])
 busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
@@ -495,21 +556,32 @@ with aba_impacto:
 df_filtrado = df_original.copy()
 
 if busca:
+    import re
     texto_busca = busca.strip()
+    
+    # 1. Tratamento Prévio: Identifica termos exatos entre aspas
+    # Cria uma lista temporária para guardar os blocos exatos e não misturá-los com operadores
     termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
+    
+    # Substitui os termos com aspas por um marcador temporário para não quebrar a lógica booleana seguinte
     texto_processado = texto_busca
     for i, termo in enumerate(termos_exatos):
         texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
         
+    # Se o usuário não digitou operadores lógicos explícitos, assume AND por padrão entre os blocos
     if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
         palavras = [p.strip() for p in texto_processado.split() if p.strip()]
         texto_processado = " AND ".join(palavras)
 
+    # 2. Avaliação Lógica Avançada por Linha (Suporta Booleanos + Aspas)
     def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
         linha_texto = str(linha_texto).lower()
+        
+        # Divide a expressão pelos operadores booleanos principais
         tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
+        
         resultado_final = False
-        operador_atual = "OR"  
+        operador_atual = "OR"  # Padrão de inicialização
         inverter_proximo = False
         
         for token in tokens:
@@ -526,12 +598,15 @@ if busca:
             elif token_upper == "NOT":
                 inverter_proximo = True
             else:
+                # Verifica se o token é um marcador de termo exato entre aspas
                 match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
                 if match_exact:
                     idx = int(match_exact.group(1))
+                    # Resgata o termo original de dentro das aspas e força correspondência exata
                     termo_real = lista_exatos[idx].lower()
                     possui_termo = termo_real in linha_texto
                 else:
+                    # Termo comum sem aspas
                     termo_real = token_clean.lower()
                     possui_termo = termo_real in linha_texto
                 
@@ -539,12 +614,101 @@ if busca:
                     possui_termo = not possui_termo
                     inverter_proximo = False
                 
+                # Aplicação da tabela verdade booleana
                 if operador_atual == "AND":
                     resultado_final = resultado_final and possui_termo
                 elif operador_atual == "OR":
                     resultado_final = resultado_final or possui_termo
+                    
         return resultado_final
 
-    # Aplicação prática da busca avançada na coluna de títulos por exemplo:
-    col_titulo = df_filtrado.columns[0]
-    df_filtrado = df_filtrado[df_filtrado[col_titulo].apply(lambda x: avaliar_busca_avancada(x, texto_processado, termos_exatos))]
+    # Executa o filtro combinando o Título da Revista (coluna 0) e o ISSN
+    df_filtrado = df_filtrado[
+        df_filtrado.apply(
+            lambda row: avaliar_busca_avancada(
+                f"{row[df_filtrado.columns[0]]} {row['ISSN']}", 
+                texto_processado, 
+                termos_exatos
+            ), 
+            axis=1
+        )
+    ]
+
+# (O restante do seu script com filtros de subárea, indexador, métricas e paginação continua igual abaixo...)
+if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
+    df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
+
+if col_indexador and len(indexador_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
+
+if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+
+if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
+
+mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
+col_ordenar, ascendente = mapa_ordem[criterio_ordem]
+if col_ordenar in df_filtrado.columns: 
+    df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+
+# 7. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
+col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+with col_m1: 
+    st.metric(t['m_selecionadas'], f"{len(df_filtrado):,}".replace(",", "."))
+with col_m2: 
+    h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
+    max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
+    st.metric(t['m_hindex'], max_h)
+with col_m3: 
+    jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
+    max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
+    st.metric(t['m_jif'], max_jif)
+with col_m4: 
+    sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
+    max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
+    st.metric(t['m_sjr'], max_sjr)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# 8. EXIBIÇÃO E PAGINAÇÃO
+st.markdown(t['cat_tit'])
+total_itens = len(df_filtrado)
+if total_itens > 0:
+    col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
+    with col_pag1:
+        itens_por_pagina = st.selectbox(t['exibir_pag'], options=[20, 50, 100], index=1)
+    total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
+    with col_pag2:
+        pagina_atual = st.number_input(f"{t['pag_lbl']} (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
+    
+    inicio = (pagina_atual - 1) * itens_por_pagina
+    fim = inicio + itens_por_pagina
+    df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
+    
+    # Tratamento de segurança: Se o link for "-", limpamos para None para o LinkColumn não quebrar
+    if "Índice h5" in df_da_pagina.columns:
+        df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
+    
+    # Exibição com colunas ocultas e link limpo estilizado como "🔗 Abrir"
+    st.dataframe(
+        df_da_pagina, 
+        use_container_width=True, 
+        hide_index=True,
+        column_config={
+            "Homepage": None,
+            "Grande Area": None,
+            "Area do Conhecimento": None,
+            "Subárea do Conhecimento": None,
+            "Índice h5": st.column_config.LinkColumn(
+                t['col_h5'],
+                help="Clique para abrir o índice h5 no Google Scholar",
+                display_text="🔗 Abrir"
+            )
+        }
+    )
+    
+    csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
+    st.download_button(label=f"{t['exportar_btn']} ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
+else:
+    st.warning(t['aviso_nada'])
