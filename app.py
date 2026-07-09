@@ -48,7 +48,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "Ciência de dados aplicadas à produção científica de alto impacto.",
+        "subtitulo": "Ciência de dados aplicadas à produção científica de alto impacto",
         "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -214,13 +214,13 @@ st.markdown("""
     .premium-title {
         color: #ffffff !important;
         font-family: 'Inter', sans-serif;
-        font-size: 2.6rem !important;
+        font-size: 2.8rem !important;
         font-weight: 800 !important;
         margin-bottom: 8px !important;
         letter-spacing: -0.5px;
     }
 .premium-subtitle {
-    color: #94a3b8 !important;
+    color: #FFFFFF !important;
     font-size: 1.45rem !important; 
     max-width: 900px;              
     line-height: 1.5;
