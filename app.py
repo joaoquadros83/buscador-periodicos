@@ -62,6 +62,9 @@ dic = {
         "direitos_tit": "Direitos Autorais & Propriedade",
         "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
         "visitas_lbl": "Visitas ao Portal"
+        "gov_tit": "SITES GOVERNAMENTAIS",
+        "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
+        "pessoal_lbl": "👤 Site pessoal"
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -98,6 +101,9 @@ dic = {
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
         "visitas_lbl": "Portal Visits"
+	"gov_tit": "GOVERNMENT SITES",
+        "inst_tit": "INSTITUTIONAL INFORMATION",
+        "pessoal_lbl": "👤 Personal website"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -134,6 +140,9 @@ dic = {
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
         "visitas_lbl": "Visitas al Portal"
+	"gov_tit": "SITIOS GUBERNAMENTALES",
+        "inst_tit": "INFORMACIÓN INSTITUCIONAL",
+        "pessoal_lbl": "👤 Sitio personal"
     }
 }
 t = dic[st.session_state.idioma]
