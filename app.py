@@ -87,7 +87,7 @@ dic = {
         "pessoal_lbl": "👤 Site pessoal",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
-	"repositorios_tit": REPOSITÓRIOS,
+	"repositorios_tit": "REPOSITÓRIOS",
         "ia_tit": "IA ACADÊMICA"
     },
     "English": {
@@ -130,7 +130,7 @@ dic = {
         "pessoal_lbl": "👤 Personal website",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXERS",
-	"repositorios_tit": "DIRECTORY",
+	"repositorios_tit": "DIRECTORIES",
         "ia_tit": "ACADEMIC AI"
     },
     "Español": {
@@ -173,7 +173,7 @@ dic = {
         "pessoal_lbl": "👤 Sitio personal",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
-	"repositorios_tit": DIRECTORIO,
+	"repositorios_tit": "DIRECTORIOS",
         "ia_tit": "IA ACADÉMICA"
     }
 }
