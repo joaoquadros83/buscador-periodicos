@@ -416,10 +416,15 @@ with aba_impacto:
 df_filtrado = df_original.copy()
 
 if busca:
-    df_filtrado = df_filtrado[
-        df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(busca, case=False, na=False) | 
-        df_filtrado["ISSN"].astype(str).str.contains(busca, case=False, na=False)
-    ]
+    # Se o usuário digitar espaços, convertemos para o operador "|" (OU) do RegEx
+    # Exemplo: "Vaccines Urban" vira "Vaccines|Urban"
+    termo_regex = "|".join([t.strip() for t in busca.split() if t.strip()])
+    
+    if termo_regex:
+        df_filtrado = df_filtrado[
+            df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(termo_regex, case=False, na=False, regex=True) | 
+            df_filtrado["ISSN"].astype(str).str.contains(termo_regex, case=False, na=False, regex=True)
+        ]
 
 if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
