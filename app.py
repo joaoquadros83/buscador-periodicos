@@ -482,13 +482,9 @@ if total_itens > 0:
     
     inicio = (pagina_atual - 1) * itens_por_pagina
     fim = inicio + itens_por_pagina
-    df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
+    df_da_pagina = df_filtrado.iloc[inicio:fim]
     
-    # IMPORTANTE: Se o link for "-", limpamos para None para o LinkColumn não dar erro
-    if "Índice h5 (Scholar)" in df_da_pagina.columns:
-        df_da_pagina["Índice h5 (Scholar)"] = df_da_pagina["Índice h5 (Scholar)"].replace("-", None)
-    
-    # Exibição limpa e organizada com configuração de Link ativa
+    # Exibição com colunas ocultas através do formato dicionário seguro e configuração de Link ativo
     st.dataframe(
         df_da_pagina, 
         use_container_width=True, 
@@ -500,8 +496,8 @@ if total_itens > 0:
             "Subárea do Conhecimento": None,
             "Índice h5 (Scholar)": st.column_config.LinkColumn(
                 t['col_h5'],
-                help="Clique para abrir o índice h5 no Google Scholar",
-                display_text="🔗 Abrir"  # Transforma o link gigante no texto limpo "🔗 Abrir"
+                help="Acessar o índice h5 da revista no Google Scholar",
+                display_text="🔍 Ver h5"
             )
         }
     )
