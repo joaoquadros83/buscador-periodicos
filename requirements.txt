@@ -1,4 +1,4 @@
 streamlit
 pandas
-plotly
 streamlit-analytics2
+plotly
