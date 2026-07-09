@@ -420,7 +420,7 @@ imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
     # Se encontrar a imagem, cria a tag HTML com o código binário seguro
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 130px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 150px; width: auto; object-fit: contain;">'
 else:
     # Caso o ficheiro não seja encontrado (ou ainda esteja a atualizar), usa o emoji temporariamente
     tag_imagem = '<div style="font-size: 2.5rem; margin-right: 10px;">📚</div>'
