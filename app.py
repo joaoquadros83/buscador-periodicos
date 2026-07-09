@@ -48,7 +48,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "Ciência de dados aplicadas à produção científica de alto impacto",
+        "subtitulo": "Ciência de dados aplicada à produção científica de alto impacto",
         "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
