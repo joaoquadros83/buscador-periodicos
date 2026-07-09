@@ -416,28 +416,32 @@ with aba_impacto:
 df_filtrado = df_original.copy()
 
 if busca:
-    # 1. Padroniza os operadores para maiúsculo para aceitar tanto "and" quanto "AND"
+    import re
     texto_busca = busca.strip()
     
-    # Tratamento para facilitar se o usuário esquecer o operador (padrão vira AND)
-    # Substitui espaços simples por " AND " se não houver nenhum operador explícito
-    if not any(op in texto_busca.upper() for op in ["AND", "OR", "NOT"]):
-        # Quebra por espaços e junta com AND
-        palavras = [p.strip() for p in texto_busca.split() if p.strip()]
-        texto_busca = " AND ".join(palavras)
+    # 1. Tratamento Prévio: Identifica termos exatos entre aspas
+    # Cria uma lista temporária para guardar os blocos exatos e não misturá-los com operadores
+    termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
+    
+    # Substitui os termos com aspas por um marcador temporário para não quebrar a lógica booleana seguinte
+    texto_processado = texto_busca
+    for i, termo in enumerate(termos_exatos):
+        texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
+        
+    # Se o usuário não digitou operadores lógicos explícitos, assume AND por padrão entre os blocos
+    if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
+        palavras = [p.strip() for p in texto_processado.split() if p.strip()]
+        texto_processado = " AND ".join(palavras)
 
-    # 2. Avaliação Lógica por Linha
-    def avaliar_busca_booleana(linha_texto, expressao_booleana):
+    # 2. Avaliação Lógica Avançada por Linha (Suporta Booleanos + Aspas)
+    def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
         linha_texto = str(linha_texto).lower()
         
-        # Tokenização simples baseada em AND / OR / NOT
-        # Vamos dividir a expressão mantendo os operadores
-        import re
-        tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_booleana, flags=re.IGNORECASE)
+        # Divide a expressão pelos operadores booleanos principais
+        tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
         
-        # Avalia o primeiro termo
         resultado_final = False
-        operador_atual = "OR" # Padrão inicial
+        operador_atual = "OR"  # Padrão de inicialização
         inverter_proximo = False
         
         for token in tokens:
@@ -454,15 +458,23 @@ if busca:
             elif token_upper == "NOT":
                 inverter_proximo = True
             else:
-                # É um termo de busca comum
-                termo = token_clean.lower()
-                possui_termo = termo in linha_texto
+                # Verifica se o token é um marcador de termo exato entre aspas
+                match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
+                if match_exact:
+                    idx = int(match_exact.group(1))
+                    # Resgata o termo original de dentro das aspas e força correspondência exata
+                    termo_real = lista_exatos[idx].lower()
+                    possui_termo = termo_real in linha_texto
+                else:
+                    # Termo comum sem aspas
+                    termo_real = token_clean.lower()
+                    possui_termo = termo_real in linha_texto
                 
                 if inverter_proximo:
                     possui_termo = not possui_termo
                     inverter_proximo = False
                 
-                # Aplica a operação lógica baseada no operador anterior
+                # Aplicação da tabela verdade booleana
                 if operador_atual == "AND":
                     resultado_final = resultado_final and possui_termo
                 elif operador_atual == "OR":
@@ -470,13 +482,19 @@ if busca:
                     
         return resultado_final
 
-    # Aplica a função de busca combinando o Título da Revista (coluna 0) e o ISSN
+    # Executa o filtro combinando o Título da Revista (coluna 0) e o ISSN
     df_filtrado = df_filtrado[
         df_filtrado.apply(
-            lambda row: avaliar_busca_booleana(f"{row[df_filtrado.columns[0]]} {row['ISSN']}", texto_busca), 
+            lambda row: avaliar_busca_avancada(
+                f"{row[df_filtrado.columns[0]]} {row['ISSN']}", 
+                texto_processado, 
+                termos_exatos
+            ), 
             axis=1
         )
     ]
+
+# (O restante do seu script com filtros de subárea, indexador, métricas e paginação continua igual abaixo...)
 if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
