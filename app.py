@@ -416,16 +416,67 @@ with aba_impacto:
 df_filtrado = df_original.copy()
 
 if busca:
-    # Se o usuário digitar espaços, convertemos para o operador "|" (OU) do RegEx
-    # Exemplo: "Vaccines Urban" vira "Vaccines|Urban"
-    termo_regex = "|".join([t.strip() for t in busca.split() if t.strip()])
+    # 1. Padroniza os operadores para maiúsculo para aceitar tanto "and" quanto "AND"
+    texto_busca = busca.strip()
     
-    if termo_regex:
-        df_filtrado = df_filtrado[
-            df_filtrado[df_filtrado.columns[0]].astype(str).str.contains(termo_regex, case=False, na=False, regex=True) | 
-            df_filtrado["ISSN"].astype(str).str.contains(termo_regex, case=False, na=False, regex=True)
-        ]
+    # Tratamento para facilitar se o usuário esquecer o operador (padrão vira AND)
+    # Substitui espaços simples por " AND " se não houver nenhum operador explícito
+    if not any(op in texto_busca.upper() for op in ["AND", "OR", "NOT"]):
+        # Quebra por espaços e junta com AND
+        palavras = [p.strip() for p in texto_busca.split() if p.strip()]
+        texto_busca = " AND ".join(palavras)
 
+    # 2. Avaliação Lógica por Linha
+    def avaliar_busca_booleana(linha_texto, expressao_booleana):
+        linha_texto = str(linha_texto).lower()
+        
+        # Tokenização simples baseada em AND / OR / NOT
+        # Vamos dividir a expressão mantendo os operadores
+        import re
+        tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_booleana, flags=re.IGNORECASE)
+        
+        # Avalia o primeiro termo
+        resultado_final = False
+        operador_atual = "OR" # Padrão inicial
+        inverter_proximo = False
+        
+        for token in tokens:
+            token_clean = token.strip()
+            if not token_clean:
+                continue
+                
+            token_upper = token_clean.upper()
+            
+            if token_upper == "AND":
+                operador_atual = "AND"
+            elif token_upper == "OR":
+                operador_atual = "OR"
+            elif token_upper == "NOT":
+                inverter_proximo = True
+            else:
+                # É um termo de busca comum
+                termo = token_clean.lower()
+                possui_termo = termo in linha_texto
+                
+                if inverter_proximo:
+                    possui_termo = not possui_termo
+                    inverter_proximo = False
+                
+                # Aplica a operação lógica baseada no operador anterior
+                if operador_atual == "AND":
+                    resultado_final = resultado_final and possui_termo
+                elif operador_atual == "OR":
+                    resultado_final = resultado_final or possui_termo
+                    
+        return resultado_final
+
+    # Aplica a função de busca combinando o Título da Revista (coluna 0) e o ISSN
+    df_filtrado = df_filtrado[
+        df_filtrado.apply(
+            lambda row: avaliar_busca_booleana(f"{row[df_filtrado.columns[0]]} {row['ISSN']}", texto_busca), 
+            axis=1
+        )
+    ]
 if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
