@@ -286,14 +286,16 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO ---
+# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO (VERSÃO SEGURA) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-contador_html = """
-<div align="center" style="margin: 10px 0;">
-    <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fbuscador-periodicos.streamlit.app&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visitas&edge_flat=false"/>
-</div>
-"""
-st.sidebar.markdown(contador_html, unsafe_allow_html=True)
+
+# Usando um link alternativo do serviço 'Mestrace' ou 'Badgen' que roda direto no comando de imagem do Streamlit
+link_contador = "https://badgen.net/https/hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fbuscador-periodicos.streamlit.app&count_bg=%2379C83D&title_bg=%23555555&title=Visitas"
+
+# Centralizando usando colunas nativas do Streamlit
+col_cnt1, col_cnt2, col_cnt3 = st.sidebar.columns([1, 2, 1])
+with col_cnt2:
+    st.image(link_contador, use_container_width=True)
 # ------------------------------------------------------# ------------------------------------------------------
 
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
