@@ -406,10 +406,29 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
+# 5. PAINEL PRINCIPAL
 st.markdown(f"""
-    <div class="premium-hero">
-        <h1 class="premium-title">{t['titulo']}</h1>
-        <p class="premium-subtitle">{t['subtitulo']}</p>
+    <div class="premium-hero" style="display: flex; align-items: center; gap: 24px;">
+        <div style="
+            background: linear-gradient(135deg, #FF2B2B 0%, #A91D22 100%);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(255, 43, 43, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 75px;
+            height: 75px;
+        ">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                <circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/>
+            </svg>
+        </div>
+        <div>
+            <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important;">{t['titulo']}</h1>
+            <p class="premium-subtitle" style="margin: 5px 0 0 0 !important;">{t['subtitulo']}</p>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
