@@ -151,11 +151,11 @@ st.markdown("""
         letter-spacing: -0.5px;
     }
     .premium-subtitle {
-        color: #94a3b8 !important;
-        font-size: 1.15rem !important;
-        max-width: 800px;
-        line-height: 1.5;
-    } 
+    color: #94a3b8 !important;
+    font-size: 1.35rem !important; /* Aumentado aqui (o padrão era 1.15rem) */
+    max-width: 900px;              /* Aumentado levemente para acomodar o texto maior sem quebrar muitas linhas */
+    line-height: 1.5;
+} 
     /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
