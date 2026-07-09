@@ -406,27 +406,14 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
-# 5. PAINEL PRINCIPAL
+# Substitua a URL fictícia abaixo pelo link real da sua imagem (pode estar hospedada no seu GitHub ou Imgur)
+url_da_sua_logo = "https://drive.google.com/file/d/1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc/view?usp=sharing"
+
 st.markdown(f"""
-    <div class="premium-hero" style="display: flex; align-items: center; gap: 24px;">
-        <div style="
-            background: linear-gradient(135deg, #FF2B2B 0%, #A91D22 100%);
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 16px rgba(255, 43, 43, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 75px;
-            height: 75px;
-        ">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                <circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/>
-            </svg>
-        </div>
+    <div class="premium-hero" style="display: flex; align-items: center; gap: 20px;">
+        <img src="{url_da_sua_logo}" style="height: 80px; width: auto; object-fit: contain;">
         <div>
-            <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important;">{t['titulo']}</h1>
+            <h1 class="premium-title" style="margin:0 !important;">{t['titulo']}</h1>
             <p class="premium-subtitle" style="margin: 5px 0 0 0 !important;">{t['subtitulo']}</p>
         </div>
     </div>
