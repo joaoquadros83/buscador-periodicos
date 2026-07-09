@@ -367,6 +367,49 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
+if st.session_state.idioma == "Português":
+    expander_titulo = "📖 Sobre o Portal & Como Utilizar"
+    sobre_texto = """
+    ### Bem-vindo ao Portal do Pesquisador!
+    Esta ferramenta foi desenvolvida com o objetivo de centralizar, otimizar e acelerar a busca por periódicos científicos de alto impacto e relevância acadêmica. Combinando ciência de dados e indexadores globais, o portal serve como um bússola para pesquisadores que buscam o melhor destino para suas produções científicas.
+    
+    #### 🛠️ O que você pode fazer aqui?
+    1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
+    2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
+    3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
+    4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
+    """
+elif st.session_state.idioma == "English":
+    expander_titulo = "📖 About the Portal & How to Use"
+    sobre_texto = """
+    ### Welcome to the Researcher's Portal!
+    This tool was developed to centralize, optimize, and accelerate the search for high-impact and academically relevant scientific journals. Combining data science and global indexers, the portal acts as a compass for researchers seeking the best venue for their scientific output.
+    
+    #### 🛠️ What can you do here?
+    1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
+    2. **Filters by Subarea:** Find journals perfectly aligned with your specific subarea of expertise.
+    3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
+    4. **Data Export:** Filter results according to your needs and download the customized table immediately.
+    """
+else: # Español
+    expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
+    sobre_texto = """
+    ### ¡Bienvenido al Portal del Investigador!
+    Esta herramienta fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
+    
+    #### 🛠️ ¿Qué puedes hacer aquí?
+    1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
+    2. **Filtros por Subárea:** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
+    3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
+    4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+    """
+# Renderiza o Expander na tela de forma limpa
+with st.expander(expander_titulo, expanded=False):
+    st.markdown(sobre_texto)
+
+st.markdown("<br>", unsafe_allow_html=True)
+# --- FIM DA NOVA SEÇÃO ---
+
 st.markdown(t['filtros_tit'])
 busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
 
