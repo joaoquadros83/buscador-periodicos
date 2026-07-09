@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import urllib.parse
 
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
@@ -49,7 +50,8 @@ dic = {
         "exportar_btn": "📥 Exportar apenas esta página",
         "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
         "nav_tit": "Painel de Navegação",
-        "todas": "Todas"
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)"
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -74,7 +76,8 @@ dic = {
         "exportar_btn": "📥 Export this page only",
         "aviso_nada": "No journals match the applied criteria.",
         "nav_tit": "Navigation Panel",
-        "todas": "All"
+        "todas": "All",
+        "col_h5": "h5-Index (Scholar)"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -99,7 +102,8 @@ dic = {
         "exportar_btn": "📥 Exportar solo esta página",
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
         "nav_tit": "Panel de Navegación",
-        "todas": "Todas"
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)"
     }
 }
 t = dic[st.session_state.idioma]
@@ -111,10 +115,10 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
     }   
-    /* ALTERAÇÃO AQUI: Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
+    /* Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
     [data-testid="stSidebar"] label {
-        color: #004B87 !important; /* Substitua pelo código da cor que desejar */
-        font-weight: 600 !important; /* Opcional: deixa o texto levemente em negrito */
+        color: #004B87 !important; 
+        font-weight: 600 !important; 
     }
    
    [data-testid="stMetricValue"] {
@@ -184,11 +188,13 @@ st.markdown("""
 # 3. BASE DE DADOS COM CACHE
 @st.cache_data
 def carregar_dados():
-    df = pd.read_csv("dados_revistas.csv", sep=",", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
+    # CORREÇÃO CRÍTICA: Lendo com sep=";" conforme estrutura real do seu arquivo dados_revistas.csv
+    df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
     df = df.drop_duplicates(subset=[df.columns[0]])
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     df.columns = [c.strip() for c in df.columns]
     
+    # Tratamento numérico padrão das métricas
     for col in ['SJR', 'JIF', 'h-index', 'H index']:
         if col in df.columns:
             df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
@@ -291,7 +297,7 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- BLOCO ATUALIZADO: CONTADOR FLUIDO E RESPONSIVO ---
+# --- BLOCO CONTADOR ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
 try:
@@ -312,7 +318,6 @@ try:
         with open(arquivo_contador, "w") as f:
             f.write(str(visitas))
             
-    # HTML Otimizado para Mobile: padding menor, cantos arredondados suaves e largura total responsiva
     st.sidebar.markdown(f"""
         <div style="
             background-color: #79C83D; 
@@ -336,7 +341,7 @@ except Exception:
             📊 Portal Online
         </div>
     """, unsafe_allow_html=True)
-# ----------------------------------------------------------------------------
+
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -465,9 +470,13 @@ if total_itens > 0:
     
     inicio = (pagina_atual - 1) * itens_por_pagina
     fim = inicio + itens_por_pagina
-    df_da_pagina = df_filtrado.iloc[inicio:fim]
+    df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
     
-    # Exibição com colunas ocultas através do formato dicionário seguro
+    # Tratamento de segurança: Se o link for "-", limpamos para None para o LinkColumn não quebrar
+    if "Índice h5" in df_da_pagina.columns:
+        df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
+    
+    # Exibição com colunas ocultas e link limpo estilizado como "🔗 Abrir"
     st.dataframe(
         df_da_pagina, 
         use_container_width=True, 
@@ -476,7 +485,12 @@ if total_itens > 0:
             "Homepage": None,
             "Grande Area": None,
             "Area do Conhecimento": None,
-            "Subárea do Conhecimento": None
+            "Subárea do Conhecimento": None,
+            "Índice h5": st.column_config.LinkColumn(
+                t['col_h5'],
+                help="Clique para abrir o índice h5 no Google Scholar",
+                display_text="🔗 Abrir"
+            )
         }
     )
     
