@@ -214,7 +214,7 @@ st.markdown("""
     .premium-title {
         color: #ffffff !important;
         font-family: 'Inter', sans-serif;
-        font-size: 2.8rem !important;
+        font-size: 3.0rem !important;
         font-weight: 800 !important;
         margin-bottom: 8px !important;
         letter-spacing: -0.5px;
