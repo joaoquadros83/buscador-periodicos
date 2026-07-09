@@ -150,12 +150,13 @@ st.markdown("""
         margin-bottom: 8px !important;
         letter-spacing: -0.5px;
     }
-    .premium-subtitle {
+.premium-subtitle {
     color: #94a3b8 !important;
-    font-size: 1.35rem !important; /* Aumentado aqui (o padrão era 1.15rem) */
-    max-width: 900px;              /* Aumentado levemente para acomodar o texto maior sem quebrar muitas linhas */
+    font-size: 1.45rem !important; 
+    max-width: 900px;              
     line-height: 1.5;
-} 
+    margin-top: 10px; /* Adiciona um espaço elegante entre o título e o subtítulo */
+}
     /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
