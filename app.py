@@ -361,6 +361,7 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://eric.ed.gov/" target="_blank"><span><img src="https://yt3.googleusercontent.com/ytc/AIdro_kFijnjScrZN1GZMpmVQDW_GRV5syVZsNuOqd2TiG5Y_A=s900-c-k-c0x00ffffff-no-rj" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>ERIC</span></a>
     <a class="btn-custom-menu" href="https://api.base-search.net/" target="_blank"><span><img src="https://pbs.twimg.com/profile_images/1259600128/base_twitter_400x400.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>BASE</span></a>
     <a class="btn-custom-menu" href="https://doaj.org/" target="_blank"><span><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/DOAJ_logo-colour.svg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>DOAJ</span></a>
+    <a class="btn-custom-menu" href="https://catalogodeteses.capes.gov.br/catalogo-teses/#!/" target="_blank"><span><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ04fk8I3y7LecgydHxbQybU3R9TB7qb99ikUFKNUsZNQ&s" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Catálogo de Teses e Dissertações da CAPES</span></a>
 
 </div>
 """, unsafe_allow_html=True)
