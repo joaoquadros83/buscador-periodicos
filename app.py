@@ -407,27 +407,26 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
-# Função inteligente para converter a imagem guardada localmente em Base64
-def obter_imagem_local_base64(caminho_arquivo):
-    try:
-        with open(caminho_arquivo, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
-    except FileNotFoundError:
-        return ""
-
-# Procura pelo ficheiro 'logo.png' que enviaste para o GitHub
-imagem_base64 = obter_imagem_local_base64("logo.png")
-
-if imagem_base64:
-    # Se encontrar a imagem, cria a tag HTML com o código binário seguro
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 80px; width: auto; object-fit: contain;">'
-else:
-    # Caso o ficheiro não seja encontrado (ou ainda esteja a atualizar), usa o emoji temporariamente
-    tag_imagem = '<div style="font-size: 2.5rem; margin-right: 10px;">📚</div>'
+# Usando o link alternativo de renderização direta (drive.google.com/thumbnail)
+id_da_imagem = "1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc"
+url_da_sua_logo = f"https://drive.google.com/thumbnail?id={id_da_imagem}&sz=w1000"
 
 st.markdown(f"""
     <div class="premium-hero" style="display: flex; align-items: center; gap: 20px;">
-        {tag_imagem}
+        <div style="
+            background-color: #FFFFFF; /* Fundo Branco Puro */
+            padding: 10px;
+            border-radius: 50%; /* Faz um círculo perfeito */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Sombra elegante */
+            min-width: 90px; /* Garante que o círculo seja maior que a imagem */
+            height: 90px;
+        ">
+            <img src="{url_da_sua_logo}" style="height: 70px; width: auto; object-fit: contain;">
+        </div>
+        
         <div>
             <h1 class="premium-title" style="margin:0 !important;">{t['titulo']}</h1>
             <p class="premium-subtitle" style="margin: 5px 0 0 0 !important;">{t['subtitulo']}</p>
