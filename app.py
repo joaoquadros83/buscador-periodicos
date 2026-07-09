@@ -120,7 +120,7 @@ st.markdown("""
 .stExpander details summary p {
     font-size: 1.25rem !important; /* Ajuste este valor para o tamanho que desejar */
     font-weight: 600 !important;   /* Deixa o título em negrito */
-    color: #0F172A !important;     /* Mantém a cor no tom escuro padrão do seu site */
+    color: #FFFFF !important;     /* Mantém a cor no tom escuro padrão do seu site */
 }
 
 /* Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
