@@ -3,8 +3,9 @@ import pandas as pd
 
 # Acessando dados estruturados
 user = st.secrets["banco_dados"]["joaoquadros"]
-password = st.secrets["banco_dados"]["Cv840383"]
-.streamlit/secrets.toml
+password = st.secrets["banco_dados"]["Cv840383!"]
+# Forma correta de ler um segredo no seu código Python:
+usuario = st.secrets["joaoquadros"]
 
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
