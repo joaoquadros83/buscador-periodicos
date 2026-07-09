@@ -118,7 +118,7 @@ st.markdown("""
     
 /* Aumenta o tamanho da fonte e destaca o título do expander */
 .stExpander details summary p {
-    font-size: 1.25rem !important; /* Ajuste este valor para o tamanho que desejar */
+    font-size: 1.35rem !important; /* Ajuste este valor para o tamanho que desejar */
     font-weight: 600 !important;   /* Deixa o título em negrito */
     color: #FFFFF !important;     /* Mantém a cor no tom escuro padrão do seu site */
 }
