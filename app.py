@@ -61,7 +61,7 @@ dic = {
         "meta_ativo": "Ativo",
         "direitos_tit": "Direitos Autorais & Propriedade",
         "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
-        "visitas_lbl": "Visitas ao Portal"
+        "visitas_lbl": "Visitas ao Portal",
         "gov_tit": "SITES GOVERNAMENTAIS",
         "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
         "pessoal_lbl": "👤 Site pessoal"
@@ -100,8 +100,8 @@ dic = {
         "meta_ativo": "Active",
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
-        "visitas_lbl": "Portal Visits"
-	"gov_tit": "GOVERNMENT SITES",
+        "visitas_lbl": "Portal Visits",
+	"gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
         "pessoal_lbl": "👤 Personal website"
     },
@@ -139,8 +139,8 @@ dic = {
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
-        "visitas_lbl": "Visitas al Portal"
-	"gov_tit": "SITIOS GUBERNAMENTALES",
+        "visitas_lbl": "Visitas al Portal",
+	"gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
         "pessoal_lbl": "👤 Sitio personal"
     }
