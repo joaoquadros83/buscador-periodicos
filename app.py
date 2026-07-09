@@ -439,7 +439,7 @@ st.sidebar.markdown(f"""
 imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 120px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 140px; width: auto; object-fit: contain;">'
 else:
     # Se usar o emoji reserva, colocamos uma tag <span> para o CSS também conseguir escondê-lo no celular se quiser
     tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
