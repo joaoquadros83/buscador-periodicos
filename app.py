@@ -379,7 +379,7 @@ if st.session_state.idioma == "Português":
     expander_titulo = "📖 Sobre o Portal & Como Utilizar"
     sobre_texto = """
     ### Bem-vindo ao Portal do Pesquisador!
-    Esta ferramenta foi desenvolvida com o objetivo de centralizar, otimizar e acelerar a busca por periódicos científicos de alto impacto e relevância acadêmica. Combinando ciência de dados e indexadores globais, o portal serve como um bússola para pesquisadores que buscam o melhor destino para suas produções científicas.
+    Esta é um ferramenta gratuita e que foi desenvolvida com o objetivo de centralizar, otimizar e acelerar a busca por periódicos científicos de alto impacto e relevância acadêmica. Combinando ciência de dados e indexadores globais, o portal serve como um bússola para pesquisadores que buscam o melhor destino para suas produções científicas. 
     
     #### 🛠️ O que você pode fazer aqui?
     1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
@@ -391,7 +391,7 @@ elif st.session_state.idioma == "English":
     expander_titulo = "📖 About the Portal & How to Use"
     sobre_texto = """
     ### Welcome to the Researcher's Portal!
-    This tool was developed to centralize, optimize, and accelerate the search for high-impact and academically relevant scientific journals. Combining data science and global indexers, the portal acts as a compass for researchers seeking the best venue for their scientific output.
+    This is a free tool that was developed to centralize, optimize, and accelerate the search for high-impact and academically relevant scientific journals. Combining data science and global indexers, the portal acts as a compass for researchers seeking the best venue for their scientific output.
     
     #### 🛠️ What can you do here?
     1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
@@ -403,7 +403,7 @@ else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
     ### ¡Bienvenido al Portal del Investigador!
-    Esta herramienta fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
+   Esta es una herramienta gratuita que fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
     
     #### 🛠️ ¿Qué puedes hacer aquí?
     1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
