@@ -290,55 +290,62 @@ st.sidebar.markdown("""
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
 try:
-    # --- CABEÇALHO RESPONSIVO: TÍTULO + CONTADOR NO CORPO PRINCIPAL ---
+    # ============================================================================
+# --- CABEÇALHO PREMIUM RESPONSIVO (PC E TELEMÓVEL) ---
+# ============================================================================
 import os
 
-# 1. Recupera o número de visitas
-arquivo_contador = "contador_visitas.txt"
-if not os.path.exists(arquivo_contador):
-    with open(arquivo_contador, "w") as f:
-        f.write("0")
-        
-with open(arquivo_contador, "r") as f:
-    conteudo = f.read().strip()
-    visitas = int(conteudo) if conteudo.isdigit() else 0
+# 1. Sistema nativo de contagem de visitas (seguro e sem APIs externas)
+try:
+    arquivo_contador = "contador_visitas.txt"
+    if not os.path.exists(arquivo_contador):
+        with open(arquivo_contador, "w") as f:
+            f.write("0")
+            
+    with open(arquivo_contador, "r") as f:
+        conteudo = f.read().strip()
+        visitas = int(conteudo) if conteudo.isdigit() else 0
 
-if 'visitou' not in st.session_state:
-    st.session_state.visitou = True
-    visitas += 1
-    with open(arquivo_contador, "w") as f:
-        f.write(str(visitas))
+    if 'visitou' not in st.session_state:
+        st.session_state.visitou = True
+        visitas += 1
+        with open(arquivo_contador, "w") as f:
+            f.write(str(visitas))
+except Exception:
+    visitas = None
 
-# 2. Cria a estrutura de layout para o topo da página
-col_titulo, col_contador = st.columns([3, 1], gap="small")
+# 2. Layout fluido que se adapta ao tamanho do ecrã
+# No PC: Título e Contador lado a lado. No Telemóvel: Contador vai para baixo do título automaticamente.
+col_tit, col_vis = st.columns([3, 1], gap="small")
 
-with col_titulo:
-    # O seu título principal existente entra aqui
-    st.markdown("<h1 style='margin-top: 0; padding-top: 0;'>📚 Portal do Pesquisador</h1>", unsafe_allow_html=True)
+with col_tit:
+    # Título principal com design limpo
+    st.markdown("<h1 style='margin: 0; padding: 0; font-size: 2.2rem;'>📚 Portal do Pesquisador</h1>", unsafe_allow_html=True)
 
-with col_contador:
-    # O contador agora aparece no topo direito do ecrã principal (ou logo abaixo do título no telemóvel)
-    st.markdown(f"""
-        <div style="
-            background-color: #79C83D; 
-            color: white; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            text-align: center; 
-            font-weight: 600; 
-            font-size: 0.85rem; 
-            margin-top: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            width: 100%;
-            box-sizing: border-box;
-        ">
-            👤 {visitas} Visitas
-        </div>
-    """, unsafe_allow_html=True)
+with col_vis:
+    if visitas is not None:
+        # Selo de visitas responsivo (ocupa 100% da largura da coluna onde estiver)
+        st.markdown(f"""
+            <div style="
+                background-color: #79C83D; 
+                color: white; 
+                padding: 8px 12px; 
+                border-radius: 8px; 
+                text-align: center; 
+                font-weight: 600; 
+                font-size: 0.85rem; 
+                margin-top: 6px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                width: 100%;
+                box-sizing: border-box;
+            ">
+                👤 Visitas: {visitas}
+            </div>
+        """, unsafe_allow_html=True)
 
-# Linha divisória elegante para separar o cabeçalho do conteúdo
-st.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 10px 0 25px 0;'>", unsafe_allow_html=True)
-# ----------------------------------------------------------------------------
+# Linha divisória fina e elegante
+st.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 12px 0 25px 0;'>", unsafe_allow_html=True)
+# ============================================================================
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
