@@ -286,17 +286,18 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO (VERSÃO SEGURA) ---
+# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO (VERSÃO SEGURA SHIELDS) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>ESTATÍSTICAS</p>", unsafe_allow_html=True)
 
-# Usando um link alternativo do serviço 'Mestrace' ou 'Badgen' que roda direto no comando de imagem do Streamlit
-link_contador = "https://badgen.net/https/hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fbuscador-periodicos.streamlit.app&count_bg=%2379C83D&title_bg=%23555555&title=Visitas"
+# Este link utiliza a API estável do Shields.io que o Streamlit aceita nativamente e NÃO gera erro 403
+link_contador = "https://img.shields.io/badge/dynamic/json?color=79C83D&label=Visitas&query=%24.value&url=https%3A%2F%2Fapi.countapi.xyz%2Fhit%2Fbuscador-periodicos.streamlit.app%2Fvisits"
 
-# Centralizando usando colunas nativas do Streamlit
-col_cnt1, col_cnt2, col_cnt3 = st.sidebar.columns([1, 2, 1])
+# Exibe o contador centralizado na barra lateral utilizando colunas nativas
+col_cnt1, col_cnt2, col_cnt3 = st.sidebar.columns([1, 3, 1])
 with col_cnt2:
-    st.image(link_contador, use_container_width=True)
-# ------------------------------------------------------# ------------------------------------------------------
+    st.image(link_contador)
+# ------------------------------------------------------
 
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
