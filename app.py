@@ -87,6 +87,7 @@ dic = {
         "pessoal_lbl": "👤 Site pessoal",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
+	"repositorios_tit": REPOSITÓRIOS,
         "ia_tit": "IA ACADÊMICA"
     },
     "English": {
@@ -129,6 +130,7 @@ dic = {
         "pessoal_lbl": "👤 Personal website",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXERS",
+	"repositorios_tit": "DIRECTORY",
         "ia_tit": "ACADEMIC AI"
     },
     "Español": {
@@ -171,6 +173,7 @@ dic = {
         "pessoal_lbl": "👤 Sitio personal",
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
+	"repositorios_tit": DIRECTORIO,
         "ia_tit": "IA ACADÉMICA"
     }
 }
@@ -353,6 +356,18 @@ st.sidebar.markdown(f"""
 
 </div>
 """, unsafe_allow_html=True)
+
+st.sidebar.markdown(f"""
+<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['repositorios_tit']}</p>
+<div style="display: flex; flex-direction: column;">
+    <a class="btn-custom-menu" href="https://eric.ed.gov/" target="_blank"><span><img src="https://yt3.googleusercontent.com/ytc/AIdro_kFijnjScrZN1GZMpmVQDW_GRV5syVZsNuOqd2TiG5Y_A=s900-c-k-c0x00ffffff-no-rj" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>ERIC</span></a>
+    <a class="btn-custom-menu" href="https://api.base-search.net/" target="_blank"><span><img src="https://pbs.twimg.com/profile_images/1259600128/base_twitter_400x400.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>BASE</span></a>
+    <a class="btn-custom-menu" href="https://doaj.org/" target="_blank"><span><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/DOAJ_logo-colour.svg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>DOAJ</span></a>
+
+</div>
+""", unsafe_allow_html=True)
+
 
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
