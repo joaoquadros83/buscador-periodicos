@@ -290,47 +290,54 @@ st.sidebar.markdown("""
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
 try:
-    import os
-    arquivo_contador = "contador_visitas.txt"
-    
-    if not os.path.exists(arquivo_contador):
-        with open(arquivo_contador, "w") as f:
-            f.write("0")
-            
-    with open(arquivo_contador, "r") as f:
-        conteudo = f.read().strip()
-        visitas = int(conteudo) if conteudo.isdigit() else 0
+    # --- CABEÇALHO RESPONSIVO: TÍTULO + CONTADOR NO CORPO PRINCIPAL ---
+import os
+
+# 1. Recupera o número de visitas
+arquivo_contador = "contador_visitas.txt"
+if not os.path.exists(arquivo_contador):
+    with open(arquivo_contador, "w") as f:
+        f.write("0")
         
-    if 'visitou' not in st.session_state:
-        st.session_state.visitou = True
-        visitas += 1
-        with open(arquivo_contador, "w") as f:
-            f.write(str(visitas))
-            
-    # HTML Otimizado para Mobile: padding menor, cantos arredondados suaves e largura total responsiva
-    st.sidebar.markdown(f"""
+with open(arquivo_contador, "r") as f:
+    conteudo = f.read().strip()
+    visitas = int(conteudo) if conteudo.isdigit() else 0
+
+if 'visitou' not in st.session_state:
+    st.session_state.visitou = True
+    visitas += 1
+    with open(arquivo_contador, "w") as f:
+        f.write(str(visitas))
+
+# 2. Cria a estrutura de layout para o topo da página
+col_titulo, col_contador = st.columns([3, 1], gap="small")
+
+with col_titulo:
+    # O seu título principal existente entra aqui
+    st.markdown("<h1 style='margin-top: 0; padding-top: 0;'>📚 Portal do Pesquisador</h1>", unsafe_allow_html=True)
+
+with col_contador:
+    # O contador agora aparece no topo direito do ecrã principal (ou logo abaixo do título no telemóvel)
+    st.markdown(f"""
         <div style="
             background-color: #79C83D; 
             color: white; 
-            padding: 10px 14px; 
+            padding: 8px 12px; 
             border-radius: 8px; 
             text-align: center; 
             font-weight: 600; 
-            font-size: 0.88rem; 
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            font-size: 0.85rem; 
+            margin-top: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             width: 100%;
             box-sizing: border-box;
         ">
-            👤 Visitas ao Portal: {visitas}
+            👤 {visitas} Visitas
         </div>
     """, unsafe_allow_html=True)
-except Exception:
-    st.sidebar.markdown("""
-        <div style="background-color: #475569; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; width: 100%;">
-            📊 Portal Online
-        </div>
-    """, unsafe_allow_html=True)
+
+# Linha divisória elegante para separar o cabeçalho do conteúdo
+st.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 10px 0 25px 0;'>", unsafe_allow_html=True)
 # ----------------------------------------------------------------------------
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
