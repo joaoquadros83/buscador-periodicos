@@ -7,10 +7,28 @@ import base64
 user = st.secrets["usuario"]
 password = st.secrets["senha"]
 
+# --- FUNÇÃO PARA CONVERTER IMAGEM LOCAL PARA BASE64 ---
+def obter_imagem_local_base64(caminho_arquivo):
+    try:
+        with open(caminho_arquivo, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
+        return "" # Retorna vazio se não encontrar o arquivo
+
+# --- PREPARAÇÃO DO NOVO ÍCONE DA PÁGINA ---
+# Procura pelo arquivo 'logo.png' que você já enviou para o GitHub
+imagem_base64_icon = obter_imagem_local_base64("logo.png")
+
+# Define o ícone: se a imagem existir, usa ela em Base64; senão, mantém o emoji antigo
+if imagem_base64_icon:
+    novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
+else:
+    novo_page_icon = "📚" # Emoji reserva
+
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
     page_title="Portal do Pesquisador",
-    page_icon="📚",
+    page_icon=novo_page_icon, # AQUI ESTÁ A ALTERAÇÃO CRÍTICA
     layout="wide",
     initial_sidebar_state="expanded"
 )
