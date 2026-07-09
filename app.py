@@ -290,14 +290,9 @@ st.sidebar.markdown("""
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
 try:
-    # ============================================================================
-# --- CABEÇALHO PREMIUM RESPONSIVO (PC E TELEMÓVEL) ---
-# ============================================================================
-import os
-
-# 1. Sistema nativo de contagem de visitas (seguro e sem APIs externas)
-try:
+    import os
     arquivo_contador = "contador_visitas.txt"
+    
     if not os.path.exists(arquivo_contador):
         with open(arquivo_contador, "w") as f:
             f.write("0")
@@ -305,47 +300,38 @@ try:
     with open(arquivo_contador, "r") as f:
         conteudo = f.read().strip()
         visitas = int(conteudo) if conteudo.isdigit() else 0
-
+        
     if 'visitou' not in st.session_state:
         st.session_state.visitou = True
         visitas += 1
         with open(arquivo_contador, "w") as f:
             f.write(str(visitas))
+            
+    # HTML Otimizado para Mobile: padding menor, cantos arredondados suaves e largura total responsiva
+    st.sidebar.markdown(f"""
+        <div style="
+            background-color: #79C83D; 
+            color: white; 
+            padding: 10px 14px; 
+            border-radius: 8px; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 0.88rem; 
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            width: 100%;
+            box-sizing: border-box;
+        ">
+            👤 Visitas ao Portal: {visitas}
+        </div>
+    """, unsafe_allow_html=True)
 except Exception:
-    visitas = None
-
-# 2. Layout fluido que se adapta ao tamanho do ecrã
-# No PC: Título e Contador lado a lado. No Telemóvel: Contador vai para baixo do título automaticamente.
-col_tit, col_vis = st.columns([3, 1], gap="small")
-
-with col_tit:
-    # Título principal com design limpo
-    st.markdown("<h1 style='margin: 0; padding: 0; font-size: 2.2rem;'>📚 Portal do Pesquisador</h1>", unsafe_allow_html=True)
-
-with col_vis:
-    if visitas is not None:
-        # Selo de visitas responsivo (ocupa 100% da largura da coluna onde estiver)
-        st.markdown(f"""
-            <div style="
-                background-color: #79C83D; 
-                color: white; 
-                padding: 8px 12px; 
-                border-radius: 8px; 
-                text-align: center; 
-                font-weight: 600; 
-                font-size: 0.85rem; 
-                margin-top: 6px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-                width: 100%;
-                box-sizing: border-box;
-            ">
-                👤 Visitas: {visitas}
-            </div>
-        """, unsafe_allow_html=True)
-
-# Linha divisória fina e elegante
-st.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 12px 0 25px 0;'>", unsafe_allow_html=True)
-# ============================================================================
+    st.sidebar.markdown("""
+        <div style="background-color: #475569; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; width: 100%;">
+            📊 Portal Online
+        </div>
+    """, unsafe_allow_html=True)
+# ----------------------------------------------------------------------------
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
