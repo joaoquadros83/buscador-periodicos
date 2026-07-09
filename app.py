@@ -14,10 +14,6 @@ with streamlit_analytics.track(password="sua_senha_secreta_aqui"):
         initial_sidebar_state="expanded"
     )
     
-    # ... TODO O RESTO DO SEU CÓDIGO DO ARQUIVO CONTINUA EXATAMENTE IGUAL AQUI ...
-    
-    # (Remova aquele bloco do 'contador_html' que estava dando o erro 403)
-
 # --- SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
     st.session_state.idioma = "Português"
