@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import urllib.parse
 
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
@@ -49,7 +50,8 @@ dic = {
         "exportar_btn": "📥 Exportar apenas esta página",
         "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
         "nav_tit": "Painel de Navegação",
-        "todas": "Todas"
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)"
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -74,7 +76,8 @@ dic = {
         "exportar_btn": "📥 Export this page only",
         "aviso_nada": "No journals match the applied criteria.",
         "nav_tit": "Navigation Panel",
-        "todas": "All"
+        "todas": "All",
+        "col_h5": "h5-Index (Scholar)"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -99,7 +102,8 @@ dic = {
         "exportar_btn": "📥 Exportar solo esta página",
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
         "nav_tit": "Panel de Navegación",
-        "todas": "Todas"
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)"
     }
 }
 t = dic[st.session_state.idioma]
@@ -181,13 +185,26 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. BASE DE DADOS COM CACHE
+# 3. BASE DE DADOS COM CACHE E GERAÇÃO DINÂMICA DE LINKS H5
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados_revistas.csv", sep=",", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
     df = df.drop_duplicates(subset=[df.columns[0]])
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     df.columns = [c.strip() for c in df.columns]
+    
+    coluna_revistas = df.columns[0]
+    
+    # Gerador dinâmico do link clicável do índice h5 (Padrão %20 sem aspas)
+    base_url = "https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq="
+    suffix_url = "&btnG="
+    
+    def criar_link_h5(nome):
+        if pd.isna(nome) or str(nome).strip() in ["", "-"]:
+            return None
+        return f"{base_url}{urllib.parse.quote(str(nome).strip())}{suffix_url}"
+        
+    df["Índice h5 (Scholar)"] = df[coluna_revistas].apply(criar_link_h5)
     
     for col in ['SJR', 'JIF', 'h-index', 'H index']:
         if col in df.columns:
@@ -312,7 +329,7 @@ try:
         with open(arquivo_contador, "w") as f:
             f.write(str(visitas))
             
-    # HTML Otimizado para Mobile: padding menor, cantos arredondados suaves e largura total responsiva
+    # HTML Otimizado para Mobile
     st.sidebar.markdown(f"""
         <div style="
             background-color: #79C83D; 
@@ -467,7 +484,7 @@ if total_itens > 0:
     fim = inicio + itens_por_pagina
     df_da_pagina = df_filtrado.iloc[inicio:fim]
     
-    # Exibição com colunas ocultas através do formato dicionário seguro
+    # Exibição com colunas ocultas através do formato dicionário seguro e configuração de Link ativo
     st.dataframe(
         df_da_pagina, 
         use_container_width=True, 
@@ -476,7 +493,14 @@ if total_itens > 0:
             "Homepage": None,
             "Grande Area": None,
             "Area do Conhecimento": None,
-            "Subárea do Conhecimento": None
+            "Subárea do Conhecimento": None,
+           # CONFIGURAÇÃO LIMPA E ORGANIZADA DA COLUNA DE LINKS:
+            "Índice h5 (Scholar)": st.column_config.LinkColumn(
+                t['col_h5'],
+                help="Clique para abrir o índice h5 desta revista no Google Scholar",
+                width="small",        # Mantém a coluna compacta
+                display_text="🔗 Abrir" # Texto curto, limpo e padronizado para todas as linhas
+            )
         }
     )
     
