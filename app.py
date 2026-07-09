@@ -324,8 +324,9 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown("""
+st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>SITES GOVERNAMENTAIS</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['gov_tit']}</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://cnpq.br/" target="_blank"><span><img src="https://images.seeklogo.com/logo-png/18/1/cnpq-logo-png_seeklogo-181432.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>CNPq</span></a>
     <a class="btn-custom-menu" href="https://www.gov.br/capes/pt-br" target="_blank"><span><img src="https://www.clipartmax.com/png/middle/289-2899434_previous-next-capes-logo.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>CAPES</span></a>
@@ -334,14 +335,14 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("""
+st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
-<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>INFORMAÇÕES INSTITUCIONAIS</p>
+<p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['inst_tit']}</p>
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://www.ufop.br" target="_blank"><span><img src="https://labiiex.ufop.br/sites/default/files/styles/media_gallery_thumbnail/public/labiiex/files/ufop_logo.png?m=1597327148&itok=EmS_8t7o" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.posedu.ufop.br" target="_blank"><span><img src="https://posedu.ufop.br/sites/default/files/styles/os_files_small/public/ppge/files/logo_reduzida.png?m=1593192999&itok=0JX9OWRl" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>PPGE-UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.musica.ufop.br" target="_blank"><span><img src="https://musica.ufop.br/sites/default/files/styles/os_files_xxlarge/public/musica/files/logo22_1_03.png?m=1542714207&itok=i3jpi-oe" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Música-UFOP</span></a>
-    <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>👤 Site pessoal</span></a>
+    <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
 </div>
 """, unsafe_allow_html=True)
 
