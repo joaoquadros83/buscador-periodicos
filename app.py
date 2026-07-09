@@ -294,7 +294,7 @@ contador_html = """
 </div>
 """
 st.sidebar.markdown(contador_html, unsafe_allow_html=True)
-# ------------------------------------------------------
+# ------------------------------------------------------# ------------------------------------------------------
 
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
