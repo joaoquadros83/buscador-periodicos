@@ -323,7 +323,6 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.sidebar.markdown("""
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['gov_tit']}</p>
