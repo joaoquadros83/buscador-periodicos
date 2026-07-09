@@ -51,7 +51,17 @@ dic = {
         "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
         "nav_tit": "Painel de Navegação",
         "todas": "Todas",
-        "col_h5": "Índice h5 (Scholar)"
+        "col_h5": "Índice h5 (Scholar)", # certifique-se que a última chave existente tenha uma vírgula no final
+        # NOVAS CHAVES:
+        "meta_tit": "METADADOS",
+        "meta_sistema": "Sistema",
+        "meta_versao": "Versão Base",
+        "meta_padrao": "Padrão CNPq",
+        "meta_status": "Operacional",
+        "meta_ativo": "Ativo",
+        "direitos_tit": "Direitos Autorais & Propriedade",
+        "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
+        "visitas_lbl": "Visitas ao Portal"
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -77,7 +87,17 @@ dic = {
         "aviso_nada": "No journals match the applied criteria.",
         "nav_tit": "Navigation Panel",
         "todas": "All",
-        "col_h5": "h5-Index (Scholar)"
+        "col_h5": "h5-Index (Scholar)",
+        # NOVAS CHAVES:
+        "meta_tit": "METADATA",
+        "meta_sistema": "System",
+        "meta_versao": "Base Version",
+        "meta_padrao": "CNPq Standard",
+        "meta_status": "Operational",
+        "meta_ativo": "Active",
+        "direitos_tit": "Copyright & Ownership",
+        "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
+        "visitas_lbl": "Portal Visits"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -103,7 +123,17 @@ dic = {
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
         "nav_tit": "Panel de Navegación",
         "todas": "Todas",
-        "col_h5": "Índice h5 (Scholar)"
+        "col_h5": "Índice h5 (Scholar)",
+        # NOVAS CHAVES:
+        "meta_tit": "METADATOS",
+        "meta_sistema": "Sistema",
+        "meta_versao": "Versión Base",
+        "meta_padrao": "Patrón CNPq",
+        "meta_status": "Operacional",
+        "meta_ativo": "Activo",
+        "direitos_tit": "Derechos de Autor y Propiedad",
+        "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
+        "visitas_lbl": "Visitas al Portal"
     }
 }
 t = dic[st.session_state.idioma]
@@ -341,7 +371,7 @@ try:
             width: 100%;
             box-sizing: border-box;
         ">
-            👤 Visitas ao Portal: {visitas}
+            👤 {t['visitas_lbl']}: {visitas}
         </div>
     """, unsafe_allow_html=True)
 except Exception:
@@ -352,19 +382,17 @@ except Exception:
     """, unsafe_allow_html=True)
 
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-st.sidebar.markdown("""
+st.sidebar.markdown(f"""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
-        <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin:0 0 8px 0; letter-spacing: 0.05em;'>METADADOS</p>
-        <span style='color: #A91D22;'>●</span> <b>Sistema:</b> Operacional<br>
-        <b>Versão Base:</b> 2026.1<br>
-        <b>Padrão CNPq:</b> Ativo
+        <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin:0 0 8px 0; letter-spacing: 0.05em;'>{t['meta_tit']}</p>
+        <span style='color: #A91D22;'>●</span> <b>{t['meta_sistema']}:</b> {t['meta_status']}<br>
+        <b>{t['meta_versao']}:</b> 2026.1<br>
+        <b>{t['meta_padrao']}:</b> {t['meta_ativo']}
         <br><br>
         <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
-        <b>Direitos Autorais & Propriedade:</b><br>
+        <b>{t['direitos_tit']}:</b><br>
         <b>© 2026 João F. Soares-Quadros Jr.</b><br>
-        Universidade Federal Ouro Preto<br>
-        Minas Gerais, Brasil.<br>
-        <i>Todos os direitos reservados.</i>
+        {t['direitos_autor']}
     </div>
 """, unsafe_allow_html=True)
 
