@@ -342,7 +342,7 @@ st.sidebar.markdown(f"""
 <div style="display: flex; flex-direction: column;">
     <a class="btn-custom-menu" href="https://access.clarivate.com/login?app=wos&alternative=true&goto=https:%2F%2Fwww.webofknowledge.com" target="_blank"><span>🌐 Web of Science</span></a>
     <a class="btn-custom-menu" href="https://www.scopus.com/pages/home?display=basic#basic" target="_blank"><span>🧬 Scopus</span></a>
-    <a class="btn-custom-menu" href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><span>🏥 PubMed</span></a>
+    <a class="btn-custom-menu" href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank"><span><img src="https://cdn-1.webcatalog.io/catalog/pubmed-ai/pubmed-ai-social-preview.png?v=1747807986408" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>PubMed</span></a>
     <a class="btn-custom-menu" href="https://www.scielo.br/" target="_blank"><span>📚 Scielo BR</span></a>
     <a class="btn-custom-menu" href="http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p" target="_blank"><span>📖 Educ@</span></a>
 </div>
@@ -360,7 +360,9 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>SciSpace</span></a>
     <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><img src="https://zonalogo.com/assets/elicit-logo-png-svg.webp?asset=2444&w=320" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Elicit</span></a>   
     <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Logically</span></a>
+    <a class="btn-custom-menu" href="https://webcatalog.io/pt/apps/pubmed-ai" target="_blank"><img src="https://cdn-1.webcatalog.io/catalog/pubmed-ai/pubmed-ai-social-preview.png?v=1747807986408" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>PubMedAI</span></a>
 </div>
+
 """, unsafe_allow_html=True)
 
 st.sidebar.markdown(f"""
