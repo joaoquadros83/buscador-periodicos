@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+# Acessando dados estruturados
+user = st.secrets["banco_dados"]["joaoquadros"]
+password = st.secrets["banco_dados"]["Cv840383"]
+
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
     page_title="Portal do Pesquisador",
