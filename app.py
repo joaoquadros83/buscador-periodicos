@@ -360,7 +360,7 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank"><img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>SciSpace</span></a>
     <a class="btn-custom-menu" href="https://elicit.com/" target="_blank"><img src="https://zonalogo.com/assets/elicit-logo-png-svg.webp?asset=2444&w=320" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Elicit</span></a>   
     <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Logically</span></a>
-    <a class="btn-custom-menu" href="https://webcatalog.io/pt/apps/pubmed-ai" target="_blank"><img src="https://its.weill.cornell.edu/sites/default/files/styles/news_item_full_article/public/news_images/720px-us-nlm-pubmed-logo.png?itok=trlhr3Lh" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>PubMedAI</span></a>
+    <a class="btn-custom-menu" href="https://webcatalog.io/pt/apps/pubmed-ai" target="_blank"><img src="https://its.weill.cornell.edu/sites/default/files/styles/news_item_full_article/public/news_images/720px-us-nlm-pubmed-logo.png?itok=trlhr3Lh" style="width: 16px; height: 25px; margin-right: 10px; border-radius: 2px;"><span>PubMedAI</span></a>
 </div>
 
 """, unsafe_allow_html=True)
