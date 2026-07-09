@@ -406,8 +406,8 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
-# Substitua a URL fictícia abaixo pelo link real da sua imagem (pode estar hospedada no seu GitHub ou Imgur)
-url_da_sua_logo = "https://drive.google.com/file/d/1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc/view?usp=sharing"
+# Extraímos o ID do seu arquivo (1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc) e colocamos no formato de link direto (uc?export=view)
+url_da_sua_logo = "https://docs.google.com/uc?export=view&id=1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc"
 
 st.markdown(f"""
     <div class="premium-hero" style="display: flex; align-items: center; gap: 20px;">
