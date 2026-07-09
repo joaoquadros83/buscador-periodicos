@@ -85,7 +85,7 @@ dic = {
         "jcr_lbl": "Cuartil JCR (Clarivate):",
         "sjr_lbl": "Cuartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
-        "m_selecionadas": "Revistas Seleccionadas",
+        "m_selecionadas": "Revistas Selecionadas",
         "m_hindex": "H-Index Máximo",
         "m_jif": "Factor JIF Máximo",
         "m_sjr": "SJR Score Ápice",
@@ -286,6 +286,16 @@ st.sidebar.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# --- BLOCO ADICIONADO: CONTADOR DE VISITAS DINÂMICO ---
+st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+contador_html = """
+<div align="center" style="margin: 10px 0;">
+    <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fbuscador-periodicos.streamlit.app&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Visitas&edge_flat=false"/>
+</div>
+"""
+st.sidebar.markdown(contador_html, unsafe_allow_html=True)
+# ------------------------------------------------------
+
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -296,7 +306,7 @@ st.sidebar.markdown("""
         <br><br>
         <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
         <b>Direitos Autorais & Propriedade:</b><br>
-        © 2026 <b>João F. Soares-Quadros Jr.</b><br>
+        <b>© 2026 João F. Soares-Quadros Jr.</b><br>
         Universidade Federal Ouro Preto<br>
         Minas Gerais, Brasil.<br>
         <i>Todos os direitos reservados.</i>
