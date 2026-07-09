@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import urllib.parse
+import base64
 
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
@@ -406,12 +407,27 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 5. PAINEL PRINCIPAL
-# Extraímos o ID do seu arquivo (1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc) e colocamos no formato de link direto (uc?export=view)
-url_da_sua_logo = "https://docs.google.com/uc?export=view&id=1_M8o5OfxFIc5jndhxRDlq288c0HEXMlc"
+# Função inteligente para converter a imagem guardada localmente em Base64
+def obter_imagem_local_base64(caminho_arquivo):
+    try:
+        with open(caminho_arquivo, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
+        return ""
+
+# Procura pelo ficheiro 'logo.png' que enviaste para o GitHub
+imagem_base64 = obter_imagem_local_base64("logo.png")
+
+if imagem_base64:
+    # Se encontrar a imagem, cria a tag HTML com o código binário seguro
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 80px; width: auto; object-fit: contain;">'
+else:
+    # Caso o ficheiro não seja encontrado (ou ainda esteja a atualizar), usa o emoji temporariamente
+    tag_imagem = '<div style="font-size: 2.5rem; margin-right: 10px;">📚</div>'
 
 st.markdown(f"""
     <div class="premium-hero" style="display: flex; align-items: center; gap: 20px;">
-        <img src="{url_da_sua_logo}" style="height: 80px; width: auto; object-fit: contain;">
+        {tag_imagem}
         <div>
             <h1 class="premium-title" style="margin:0 !important;">{t['titulo']}</h1>
             <p class="premium-subtitle" style="margin: 5px 0 0 0 !important;">{t['subtitulo']}</p>
