@@ -4,6 +4,7 @@ import pandas as pd
 # Acessando dados estruturados
 user = st.secrets["banco_dados"]["joaoquadros"]
 password = st.secrets["banco_dados"]["Cv840383"]
+.streamlit/secrets.toml
 
 # 1. CONFIGURAÇÃO PREMIUM DA PÁGINA
 st.set_page_config(
