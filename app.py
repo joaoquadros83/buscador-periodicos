@@ -515,7 +515,7 @@ if st.session_state.idioma == "Português":
     #### 🖥️ Uso em Modo Offline (Versão Desktop):
     Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
 
-    ####⚙️ **Instruções de Instalação:**
+    ⚙️ **Instruções de Instalação:**
     Para a instalação do software, faça o download de todos os arquivos contidos na pasta disponível no Google Drive e clique duas vezes no arquivo instalador (`Buscador de Periódicos.exe`). **Pronto!** Agora é só utilizar o sistema localmente.
     """
 elif st.session_state.idioma == "English":
@@ -533,7 +533,7 @@ elif st.session_state.idioma == "English":
 #### 🖥️ Offline Mode (Desktop Version):
     If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require an active connection are the external links to Google Scholar's h5-index and the redirection buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).    
 
-    ####⚙️ **Installation Instructions:**
+    ⚙️ **Installation Instructions:**
     To install the software, download all files from the folder available on Google Drive and double-click the installer executable (`Buscador de Periódicos.exe`). **That's it!** You are now ready to use the system locally.
      """
 else: # Español
