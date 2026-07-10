@@ -89,6 +89,9 @@ dic = {
         "indexadores_tit": "INDEXADORES",
 	"repositorios_tit": "REPOSITÓRIOS",
         "ia_tit": "IA ACADÊMICA"
+        "btn_desktop": "💻 Baixar Versão para Windows"
+    },
+}
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -132,6 +135,7 @@ dic = {
         "indexadores_tit": "INDEXERS",
 	"repositorios_tit": "DIRECTORIES",
         "ia_tit": "ACADEMIC AI"
+        "btn_desktop": "💻 Download Windows Version"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -175,6 +179,7 @@ dic = {
         "indexadores_tit": "INDEXADORES",
 	"repositorios_tit": "DIRECTORIOS",
         "ia_tit": "IA ACADÉMICA"
+        "btn_desktop": "💻 Descargar Versión para Windows"
     }
 }
 t = dic[st.session_state.idioma]
@@ -406,6 +411,19 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# --- BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Dinâmico e Multilíngue) ---
+st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+
+# Substitua pelo link real do seu arquivo ZIP no Google Drive
+link_do_drive = "https://drive.google.com/drive/folders/SEU_LINK_AQUI"
+
+st.sidebar.link_button(
+    t["btn_desktop"], 
+    link_do_drive, 
+    type="primary", 
+    use_container_width=True
+)
+
 # --- BLOCO CONTADOR ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
@@ -497,8 +515,8 @@ if st.session_state.idioma == "Português":
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
     4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 
-    #### 📲 Como instalar este Portal em seu computador para utilização offline:
-    Essa ferramenta atualmente apresenta versão somente para Windows (.exe). Para acessá-la, clique no botão (Baixar Versão para Computador) ao final do menu lateral, após a informação sobre Direitos Autorais e Propriedade. 
+    #### 🖥️ Disponível gratuitamente também na Versão Desktop:
+Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
     """
 
 elif st.session_state.idioma == "English":
@@ -512,7 +530,10 @@ elif st.session_state.idioma == "English":
     2. **Filters by Subarea:** Find journals perfectly aligned with your specific subarea of expertise.
     3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
     4. **Data Export:** Filter results according to your needs and download the customized table immediately.
-    """
+
+    #### 🖥️ Free Desktop Version Also Available:
+If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require active internet are the external links to Google Scholar's h5-index and the redirect buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).    
+     """
 else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
@@ -524,6 +545,9 @@ else: # Español
     2. **Filtros por Subárea:** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
     3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
     4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+
+    #### 🖥️ ¡Versión de Escritorio gratuita también disponible!:
+Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. As únicas excepciones que requieren una conexión activa são los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
     """
 
   # Substitua o link abaixo pelo link de compartilhamento gerado pelo seu Google Drive
@@ -531,7 +555,7 @@ link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxq
 
 st.sidebar.markdown("---") # Linha divisória para organizar
 st.sidebar.link_button(
-    "💻 Baixar Versão para Computador (Desktop)", 
+    "💻 Baixar Versão para Windows", 
     link_do_drive, 
     type="primary", # Deixa o botão destacado em vermelho/azul dependendo do seu tema
     use_container_width=True # Faz o botão ocupar toda a largura da barra lateral
