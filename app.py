@@ -474,7 +474,7 @@ st.sidebar.markdown(f"""
 # --- 3. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Posicionado dinamicamente ao FINAL do menu) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
-link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
+link_do_drive = "https://drive.google.com/drive/folders/1Yg6gbGBD3b32RTCdvaev8ovrORjZdbeL?usp=sharing"
 
 st.sidebar.link_button(
     t["btn_desktop"], 
