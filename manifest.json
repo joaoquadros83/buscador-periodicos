@@ -8,13 +8,13 @@
   "theme_color": "#1e3a8a",
   "icons": [
     {
-      "src": "/app/static/logo.png",
+      "src": "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/st_static/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/app/static/logo.png",
+      "src": "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/st_static/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
@@ -22,15 +22,15 @@
   ],
   "screenshots": [
     {
-      "src": "/app/static/print_pc.png",
-      "sizes": "1280x720",
+      "src": "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/st_static/logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Versão para Computador"
     },
     {
-      "src": "/app/static/print_celular.png",
-      "sizes": "750x1334",
+      "src": "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/st_static/logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Versão para Celular"
