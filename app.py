@@ -405,25 +405,12 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://www.ufop.br" target="_blank"><span><img src="https://labiiex.ufop.br/sites/default/files/styles/media_gallery_thumbnail/public/labiiex/files/ufop_logo.png?m=1597327148&itok=EmS_8t7o" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.posedu.ufop.br" target="_blank"><span><img src="https://posedu.ufop.br/sites/default/files/styles/os_files_small/public/ppge/files/logo_reduzida.png?m=1593192999&itok=0JX9OWRl" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>PPGE-UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.musica.ufop.br" target="_blank"><span><img src="https://musica.ufop.br/sites/default/files/styles/os_files_xxlarge/public/musica/files/logo22_1_03.png?m=1542714207&itok=i3jpi-oe" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Música-UFOP</span></a>
-    <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
+<a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
 </div>
 """, unsafe_allow_html=True
 )
 
-# --- BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Dinâmico e Multilíngue) ---
-st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-
-# Substitua pelo link real do seu arquivo ZIP no Google Drive
-link_do_drive = "https://drive.google.com/drive/folders/SEU_LINK_AQUI"
-
-st.sidebar.link_button(
-    t["btn_desktop"], 
-    link_do_drive, 
-    type="primary", 
-    use_container_width=True
-)
-
-# --- BLOCO CONTADOR ---
+# --- 1. BLOCO CONTADOR ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 
 try:
@@ -468,6 +455,7 @@ except Exception:
         </div>
     """, unsafe_allow_html=True)
 
+# --- 2. METADADOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -483,13 +471,23 @@ st.sidebar.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
+# --- 3. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Posicionado dinamicamente ao FINAL do menu) ---
+st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+
+link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
+
+st.sidebar.link_button(
+    t["btn_desktop"], 
+    link_do_drive, 
+    type="primary", 
+    use_container_width=True
+)
 # 5. PAINEL PRINCIPAL
 imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
     tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 200px; width: auto; object-fit: contain;">'
 else:
-    # Se usar o emoji reserva, colocamos uma tag <span> para o CSS também conseguir escondê-lo no celular se quiser
     tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
 
 st.markdown(f"""
@@ -512,7 +510,7 @@ if st.session_state.idioma == "Português":
     1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
     2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
-    4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
+    4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download della tabela customizada imediatamente.
 
     #### 🖥️ Disponível gratuitamente também na Versão Desktop:
 Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
@@ -537,35 +535,23 @@ else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
     ### ¡Bienvenido al Portal del Investigador!
-   Esta es una herramienta gratuita que fue desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
+   Esta es una herramienta gratuita que foi desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
     
     #### 🛠️ ¿Qué puedes hacer aquí?
     1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
     2. **Filtros por Subárea:** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
     3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
-    4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+    4. **Exportação de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 
     #### 🖥️ ¡Versión de Escritorio gratuita también disponible!:
 Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. As únicas excepciones que requieren una conexión activa são los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
     """
-
-  # Substitua o link abaixo pelo link de compartilhamento gerado pelo seu Google Drive
-link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
-
-st.sidebar.markdown("---") # Linha divisória para organizar
-st.sidebar.link_button(
-    "💻 Baixar Versão para Windows", 
-    link_do_drive, 
-    type="primary", # Deixa o botão destacado em vermelho/azul dependendo do seu tema
-    use_container_width=True # Faz o botão ocupar toda a largura da barra lateral
-)
 
 # Renderiza o Expander na tela de forma limpa
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
 
 st.markdown("<br>", unsafe_allow_html=True)
-# --- FIM DA NOVA SEÇÃO ---
 
 st.markdown(t['filtros_tit'])
 busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
@@ -619,29 +605,22 @@ if busca:
     import re
     texto_busca = busca.strip()
     
-    # 1. Tratamento Prévio: Identifica termos exatos entre aspas
-    # Cria uma lista temporária para guardar os blocos exatos e não misturá-los com operadores
     termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
     
-    # Substitui os termos com aspas por um marcador temporário para não quebrar a lógica booleana seguinte
     texto_processado = texto_busca
     for i, termo in enumerate(termos_exatos):
         texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
         
-    # Se o usuário não digitou operadores lógicos explícitos, assume AND por padrão entre os blocos
     if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
         palavras = [p.strip() for p in texto_processado.split() if p.strip()]
         texto_processado = " AND ".join(palavras)
 
-    # 2. Avaliação Lógica Avançada por Linha (Suporta Booleanos + Aspas)
     def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
         linha_texto = str(linha_texto).lower()
-        
-        # Divide a expressão pelos operadores booleanos principais
         tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
         
         resultado_final = False
-        operador_atual = "OR"  # Padrão de inicialização
+        operador_atual = "OR"
         inverter_proximo = False
         
         for token in tokens:
@@ -658,15 +637,12 @@ if busca:
             elif token_upper == "NOT":
                 inverter_proximo = True
             else:
-                # Verifica se o token é um marcador de termo exato entre aspas
                 match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
                 if match_exact:
                     idx = int(match_exact.group(1))
-                    # Resgata o termo original de dentro das aspas e força correspondência exata
                     termo_real = lista_exatos[idx].lower()
                     possui_termo = termo_real in linha_texto
                 else:
-                    # Termo comum sem aspas
                     termo_real = token_clean.lower()
                     possui_termo = termo_real in linha_texto
                 
@@ -674,7 +650,6 @@ if busca:
                     possui_termo = not possui_termo
                     inverter_proximo = False
                 
-                # Aplicação da tabela verdade booleana
                 if operador_atual == "AND":
                     resultado_final = resultado_final and possui_termo
                 elif operador_atual == "OR":
@@ -682,7 +657,6 @@ if busca:
                     
         return resultado_final
 
-    # Executa o filtro combinando o Título da Revista (coluna 0) e o ISSN
     df_filtrado = df_filtrado[
         df_filtrado.apply(
             lambda row: avaliar_busca_avancada(
@@ -694,7 +668,6 @@ if busca:
         )
     ]
 
-# (O restante do seu script com filtros de subárea, indexador, métricas e paginação continua igual abaixo...)
 if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
     df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
 
@@ -746,11 +719,9 @@ if total_itens > 0:
     fim = inicio + itens_por_pagina
     df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
     
-    # Tratamento de segurança: Se o link for "-", limpamos para None para o LinkColumn não quebrar
     if "Índice h5" in df_da_pagina.columns:
         df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
     
-    # Exibição com colunas ocultas e link limpo estilizado como "🔗 Abrir"
     st.dataframe(
         df_da_pagina, 
         use_container_width=True, 
