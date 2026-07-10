@@ -88,7 +88,7 @@ dic = {
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
 	"repositorios_tit": "REPOSITÓRIOS",
-        "ia_tit": "IA ACADÊMICA"
+        "ia_tit": "IA ACADÊMICA",
         "btn_desktop": "💻 Baixar Versão para Windows"
     },
 }
@@ -134,7 +134,7 @@ dic = {
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXERS",
 	"repositorios_tit": "DIRECTORIES",
-        "ia_tit": "ACADEMIC AI"
+        "ia_tit": "ACADEMIC AI",
         "btn_desktop": "💻 Download Windows Version"
     },
     "Español": {
@@ -178,7 +178,7 @@ dic = {
 # TRADUÇÕES EXCLUSIVAS SOLICITADAS:
         "indexadores_tit": "INDEXADORES",
 	"repositorios_tit": "DIRECTORIOS",
-        "ia_tit": "IA ACADÉMICA"
+        "ia_tit": "IA ACADÉMICA",
         "btn_desktop": "💻 Descargar Versión para Windows"
     }
 }
