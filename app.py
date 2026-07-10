@@ -497,8 +497,8 @@ if st.session_state.idioma == "Português":
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
     4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 
-    #### 📲 Como instalar este Portal como um Aplicativo:
-    Se você deseja usar a ferramenta em versão offline, clique no botão DOWNLOAD e o instalador será descarregado no seu computador ou celular.
+    #### 📲 Como instalar este Portal em seu computador para utilização offline:
+    Essa ferramenta atualmente apresenta versão somente para Windows (.exe). Para acessá-la, clique no botão (Baixar Versão para Computador) ao final do menu lateral, após a informação sobre Direitos Autorais e Propriedade. 
     """
 
 elif st.session_state.idioma == "English":
