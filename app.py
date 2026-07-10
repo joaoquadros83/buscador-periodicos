@@ -491,11 +491,18 @@ if st.session_state.idioma == "Português":
     ### Bem-vindo ao Portal do Pesquisador!
     Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
     
-    #### 📲 Como instalar este Portal como um Aplicativo (PWA):
-    Se você deseja usar o portal em uma janela própria, sem barras do navegador, faça o seguinte:
-    * **No Computador (Chrome/Edge):** Clique nos **três pontinhos** do menu do navegador (canto superior direito) > **Salvar e compartilhar** > **Criar atalho...** > Marque a caixa **\"Abrir como janela\"** e clique em Criar.
-    * **No Celular (Android/Chrome):** Abra o site, clique nos três pontinhos no topo direito e selecione **Adicionar à tela inicial**.
-    * **No Celular (iPhone/Safari):** Abra o site no Safari, clique no botão de **Compartilhar** (quadrado com a seta para cima) e selecione **Adicionar à Tela de Início**.
+   # Substitua o link abaixo pelo link de compartilhamento gerado pelo seu Google Drive
+link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
+
+st.sidebar.markdown("---") # Linha divisória para organizar
+st.sidebar.link_button(
+    "💻 Baixar Versão para Computador (Desktop)", 
+    link_do_drive, 
+    type="primary", # Deixa o botão destacado em vermelho/azul dependendo do seu tema
+    use_container_width=True # Faz o botão ocupar toda a largura da barra lateral
+)
+	 #### 📲 Como instalar este Portal como um Aplicativo (PWA):
+    Se você deseja usar a ferramenta em versão offline, clique no botão DOWNLOAD e o instalador será descarregado no seu computador ou celular.
     
     #### 🛠️ O que você pode fazer aqui?
     ...
