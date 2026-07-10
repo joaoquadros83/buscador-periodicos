@@ -515,9 +515,16 @@ if st.session_state.idioma == "Português":
     expander_titulo = "📖 Sobre o Portal & Como Utilizar"
     sobre_texto = """
     ### Bem-vindo ao Portal do Pesquisador!
-    Esta é um ferramenta gratuita e que foi desenvolvida com o objetivo de centralizar, otimizar e acelerar a busca por periódicos científicos de alto impacto e relevância acadêmica. Combinando ciência de dados e indexadores globais, o portal serve como um bússola para pesquisadores que buscam o melhor destino para suas produções científicas. 
+    Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
+    
+    #### 📲 Como instalar este Portal como um Aplicativo (PWA):
+    Se você deseja usar o portal em uma janela própria, sem barras do navegador, faça o seguinte:
+    * **No Computador (Chrome/Edge):** Clique nos **três pontinhos** do menu do navegador (canto superior direito) > **Salvar e compartilhar** > **Criar atalho...** > Marque a caixa **\"Abrir como janela\"** e clique em Criar.
+    * **No Celular (Android/Chrome):** Abra o site, clique nos três pontinhos no topo direito e selecione **Adicionar à tela inicial**.
+    * **No Celular (iPhone/Safari):** Abra o site no Safari, clique no botão de **Compartilhar** (quadrado com a seta para cima) e selecione **Adicionar à Tela de Início**.
     
     #### 🛠️ O que você pode fazer aqui?
+    ...
     1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
     2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
