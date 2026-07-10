@@ -20,9 +20,6 @@ pwa_code = """
 # Injeta o código de forma invisível para o usuário
 components.html(pwa_code, height=0, width=0)
 
-# --- DAQUI PARA BAIXO SEGUE O SEU CÓDIGO NORMAL DO STREAMLIT ---
-st.title("🔍 Buscador de Periódicos")
-
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
 password = st.secrets["senha"]
