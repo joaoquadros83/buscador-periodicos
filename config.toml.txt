@@ -4,3 +4,5 @@ backgroundColor = "#F8FAFC"       # Fundo Off-White Ultra Clean
 secondaryBackgroundColor = "#FFFFFF" # Elementos em Branco Puro
 textColor = "#334155"             # Texto Cinza Grafite Confortável
 font = "sans serif"
+[server]
+enableStaticServing = true
