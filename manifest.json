@@ -1,7 +1,8 @@
 {
   "name": "Buscador de Periódicos",
   "short_name": "Buscador",
-  "start_url": "/",
+  "id": "/",
+  "start_url": "https://buscador-periodicos.streamlit.app/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#1e3a8a",
@@ -17,6 +18,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/app/static/print_pc.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Versão para Computador"
+    },
+    {
+      "src": "/app/static/print_celular.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Versão para Celular"
     }
   ]
 }
