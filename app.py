@@ -512,10 +512,12 @@ if st.session_state.idioma == "Português":
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
     4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download della tabela customizada imediatamente.
 
-    #### 🖥️ Disponível gratuitamente também na Versão Desktop:
-Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
-    """
+    #### 🖥️ Uso em Modo Offline (Versão Desktop):
+    Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
 
+    ####⚙️ **Instruções de Instalação:**
+    Para a instalação do software, faça o download de todos os arquivos contidos na pasta disponível no Google Drive e clique duas vezes no arquivo instalador (`Buscador de Periódicos.exe`). **Pronto!** Agora é só utilizar o sistema localmente.
+    """
 elif st.session_state.idioma == "English":
     expander_titulo = "📖 About the Portal & How to Use"
     sobre_texto = """
@@ -528,8 +530,11 @@ elif st.session_state.idioma == "English":
     3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
     4. **Data Export:** Filter results according to your needs and download the customized table immediately.
 
-    #### 🖥️ Free Desktop Version Also Available:
-If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require active internet are the external links to Google Scholar's h5-index and the redirect buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).    
+#### 🖥️ Offline Mode (Desktop Version):
+    If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require an active connection are the external links to Google Scholar's h5-index and the redirection buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).    
+
+    ####⚙️ **Installation Instructions:**
+    To install the software, download all files from the folder available on Google Drive and double-click the installer executable (`Buscador de Periódicos.exe`). **That's it!** You are now ready to use the system locally.
      """
 else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
@@ -543,8 +548,11 @@ else: # Español
     3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
     4. **Exportação de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 
-    #### 🖥️ ¡Versión de Escritorio gratuita también disponible!:
-Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. As únicas excepciones que requieren una conexión activa são los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
+#### 🖥️ Uso en Modo Offline (Versión de Escritorio):
+    Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. Las únicas excepciones que requieren una conexión activa son los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
+
+    ⚙️ **Instrucciones de Instalación:**
+    Para instalar el software, descargue todos los archivos guardados en la carpeta disponible en Google Drive y haga doble clic en el archivo instalador (`Buscador de Periódicos.exe`). **¡Listo!** Ahora ya puede utilizar el sistema localmente.
     """
 
 # Renderiza o Expander na tela de forma limpa
