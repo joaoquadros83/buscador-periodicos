@@ -91,8 +91,6 @@ dic = {
         "ia_tit": "IA ACADÊMICA",
         "btn_desktop": "💻 Baixar Versão para Windows"
     },
-}
-    },
     "English": {
         "titulo": "Researcher's Portal",
         "subtitulo": "Data science applied to high-impact scientific output.",
