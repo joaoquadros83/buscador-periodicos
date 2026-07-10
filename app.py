@@ -409,7 +409,8 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://www.musica.ufop.br" target="_blank"><span><img src="https://musica.ufop.br/sites/default/files/styles/os_files_xxlarge/public/musica/files/logo22_1_03.png?m=1542714207&itok=i3jpi-oe" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Música-UFOP</span></a>
     <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True
+)
 
 # --- BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Dinâmico e Multilíngue) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
