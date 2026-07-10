@@ -2,37 +2,20 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import base64
-import streamlit as st
 import streamlit.components.v1 as components
 
-# Configuração da página
-st.set_page_config(page_title="Buscador de Periódicos", layout="wide")
-
-# Código que avisa o navegador sobre o PWA
-pwa_code = """
-<link rel="manifest" href="/app/static/manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/app/static/sw.js');
-  }
-</script>
-"""
-components.html(pwa_code, height=0, width=0)
-
-# --- FUNÇÃO PARA CONVERTER IMAGEM LOCAL PARA BASE64 ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Deve ser o primeiro comando Streamlit) ---
+# Tenta carregar o favicon local em base64 de forma segura
 def obter_imagem_local_base64(caminho_arquivo):
     try:
         with open(caminho_arquivo, "rb") as image_file:
             return base64.b64encode(image_file.read()).decode()
     except FileNotFoundError:
-        return "" # Retorna vazio se não encontrar o arquivo
+        return ""
 
-# --- PREPARAÇÃO DO NOVO ÍCONE DA PÁGINA ---
-# Procura pelo arquivo 'logo.png' que você já enviou para o GitHub
-imagem_base64_icon = obter_imagem_local_base64("logo.png")
-
-# --- PREPARAÇÃO DO ÍCONE DA PÁGINA (Apontando para a versão simplificada) ---
-imagem_base64_icon = obter_imagem_local_base64("favicon.png") # Nova imagem focada em tamanho pequeno
+imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
+if not imagem_base64_icon:
+    imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
 
 if imagem_base64_icon:
     novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
@@ -45,6 +28,25 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# --- 2. INJEÇÃO DO CÓDIGO PWA (Apontando para as rotas corretas) ---
+pwa_code = """
+<link rel="manifest" href="/app/static/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/app/static/sw.js')
+    .then(reg => console.log('Service Worker Registrado!', reg))
+    .catch(err => console.log('Erro ao registrar Service Worker:', err));
+  }
+</script>
+"""
+components.html(pwa_code, height=0, width=0)
+
+# --- 3. ATUALIZAÇÃO DO CARREGAMENTO DA LOGO DO HERO ---
+# Ajustado para ler da nova pasta 'st_static'
+imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
+
+# ... (A partir daqui, você pode continuar com o restante do seu código de tradução, CSS e filtros normalmente)
 
 # --- SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
