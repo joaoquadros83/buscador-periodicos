@@ -1,0 +1,16 @@
+{
+  "short_name": "Periódicos",
+  "name": "Buscador de Periódicos",
+  "icons": [
+    {
+      "src": "/static/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#ff4b4b"
+}

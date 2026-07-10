@@ -2,6 +2,26 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import base64
+import streamlit as st
+import streamlit.components.v1 as components
+
+# 1. Configuração da página (coloque em formato amplo se quiser cara de app)
+st.set_page_config(page_title="Buscador de Periódicos", layout="wide")
+
+# 2. Injetar o código do PWA no cabeçalho da página
+pwa_code = """
+<link rel="manifest" href="/static/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js');
+  }
+</script>
+"""
+# Injeta o código de forma invisível para o usuário
+components.html(pwa_code, height=0, width=0)
+
+# --- DAQUI PARA BAIXO SEGUE O SEU CÓDIGO NORMAL DO STREAMLIT ---
+st.title("🔍 Buscador de Periódicos")
 
 # Forma simples e direta de ler
 user = st.secrets["usuario"]
