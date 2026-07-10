@@ -500,61 +500,69 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
+# Definição dos textos informativos nos 3 idiomas (Com identação corrigida)
 if st.session_state.idioma == "Português":
     expander_titulo = "📖 Sobre o Portal & Como Utilizar"
     sobre_texto = """
-    ### Bem-vindo ao Portal do Pesquisador!
-    Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
-      
-    #### 🛠️ O que você pode fazer aqui?
-    1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
-    2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
-    3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
-    4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download della tabela customizada imediatamente.
+### Bem-vindo ao Portal do Pesquisador!
+Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
+  
+#### 🛠️ O que você pode fazer aqui?
+1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
+3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
+4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 
-    #### 🖥️ Uso em Modo Offline (Versão Desktop):
-    Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
+---
 
-    ⚙️ **Instruções de Instalação:**
-    Para a instalação do software, faça o download de todos os arquivos contidos na pasta disponível no Google Drive e clique duas vezes no arquivo instalador (`Buscador de Periódicos.exe`). **Pronto!** Agora é só utilizar o sistema localmente.
-    """
+#### 🖥️ Uso em Modo Offline (Versão Desktop):
+Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
+
+⚙️ **Instruções de Instalação:**
+Para a instalação do software, faça o download de todos os arquivos contidos na pasta disponível no Google Drive e clique duas vezes no arquivo instalador (`Buscador de Periódicos.exe`). **Pronto!** Agora é só utilizar o sistema localmente.
+"""
+
 elif st.session_state.idioma == "English":
     expander_titulo = "📖 About the Portal & How to Use"
     sobre_texto = """
-    ### Welcome to the Researcher's Portal!
-    This is a free tool that was developed to centralize, optimize, and accelerate the search for high-impact and academically relevant scientific journals. Combining data science and global indexers, the portal acts as a compass for researchers seeking the best venue for their scientific output.
-    
-    #### 🛠️ What can you do here?
-    1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
-    2. **Filters by Subarea:** Find journals perfectly aligned with your specific subarea of expertise.
-    3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
-    4. **Data Export:** Filter results according to your needs and download the customized table immediately.
+### Welcome to the Researcher's Portal!
+This is a free tool developed to optimize the search for high-impact scientific journals.
+
+#### 🛠️ What can you do here?
+1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
+2. **Filters by Subarea (CNPq):** Find journals perfectly aligned with your specific subarea of expertise.
+3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
+4. **Data Export:** Filter results according to your needs and download the customized table immediately.
+
+---
 
 #### 🖥️ Offline Mode (Desktop Version):
-    If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require an active connection are the external links to Google Scholar's h5-index and the redirection buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).    
+If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require an active connection are the external links to Google Scholar's h5-index and the redirection buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).
 
-    ⚙️ **Installation Instructions:**
-    To install the software, download all files from the folder available on Google Drive and double-click the installer executable (`Buscador de Periódicos.exe`). **That's it!** You are now ready to use the system locally.
-     """
+⚙️ **Installation Instructions:**
+To install the software, download all files from the folder available on Google Drive and double-click the installer executable (`Buscador de Periódicos.exe`). **That's it!** You are now ready to use the system locally.
+"""
+
 else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
-    ### ¡Bienvenido al Portal del Investigador!
-   Esta es una herramienta gratuita que foi desarrollada con el objetivo de centralizar, optimizar y acelerar la búsqueda de revistas científicas de alto impacto y relevancia académica. Combinando la ciencia de datos y los indexadores globales, el portal sirve como una brújula para los investigadores que buscan el mejor destino para sus producciones científicas.
-    
-    #### 🛠️ ¿Qué puedes hacer aquí?
-    1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
-    2. **Filtros por Subárea:** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
-    3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
-    4. **Exportação de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+### ¡Bienvenido al Portal del Investigador!
+Esta es una herramienta gratuita desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
+
+#### 🛠️ ¿Qué puedes hacer aquí?
+1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
+3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
+4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+
+---
 
 #### 🖥️ Uso en Modo Offline (Versión de Escritorio):
-    Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. Las únicas excepciones que requieren una conexión activa son los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
+Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. Las únicas excepciones que requieren una conexión activa son los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
 
-    ⚙️ **Instrucciones de Instalación:**
-    Para instalar el software, descargue todos los archivos guardados en la carpeta disponible en Google Drive y haga doble clic en el archivo instalador (`Buscador de Periódicos.exe`). **¡Listo!** Ahora ya puede utilizar el sistema localmente.
-    """
-
+⚙️ **Instrucciones de Instalação:**
+Para instalar el software, descargue todos los archivos guardados en la carpeta disponible en Google Drive y haga doble clic en el archivo instalador (`Buscador de Periódicos.exe`). **¡Listo!** Ahora ya puede utilizar el sistema localmente.
+"""
 # Renderiza o Expander na tela de forma limpa
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
