@@ -41,10 +41,6 @@ pwa_code = """
 """
 components.html(pwa_code, height=0, width=0)
 
-# --- 3. SEGURANÇA E SECRETS ---
-user = secrets.toml["usuario"]
-password = secrets.toml["senha"]
-
 # --- SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
     st.session_state.idioma = "Português"
