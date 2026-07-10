@@ -490,17 +490,17 @@ if st.session_state.idioma == "Português":
     sobre_texto = """
     ### Bem-vindo ao Portal do Pesquisador!
     Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
-    
-    #### 📲 Como instalar este Portal como um Aplicativo:
-    Se você deseja usar a ferramenta em versão offline, clique no botão DOWNLOAD e o instalador será descarregado no seu computador ou celular.
-    
+      
     #### 🛠️ O que você pode fazer aqui?
-    ...
     1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
     2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
     3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
     4. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
+
+    #### 📲 Como instalar este Portal como um Aplicativo:
+    Se você deseja usar a ferramenta em versão offline, clique no botão DOWNLOAD e o instalador será descarregado no seu computador ou celular.
     """
+
 elif st.session_state.idioma == "English":
     expander_titulo = "📖 About the Portal & How to Use"
     sobre_texto = """
