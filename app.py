@@ -29,14 +29,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. INJEÇÃO DO CÓDIGO PWA (Apontando para as rotas corretas) ---
+# --- 2. INJEÇÃO DO CÓDIGO PWA (Versão Inline anti-bloqueio) ---
 pwa_code = """
-<link rel="manifest" href="/app/static/manifest.json">
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJ1c2NhZG9yIGRlIFBlcmnDs2RpY29zIiwKICAic2hvcnRfbmFtZSI6ICJCdXNjYWRvciIsCiAgImlkIjogIi8iLAogICJzdGFydF91cmwiOiAiaHR0cHM6Ly9idXNjYWRvci1wZXJpb2RpY29zLnN0cmVhbWxpdC5hcHAvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGYxNzJhIiwKICAidGhlbWVfY29sb3IiOiAiIzFlM2E4YSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KbyVDMyVBM29GUVMvYnVzY2Fkb3ItcGVyaW9kaWNvcy9tYWluL3N0X3N0YXRpYy9sb2dvLnBuZyIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL3Jhdy5naXRodWJ1c2VyY29udGVudC5jb20vSm8lQzMlQTFvRlFTL2J1c2NhZG9yLXBlcm9kaWNvcy9tYWluL3N0X3N0YXRpYy9sb2dvLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IgogICAgfQogIF0sCiAgInNjcmVlbnNob3RzIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KbyVDMyVBM29GUVMvYnVzY2Fkb3ItcGVyaW9kaWNvcy9tYWluL3N0X3N0YXRpYy9sb2dvLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAg   ImZvcm1fZmFjdG9yIjogIndpZGUiLAogICAgICAibGFiZWwiOiAiVmVyc8OjbyBwYXJhIENvbXB1dGFkb3IiCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9KbyVDMyVBM29GUVMvYnVzY2Fkb3ItcGVyaW9kaWNvcy9tYWluL3N0X3N0YXRpYy9sb2dvLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvcG5nIiwKICAgICAgImZvcm1fZmFjdG9yIjogIm5hcnJvdyIsCiAgICAgICJsYWJlbCI6ICJWZXJzw6NvIHBhcmEgQ2VsdWxhciIKICAgIH0KICBdCn0=">
+
 <script>
+  // Cria o código do Service Worker dinamicamente via Blob (Pula o bloqueio de MIME type do Streamlit)
+  const swCode = `
+    const CACHE_NAME = 'buscador-v1';
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+  `;
+
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/app/static/sw.js')
-    .then(reg => console.log('Service Worker Registrado!', reg))
-    .catch(err => console.log('Erro ao registrar Service Worker:', err));
+    navigator.serviceWorker.register(swUrl, { scope: '/' })
+      .then(reg => console.log('PWA Ativo via Blob! Escopo:', reg.scope))
+      .catch(err => console.log('Erro no Service Worker alternativo:', err));
   }
 </script>
 """
