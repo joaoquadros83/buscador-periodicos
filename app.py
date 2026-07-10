@@ -491,17 +491,7 @@ if st.session_state.idioma == "Português":
     ### Bem-vindo ao Portal do Pesquisador!
     Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
     
-   # Substitua o link abaixo pelo link de compartilhamento gerado pelo seu Google Drive
-link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
-
-st.sidebar.markdown("---") # Linha divisória para organizar
-st.sidebar.link_button(
-    "💻 Baixar Versão para Computador (Desktop)", 
-    link_do_drive, 
-    type="primary", # Deixa o botão destacado em vermelho/azul dependendo do seu tema
-    use_container_width=True # Faz o botão ocupar toda a largura da barra lateral
-)
-	 #### 📲 Como instalar este Portal como um Aplicativo (PWA):
+    #### 📲 Como instalar este Portal como um Aplicativo:
     Se você deseja usar a ferramenta em versão offline, clique no botão DOWNLOAD e o instalador será descarregado no seu computador ou celular.
     
     #### 🛠️ O que você pode fazer aqui?
@@ -535,6 +525,18 @@ else: # Español
     3. **Métricas de Impacto:** Analice el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
     4. **Exportación de Datos:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
     """
+
+  # Substitua o link abaixo pelo link de compartilhamento gerado pelo seu Google Drive
+link_do_drive = "https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing"
+
+st.sidebar.markdown("---") # Linha divisória para organizar
+st.sidebar.link_button(
+    "💻 Baixar Versão para Computador (Desktop)", 
+    link_do_drive, 
+    type="primary", # Deixa o botão destacado em vermelho/azul dependendo do seu tema
+    use_container_width=True # Faz o botão ocupar toda a largura da barra lateral
+)
+
 # Renderiza o Expander na tela de forma limpa
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
