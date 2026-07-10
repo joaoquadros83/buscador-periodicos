@@ -19,11 +19,6 @@ pwa_code = """
 """
 components.html(pwa_code, height=0, width=0)
 
-# --- Seu código atual do buscador continua aqui para baixo ---
-# Forma simples e direta de ler
-user = st.secrets["usuario"]
-password = st.secrets["senha"]
-
 # --- FUNÇÃO PARA CONVERTER IMAGEM LOCAL PARA BASE64 ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
