@@ -1083,16 +1083,26 @@ with tab_ia:
             # Renderização dos cards de recomendação
             with st.container(border=True):
                 col_info, col_link = st.columns([3, 1])
-                
-                with col_info:
-                    st.markdown(f"### {rec['revista_nome']}")
-                    st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
-                    st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-                    st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
-                
-                with col_link:
-                    st.caption("")
-                    if homepage and homepage != "nan" and homepage != "-" and homepage != "":
-                        st.link_button(t['ia_card_site'], homepage, type="primary", width="stretch")
-                    else:
-                        st.info(t['ia_card_sem_site'])
+for idx, rec in enumerate(lista_recomendacoes_recebidas): # Use enumerate para gerar um ID estável
+    with st.container(border=True):
+        col_info, col_link = st.columns([3, 1])
+        
+        with col_info:
+            st.markdown(f"### {rec['revista_nome']}")
+            st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
+            st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+            st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+        
+        with col_link:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if homepage and homepage != "nan" and homepage != "-" and homepage != "":
+                # Adicionando uma key exclusiva baseada no idioma e no índice do loop
+                st.link_button(
+                    t['ia_card_site'], 
+                    homepage, 
+                    type="primary", 
+                    use_container_width=True,
+                    key=f"lnk_btn_{idx}_{st.session_state.idioma}"
+                )
+            else:
+                st.info(t['ia_card_sem_site'])
