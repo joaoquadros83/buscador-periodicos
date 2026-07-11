@@ -929,6 +929,16 @@ with tab_busca:
         if "Índice h5" in df_da_pagina.columns:
             df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", "")
         
+        # TELEMETRIA DE DEPURACÃO PARA ISOLAR A COLUNA DO SEGFAULT
+        import sys
+        import pyarrow as pa
+        for col in df_da_pagina.columns:
+            sys.stderr.write(f"=== DEPURANDO PYARROW COLUNA: {col} ===\n")
+            sys.stderr.flush()
+            pa.array(df_da_pagina[col])
+        sys.stderr.write("=== TODAS AS COLUNAS TESTADAS COM SUCESSO ===\n")
+        sys.stderr.flush()
+        
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
             df_da_pagina, 
