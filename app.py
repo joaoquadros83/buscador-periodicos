@@ -256,6 +256,15 @@ t = dic[st.session_state.idioma]
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
+<script>
+    // Previne que ferramentas de tradução automática corrompam o DOM do React/Streamlit
+    const meta = document.createElement('meta');
+    meta.name = 'google';
+    meta.content = 'notranslate';
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    document.body.classList.add('notranslate');
+    document.body.setAttribute('translate', 'no');
+</script>
 <style>
     /* Esconde a logo apenas em telas de celulares (menores que 768px) */
     @media (max-width: 768px) {
