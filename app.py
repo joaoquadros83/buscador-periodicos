@@ -1,3 +1,6 @@
+import faulthandler
+faulthandler.enable()
+
 import streamlit as st
 import pandas as pd
 import urllib.parse
@@ -979,7 +982,8 @@ with tab_ia:
         # Lê chave do segredo do Streamlit Cloud se existir
         chave_secrets = ""
         try:
-            chave_secrets = st.secrets.get("GEMINI_API_KEY", "")
+            if hasattr(st, "secrets") and st.secrets is not None:
+                chave_secrets = st.secrets.get("GEMINI_API_KEY", "")
         except Exception:
             pass
             
