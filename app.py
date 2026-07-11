@@ -16,15 +16,15 @@ except ModuleNotFoundError:
 # --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
-        if os.path.exists(caminho_arquivo):
-            with open(caminho_arquivo, "rb") as image_file:
-                return base64.b64encode(image_file.read()).decode()
-    except Exception:
+        with open(caminho_arquivo, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except FileNotFoundError:
         return ""
-    return ""
 
-# Busca o logo na raiz do repositório, onde ele realmente está
-imagem_base64_icon = obter_imagem_local_base64("logo.png")
+imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
+if not imagem_base64_icon:
+    imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
+
 novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
