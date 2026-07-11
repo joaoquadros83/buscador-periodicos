@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import base64
+import streamlit.components.v1 as components
 import json
 import os
 
@@ -12,7 +13,7 @@ try:
 except ModuleNotFoundError:
     HAS_GEMINI = False
 
-# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém o Ícone e o Layout original) ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém seu Favicon e Layout) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
         with open(caminho_arquivo, "rb") as image_file:
@@ -36,7 +37,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE (Dicionário Central Expandido) ---
+# --- 3. ATUALIZAÇÃO DO CARREGAMENTO DA LOGO DO HERO ---
+# Ajustado para ler da nova pasta 'st_static'
+imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
+
+# --- 3. SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
     st.session_state.idioma = "Português"
 
@@ -47,6 +52,7 @@ st.session_state.idioma = st.sidebar.selectbox(
     ["Português", "English", "Español"]
 )
 
+# Dicionário central de tradução
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
@@ -236,33 +242,34 @@ st.markdown("""
 <style>
     /* Esconde a logo apenas em telas de celulares (menores que 768px) */
     @media (max-width: 768px) {
-        .premium-hero img {
-            display: none !important;
-        }
-        .premium-hero {
-            text-align: center;
-            justify-content: center;
-        }
+    .premium-hero img {
+        display: none !important;
     }
+    /* Opcional: Centraliza o texto no celular já que a logo sumiu */
+    .premium-hero {
+        text-align: center;
+        justify-content: center;
+    }
+}
     /* Força o fundo do menu lateral com a cor definida */
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
     }   
     
-    /* Aumenta o tamanho da fonte e destaca o título do expander */
-    .stExpander details summary p {
-        font-size: 1.35rem !important;
-        font-weight: 600 !important;
-        color: #FFFFFF !important;
-    }
+/* Aumenta o tamanho da fonte e destaca o título do expander */
+.stExpander details summary p {
+    font-size: 1.35rem !important; /* Ajuste este valor para o tamanho que desejar */
+    font-weight: 600 !important;   /* Deixa o título em negrito */
+    color: #FFFFF !important;     /* Mantém a cor no tom escuro padrão do seu site */
+}
 
-    /* Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
+/* Altera a cor do texto "Language / Idioma" (e outros rótulos da barra lateral) */
     [data-testid="stSidebar"] label {
         color: #004B87 !important; 
         font-weight: 600 !important; 
     }
    
-    [data-testid="stMetricValue"] {
+   [data-testid="stMetricValue"] {
         font-size: 2.2rem !important;
         font-weight: 700 !important;
         color: #004B87 !important;
@@ -283,13 +290,13 @@ st.markdown("""
         margin-bottom: 8px !important;
         letter-spacing: -0.5px;
     }
-    .premium-subtitle {
-        color: #FFFFFF !important;
-        font-size: 1.45rem !important; 
-        max-width: 900px;              
-        line-height: 1.5;
-        margin-top: 10px;
-    }
+.premium-subtitle {
+    color: #FFFFFF !important;
+    font-size: 1.45rem !important; 
+    max-width: 900px;              
+    line-height: 1.5;
+    margin-top: 10px; /* Adiciona um espaço elegante entre o título e o subtítulo */
+}
     /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
@@ -324,7 +331,43 @@ st.markdown("""
         padding: 10px 20px !important;
         font-weight: 500 !important;
     }
+</style>
+""", unsafe_allow_html=True)
 
+# 3. BASE DE DADOS COM CACHE
+@st.cache_data
+def carregar_dados():
+    # CORREÇÃO CRÍTICA: Lendo com sep=";" conforme estrutura real do seu arquivo dados_revistas.csv
+    df = pd.read_csv("dados_revistas.csv", sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
+    df = df.drop_duplicates(subset=[df.columns[0]])
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df.columns = [c.strip() for c in df.columns]
+    
+    # Tratamento numérico padrão das métricas
+    for col in ['SJR', 'JIF', 'h-index', 'H index']:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            
+    df = df.fillna("-")
+    df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
+    return df
+
+try:
+    df_original = carregar_dados()
+except Exception as e:
+    st.error(f"⚠️ Erro ao carregar a base de dados. Detalhes: {e}")
+    st.stop()
+
+# 4. ESTRUTURA DO MENU LATERAL
+st.sidebar.markdown(f"""
+    <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
+        <h2 style='margin: 0; font-size: 1.60rem; font-weight: 700; color: #0F172A;'>{t['nav_tit']}</h2>
+    </div>
+""", unsafe_allow_html=True)
+
+st.sidebar.markdown("""
+<style>
     .btn-custom-menu {
         background-color: #FFFFFF !important;
         border: 1px solid #004B87 !important;
@@ -397,7 +440,6 @@ st.sidebar.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# indexadores
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['indexadores_tit']}</p>
@@ -409,10 +451,10 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="http://educa.fcc.org.br/cgi-bin/wxis.exe/iah/?IsisScript=iah/iah.xis&base=title&fmt=iso.pft&lang=p" target="_blank"><span><img src="https://www.fcc.org.br/fcc/wp-content/uploads/2020/05/fcc.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Educ@</span></a>
     <a class="btn-custom-menu" href="https://www.jstor.org/" target="_blank"><span><img src="https://upload.wikimedia.org/wikipedia/en/5/56/JSTOR_vector_logo.svg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>JSTOR</span></a>
     <a class="btn-custom-menu" href="https://www.latindex.org/latindex/" target="_blank"><span><img src="https://www.insper.edu.br/content/insper-portal/en/campus/biblioteca-telles/recursos-de-busca/latindex/_jcr_content/root/responsivegrid/wrapper/container_grid/container/wrapper/featured_card_container/image.coreimg.png/1723749927456/latindex.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Latindex</span></a>
+
 </div>
 """, unsafe_allow_html=True)
 
-# repositórios
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['repositorios_tit']}</p>
@@ -421,10 +463,11 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://api.base-search.net/" target="_blank"><span><img src="https://pbs.twimg.com/profile_images/1259600128/base_twitter_400x400.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>BASE</span></a>
     <a class="btn-custom-menu" href="https://doaj.org/" target="_blank"><span><img src="https://upload.wikimedia.org/wikipedia/commons/d/d9/DOAJ_logo-colour.svg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>DOAJ</span></a>
     <a class="btn-custom-menu" href="https://catalogodeteses.capes.gov.br/catalogo-teses/#!/" target="_blank"><span><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ04fk8I3y7LecgydHxbQybU3R9TB7qb99ikUFKNUsZNQ&s" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Catálogo de Teses e Dissertações da CAPES</span></a>
+
 </div>
 """, unsafe_allow_html=True)
 
-# ia acadêmica
+
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['ia_tit']}</p>
@@ -439,9 +482,9 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://logically.app/" target="_blank"><img src="https://www.logically.ai/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>Logically</span></a>
     <a class="btn-custom-menu" href="https://www.pubmed.ai/home" target="_blank"><img src="https://cdn-1.webcatalog.io/catalog/pubmed-ai/pubmed-ai-icon-filled-256.png?v=1747807986408" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px;"><span>PubMed.AI</span></a>
 </div>
+
 """, unsafe_allow_html=True)
 
-# governamentais
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['gov_tit']}</p>
@@ -453,7 +496,6 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# institucionais
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['inst_tit']}</p>
@@ -461,14 +503,18 @@ st.sidebar.markdown(f"""
     <a class="btn-custom-menu" href="https://www.ufop.br" target="_blank"><span><img src="https://labiiex.ufop.br/sites/default/files/styles/media_gallery_thumbnail/public/labiiex/files/ufop_logo.png?m=1597327148&itok=EmS_8t7o" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.posedu.ufop.br" target="_blank"><span><img src="https://posedu.ufop.br/sites/default/files/styles/os_files_small/public/ppge/files/logo_reduzida.png?m=1593192999&itok=0JX9OWRl" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>PPGE-UFOP</span></a>
     <a class="btn-custom-menu" href="https://www.musica.ufop.br" target="_blank"><span><img src="https://musica.ufop.br/sites/default/files/styles/os_files_xxlarge/public/musica/files/logo22_1_03.png?m=1542714207&itok=i3jpi-oe" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;"><span>Música-UFOP</span></a>
-    <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
+<a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank"><span>{t['pessoal_lbl']}</span></a>
 </div>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True
+)
 
-# --- 5. BLOCO CONTADOR DE VISITAS ---
+# --- 1. BLOCO CONTADOR ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+
 try:
+    import os
     arquivo_contador = "contador_visitas.txt"
+    
     if not os.path.exists(arquivo_contador):
         with open(arquivo_contador, "w") as f:
             f.write("0")
@@ -507,7 +553,7 @@ except Exception:
         </div>
     """, unsafe_allow_html=True)
 
-# --- 6. METADADOS E DIREITOS AUTORAIS ---
+# --- 2. METADADOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
@@ -523,23 +569,22 @@ st.sidebar.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# --- 7. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP ---
+# --- 3. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP (Posicionado dinamicamente ao FINAL do menu) ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+
 link_do_drive = "https://drive.google.com/drive/folders/1Yg6gbGBD3b32RTCdvaev8ovrORjZdbeL?usp=sharing"
+
 st.sidebar.link_button(
     t["btn_desktop"], 
     link_do_drive, 
     type="primary", 
     use_container_width=True
 )
-
-# --- 8. PAINEL PRINCIPAL (HERO DESIGN) ---
-imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
-if not imagem_base64:
-    imagem_base64 = obter_imagem_local_base64("logo.png")
+# 5. PAINEL PRINCIPAL
+imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 100px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 200px; width: auto; object-fit: contain;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
 
@@ -553,7 +598,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Textos informativos traduzidos
+# Definição dos textos informativos nos 3 idiomas (Com identação corrigida)
 if st.session_state.idioma == "Português":
     expander_titulo = "📖 Sobre o Portal & Como Utilizar"
     sobre_texto = """
@@ -566,7 +611,16 @@ Esta é uma ferramenta gratuita desenvolvida para otimizar a busca por periódic
 3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
 4. **Recomendação Inteligente (IA):** Use a inteligência artificial do Google Gemini para colar o título e resumo do seu artigo e obter as recomendações de periódicos ideais com justificativa e link direto.
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
+
+---
+
+#### 🖥️ Uso em Modo Offline (Versão Desktop):
+Caso queira usar essa ferramenta em modo offline, basta clicar no botão **"Baixar Versão para Windows"** ao final do menu lateral (localizado logo após as informações de Direitos Autorais e Propriedade). Todas as funcionalidades de busca e filtros do Portal funcionarão corretamente mesmo sem internet. As únicas exceções que exigem conexão ativa são os links externos para acesso ao índice h5 do Google Scholar e os botões de redirecionamento do menu lateral (*Indexadores, Repositórios, IA Acadêmica, Sites Governamentais e Informações Institucionais*).
+
+⚙️ **Instruções de Instalação:**
+Para a instalação do software, faça o download de todos os arquivos contidos na pasta disponível no Google Drive e clique duas vezes no arquivo instalador (`Buscador de Periódicos.exe`). **Pronto!** Agora é só utilizar o sistema localmente.
 """
+
 elif st.session_state.idioma == "English":
     expander_titulo = "📖 About the Portal & How to Use"
     sobre_texto = """
@@ -574,12 +628,20 @@ elif st.session_state.idioma == "English":
 This is a free tool developed to optimize the search for high-impact scientific journals.
 
 #### 🛠️ What can you do here?
-1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
-2. **Filters by Subarea (CNPq):** Find journals perfectly aligned with your specific subarea of expertise.
-3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
-4. **Smart Recommender (AI):** Paste your title and abstract, and let the Google Gemini AI recommend the best matches with specific rationale and homepage links.
-5. **Data Export:** Filter results according to your needs and download the customized table immediately.
+1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados à sua subárea específica de atuação e conhecimento.
+3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
+4. **Recomendação Inteligente (IA):** Use a inteligência artificial do Google Gemini para colar o título e resumo do seu artigo e obter as recomendações de periódicos ideais com justificativa e link direto.
+5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
+---
+
+#### 🖥️ Offline Mode (Desktop Version):
+If you wish to use this tool offline, simply click the **"Download Windows Version"** button at the bottom of the sidebar menu (located right after the Copyright & Ownership section). All of the Portal's search and filter features will work perfectly without an internet connection. The only exceptions that require an active connection are the external links to Google Scholar's h5-index and the redirection buttons in the sidebar menu (*Indexers, Directories, Academic AI, Government Websites, and Institutional Information*).
+
+⚙️ **Installation Instructions:**
+To install the software, download all files from the folder available on Google Drive and double-click the installer executable (`Buscador de Periódicos.exe`). **That's it!** You are now ready to use the system locally.
 """
+
 else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
@@ -587,13 +649,22 @@ else: # Español
 Esta es una herramienta gratuita desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
 
 #### 🛠️ ¿Qué puedes hacer aquí?
+#### 🛠️ ¿Qué puedes hacer aquí?
 1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
 2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
 3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
 4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
 5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
-"""
 
+---
+
+#### 🖥️ Uso en Modo Offline (Versión de Escritorio):
+Si desea utilizar esta herramienta en modo offline, simplemente haga clic en el botón **"Descargar Versión para Windows"** al final del menú lateral (ubicado justo después de la sección de Derechos de Autor y Propiedad). Todas las funciones de búsqueda y filtrado del Portal funcionarán perfectamente sin conexión a internet. Las únicas excepciones que requieren una conexión activa son los enlaces externos para acceder al índice h5 de Google Scholar y los botones de redirección del menú lateral (*Indexadores, Directorios, IA Académica, Sitios del Gobierno e Información Institucional*).
+
+⚙️ **Instrucciones de Instalação:**
+Para instalar el software, descargue todos los archivos guardados en la carpeta disponible en Google Drive y haga doble clic en el archivo instalador (`Buscador de Periódicos.exe`). **¡Listo!** Ahora ya puede utilizar el sistema localmente.
+"""
+# Renderiza o Expander na tela de forma limpa
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
 
@@ -603,208 +674,198 @@ st.markdown("<br>", unsafe_allow_html=True)
 tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 
 # ==================== ABA 1: CATÁLOGO TRADICIONAL (LAYOUT INTEGRAL) ====================
-with tab_busca:
-    st.markdown(t['filtros_tit'])
-    busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
 
-    # Abas Internas de Filtragem (Mantém o modelo original)
-    aba_escopo, aba_impacto = st.tabs([t['aba_escopo'], t['aba_impacto']])
+st.markdown(t['filtros_tit'])
+busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
 
-    with aba_escopo:
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            col_subarea = "Subárea do Conhecimento"
-            set_subareas = set()
-            if col_subarea in df_original.columns:
-                for x in df_original[col_subarea].unique():
-                    if str(x).strip() not in ["", "-", "nan", "None"]:
-                        for sub in str(x).split(","):
-                            set_subareas.add(sub.strip())
-            lista_subareas = sorted(list(set_subareas))
-            subarea_sel = st.selectbox(t['subarea_lbl'], [t['todas']] + lista_subareas)
-        with col_f2:
-            col_indexador = "Indexador" if "Indexador" in df_original.columns else None
-            if col_indexador:
-                set_indexadores = set()
-                for x in df_original[col_indexador].unique():
-                    if x != "-":
-                        for idx in str(x).split(","): 
-                            set_indexadores.add(idx.strip())
-                indexador_sel = st.multiselect(t['base_lbl'], sorted(list(set_indexadores)))
-            else: 
-                indexador_sel = []
+aba_escopo, aba_impacto = st.tabs([t['aba_escopo'], t['aba_impacto']])
 
-    with aba_impacto:
-        col_f4, col_f5, col_f6 = st.columns(3)
-        with col_f4:
-            col_q_jcr = "Quartil JCR"
-            opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_jcr in df_original.columns else []
-            if not opcoes_jcr: 
-                opcoes_jcr = ["Q1", "Q2", "Q3", "Q4"]
-            q_jcr_sel = st.multiselect(t['jcr_lbl'], opcoes_jcr)
-        with col_f5:
-            col_q_sjr = "SJR Best Quartile"
-            opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_sjr in df_original.columns else []
-            if not opcoes_sjr: 
-                opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
-            q_sjr_sel = st.multiselect(t['sjr_lbl'], opcoes_sjr)
-        with col_f6:
-            opcoes_ordenacao = ["Título"]
-            if "SJR" in df_original.columns: 
-                opcoes_ordenacao.append("SJR (Prestígio)")
-            if "JIF" in df_original.columns: 
-                opcoes_ordenacao.append("JIF (Fator de Impacto)")
-            criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
+with aba_escopo:
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        col_subarea = "Subárea do Conhecimento"
+        set_subareas = set()
+        if col_subarea in df_original.columns:
+            for x in df_original[col_subarea].unique():
+                if str(x).strip() not in ["", "-", "nan", "None"]:
+                    for sub in str(x).split(","):
+                        set_subareas.add(sub.strip())
+        lista_subareas = sorted(list(set_subareas))
+        subarea_sel = st.selectbox(t['subarea_lbl'], [t['todas']] + lista_subareas)
+    with col_f2:
+        col_indexador = "Indexador" if "Indexador" in df_original.columns else None
+        if col_indexador:
+            set_indexadores = set()
+            for x in df_original[col_indexador].unique():
+                if x != "-":
+                    for idx in str(x).split(","): set_indexadores.add(idx.strip())
+            indexador_sel = st.multiselect(t['base_lbl'], sorted(list(set_indexadores)))
+        else: indexador_sel = []
 
-    # FILTRAGEM SEQUENCIAL DE DADOS
-    df_filtrado = df_original.copy()
+with aba_impacto:
+    col_f4, col_f5, col_f6 = st.columns(3)
+    with col_f4:
+        col_q_jcr = "Quartil JCR"
+        opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_jcr in df_original.columns else []
+        if not opcoes_jcr: opcoes_jcr = ["Q1", "Q2", "Q3", "Q4"]
+        q_jcr_sel = st.multiselect(t['jcr_lbl'], opcoes_jcr)
+    with col_f5:
+        col_q_sjr = "SJR Best Quartile"
+        opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_sjr in df_original.columns else []
+        if not opcoes_sjr: opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
+        q_sjr_sel = st.multiselect(t['sjr_lbl'], opcoes_sjr)
+    with col_f6:
+        opcoes_ordenacao = ["Título"]
+        if "SJR" in df_original.columns: opcoes_ordenacao.append("SJR (Prestígio)")
+        if "JIF" in df_original.columns: opcoes_ordenacao.append("JIF (Fator de Impacto)")
+        criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
 
-    if busca:
-        import re
-        texto_busca = busca.strip()
-        termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
+# 6. FILTRAGEM SEQUENCIAL DE DADOS
+df_filtrado = df_original.copy()
+
+if busca:
+    import re
+    texto_busca = busca.strip()
+    
+    termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
+    
+    texto_processado = texto_busca
+    for i, termo in enumerate(termos_exatos):
+        texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
         
-        texto_processado = texto_busca
-        for i, termo in enumerate(termos_exatos):
-            texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
-            
-        if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
-            palavras = [p.strip() for p in texto_processado.split() if p.strip()]
-            texto_processado = " AND ".join(palavras)
+    if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
+        palavras = [p.strip() for p in texto_processado.split() if p.strip()]
+        texto_processado = " AND ".join(palavras)
 
-        def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
-            linha_texto = str(linha_texto).lower()
-            tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
-            
-            resultado_final = False
-            operador_atual = "OR"
-            inverter_proximo = False
-            
-            for token in tokens:
-                token_clean = token.strip()
-                if not token_clean:
-                    continue
-                    
-                token_upper = token_clean.upper()
+    def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
+        linha_texto = str(linha_texto).lower()
+        tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
+        
+        resultado_final = False
+        operador_atual = "OR"
+        inverter_proximo = False
+        
+        for token in tokens:
+            token_clean = token.strip()
+            if not token_clean:
+                continue
                 
-                if token_upper == "AND":
-                    operador_atual = "AND"
-                elif token_upper == "OR":
-                    operador_atual = "OR"
-                elif token_upper == "NOT":
-                    inverter_proximo = True
+            token_upper = token_clean.upper()
+            
+            if token_upper == "AND":
+                operador_atual = "AND"
+            elif token_upper == "OR":
+                operador_atual = "OR"
+            elif token_upper == "NOT":
+                inverter_proximo = True
+            else:
+                match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
+                if match_exact:
+                    idx = int(match_exact.group(1))
+                    termo_real = lista_exatos[idx].lower()
+                    possui_termo = termo_real in linha_texto
                 else:
-                    match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
-                    if match_exact:
-                        idx = int(match_exact.group(1))
-                        termo_real = lista_exatos[idx].lower()
-                        possui_termo = termo_real in linha_texto
-                    else:
-                        termo_real = token_clean.lower()
-                        possui_termo = termo_real in linha_texto
+                    termo_real = token_clean.lower()
+                    possui_termo = termo_real in linha_texto
+                
+                if inverter_proximo:
+                    possui_termo = not possui_termo
+                    inverter_proximo = False
+                
+                if operador_atual == "AND":
+                    resultado_final = resultado_final and possui_termo
+                elif operador_atual == "OR":
+                    resultado_final = resultado_final or possui_termo
                     
-                    if inverter_proximo:
-                        possui_termo = not possui_termo
-                        inverter_proximo = False
-                    
-                    if operador_atual == "AND":
-                        resultado_final = resultado_final and possui_termo
-                    elif operador_atual == "OR":
-                        resultado_final = resultado_final or possui_termo
-                        
-            return resultado_final
+        return resultado_final
 
-        df_filtrado = df_filtrado[
-            df_filtrado.apply(
-                lambda row: avaliar_busca_avancada(
-                    f"{row[df_filtrado.columns[0]]} {row['ISSN']}", 
-                    texto_processado, 
-                    termos_exatos
-                ), 
-                axis=1
-            )
-        ]
-
-    if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
-        df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
-
-    if col_indexador and len(indexador_sel) > 0:
-        df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
-
-    if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
-        df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
-
-    if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
-        df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
-
-    mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
-    col_ordenar, ascendente = mapa_ordem[criterio_ordem]
-    if col_ordenar in df_filtrado.columns: 
-        df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
-
-    # METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
-    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    with col_m1: 
-        st.metric(t['m_selecionadas'], f"{len(df_filtrado):,}".replace(",", "."))
-    with col_m2: 
-        h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
-        max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
-        st.metric(t['m_hindex'], max_h)
-    with col_m3: 
-        jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
-        max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
-        st.metric(t['m_jif'], max_jif)
-    with col_m4: 
-        sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
-        max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
-        st.metric(t['m_sjr'], max_sjr)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # EXIBIÇÃO E PAGINAÇÃO
-    st.markdown(t['cat_tit'])
-    total_itens = len(df_filtrado)
-    if total_itens > 0:
-        col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
-        with col_pag1:
-            itens_por_pagina = st.selectbox(t['exibir_pag'], options=[20, 50, 100], index=1)
-        total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
-        with col_pag2:
-            pagina_atual = st.number_input(f"{t['pag_lbl']} (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
-        
-        inicio = (pagina_atual - 1) * itens_por_pagina
-        fim = inicio + itens_por_pagina
-        df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
-        
-        if "Índice h5" in df_da_pagina.columns:
-            df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
-        
-        # EXIBIÇÃO CLICÁVEL DA HOMEPAGE NA TABELA (Pedido do Pesquisador)
-        st.dataframe(
-            df_da_pagina, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Homepage": st.column_config.LinkColumn(
-                    "Homepage",
-                    help="Clique para visitar o site oficial da revista",
-                    display_text="🔗 Ver site"
-                ),
-                "Grande Area": None,
-                "Area do Conhecimento": None,
-                "Subárea do Conhecimento": None,
-                "Índice h5": st.column_config.LinkColumn(
-                    t['col_h5'],
-                    help="Clique para abrir o índice h5 no Google Scholar",
-                    display_text="🔗 Abrir"
-                )
-            }
+    df_filtrado = df_filtrado[
+        df_filtrado.apply(
+            lambda row: avaliar_busca_avancada(
+                f"{row[df_filtrado.columns[0]]} {row['ISSN']}", 
+                texto_processado, 
+                termos_exatos
+            ), 
+            axis=1
         )
-        
-        csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
-        st.download_button(label=f"{t['exportar_btn']} ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
-    else:
-        st.warning(t['aviso_nada'])
+    ]
+
+if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
+    df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
+
+if col_indexador and len(indexador_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
+
+if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+
+if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
+    df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
+
+mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
+col_ordenar, ascendente = mapa_ordem[criterio_ordem]
+if col_ordenar in df_filtrado.columns: 
+    df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+
+# 7. METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
+col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+with col_m1: 
+    st.metric(t['m_selecionadas'], f"{len(df_filtrado):,}".replace(",", "."))
+with col_m2: 
+    h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
+    max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
+    st.metric(t['m_hindex'], max_h)
+with col_m3: 
+    jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
+    max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
+    st.metric(t['m_jif'], max_jif)
+with col_m4: 
+    sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
+    max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
+    st.metric(t['m_sjr'], max_sjr)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# 8. EXIBIÇÃO E PAGINAÇÃO
+st.markdown(t['cat_tit'])
+total_itens = len(df_filtrado)
+if total_itens > 0:
+    col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
+    with col_pag1:
+        itens_por_pagina = st.selectbox(t['exibir_pag'], options=[20, 50, 100], index=1)
+    total_paginas = (total_itens // itens_por_pagina) + (1 if total_itens % itens_por_pagina > 0 else 0)
+    with col_pag2:
+        pagina_atual = st.number_input(f"{t['pag_lbl']} (1 de {total_paginas}):", min_value=1, max_value=max(1, total_paginas), value=1)
+    
+    inicio = (pagina_atual - 1) * itens_por_pagina
+    fim = inicio + itens_por_pagina
+    df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
+    
+    if "Índice h5" in df_da_pagina.columns:
+        df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
+    
+        # EXIBIÇÃO CLICÁVEL DA HOMEPAGE NA TABELA (Pedido do Pesquisador)
+    st.dataframe(
+        df_da_pagina, 
+        use_container_width=True, 
+        hide_index=True,
+        column_config={
+            "Homepage": None,
+            "Grande Area": None,
+            "Area do Conhecimento": None,
+            "Subárea do Conhecimento": None,
+            "Índice h5": st.column_config.LinkColumn(
+                t['col_h5'],
+                help="Clique para abrir o índice h5 no Google Scholar",
+                display_text="🔗 Abrir"
+            )
+        }
+    )
+    
+    csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
+    st.download_button(label=f"{t['exportar_btn']} ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
+else:
+    st.warning(t['aviso_nada'])
 
 # ==================== ABA 2: RECOMENDADOR INTELIGENTE POR IA ====================
 with tab_ia:
