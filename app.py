@@ -13,19 +13,29 @@ try:
 except ModuleNotFoundError:
     HAS_GEMINI = False
 
-# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém seu Favicon e Layout) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
-        with open(caminho_arquivo, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode()
-    except FileNotFoundError:
+        # Verifica se o arquivo realmente existe antes de tentar abrir
+        if os.path.exists(caminho_arquivo):
+            with open(caminho_arquivo, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode()
+    except Exception:
         return ""
+    return ""
 
+# Mantém a tentativa de buscar na pasta 'st_static' conforme o projeto original
 imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
 if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
+if not imagem_base64_icon:
+    # Fallback caso o arquivo esteja na raiz do GitHub
+    imagem_base64_icon = obter_imagem_local_base64("logo.png")
 
-novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
+if imagem_base64_icon:
+    novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
+else:
+    novo_page_icon = "📚"
 
 st.set_page_config(
     page_title="Portal do Pesquisador",
