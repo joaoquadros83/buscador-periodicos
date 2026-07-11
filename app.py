@@ -628,13 +628,29 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- 8. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP ---
-st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-link_do_drive = "https://drive.google.com/drive/folders/1Yg6gbGBD3b32RTCdvaev8ovrORjZdbeL?usp=sharing"
-st.sidebar.link_button(
-    t["btn_desktop"], 
-    link_do_drive, 
-    type="primary", 
-    width="stretch"
+texto_botao = t.get("btn_desktop", "💻 Baixar Versão para Windows")
+
+st.sidebar.markdown(
+    f"""
+    <a href="https://drive.google.com/..." target="_blank" style="text-decoration: none;">
+        <button style="
+            width: 100%;
+            background-color: #FF2B2B;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-bottom: 15px;
+        " onmouseover="this.style.backgroundColor='#cc2222'" onmouseout="this.style.backgroundColor='#FF2B2B'">
+            {texto_botao}
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True
 )
 
 # --- 9. PAINEL PRINCIPAL (HERO DESIGN) ---
