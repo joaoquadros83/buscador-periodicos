@@ -315,7 +315,42 @@ def carregar_dados_unificado():
 df_original, arquivo_usado = carregar_dados_unificado()
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
+# --- CONFIGURAÇÃO DA SIDEBAR (IDÊNTICA À ORIGINAL, MAS SEGURA) ---
 st.sidebar.markdown(f"### {t['nav_tit']}")
+
+# Certifique-se de que cada bloco de HTML injetado seja independente e estático
+st.sidebar.markdown(
+    """
+    <div style='margin-bottom: 15px;'>
+        <p style='margin-bottom: 5px; font-weight: bold; color: #004B87;'>INDEXADORES</p>
+        </div>
+    """, 
+    unsafe_allow_html=True
+)
+
+st.sidebar.markdown(
+    """
+    <div style='margin-bottom: 15px;'>
+        <p style='margin-bottom: 5px; font-weight: bold; color: #004B87;'>REPOSITÓRIOS</p>
+        </div>
+    """, 
+    unsafe_allow_html=True
+)
+
+# Se você usava st.link_button ou botões dinâmicos dentro de condicionais do menu lateral:
+# Adicione sempre o argumento `key` baseado no idioma para o React recriar o botão sem se perder
+st.sidebar.link_button(
+    t["btn_desktop"], 
+    "https://drive.google.com/...", 
+    type="primary", 
+    use_container_width=True,
+    key=f"btn_desktop_{st.session_state.idioma}" # Evita o erro de removeChild ao trocar de idioma!
+)
+
+# Bloco de Metadados / Informações Institucionais original
+st.sidebar.markdown(f"**{t['meta_tit']}**")
+st.sidebar.caption(f"{t['meta_sistema']}: Operacional\n\nVersão Base: 2026.1")
+
 # [Aqui permanecem as estruturas HTML de links para Indexadores, Repositórios, etc. omitidos para brevidade]
 
 # Contador de visitas funcional
