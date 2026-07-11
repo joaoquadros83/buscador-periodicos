@@ -7,6 +7,24 @@ import json
 import os
 import re
 
+# Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
+SUPPORTS_NEW_WIDTH = False
+try:
+    version_str = st.__version__.split("+")[0]
+    parts = []
+    for p in version_str.split("."):
+        digits = "".join(c for c in p if c.isdigit())
+        if digits:
+            parts.append(int(digits))
+    if len(parts) >= 2:
+        if parts[0] > 1 or (parts[0] == 1 and parts[1] >= 58):
+            SUPPORTS_NEW_WIDTH = True
+except Exception:
+    pass
+
+# Dicionário desempacotado dinamicamente para largura de componentes
+kwargs_largura = {"width": "stretch"} if SUPPORTS_NEW_WIDTH else {"use_container_width": True}
+
 # --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Executada antes de qualquer comando Streamlit) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
@@ -902,7 +920,6 @@ with tab_busca:
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
             df_da_pagina, 
-            width="stretch", 
             hide_index=True,
             column_config={
                 "Homepage": st.column_config.LinkColumn(
@@ -918,7 +935,8 @@ with tab_busca:
                     help="Clique para abrir o índice h5 no Google Scholar",
                     display_text="🔗 Abrir"
                 )
-            }
+            },
+            **kwargs_largura
         )
         
         csv_pagina = df_da_pagina.to_csv(index=False, sep=';', encoding='utf-8-sig')
@@ -1113,12 +1131,12 @@ if not registro_revista.empty:
             # SE HOUVER UM st.dataframe() ESCONDIDO AQUI PARA MOSTRAR OS DADOS COMPLETOS:
             # Envolva-o SEMPRE em um validador de tamanho para não quebrar o Arrow
             if len(registro_revista) > 0:
-                st.dataframe(registro_revista, use_container_width=True, hide_index=True)
+                st.dataframe(registro_revista, hide_index=True, **kwargs_largura)
         
         with col_link:
             st.markdown("<br>", unsafe_allow_html=True)
             if homepage and homepage not in ["nan", "-", "None", ""]:
-                st.link_button(t['ia_card_site'], homepage, type="primary", use_container_width=True)
+                st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
             else:
                 st.info(t['ia_card_sem_site'])
 else:
