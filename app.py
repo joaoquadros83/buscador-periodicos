@@ -927,7 +927,7 @@ with tab_busca:
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
         if "Índice h5" in df_da_pagina.columns:
-            df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
+            df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", "")
         
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
