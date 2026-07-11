@@ -350,7 +350,6 @@ st.sidebar.link_button(
 # Bloco de Metadados / Informações Institucionais original
 st.sidebar.markdown(f"**{t['meta_tit']}**")
 st.sidebar.caption(f"{t['meta_sistema']}: Operacional\n\nVersão Base: 2026.1")
-
 # [Aqui permanecem as estruturas HTML de links para Indexadores, Repositórios, etc. omitidos para brevidade]
 
 # Contador de visitas funcional
