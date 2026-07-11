@@ -212,7 +212,7 @@ dic = {
         "btn_desktop": "💻 Descargar Versión para Windows",
         "busca_cat": "🔍 Catálogo de Revistas",
         "busca_ia": "🧠 Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomendación Temática con Inteligência Artificial",
+        "ia_titulo": "Recomendación Temática con Inteligencia Artificial",
         "ia_subtitulo": "Pegue el título y el resumen (abstract) de su artículo. La IA analizará nuestro catálogo de revistas e indicará las mejores opciones.",
         "ia_campo_titulo": "Título del Artículo",
         "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
@@ -220,7 +220,7 @@ dic = {
         "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
         "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 10)",
         "ia_btn_buscar": "Analar y Recomendar",
-        "ia_analisando": "La IA está procesando su resumen y cruzándolo com el catálogo...",
+        "ia_analisando": "La IA está procesando su resumo y cruzándolo con el catálogo...",
         "ia_sucesso": "¡Recomendaciones generadas con éxito!",
         "ia_erro": "Error al procesar con la IA. Verifique que su Clave API sea correcta.",
         "ia_card_motivo": "Por qué publicar aqui:",
@@ -690,7 +690,7 @@ else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
 ### ¡Bienvenido al Portal del Investigador!
-Esta es uma herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
+Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
 #### 🛠️ ¿Qué puedes fazer aquí?
 1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
@@ -932,12 +932,30 @@ with tab_ia:
     with col_meta:
         # Credencial e Chave de API inseridas diretamente na aba de controle da IA
         st.markdown("#### 🔑 Credencial")
+        
+        # Lê chave do segredo do Streamlit Cloud se existir
+        chave_secrets = ""
+        try:
+            chave_secrets = st.secrets.get("GEMINI_API_KEY", "")
+        except Exception:
+            pass
+            
+        if chave_secrets:
+            placeholder_input = "🔑 Chave global ativa (opcional pessoal)"
+            help_input = "Uma chave global já está configurada pelo proprietário do app. Se desejar usar sua própria chave pessoal, digite-a aqui."
+        else:
+            placeholder_input = "AIzaSy..."
+            help_input = t['ia_chave_ajuda']
+            
         user_gemini_key = st.text_input(
             t['ia_chave_api'], 
             type="password", 
-            placeholder="AIzaSy...", 
-            help=t['ia_chave_ajuda']
+            placeholder=placeholder_input, 
+            help=help_input
         )
+        
+        # Define a chave ativa final (prioriza input do usuário)
+        api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
         
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
@@ -953,7 +971,7 @@ with tab_ia:
         )
         
     if st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar"):
-        if not user_gemini_key:
+        if not api_key_ativa:
             st.error("⚠️ Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
             st.warning("⚠️ Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
@@ -963,68 +981,75 @@ with tab_ia:
             st.session_state.erro_ia = None
             st.session_state.aviso_filtro = False
             
-            with st.spinner(t['ia_analisando']):
-                df_candidatos = df_original.copy()
-                if area_ia != "Todas":
-                    df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
-                if indexador_ia != "Todos":
-                    df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
+            # Utiliza um placeholder simples do Streamlit (st.empty) para o indicador de progresso,
+            # evitando qualquer conflito de animação de Spinner no DOM virtual do React.
+            status_container = st.empty()
+            status_container.info(f"⏳ {t['ia_analisando']}")
+            
+            df_candidatos = df_original.copy()
+            if area_ia != "Todas":
+                df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
+            if indexador_ia != "Todos":
+                df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
+            
+            # Validação caso a base filtrada esteja vazia
+            if df_candidatos.empty:
+                st.session_state.aviso_filtro = True
+            else:
+                # Seleciona até 100 candidatos para passar ao contexto do modelo de IA
+                if len(df_candidatos) > 100:
+                    df_candidatos = df_candidatos.head(100)
                 
-                # Validação caso a base filtrada esteja vazia
-                if df_candidatos.empty:
-                    st.session_state.aviso_filtro = True
-                else:
-                    # Seleciona até 100 candidatos para passar ao contexto do modelo de IA
-                    if len(df_candidatos) > 100:
-                        df_candidatos = df_candidatos.head(100)
-                    
-                    lista_periodicos_envio = df_candidatos[[df_original.columns[0], "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
-                    
-                    # Prompt estruturado para forçar o retorno estrito de um array JSON
-                    prompt_ia = f"""
-                    Atue como especialista em publicação acadêmica. O pesquisador submeteu o seguinte artigo científico:
-                    TÍTULO DO ARTIGO: {titulo_artigo}
-                    RESUMO DO ARTIGO: {resumo_artigo}
+                lista_periodicos_envio = df_candidatos[[df_original.columns[0], "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
+                
+                # Prompt estruturado para forçar o retorno estrito de um array JSON
+                prompt_ia = f"""
+                Atue como especialista em publicação acadêmica. O pesquisador submeteu o seguinte artigo científico:
+                TÍTULO DO ARTIGO: {titulo_artigo}
+                RESUMO DO ARTIGO: {resumo_artigo}
 
-                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+                Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
 
-                    Lista de Periódicos Candidatos:
-                    {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
+                Lista de Periódicos Candidatos:
+                {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
-                    Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
-                    - "revista_nome": Nome exato da revista como aparece no catálogo enviado
-                    - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
-                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
-                    """
+                Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
+                - "revista_nome": Nome exato da revista como aparece no catálogo enviado
+                - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
+                - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
+                """
+                
+                try:
+                    url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key_ativa}"
+                    payload = {
+                        "contents": [{"parts": [{"text": prompt_ia}]}],
+                        "generationConfig": {"responseMimeType": "application/json"}
+                    }
+                    headers = {"Content-Type": "application/json"}
                     
-                    try:
-                        url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={user_gemini_key}"
-                        payload = {
-                            "contents": [{"parts": [{"text": prompt_ia}]}],
-                            "generationConfig": {"responseMimeType": "application/json"}
-                        }
-                        headers = {"Content-Type": "application/json"}
+                    response = requests.post(url_api, json=payload, headers=headers, timeout=30)
+                    
+                    if response.status_code == 200:
+                        dados_resposta = response.json()
+                        texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
                         
-                        response = requests.post(url_api, json=payload, headers=headers, timeout=30)
+                        # Tratamento seguro caso venha markdown de bloco JSON do Gemini
+                        if texto_resposta.startswith("```"):
+                            texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
                         
-                        if response.status_code == 200:
-                            dados_resposta = response.json()
-                            texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
-                            
-                            # Tratamento seguro caso venha markdown de bloco JSON do Gemini
-                            if texto_resposta.startswith("```"):
-                                texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
-                            
-                            # Extrai o array JSON via regex se houver texto ao redor
-                            match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                            if match:
-                                texto_resposta = match.group(0)
-                            
-                            st.session_state.recomendacoes = json.loads(texto_resposta)
-                        else:
-                            st.session_state.erro_ia = f"API retornou status {response.status_code}: {response.text}"
-                    except Exception as ex:
-                        st.session_state.erro_ia = str(ex)
+                        # Extrai o array JSON via regex se houver texto ao redor
+                        match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                        if match:
+                            texto_resposta = match.group(0)
+                        
+                        st.session_state.recomendacoes = json.loads(texto_resposta)
+                    else:
+                        st.session_state.erro_ia = f"API retornou status {response.status_code}: {response.text}"
+                except Exception as ex:
+                    st.session_state.erro_ia = str(ex)
+            
+            # Limpa o indicador de progresso do DOM virtual
+            status_container.empty()
             
             # Recarrega a página de forma limpa para exibir os resultados fora do fluxo do botão
             st.rerun()
@@ -1071,4 +1096,3 @@ with tab_ia:
                         st.link_button(t['ia_card_site'], homepage, type="primary", width="stretch")
                     else:
                         st.info(t['ia_card_sem_site'])
-                    
