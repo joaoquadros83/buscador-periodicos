@@ -938,6 +938,10 @@ with tab_busca:
         if "Índice h5" in df_exibir.columns:
             df_exibir["Índice h5"] = df_exibir["Índice h5"].replace("-", "")
         
+        
+        # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
+        df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
+        
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
             df_exibir, 
