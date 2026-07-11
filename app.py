@@ -400,7 +400,7 @@ st.sidebar.markdown("""
 # 3. BASE DE DADOS COM CACHE (Carregamento com Cascateamento Inteligente de Arquivos)
 @st.cache_data
 def carregar_dados():
-    for nome_arquivo in ["dados_2.csv", "dados_quase.csv", "dados.csv", "dados_revistas.csv"]:
+    for nome_arquivo in ["dados.csv"]:
         try:
             df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
             df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
@@ -419,7 +419,7 @@ def carregar_dados():
             return df, nome_arquivo
         except Exception:
             continue
-    st.error("⚠️ Erro ao carregar a base de dados. Detalhes: Nenhum arquivo de dados (dados_2.csv, dados_quase.csv, dados.csv ou dados_revistas.csv) foi localizado.")
+    st.error("⚠️ Erro ao carregar a base de dados. Detalhes: Nenhum arquivo de dados (dados.csv) foi localizado.")
     st.stop()
 
 try:
