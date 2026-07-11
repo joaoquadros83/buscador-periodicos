@@ -947,6 +947,11 @@ with tab_ia:
         elif not titulo_artigo or not resumo_artigo:
             st.warning("⚠️ Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
         else:
+            recomendacoes = None
+            erro_ia = False
+            detalhe_erro = ""
+            aviso_filtro = False
+            
             with st.spinner(t['ia_analisando']):
                 df_candidatos = df_original.copy()
                 if area_ia != "Todas":
@@ -956,7 +961,7 @@ with tab_ia:
                 
                 # Validação caso a base filtrada esteja vazia
                 if df_candidatos.empty:
-                    st.warning("⚠️ Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
+                    aviso_filtro = True
                 else:
                     # Seleciona até 100 candidatos para passar ao contexto do modelo de IA
                     if len(df_candidatos) > 100:
@@ -1001,43 +1006,50 @@ with tab_ia:
                             texto_resposta = match.group(0)
                         
                         recomendacoes = json.loads(texto_resposta)
-                        
-                        st.success(t['ia_sucesso'])
-                        
-                        for rec in recomendacoes:
-                            # Busca segura no df original usando a coluna index 0 para o nome
-                            registro_revista = df_original[df_original[df_original.columns[0]] == rec["revista_nome"]]
-                            
-                            homepage = ""
-                            issn = "N/A"
-                            indexador = "N/A"
-                            quartil = "N/A"
-                            sjr = "N/A"
-                            
-                            if not registro_revista.empty:
-                                homepage = str(registro_revista.iloc[0]["Homepage"])
-                                issn = registro_revista.iloc[0]["ISSN"]
-                                indexador = registro_revista.iloc[0]["Indexador"]
-                                quartil = str(registro_revista.iloc[0]["Quartil JCR"])
-                                sjr = str(registro_revista.iloc[0]["SJR"])
-                            
-                            # Renderização dos cards de recomendação
-                            with st.container(border=True):
-                                col_info, col_link = st.columns([3, 1])
-                                
-                                with col_info:
-                                    st.markdown(f"### {rec['revista_nome']}")
-                                    st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
-                                    st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-                                    st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
-                                
-                                with col_link:
-                                    st.markdown("<br>", unsafe_allow_html=True)
-                                    if homepage and homepage != "nan" and homepage != "-" and homepage != "":
-                                        st.link_button(t['ia_card_site'], homepage, type="primary", use_container_width=True)
-                                    else:
-                                        st.info(t['ia_card_sem_site'])
-                    
                     except Exception as ex:
-                        st.error(t['ia_erro'])
-                        st.caption(f"Detalhes técnicos do erro: {ex}")
+                        erro_ia = True
+                        detalhe_erro = str(ex)
+
+            # RENDERIZAÇÃO DA UI (Fora do Spinner, garantindo que o spinner já foi desmontado no DOM)
+            if aviso_filtro:
+                st.warning("⚠️ Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
+            elif erro_ia:
+                st.error(t['ia_erro'])
+                st.caption(f"Detalhes técnicos do erro: {detalhe_erro}")
+            elif recomendacoes is not None:
+                st.success(t['ia_sucesso'])
+                
+                for rec in recomendacoes:
+                    # Busca segura no df original usando a coluna index 0 para o nome
+                    registro_revista = df_original[df_original[df_original.columns[0]] == rec["revista_nome"]]
+                    
+                    homepage = ""
+                    issn = "N/A"
+                    indexador = "N/A"
+                    quartil = "N/A"
+                    sjr = "N/A"
+                    
+                    if not registro_revista.empty:
+                        homepage = str(registro_revista.iloc[0]["Homepage"])
+                        issn = registro_revista.iloc[0]["ISSN"]
+                        indexador = registro_revista.iloc[0]["Indexador"]
+                        quartil = str(registro_revista.iloc[0]["Quartil JCR"])
+                        sjr = str(registro_revista.iloc[0]["SJR"])
+                    
+                    # Renderização dos cards de recomendação
+                    with st.container(border=True):
+                        col_info, col_link = st.columns([3, 1])
+                        
+                        with col_info:
+                            st.markdown(f"### {rec['revista_nome']}")
+                            st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
+                            st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                            st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+                        
+                        with col_link:
+                            st.caption("")
+                            if homepage and homepage != "nan" and homepage != "-" and homepage != "":
+                                st.link_button(t['ia_card_site'], homepage, type="primary", use_container_width=True)
+                            else:
+                                st.info(t['ia_card_sem_site'])
+                    
