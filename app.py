@@ -13,10 +13,9 @@ try:
 except ModuleNotFoundError:
     HAS_GEMINI = False
 
-# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém seu Favicon e Layout) ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
-        # Verifica se o arquivo realmente existe antes de tentar abrir
         if os.path.exists(caminho_arquivo):
             with open(caminho_arquivo, "rb") as image_file:
                 return base64.b64encode(image_file.read()).decode()
@@ -24,18 +23,9 @@ def obter_imagem_local_base64(caminho_arquivo):
         return ""
     return ""
 
-# Mantém a tentativa de buscar na pasta 'st_static' conforme o projeto original
-imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
-if not imagem_base64_icon:
-    imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
-if not imagem_base64_icon:
-    # Fallback caso o arquivo esteja na raiz do GitHub
-    imagem_base64_icon = obter_imagem_local_base64("logo.png")
-
-if imagem_base64_icon:
-    novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
-else:
-    novo_page_icon = "📚"
+# Busca o logo na raiz do repositório, onde ele realmente está
+imagem_base64_icon = obter_imagem_local_base64("logo.png")
+novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
     page_title="Portal do Pesquisador",
@@ -43,6 +33,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 # --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
     st.session_state.idioma = "Português"
@@ -315,41 +306,7 @@ def carregar_dados_unificado():
 df_original, arquivo_usado = carregar_dados_unificado()
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
-# --- CONFIGURAÇÃO DA SIDEBAR (IDÊNTICA À ORIGINAL, MAS SEGURA) ---
 st.sidebar.markdown(f"### {t['nav_tit']}")
-
-# Certifique-se de que cada bloco de HTML injetado seja independente e estático
-st.sidebar.markdown(
-    """
-    <div style='margin-bottom: 15px;'>
-        <p style='margin-bottom: 5px; font-weight: bold; color: #004B87;'>INDEXADORES</p>
-        </div>
-    """, 
-    unsafe_allow_html=True
-)
-
-st.sidebar.markdown(
-    """
-    <div style='margin-bottom: 15px;'>
-        <p style='margin-bottom: 5px; font-weight: bold; color: #004B87;'>REPOSITÓRIOS</p>
-        </div>
-    """, 
-    unsafe_allow_html=True
-)
-
-# Se você usava st.link_button ou botões dinâmicos dentro de condicionais do menu lateral:
-# Adicione sempre o argumento `key` baseado no idioma para o React recriar o botão sem se perder
-st.sidebar.link_button(
-    t["btn_desktop"], 
-    "https://drive.google.com/...", 
-    type="primary", 
-    use_container_width=True,
-    key=f"btn_desktop_{st.session_state.idioma}" # Evita o erro de removeChild ao trocar de idioma!
-)
-
-# Bloco de Metadados / Informações Institucionais original
-st.sidebar.markdown(f"**{t['meta_tit']}**")
-st.sidebar.caption(f"{t['meta_sistema']}: Operacional\n\nVersão Base: 2026.1")
 # [Aqui permanecem as estruturas HTML de links para Indexadores, Repositórios, etc. omitidos para brevidade]
 
 # Contador de visitas funcional
