@@ -926,22 +926,15 @@ with tab_busca:
         fim = inicio + itens_por_pagina
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
-        if "Índice h5" in df_da_pagina.columns:
-            df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", "")
+        # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
+        df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
         
-        # TELEMETRIA DE DEPURACÃO PARA ISOLAR A COLUNA DO SEGFAULT
-        import sys
-        import pyarrow as pa
-        for col in df_da_pagina.columns:
-            sys.stderr.write(f"=== DEPURANDO PYARROW COLUNA: {col} ===\n")
-            sys.stderr.flush()
-            pa.array(df_da_pagina[col])
-        sys.stderr.write("=== TODAS AS COLUNAS TESTADAS COM SUCESSO ===\n")
-        sys.stderr.flush()
+        if "Índice h5" in df_exibir.columns:
+            df_exibir["Índice h5"] = df_exibir["Índice h5"].replace("-", "")
         
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
-            df_da_pagina, 
+            df_exibir, 
             hide_index=True,
             column_config={
                 "Homepage": st.column_config.LinkColumn(
@@ -949,9 +942,6 @@ with tab_busca:
                     help="Clique para visitar o site oficial da revista",
                     display_text="🔗 Ver site"
                 ),
-                "Grande Area": None,
-                "Area do Conhecimento": None,
-                "Subárea do Conhecimento": None,
                 "Índice h5": st.column_config.LinkColumn(
                     t['col_h5'],
                     help="Clique para abrir o índice h5 no Google Scholar",
