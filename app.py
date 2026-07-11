@@ -365,7 +365,7 @@ st.markdown("""
 # --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Com Cascateamento e Filtro) ---
 @st.cache_data
 def carregar_dados():
-    arquivos_alvo = ["dados.csv"]
+    arquivos_alvo = ["dados.csv", "dados_revistas.csv"]
     df = None
     arquivo_encontrado = None
     
