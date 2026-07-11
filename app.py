@@ -1107,42 +1107,42 @@ with tab_ia:
             quartil = "N/A"
             sjr = "N/A"
             
-if not registro_revista.empty:
-    # 1. Garante que os valores existam de forma segura antes de converter para string
-    try:
-        issn = str(registro_revista.iloc[0].get("ISSN", "-"))
-        indexador = str(registro_revista.iloc[0].get("Indexador", "-"))
-        quartil = str(registro_revista.iloc[0].get("Quartil JCR", "-"))
-        sjr = str(registro_revista.iloc[0].get("SJR", "-"))
-        homepage = str(registro_revista.iloc[0].get("Homepage", ""))
-    except Exception:
-        issn, indexador, quartil, sjr, homepage = "-", "-", "-", "-", ""
-
-    # 2. Renderização de card para cada recomendação (até 10 dinâmicas)
-    with st.container(border=True):
-        col_info, col_link = st.columns([3, 1])
-        
-        with col_info:
-            st.markdown(f"### {rec['revista_nome']}")
-            st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
-            st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-            st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+            if not registro_revista.empty:
+                # 1. Garante que os valores existam de forma segura antes de converter para string
+                try:
+                    issn = str(registro_revista.iloc[0].get("ISSN", "-"))
+                    indexador = str(registro_revista.iloc[0].get("Indexador", "-"))
+                    quartil = str(registro_revista.iloc[0].get("Quartil JCR", "-"))
+                    sjr = str(registro_revista.iloc[0].get("SJR", "-"))
+                    homepage = str(registro_revista.iloc[0].get("Homepage", ""))
+                except Exception:
+                    issn, indexador, quartil, sjr, homepage = "-", "-", "-", "-", ""
             
-            # SE HOUVER UM st.dataframe() ESCONDIDO AQUI PARA MOSTRAR OS DADOS COMPLETOS:
-            # Envolva-o SEMPRE em um validador de tamanho para não quebrar o Arrow
-            if len(registro_revista) > 0:
-                st.dataframe(registro_revista, hide_index=True, **kwargs_largura)
-        
-        with col_link:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if homepage and homepage not in ["nan", "-", "None", ""]:
-                st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
+                # 2. Renderização de card para cada recomendação (até 10 dinâmicas)
+                with st.container(border=True):
+                    col_info, col_link = st.columns([3, 1])
+                    
+                    with col_info:
+                        st.markdown(f"### {rec['revista_nome']}")
+                        st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
+                        st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                        st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+                        
+                        # SE HOUVER UM st.dataframe() ESCONDIDO AQUI PARA MOSTRAR OS DADOS COMPLETOS:
+                        # Envolva-o SEMPRE em um validador de tamanho para não quebrar o Arrow
+                        if len(registro_revista) > 0:
+                            st.dataframe(registro_revista, hide_index=True, **kwargs_largura)
+                    
+                    with col_link:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if homepage and homepage not in ["nan", "-", "None", ""]:
+                            st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
+                        else:
+                            st.info(t['ia_card_sem_site'])
             else:
-                st.info(t['ia_card_sem_site'])
-else:
-    # Caso a IA recomende um nome de revista que sofreu uma variação de string e não casou no CSV
-    with st.container(border=True):
-        st.markdown(f"### {rec['revista_nome']}")
-        st.caption("⚠️ *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
-        st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-        st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+                # Caso a IA recomende um nome de revista que sofreu uma variação de string e não casou no CSV
+                with st.container(border=True):
+                    st.markdown(f"### {rec['revista_nome']}")
+                    st.caption("⚠️ *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
+                    st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                    st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
