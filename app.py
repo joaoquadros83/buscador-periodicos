@@ -330,7 +330,7 @@ st.sidebar.markdown(f"**{t['meta_tit']}**\nVersão: 2026.1")
 st.sidebar.link_button(t["btn_desktop"], "https://drive.google.com/...", type="primary", use_container_width=True)
 
 # --- 6. DESIGN DO HERO PRINCIPAL ---
-imagem_base64 = obter_imagem_local_base64("logo.png")
+imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
 tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 100px;">' if imagem_base64 else '📚'
 st.markdown(f'<div class="premium-hero">{tag_imagem}<h1>{t["titulo"]}</h1><p>{t["subtitulo"]}</p></div>', unsafe_allow_html=True)
 
