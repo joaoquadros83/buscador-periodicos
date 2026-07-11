@@ -384,8 +384,11 @@ def carregar_dados():
                     df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
                     df[col] = pd.to_numeric(df[col], errors='coerce')
                     
-            df = df.fillna("-")
-            df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
+            # Identifica colunas não numéricas e substitui vazios por "-"
+            for col in df.columns:
+                if col not in ['SJR', 'JIF', 'h-index', 'H index']:
+                    df[col] = df[col].fillna("-").astype(str)
+                    df[col] = df[col].replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
             
             # Garante a existência da coluna Homepage
             if "Homepage" not in df.columns:
