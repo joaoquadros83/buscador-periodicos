@@ -1,22 +1,6 @@
-import streamlit as st
-import pandas as pd
-import urllib.parse
-import base64
-import streamlit.components.v1 as components
-import json
-import os
-
-# Tratamento de importação do google-generativeai com fallback seguro para ambiente offline
-try:
-    import google.generativeai as genai
-    HAS_GEMINI = True
-except ModuleNotFoundError:
-    HAS_GEMINI = False
-
-# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém seu Favicon e Layout) ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
-        # Verifica se o arquivo realmente existe antes de tentar abrir
         if os.path.exists(caminho_arquivo):
             with open(caminho_arquivo, "rb") as image_file:
                 return base64.b64encode(image_file.read()).decode()
@@ -24,18 +8,9 @@ def obter_imagem_local_base64(caminho_arquivo):
         return ""
     return ""
 
-# Mantém a tentativa de buscar na pasta 'st_static' conforme o projeto original
-imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
-if not imagem_base64_icon:
-    imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
-if not imagem_base64_icon:
-    # Fallback caso o arquivo esteja na raiz do GitHub
-    imagem_base64_icon = obter_imagem_local_base64("logo.png")
-
-if imagem_base64_icon:
-    novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}"
-else:
-    novo_page_icon = "📚"
+# Busca o logo na raiz do repositório, onde ele realmente está
+imagem_base64_icon = obter_imagem_local_base64("logo.png")
+novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
     page_title="Portal do Pesquisador",
@@ -340,7 +315,7 @@ st.sidebar.markdown(f"**{t['meta_tit']}**\nVersão: 2026.1")
 st.sidebar.link_button(t["btn_desktop"], "https://drive.google.com/...", type="primary", use_container_width=True)
 
 # --- 6. DESIGN DO HERO PRINCIPAL ---
-imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
+imagem_base64 = obter_imagem_local_base64("logo.png")
 tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 100px;">' if imagem_base64 else '📚'
 st.markdown(f'<div class="premium-hero">{tag_imagem}<h1>{t["titulo"]}</h1><p>{t["subtitulo"]}</p></div>', unsafe_allow_html=True)
 
