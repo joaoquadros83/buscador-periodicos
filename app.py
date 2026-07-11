@@ -929,6 +929,12 @@ with tab_busca:
         # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
         df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
         
+        # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
+        df_exibir = df_exibir.reset_index(drop=True)
+        
+        # Limpa strings de link para evitar problemas com LinkColumn
+        if "Homepage" in df_exibir.columns:
+            df_exibir["Homepage"] = df_exibir["Homepage"].replace("-", "")
         if "Índice h5" in df_exibir.columns:
             df_exibir["Índice h5"] = df_exibir["Índice h5"].replace("-", "")
         
