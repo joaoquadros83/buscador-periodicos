@@ -629,7 +629,7 @@ st.sidebar.link_button(
     t["btn_desktop"], 
     link_do_drive, 
     type="primary", 
-    use_container_width=True
+    width="stretch"
 )
 
 # --- 9. PAINEL PRINCIPAL (HERO DESIGN) ---
@@ -881,7 +881,7 @@ with tab_busca:
         # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLICÁVEL
         st.dataframe(
             df_da_pagina, 
-            use_container_width=True, 
+            width="stretch", 
             hide_index=True,
             column_config={
                 "Homepage": st.column_config.LinkColumn(
@@ -1049,7 +1049,7 @@ with tab_ia:
                         with col_link:
                             st.caption("")
                             if homepage and homepage != "nan" and homepage != "-" and homepage != "":
-                                st.link_button(t['ia_card_site'], homepage, type="primary", use_container_width=True)
+                                st.link_button(t['ia_card_site'], homepage, type="primary", width="stretch")
                             else:
                                 st.info(t['ia_card_sem_site'])
                     
