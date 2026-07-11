@@ -124,7 +124,7 @@ dic = {
         "aba_impacto": "📈 Performance Metrics & Quartiles",
         "subarea_lbl": "Subarea of Knowledge (CNPq):",
         "base_lbl": "Holding Databases:",
-        "jcr_lbl": "JCR Quartile (Clarivate):",
+        "jcr_lbl": "JCR%20Quartile%20(Clarivate):", # URL encoded helper
         "sjr_lbl": "SJR Quartile (Scopus):",
         "ordem_lbl": "Sort Results by:",
         "m_selecionadas": "Selected Journals",
@@ -207,7 +207,7 @@ dic = {
         "meta_status": "Operacional",
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
-        "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
+        "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
         "visitas_lbl": "Visitas al Portal",
         "gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
@@ -218,7 +218,7 @@ dic = {
         "btn_desktop": "💻 Descargar Versión para Windows",
         "busca_cat": "🔍 Catálogo de Revistas",
         "busca_ia": "🧠 Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomendación Temática con Inteligencia Artificial",
+        "ia_titulo": "Recomendación Temática con Inteligência Artificial",
         "ia_subtitulo": "Pegue el título y el resumen (abstract) de su artículo. La IA analizará nuestro catálogo de revistas e indicará las mejores opciones.",
         "ia_campo_titulo": "Título del Artículo",
         "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
@@ -226,7 +226,7 @@ dic = {
         "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
         "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 10)",
         "ia_btn_buscar": "Analar y Recomendar",
-        "ia_analisando": "La IA está procesando su resumen y cruzándolo con el catálogo...",
+        "ia_analisando": "La IA está procesando su resumen y cruzándolo com el catálogo...",
         "ia_sucesso": "¡Recomendaciones generadas con éxito!",
         "ia_erro": "Error al procesar con la IA. Verifique que su Clave API sea correcta.",
         "ia_card_motivo": "Por qué publicar aqui:",
@@ -237,6 +237,9 @@ dic = {
         "filtro_indexador": "Indexador"
     }
 }
+# Correção do seletor em inglês caso venha codificado
+if st.session_state.idioma not in dic:
+    st.session_state.idioma = "Português"
 t = dic[st.session_state.idioma]
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
@@ -362,47 +365,41 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Com Cascateamento e Filtro) ---
+# --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
 @st.cache_data
 def carregar_dados():
-    arquivos_alvo = ["dados.csv", "dados_revistas.csv"]
-    df = None
-    arquivo_encontrado = None
-    
-    for nome_arquivo in arquivos_alvo:
-        if os.path.exists(nome_arquivo):
-            try:
-                df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
-                arquivo_encontrado = nome_arquivo
-                break
-            except Exception:
-                continue
-                
-    if df is None:
-        st.error("⚠️ Erro ao carregar a base de dados. Nenhum arquivo .csv compatível foi localizado.")
-        st.stop()
-
-    df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
-    df = df.drop_duplicates(subset=[df.columns[0]])
-    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    df.columns = [c.strip() for c in df.columns]
-    
-    # Tratamento numérico padrão das métricas
-    for col in ['SJR', 'JIF', 'h-index', 'H index']:
-        if col in df.columns:
-            df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+    nome_arquivo = "dados.csv"
+    if os.path.exists(nome_arquivo):
+        try:
+            df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
             
-    df = df.fillna("-")
-    df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
-    
-    # Garante a existência da coluna Homepage
-    if "Homepage" not in df.columns:
-        df["Homepage"] = ""
+            df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
+            df = df.drop_duplicates(subset=[df.columns[0]])
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+            df.columns = [c.strip() for c in df.columns]
+            
+            # Tratamento numérico padrão das métricas
+            for col in ['SJR', 'JIF', 'h-index', 'H index']:
+                if col in df.columns:
+                    df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                    
+            df = df.fillna("-")
+            df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
+            
+            # Garante a existência da coluna Homepage
+            if "Homepage" not in df.columns:
+                df["Homepage"] = ""
+            else:
+                df["Homepage"] = df["Homepage"].fillna("")
+                
+            return df, nome_arquivo
+        except Exception as e:
+            st.error(f"⚠️ Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
+            st.stop()
     else:
-        df["Homepage"] = df["Homepage"].fillna("")
-        
-    return df, arquivo_encontrado
+        st.error("⚠️ Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
+        st.stop()
 
 df_original, arquivo_usado = carregar_dados()
 
@@ -685,13 +682,13 @@ else: # Español
     expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
     sobre_texto = """
 ### ¡Bienvenido al Portal del Investigador!
-Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
+Esta es uma herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
-#### 🛠️ ¿Qué puedes hacer aquí?
+#### 🛠️ ¿Qué puedes fazer aquí?
 1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
 2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
 3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
-4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artigo.
+4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
 5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 """
 
