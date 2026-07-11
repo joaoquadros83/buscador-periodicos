@@ -3,9 +3,15 @@ import pandas as pd
 import urllib.parse
 import base64
 import json
-import google.generativeai as genai
 
-# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém seu Favicon e Layout) ---
+# Tratamento de importação do google-generativeai com fallback seguro
+try:
+    import google.generativeai as genai
+    HAS_GEMINI = True
+except ModuleNotFoundError:
+    HAS_GEMINI = False
+
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Mantém o Ícone e o Layout original) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
         with open(caminho_arquivo, "rb") as image_file:
@@ -29,8 +35,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE (Mantendo o seu padrão) ---
-# Dicionário de traduções expandido para cobrir a nova ferramenta de IA
+# --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE COM RECURSOS DE IA ---
 traducoes = {
     "pt": {
         "titulo": "Portal do Pesquisador",
@@ -53,6 +58,7 @@ traducoes = {
         "ia_campo_resumo": "Resumo / Abstract (Suporta Português, Inglês ou Espanhol)",
         "ia_chave_api": "Chave API do Gemini (Google AI Studio)",
         "ia_chave_ajuda": "Você precisa de uma chave API gratuita obtida no Google AI Studio para rodar a recomendação online.",
+        "ia_num_rec": "Quantidade de recomendações desejadas (máx. 10)",
         "ia_btn_buscar": "Analisar e Recomendar",
         "ia_analisando": "A IA está processando seu resumo e cruzando com o catálogo...",
         "ia_sucesso": "Recomendações geradas com sucesso!",
@@ -83,6 +89,7 @@ traducoes = {
         "ia_campo_resumo": "Abstract (Supports Portuguese, English, or Spanish)",
         "ia_chave_api": "Gemini API Key (Google AI Studio)",
         "ia_chave_ajuda": "You need a free API key from Google AI Studio to run the online recommendation.",
+        "ia_num_rec": "Number of desired recommendations (max. 10)",
         "ia_btn_buscar": "Analyze and Recommend",
         "ia_analisando": "AI is processing your abstract and matching with the catalog...",
         "ia_sucesso": "Recommendations generated successfully!",
@@ -113,6 +120,7 @@ traducoes = {
         "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
         "ia_chave_api": "Clave API de Gemini (Google AI Studio)",
         "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
+        "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 10)",
         "ia_btn_buscar": "Analizar y Recomendar",
         "ia_analisando": "La IA está procesando su resumen y cruzándolo con el catálogo...",
         "ia_sucesso": "¡Recomendaciones generadas con éxito!",
@@ -137,19 +145,18 @@ with st.sidebar:
     lang_code = lang_map[idioma_selecionado]
     t = traducoes[lang_code]
 
-# --- 4. CARREGAMENTO DOS DADOS (dados_quase.csv com preferência) ---
+# --- 4. CARREGAMENTO DOS DADOS (Com suporte para o novo dados_2.csv) ---
 @st.cache_data
 def carregar_dados_portal():
-    # Tenta carregar o banco de dados enriquecido "dados_quase.csv", se não der, cai para o "dados.csv" original
-    for nome_arquivo in ["dados_quase.csv", "dados.csv"]:
+    # Adicionado dados_2.csv no topo da prioridade de carregamento
+    for nome_arquivo in ["dados_2.csv", "dados_quase.csv", "dados.csv"]:
         try:
             df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8")
-            # Trata possíveis inconsistências comuns de codificação de BOM
             df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
             return df, nome_arquivo
         except Exception:
             continue
-    st.error("Erro: Não foi possível carregar os arquivos 'dados_quase.csv' ou 'dados.csv'.")
+    st.error("Erro: Não foi possível carregar os arquivos 'dados_2.csv', 'dados_quase.csv' ou 'dados.csv'.")
     st.stop()
 
 df_original, arquivo_usado = carregar_dados_portal()
@@ -161,7 +168,6 @@ else:
     df_original["Homepage"] = df_original["Homepage"].fillna("")
 
 # --- 5. LOGO E HEADER ---
-# Carregamento do cabeçalho original com imagens
 imagem_base64_logo = obter_imagem_local_base64("st_static/logo.png")
 if imagem_base64_logo:
     html_header = f"""
@@ -185,10 +191,7 @@ tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 with tab_busca:
     st.markdown("### " + t['busca_cat'])
     
-    # Campo de busca geral
     busca_query = st.text_input("🔍", placeholder=t['busca_placeholder'], label_visibility="collapsed")
-    
-    # Filtros na barra superior
     col_filtro1, col_filtro2, col_filtro3 = st.columns(3)
     
     with col_filtro1:
@@ -196,7 +199,6 @@ with tab_busca:
         filtro_g_area = st.selectbox(t['filtro_area'], options=lista_grandes_areas)
         
     with col_filtro2:
-        # Filtra opções baseado no filtro anterior
         if filtro_g_area != "Todas":
             df_temp = df_original[df_original["Grande Area"] == filtro_g_area]
         else:
@@ -208,11 +210,9 @@ with tab_busca:
         lista_indexadores = ["Todos"] + list(df_original["Indexador"].dropna().unique())
         filtro_idx = st.selectbox(t['filtro_indexador'], options=lista_indexadores)
 
-    # Aplicação de Filtros sobre o Dataframe
     df_filtrado = df_original.copy()
     
     if busca_query:
-        # Busca no Título, ISSN ou indexadores
         busca_query_lower = busca_query.lower()
         df_filtrado = df_filtrado[
             df_filtrado["Título da Revista"].astype(str).str.lower().str.contains(busca_query_lower) |
@@ -228,11 +228,9 @@ with tab_busca:
     if filtro_idx != "Todos":
         df_filtrado = df_filtrado[df_filtrado["Indexador"] == filtro_idx]
 
-    # Exibição de resultados
     total_itens = len(df_filtrado)
     st.markdown(f"**{total_itens}** {t['total_encontrado']}")
     
-    # Paginação
     col_pag1, col_pag2, _ = st.columns([1.5, 2, 5])
     with col_pag1:
         itens_por_pagina = st.selectbox(t['exibir_pag'], options=[20, 50, 100], index=1)
@@ -247,8 +245,6 @@ with tab_busca:
     if "Índice h5" in df_da_pagina.columns:
         df_da_pagina["Índice h5"] = df_da_pagina["Índice h5"].replace("-", None)
 
-    # --- AJUSTE CRÍTICO: CONFIGURAÇÃO DE COLUNA DE LINK NO DATAFRAME ---
-    # Mostramos a coluna Homepage de forma nativa e clicável como um link rotulado "Acessar Site"
     st.dataframe(
         df_da_pagina, 
         use_container_width=True, 
@@ -259,7 +255,7 @@ with tab_busca:
                 help="Clique para ir ao site oficial do periódico", 
                 display_text="Ver site do periódico"
             ),
-            "Grande Area": None,  # Opcional ocultar se filtros de topo já definirem
+            "Grande Area": None,
             "Area do Conhecimento": None,
             "Subárea do Conhecimento": None,
             "Índice h5": st.column_config.NumberColumn("Índice h5"),
@@ -273,7 +269,6 @@ with tab_ia:
     st.markdown(f"### {t['ia_titulo']}")
     st.markdown(f"*{t['ia_subtitulo']}*")
     
-    # Adicionando campo para configuração da chave API do Gemini de forma transparente e segura
     with st.sidebar:
         st.markdown("---")
         st.markdown(f"### 🔑 {t['ia_chave_api']}")
@@ -295,53 +290,60 @@ with tab_ia:
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
         indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", ["Todos"] + list(df_original["Indexador"].dropna().unique()))
         
+        # Slider dinâmico integrado para selecionar entre 3 e 10 recomendações
+        num_recomendacoes = st.slider(
+            t['ia_num_rec'], 
+            min_value=3, 
+            max_value=10, 
+            value=10, 
+            step=1
+        )
+        
     if st.button(t['ia_btn_buscar'], type="primary"):
-        if not user_gemini_key:
+        if not HAS_GEMINI:
+            st.error("❌ O pacote de IA do Google não pôde ser carregado. Certifique-se de implantar o arquivo `requirements.txt` no repositório.")
+        elif not user_gemini_key:
             st.error("⚠️ Para utilizar esta ferramenta, insira sua chave da API do Gemini na barra lateral (Sidebar) à esquerda.")
         elif not titulo_artigo or not resumo_artigo:
             st.warning("⚠️ Preencha o Título e o Resumo do artigo para buscar.")
         else:
             with st.spinner(t['ia_analisando']):
-                # Filtrar banco de dados local para mandar apenas candidatos pertinentes à IA (otimizando tokens)
                 df_candidatos = df_original.copy()
                 if area_ia != "Todas":
                     df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
                 if indexador_ia != "Todos":
                     df_candidatos = df_candidatos[df_candidatos["Indexador"] == indexador_ia]
                 
-                # Se após filtragem houverem muitos registros, escolhemos os melhores ranqueados pelo SJR ou H-Index
-                # para que a IA processe apenas o bloco de maior qualidade.
-                if len(df_candidatos) > 50:
-                    df_candidatos = df_candidatos.head(50)
+                # Se após filtragem houverem muitos registros, enviamos até 100 ao contexto da IA
+                # para que ela selecione de forma qualificada até as 10 melhores
+                if len(df_candidatos) > 100:
+                    df_candidatos = df_candidatos.head(100)
                 
-                # Criamos uma lista condensada de periódicos em formato JSON para enviar à IA
                 lista_periodicos_envio = df_candidatos[["Título da Revista", "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
                 
-                # Engenharia de Prompt para resposta estruturada em JSON multilíngue
+                # Prompt parametrizado dinamicamente com o valor selecionado no slider
                 prompt_ia = f"""
                 Atue como especialista em publicação acadêmica. O pesquisador submeteu o seguinte artigo científico:
                 TÍTULO DO ARTIGO: {titulo_artigo}
                 RESUMO DO ARTIGO: {resumo_artigo}
 
-                Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até 3 (três) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+                Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
 
                 Lista de Periódicos Candidatos:
                 {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
-                Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown envolta como ```json, apenas a string crua do array), com chaves exatas:
+                Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
                 - "revista_nome": Nome exato da revista como aparece no catálogo enviado
                 - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
                 - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
                 """
                 
                 try:
-                    # Inicialização e chamada ao Gemini
                     genai.configure(api_key=user_gemini_key)
                     model = genai.GenerativeModel('gemini-1.5-flash')
                     
                     resposta = model.generate_content(prompt_ia)
                     
-                    # Limpeza de possíveis formatações markdown do JSON retornado pela IA
                     texto_resposta = resposta.text.strip()
                     if texto_resposta.startswith("```"):
                         texto_resposta = texto_resposta.replace("```json", "").replace("```", "").strip()
@@ -350,9 +352,7 @@ with tab_ia:
                     
                     st.success(t['ia_sucesso'])
                     
-                    # Renderização dos resultados em Cards Dinâmicos com Links Ativos
                     for rec in recomendacoes:
-                        # Busca os dados originais (Homepage e ISSN) a partir do nome retornado pela IA
                         registro_revista = df_original[df_original["Título da Revista"] == rec["revista_nome"]]
                         
                         homepage = ""
@@ -362,13 +362,13 @@ with tab_ia:
                         sjr = "N/A"
                         
                         if not registro_revista.empty:
-                            homepage = registro_revista.iloc[0]["Homepage"]
+                            homepage = str(registro_revista.iloc[0]["Homepage"])
                             issn = registro_revista.iloc[0]["ISSN"]
                             indexador = registro_revista.iloc[0]["Indexador"]
                             quartil = str(registro_revista.iloc[0]["Quartil JCR"])
                             sjr = str(registro_revista.iloc[0]["SJR"])
                         
-                        # Container estilizado de recomendação
+                        # Renderização de card para cada recomendação (agora dinamicamente de 3 a 10)
                         with st.container(border=True):
                             col_info, col_link = st.columns([3, 1])
                             
@@ -379,9 +379,8 @@ with tab_ia:
                                 st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
                             
                             with col_link:
-                                # Adiciona o botão clicável da homepage que o usuário pediu!
                                 st.markdown("<br>", unsafe_allow_html=True)
-                                if homepage and homepage != "nan" and homepage != "-":
+                                if homepage and homepage != "nan" and homepage != "-" and homepage != "":
                                     st.link_button(t['ia_card_site'], homepage, type="primary", use_container_width=True)
                                 else:
                                     st.info(t['ia_card_sem_site'])
