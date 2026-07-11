@@ -1,17 +1,11 @@
 import streamlit as st
 import pandas as pd
 import urllib.parse
+import requests
 import base64
 import json
 import os
 import re
-
-# Tratamento de importação do google-generativeai com fallback seguro
-try:
-    import google.generativeai as genai
-    HAS_GEMINI = True
-except ModuleNotFoundError:
-    HAS_GEMINI = False
 
 # --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Executada antes de qualquer comando Streamlit) ---
 def obter_imagem_local_base64(caminho_arquivo):
@@ -369,9 +363,20 @@ st.markdown("""
 @st.cache_data
 def carregar_dados():
     nome_arquivo = "dados.csv"
+    if not os.path.exists(nome_arquivo):
+        if os.path.exists("Dados.csv"):
+            nome_arquivo = "Dados.csv"
+        elif os.path.exists("DADOS.CSV"):
+            nome_arquivo = "DADOS.CSV"
+            
     if os.path.exists(nome_arquivo):
         try:
-            df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
+            # Detecta o separador (; ou ,) inspecionando a primeira linha
+            with open(nome_arquivo, "r", encoding="utf-8-sig", errors="ignore") as f:
+                primeira_linha = f.readline()
+            separador = ";" if primeira_linha.count(";") >= primeira_linha.count(",") else ","
+            
+            df = pd.read_csv(nome_arquivo, sep=separador, encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
             
             df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
             df = df.drop_duplicates(subset=[df.columns[0]])
@@ -940,9 +945,7 @@ with tab_ia:
         )
         
     if st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar"):
-        if not HAS_GEMINI:
-            st.error("❌ O pacote de IA do Google (google-generativeai) não pôde ser carregado. Certifique-se de implantar o arquivo `requirements.txt` no repositório.")
-        elif not user_gemini_key:
+        if not user_gemini_key:
             st.error("⚠️ Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
             st.warning("⚠️ Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
@@ -987,25 +990,32 @@ with tab_ia:
                     """
                     
                     try:
-                        genai.configure(api_key=user_gemini_key)
-                        model = genai.GenerativeModel('gemini-1.5-flash')
+                        url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={user_gemini_key}"
+                        payload = {
+                            "contents": [{"parts": [{"text": prompt_ia}]}],
+                            "generationConfig": {"responseMimeType": "application/json"}
+                        }
+                        headers = {"Content-Type": "application/json"}
                         
-                        # Tenta forçar o formato JSON
-                        generation_config = {"response_mime_type": "application/json"}
-                        resposta = model.generate_content(prompt_ia, generation_config=generation_config)
+                        response = requests.post(url_api, json=payload, headers=headers, timeout=30)
                         
-                        texto_resposta = resposta.text.strip()
-                        
-                        # Tratamento seguro caso venha markdown de bloco JSON do Gemini
-                        if texto_resposta.startswith("```"):
-                            texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
-                        
-                        # Extrai o array JSON via regex se houver texto ao redor
-                        match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                        if match:
-                            texto_resposta = match.group(0)
-                        
-                        recomendacoes = json.loads(texto_resposta)
+                        if response.status_code == 200:
+                            dados_resposta = response.json()
+                            texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                            
+                            # Tratamento seguro caso venha markdown de bloco JSON do Gemini
+                            if texto_resposta.startswith("```"):
+                                texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                            
+                            # Extrai o array JSON via regex se houver texto ao redor
+                            match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                            if match:
+                                texto_resposta = match.group(0)
+                            
+                            recomendacoes = json.loads(texto_resposta)
+                        else:
+                            erro_ia = True
+                            detalhe_erro = f"API retornou status {response.status_code}: {response.text}"
                     except Exception as ex:
                         erro_ia = True
                         detalhe_erro = str(ex)
