@@ -1096,12 +1096,29 @@ with tab_busca:
                 "Homepage": st.column_config.LinkColumn(
                     "Homepage",
                     help="Clique para visitar o site oficial da revista",
-                    display_text="🔗 Ver site"
+                    display_text="🔗 Ver site",
+                    placeholder="-"
+                ),
+                "JIF": st.column_config.Column(
+                    alignment="center"
+                ),
+                "Quartil JCR": st.column_config.Column(
+                    alignment="center"
+                ),
+                "SJR": st.column_config.Column(
+                    alignment="center"
+                ),
+                "SJR Best Quartile": st.column_config.Column(
+                    alignment="center"
+                ),
+                "H index": st.column_config.Column(
+                    alignment="center"
                 ),
                 "Índice h5": st.column_config.LinkColumn(
                     t['col_h5'],
                     help="Clique para abrir o índice h5 no Google Scholar",
-                    display_text="🔗 Abrir"
+                    display_text="🔗 Abrir",
+                    alignment="center"
                 )
             },
             **kwargs_largura
