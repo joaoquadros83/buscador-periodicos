@@ -9,6 +9,8 @@ import base64
 import json
 import os
 import re
+import time
+import hashlib
 
 # Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
 SUPPORTS_NEW_WIDTH = False
@@ -1084,7 +1086,6 @@ with tab_ia:
             st.warning("⚠️ Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
         else:
             # Gera chave de cache baseada nos parâmetros da busca (sem depender da chave API)
-            import hashlib
             cache_key = hashlib.md5(
                 f"{titulo_artigo.strip().lower()}|{resumo_artigo.strip().lower()}|{num_recomendacoes}|{area_ia}|{indexador_ia}".encode("utf-8")
             ).hexdigest()
@@ -1225,50 +1226,70 @@ with tab_ia:
                     sucesso_ia = False
                     ultimo_erro_msg = ""
                     cota_esgotada = False
-                    
+                    max_tentativas_429 = 3  # Máximo de re-tentativas automáticas após cota temporária
+
                     for modelo in modelos_tentar:
-                        try:
-                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                            payload = {
-                                "contents": [{"parts": [{"text": prompt_ia}]}]
-                            }
-                            headers = {"Content-Type": "application/json"}
-                            
-                            response = requests.post(url_api, json=payload, headers=headers, timeout=30)
-                            
-                            if response.status_code == 200:
-                                dados_resposta = response.json()
-                                texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        tentativa_429 = 0
+                        while True:
+                            try:
+                                url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                                payload = {
+                                    "contents": [{"parts": [{"text": prompt_ia}]}]
+                                }
+                                headers = {"Content-Type": "application/json"}
                                 
-                                if texto_resposta.startswith("```"):
-                                    texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                                response = requests.post(url_api, json=payload, headers=headers, timeout=60)
                                 
-                                match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                                if match:
-                                    texto_resposta = match.group(0)
-                                
-                                st.session_state.recomendacoes = json.loads(texto_resposta)
-                                # Salva no cache para evitar chamadas repetidas com a mesma entrada
-                                st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
-                                sucesso_ia = True
-                                break
-                            elif response.status_code == 429:
-                                # Cota esgotada — parar imediatamente, não adianta tentar outros modelos
-                                cota_esgotada = True
-                                try:
-                                    erro_json = response.json()
-                                    retry_info = ""
-                                    for detail in erro_json.get("error", {}).get("details", []):
-                                        if "retryDelay" in detail:
-                                            retry_info = f" Tente novamente em {detail['retryDelay']}."
-                                except Exception:
-                                    retry_info = ""
-                                ultimo_erro_msg = f"⏳ Cota da API do Gemini esgotada para sua chave.{retry_info} Aguarde alguns instantes e tente novamente."
-                                break
-                            else:
-                                ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
-                        except Exception as ex:
-                            ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                                if response.status_code == 200:
+                                    dados_resposta = response.json()
+                                    texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                    
+                                    if texto_resposta.startswith("```"):
+                                        texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                                    
+                                    match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                                    if match:
+                                        texto_resposta = match.group(0)
+                                    
+                                    st.session_state.recomendacoes = json.loads(texto_resposta)
+                                    # Salva no cache para evitar chamadas repetidas com a mesma entrada
+                                    st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
+                                    sucesso_ia = True
+                                    break  # Sai do while
+                                elif response.status_code == 429:
+                                    tentativa_429 += 1
+                                    if tentativa_429 > max_tentativas_429:
+                                        # Esgotou as re-tentativas — desiste
+                                        cota_esgotada = True
+                                        ultimo_erro_msg = "⏳ Cota da API do Gemini esgotada mesmo após múltiplas tentativas. Aguarde alguns minutos e tente novamente."
+                                        break  # Sai do while
+                                    
+                                    # Extrai o tempo de espera recomendado pela API
+                                    espera_seg = 35  # padrão seguro
+                                    try:
+                                        erro_json = response.json()
+                                        for detail in erro_json.get("error", {}).get("details", []):
+                                            if "retryDelay" in detail:
+                                                delay_str = detail["retryDelay"]  # ex: "27s"
+                                                espera_seg = int(''.join(filter(str.isdigit, delay_str))) + 3
+                                    except Exception:
+                                        pass
+                                    
+                                    # Mostra contagem regressiva na interface
+                                    for seg_restantes in range(espera_seg, 0, -1):
+                                        status_container.info(f"⏳ Limite de requisições atingido. Aguardando {seg_restantes}s antes de tentar novamente... (Tentativa {tentativa_429}/{max_tentativas_429})")
+                                        time.sleep(1)
+                                    status_container.info(f"⏳ {t['ia_analisando']}")
+                                    # Continua o while para re-tentar o mesmo modelo
+                                else:
+                                    ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
+                                    break  # Sai do while, tenta próximo modelo
+                            except Exception as ex:
+                                ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                                break  # Sai do while, tenta próximo modelo
+                        
+                        if sucesso_ia or cota_esgotada:
+                            break  # Sai do for de modelos
                     
                     if not sucesso_ia:
                         if cota_esgotada:
