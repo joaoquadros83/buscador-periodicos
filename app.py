@@ -129,7 +129,21 @@ dic = {
         "ia_card_site": "🌐 Visitar Homepage Oficial",
         "ia_card_sem_site": "Site indisponível na base",
         "filtro_area": "Grande Área",
-        "filtro_indexador": "Indexador"
+        "filtro_indexador": "Indexador",
+        "ia_credencial_tit": "🔑 Credencial",
+        "ia_como_obter_titulo": "ℹ️ Como obter uma chave gratuita?",
+        "ia_como_obter_texto": """
+<div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
+Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:<br><br>
+1. Acesse <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
+2. Faça login com sua conta Google<br>
+3. Clique em <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copie a chave gerada e cole no campo acima<br><br>
+<i>A chave gratuita permite centenas de consultas por dia.</i>
+</div>
+        """,
+        "ia_refinar_alvos": "🎯 Refinar Alvos",
+        "ia_todos": "Todos"
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -190,7 +204,21 @@ dic = {
         "ia_card_site": "🌐 Visit Official Homepage",
         "ia_card_sem_site": "Website not available in database",
         "filtro_area": "Broad Area",
-        "filtro_indexador": "Indexer"
+        "filtro_indexador": "Indexer",
+        "ia_credencial_tit": "🔑 Credentials",
+        "ia_como_obter_titulo": "ℹ️ How to get a free API key?",
+        "ia_como_obter_texto": """
+<div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
+This tool is free. To use it, you need a Google Gemini API key, which is also free:<br><br>
+1. Go to <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
+2. Sign in with your Google account<br>
+3. Click <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copy the generated key and paste it into the field above<br><br>
+<i>The free key allows hundreds of queries per day.</i>
+</div>
+        """,
+        "ia_refinar_alvos": "🎯 Refine Targets",
+        "ia_todos": "All"
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -251,7 +279,21 @@ dic = {
         "ia_card_site": "🌐 Visitar Homepage Oficial",
         "ia_card_sem_site": "Sitio no disponible en la base",
         "filtro_area": "Gran Área",
-        "filtro_indexador": "Indexador"
+        "filtro_indexador": "Indexador",
+        "ia_credencial_tit": "🔑 Credenciales",
+        "ia_como_obter_titulo": "ℹ️ ¿Cómo obtener una clave gratuita?",
+        "ia_como_obter_texto": """
+<div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
+Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google Gemini, también gratuita:<br><br>
+1. Acceda a <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
+2. Inicie sesión con su cuenta de Google<br>
+3. Haga clic en <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copie la clave generada y péguela en el campo de arriba<br><br>
+<i>La clave gratuita permite cientos de consultas al día.</i>
+</div>
+        """,
+        "ia_refinar_alvos": "🎯 Refinar Objetivos",
+        "ia_todos": "Todos"
     }
 }
 # Correção do seletor em inglês caso venha codificado
@@ -1050,7 +1092,7 @@ with tab_ia:
         
     with col_meta:
         # Credencial e Chave de API inseridas diretamente na aba de controle da IA
-        st.markdown("#### 🔑 Credencial")
+        st.markdown(f"#### {t['ia_credencial_tit']}")
         
         # Lê chave do segredo do Streamlit Cloud se existir
         chave_secrets = ""
@@ -1079,21 +1121,12 @@ with tab_ia:
         
         # Guia amigável para obter chave gratuita (expander recolhido por padrão)
         if not api_key_ativa:
-            with st.expander("ℹ️ Como obter uma chave gratuita?", expanded=False):
-                st.markdown("""
-<div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:<br><br>
-1. Acesse <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
-2. Faça login com sua conta Google<br>
-3. Clique em <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
-4. Copie a chave gerada e cole no campo acima<br><br>
-<i>A chave gratuita permite centenas de consultas por dia.</i>
-</div>
-                """, unsafe_allow_html=True)
+            with st.expander(t['ia_como_obter_titulo'], expanded=False):
+                st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
         
-        st.markdown("#### 🎯 Refinar Alvos")
-        area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
-        indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", ["Todos"] + list(df_original["Indexador"].dropna().unique()))
+        st.markdown(f"#### {t['ia_refinar_alvos']}")
+        area_ia = st.selectbox(f"{t['filtro_area']} (IA)", [t['todas']] + list(df_original["Grande Area"].dropna().unique()))
+        indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + list(df_original["Indexador"].dropna().unique()))
         
         # Slider dinâmico integrado para selecionar entre 3 e 10 recomendações
         num_recomendacoes = st.slider(
