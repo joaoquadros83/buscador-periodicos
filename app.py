@@ -1061,6 +1061,34 @@ with tab_ia:
                 stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
                 palavras_filtradas = palavras - stopwords
                 
+                # Dicionário de tradução para ampliar a busca bilíngue (Português -> Inglês) para termos acadêmicos comuns
+                dicionario_traducao = {
+                    "educação": "education", "ensino": "teaching", "aprendizado": "learning",
+                    "computação": "computing", "computador": "computer", "tecnologia": "technology",
+                    "saúde": "health", "medicina": "medicine", "médico": "medical",
+                    "ciência": "science", "científico": "scientific", "pesquisa": "research",
+                    "desenvolvimento": "development", "gestão": "management", "administração": "administration",
+                    "economia": "economy", "econômico": "economic", "social": "social",
+                    "cultura": "culture", "história": "history", "geografia": "geography",
+                    "matemática": "mathematics", "física": "physics", "química": "chemistry",
+                    "biologia": "biology", "meio ambiente": "environment", "ambiental": "environmental",
+                    "sustentabilidade": "sustainability", "engenharia": "engineering", "indústria": "industry",
+                    "produção": "production", "sistemas": "systems", "informação": "information",
+                    "comunicação": "communication", "linguagem": "language", "literatura": "literature",
+                    "arte": "art", "música": "music", "psicologia": "psychology",
+                    "filosofia": "philosophy", "política": "politics", "direito": "law",
+                    "energia": "energy", "materiais": "materials", "agricultura": "agriculture",
+                    "florestal": "forestry", "veterinária": "veterinary", "enfermagem": "nursing",
+                    "odontologia": "dentistry", "farmácia": "pharmacy", "nutrição": "nutrition"
+                }
+                
+                # Adiciona as traduções correspondentes para ampliar a busca bilíngue
+                traducoes = set()
+                for pal in palavras_filtradas:
+                    if pal in dicionario_traducao:
+                        traducoes.add(dicionario_traducao[pal])
+                palavras_filtradas.update(traducoes)
+                
                 if palavras_filtradas:
                     def calcular_relevancia(row):
                         score = 0
@@ -1095,11 +1123,16 @@ with tab_ia:
                 
                 # Prompt estruturado para forçar o retorno estrito de um array JSON
                 prompt_ia = f"""
-                Atue como especialista em publicação acadêmica. O pesquisador submeteu o seguinte artigo científico:
+                Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
                 TÍTULO DO ARTIGO: {titulo_artigo}
                 RESUMO DO ARTIGO: {resumo_artigo}
 
                 Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+
+                IMPORTANTES DIRETRIZES DE SELEÇÃO:
+                1. Priorize a qualidade científica e o prestígio acadêmico (indicados por quartis JCR e índice SJR elevados).
+                2. Sugira uma mistura equilibrada entre excelentes periódicos nacionais (em português) e periódicos internacionais de alto impacto (em inglês/outros idiomas) que sejam aderentes ao tema do artigo.
+                3. Não se restrinja apenas a periódicos no mesmo idioma do título/resumo; se um periódico internacional de alta relevância e impacto for adequado para a publicação do tema, inclua-o nas recomendações.
 
                 Lista de Periódicos Candidatos:
                 {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
