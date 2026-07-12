@@ -1004,10 +1004,15 @@ with tab_ia:
             placeholder_input = "AIzaSy..."
             help_input = t['ia_chave_ajuda']
             
-        user_gemini_key = st.text_input(t['ia_chave_api'], type="password")
+        user_gemini_key = st.text_input(
+            t['ia_chave_api'], 
+            type="password", 
+            placeholder=placeholder_input, 
+            help=help_input
+        )
         
         # Define a chave ativa final (prioriza input do usuário)
-        api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
+       genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
         
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
