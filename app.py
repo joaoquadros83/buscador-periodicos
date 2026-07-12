@@ -1011,6 +1011,9 @@ with tab_ia:
         st.session_state.erro_ia = None
     if "aviso_filtro" not in st.session_state:
         st.session_state.aviso_filtro = False
+    if "ia_cache" not in st.session_state:
+        # Cache de resultados: chave = hash(titulo+resumo+num_rec+area+indexador), valor = lista de recomendações
+        st.session_state.ia_cache = {}
     
     col_input, col_meta = st.columns([2, 1])
     
@@ -1047,6 +1050,20 @@ with tab_ia:
         # Define a chave ativa final (prioriza input do usuário)
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
         
+        # Guia amigável para obter chave gratuita (exibido somente quando nenhuma chave está ativa)
+        if not api_key_ativa:
+            with st.expander("ℹ️ Como obter uma chave gratuita?", expanded=True):
+                st.markdown("""
+**Esta ferramenta é gratuita.** Para usá-la, você precisa de uma chave da API do Google Gemini, também **gratuita**:
+
+1. Acesse **[aistudio.google.com](https://aistudio.google.com)**
+2. Faça login com sua conta Google
+3. Clique em **"Get API Key"** → **"Create API Key"**
+4. Copie a chave gerada e cole no campo acima
+
+> 💡 A chave gratuita permite centenas de consultas por dia, mais do que suficiente para pesquisa acadêmica.
+                """)
+        
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
         indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", ["Todos"] + list(df_original["Indexador"].dropna().unique()))
@@ -1066,200 +1083,215 @@ with tab_ia:
         elif not titulo_artigo or not resumo_artigo:
             st.warning("⚠️ Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
         else:
-            # Reseta os estados anteriores antes do novo processamento
-            st.session_state.recomendacoes = None
-            st.session_state.erro_ia = None
-            st.session_state.aviso_filtro = False
+            # Gera chave de cache baseada nos parâmetros da busca (sem depender da chave API)
+            import hashlib
+            cache_key = hashlib.md5(
+                f"{titulo_artigo.strip().lower()}|{resumo_artigo.strip().lower()}|{num_recomendacoes}|{area_ia}|{indexador_ia}".encode("utf-8")
+            ).hexdigest()
             
-            # Utiliza um placeholder simples do Streamlit (st.empty) para o indicador de progresso,
-            # evitando qualquer conflito de animação de Spinner no DOM virtual do React.
-            status_container = st.empty()
-            status_container.info(f"⏳ {t['ia_analisando']}")
-            
-            df_candidatos = df_original.copy()
-            if area_ia != "Todas":
-                df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
-            if indexador_ia != "Todos":
-                df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
-            
-            # Validação caso a base filtrada esteja vazia
-            if df_candidatos.empty:
-                st.session_state.aviso_filtro = True
+            if cache_key in st.session_state.ia_cache:
+                # Resultado em cache — reutiliza sem chamar a API
+                st.session_state.recomendacoes = st.session_state.ia_cache[cache_key]
+                st.session_state.erro_ia = None
+                st.session_state.aviso_filtro = False
+                st.rerun()
             else:
-                # Seleciona candidatos baseados em relevância de palavras-chave do título e resumo
-                texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                # Extrai termos do título/resumo para busca
-                palavras = set(re.findall(r'\b[a-zA-Zá-úÁ-Ú]{4,}\b', texto_busca))
-                # Remove stopwords comuns
-                stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
-                palavras_filtradas = palavras - stopwords
+                # Reseta os estados anteriores antes do novo processamento
+                st.session_state.recomendacoes = None
+                st.session_state.erro_ia = None
+                st.session_state.aviso_filtro = False
                 
-                # Grupos de sinônimos acadêmicos em 3 idiomas (Português, Inglês e Espanhol) para busca bidirecional completa
-                sinonimos_academicos = [
-                    {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
-                    {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
-                    {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
-                    {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
-                    {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
-                    {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
-                    {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
-                    {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
-                    {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
-                    {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
-                    {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
-                    {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
-                    {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
-                    {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
-                    {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
-                    {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
-                    {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
-                ]
+                # Utiliza um placeholder simples do Streamlit (st.empty) para o indicador de progresso,
+                # evitando qualquer conflito de animação de Spinner no DOM virtual do React.
+                status_container = st.empty()
+                status_container.info(f"⏳ {t['ia_analisando']}")
                 
-                # Adiciona sinônimos em outros idiomas se encontrar qualquer termo correspondente
-                novas_palavras = set()
-                for pal in palavras_filtradas:
-                    for grupo in sinonimos_academicos:
-                        if pal in grupo:
-                            novas_palavras.update(grupo)
-                            break
-                palavras_filtradas.update(novas_palavras)
+                df_candidatos = df_original.copy()
+                if area_ia != "Todas":
+                    df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
+                if indexador_ia != "Todos":
+                    df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
                 
-                if palavras_filtradas:
-                    def calcular_relevancia(row):
-                        score = 0
-                        nome = str(row.iloc[0]).lower()
-                        grande_area = str(row.get("Grande Area", "")).lower()
-                        area = str(row.get("Area do Conhecimento", "")).lower()
-                        subarea = str(row.get("Subárea do Conhecimento", "")).lower()
-                        
-                        for pal in palavras_filtradas:
-                            if pal in nome:
-                                score += 5  # Maior peso para termos no nome da revista
-                            if pal in grande_area:
-                                score += 3
-                            if pal in area:
-                                score += 3
-                            if pal in subarea:
-                                score += 3
-                        return score
-                    
-                    df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
-                    # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
-                    df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
-                    df_candidatos = df_candidatos.drop(columns=["relevancia"])
+                # Validação caso a base filtrada esteja vazia
+                if df_candidatos.empty:
+                    st.session_state.aviso_filtro = True
                 else:
-                    df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
-                
-                # Seleciona até 100 candidatos realmente relevantes para passar ao contexto do modelo de IA
-                if len(df_candidatos) > 100:
-                    df_candidatos = df_candidatos.head(100)
-                
-                lista_periodicos_envio = df_candidatos[[df_original.columns[0], "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
-                
-                # Prompt estruturado para forçar o retorno estrito de um array JSON
-                prompt_ia = f"""
-                Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
-                TÍTULO DO ARTIGO: {titulo_artigo}
-                RESUMO DO ARTIGO: {resumo_artigo}
-
-                Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
-
-                IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
-                1. PRIORIDADE MÁXIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
-                2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
-                3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
-                   - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
-                   - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
-                   - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
-                
-                Lista de Periódicos Candidatos:
-                {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
-
-                Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
-                - "revista_nome": Nome exato da revista como aparece no catálogo enviado
-                - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
-                - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
-                """
-                
-                modelos_tentar = [
-                    "gemini-2.5-flash",
-                    "gemini-2.5-pro",
-                    "gemini-2.0-flash",
-                    "gemini-2.0-flash-001",
-                    "gemini-3.5-flash",
-                    "gemini-flash-latest",
-                    "gemini-pro-latest",
-                    "gemini-2.0-flash-lite",
-                ]
-                
-                sucesso_ia = False
-                ultimo_erro_msg = ""
-                cota_esgotada = False
-                
-                for modelo in modelos_tentar:
-                    try:
-                        url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                        payload = {
-                            "contents": [{"parts": [{"text": prompt_ia}]}]
-                        }
-                        headers = {"Content-Type": "application/json"}
+                    # Seleciona candidatos baseados em relevância de palavras-chave do título e resumo
+                    texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                    # Extrai termos do título/resumo para busca
+                    palavras = set(re.findall(r'\b[a-zA-Zá-úÁ-Ú]{4,}\b', texto_busca))
+                    # Remove stopwords comuns
+                    stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
+                    palavras_filtradas = palavras - stopwords
+                    
+                    # Grupos de sinônimos acadêmicos em 3 idiomas (Português, Inglês e Espanhol) para busca bidirecional completa
+                    sinonimos_academicos = [
+                        {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                        {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
+                        {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
+                        {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
+                        {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
+                        {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
+                        {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
+                        {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
+                        {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
+                        {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
+                        {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                        {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
+                        {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
+                        {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                        {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
+                        {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
+                    ]
+                    
+                    # Adiciona sinônimos em outros idiomas se encontrar qualquer termo correspondente
+                    novas_palavras = set()
+                    for pal in palavras_filtradas:
+                        for grupo in sinonimos_academicos:
+                            if pal in grupo:
+                                novas_palavras.update(grupo)
+                                break
+                    palavras_filtradas.update(novas_palavras)
+                    
+                    if palavras_filtradas:
+                        def calcular_relevancia(row):
+                            score = 0
+                            nome = str(row.iloc[0]).lower()
+                            grande_area = str(row.get("Grande Area", "")).lower()
+                            area = str(row.get("Area do Conhecimento", "")).lower()
+                            subarea = str(row.get("Subárea do Conhecimento", "")).lower()
+                            
+                            for pal in palavras_filtradas:
+                                if pal in nome:
+                                    score += 5  # Maior peso para termos no nome da revista
+                                if pal in grande_area:
+                                    score += 3
+                                if pal in area:
+                                    score += 3
+                                if pal in subarea:
+                                    score += 3
+                            return score
                         
-                        response = requests.post(url_api, json=payload, headers=headers, timeout=30)
-                        
-                        if response.status_code == 200:
-                            dados_resposta = response.json()
-                            texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
-                            
-                            if texto_resposta.startswith("```"):
-                                texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
-                            
-                            match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                            if match:
-                                texto_resposta = match.group(0)
-                            
-                            st.session_state.recomendacoes = json.loads(texto_resposta)
-                            sucesso_ia = True
-                            break
-                        elif response.status_code == 429:
-                            # Cota esgotada — parar imediatamente, não adianta tentar outros modelos
-                            cota_esgotada = True
-                            try:
-                                erro_json = response.json()
-                                retry_info = ""
-                                for detail in erro_json.get("error", {}).get("details", []):
-                                    if "retryDelay" in detail:
-                                        retry_info = f" Tente novamente em {detail['retryDelay']}."
-                            except Exception:
-                                retry_info = ""
-                            ultimo_erro_msg = f"⏳ Cota da API do Gemini esgotada para sua chave.{retry_info} Aguarde alguns instantes e tente novamente."
-                            break
-                        else:
-                            ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
-                    except Exception as ex:
-                        ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
-                
-                if not sucesso_ia:
-                    if cota_esgotada:
-                        # Mensagem amigável para erro de cota — sem expor detalhes técnicos
-                        st.session_state.erro_ia = ultimo_erro_msg
+                        df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
+                        # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
+                        df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                        df_candidatos = df_candidatos.drop(columns=["relevancia"])
                     else:
-                        tamanho = len(api_key_ativa) if api_key_ativa else 0
-                        prefixo = api_key_ativa[:6] if api_key_ativa else ""
-                        sufixo = api_key_ativa[-6:] if api_key_ativa else ""
-                        
-                        detalhe_modelos = ""
+                        df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
+                    
+                    # Seleciona até 100 candidatos realmente relevantes para passar ao contexto do modelo de IA
+                    if len(df_candidatos) > 100:
+                        df_candidatos = df_candidatos.head(100)
+                    
+                    lista_periodicos_envio = df_candidatos[[df_original.columns[0], "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
+                    
+                    # Prompt estruturado para forçar o retorno estrito de um array JSON
+                    prompt_ia = f"""
+                    Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
+                    TÍTULO DO ARTIGO: {titulo_artigo}
+                    RESUMO DO ARTIGO: {resumo_artigo}
+
+                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+
+                    IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
+                    1. PRIORIDADE MÁXIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
+                    2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
+                    3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
+                       - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
+                       - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                       - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                    
+                    Lista de Periódicos Candidatos:
+                    {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
+
+                    Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
+                    - "revista_nome": Nome exato da revista como aparece no catálogo enviado
+                    - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
+                    """
+                    
+                    modelos_tentar = [
+                        "gemini-2.5-flash",
+                        "gemini-2.5-pro",
+                        "gemini-2.0-flash",
+                        "gemini-2.0-flash-001",
+                        "gemini-3.5-flash",
+                        "gemini-flash-latest",
+                        "gemini-pro-latest",
+                        "gemini-2.0-flash-lite",
+                    ]
+                    
+                    sucesso_ia = False
+                    ultimo_erro_msg = ""
+                    cota_esgotada = False
+                    
+                    for modelo in modelos_tentar:
                         try:
-                            resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
-                            if resp_models.status_code == 200:
-                                models_data = resp_models.json()
-                                names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
-                                detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
-                            else:
-                                detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
-                        except Exception as e_mod:
-                            detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                            payload = {
+                                "contents": [{"parts": [{"text": prompt_ia}]}]
+                            }
+                            headers = {"Content-Type": "application/json"}
                             
-                        st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
+                            response = requests.post(url_api, json=payload, headers=headers, timeout=30)
+                            
+                            if response.status_code == 200:
+                                dados_resposta = response.json()
+                                texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                
+                                if texto_resposta.startswith("```"):
+                                    texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                                
+                                match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                                if match:
+                                    texto_resposta = match.group(0)
+                                
+                                st.session_state.recomendacoes = json.loads(texto_resposta)
+                                # Salva no cache para evitar chamadas repetidas com a mesma entrada
+                                st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
+                                sucesso_ia = True
+                                break
+                            elif response.status_code == 429:
+                                # Cota esgotada — parar imediatamente, não adianta tentar outros modelos
+                                cota_esgotada = True
+                                try:
+                                    erro_json = response.json()
+                                    retry_info = ""
+                                    for detail in erro_json.get("error", {}).get("details", []):
+                                        if "retryDelay" in detail:
+                                            retry_info = f" Tente novamente em {detail['retryDelay']}."
+                                except Exception:
+                                    retry_info = ""
+                                ultimo_erro_msg = f"⏳ Cota da API do Gemini esgotada para sua chave.{retry_info} Aguarde alguns instantes e tente novamente."
+                                break
+                            else:
+                                ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
+                        except Exception as ex:
+                            ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                    
+                    if not sucesso_ia:
+                        if cota_esgotada:
+                            # Mensagem amigável para erro de cota — sem expor detalhes técnicos
+                            st.session_state.erro_ia = ultimo_erro_msg
+                        else:
+                            tamanho = len(api_key_ativa) if api_key_ativa else 0
+                            prefixo = api_key_ativa[:6] if api_key_ativa else ""
+                            sufixo = api_key_ativa[-6:] if api_key_ativa else ""
+                            
+                            detalhe_modelos = ""
+                            try:
+                                resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
+                                if resp_models.status_code == 200:
+                                    models_data = resp_models.json()
+                                    names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
+                                    detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
+                                else:
+                                    detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
+                            except Exception as e_mod:
+                                detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                                
+                            st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
