@@ -1181,11 +1181,16 @@ with tab_ia:
                     else:
                         df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
                     
-                    # Seleciona até 100 candidatos realmente relevantes para passar ao contexto do modelo de IA
-                    if len(df_candidatos) > 100:
-                        df_candidatos = df_candidatos.head(100)
+                    # Seleciona até 40 candidatos mais relevantes — reduz consumo de tokens da API
+                    if len(df_candidatos) > 40:
+                        df_candidatos = df_candidatos.head(40)
                     
-                    lista_periodicos_envio = df_candidatos[[df_original.columns[0], "Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]].to_dict(orient="records")
+                    # Payload enxuto: somente os campos essenciais para a IA tomar a decisão
+                    cols_envio = [df_original.columns[0]]
+                    for col in ["Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
+                        if col in df_candidatos.columns:
+                            cols_envio.append(col)
+                    lista_periodicos_envio = df_candidatos[cols_envio].to_dict(orient="records")
                     
                     # Prompt estruturado para forçar o retorno estrito de um array JSON
                     prompt_ia = f"""
