@@ -486,7 +486,7 @@ st.markdown("""
     
     /* Destaque para o título do expander */
     .stExpander details summary p {
-        font-size: 1.35rem !important;
+        font-size: 1.1rem !important;
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
