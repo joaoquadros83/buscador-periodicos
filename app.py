@@ -1131,9 +1131,10 @@ with tab_ia:
 
                 Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
 
-                IMPORTANTES DIRETRIZES DE SELEÇÃO:
-                1. Priorize a qualidade científica e o prestígio acadêmico (indicados por quartis JCR e índice SJR elevados).
-                2. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
+                IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
+                1. PRIORIDADE MÁXIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
+                2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
+                3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
                    - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
                    - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
                    - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
