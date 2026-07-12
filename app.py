@@ -1047,12 +1047,6 @@ if not st.session_state.registrado:
     # Escolha do Modo (Login ou Cadastro)
     if st.session_state.modo_login:
         # TÍTULO E APRESENTAÇÃO MINIMALISTA
-        st.markdown(f"""
-            <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center;">
-                <h3 style="color: #004B87; margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 700;">{t['log_titulo']}</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
         with col_log_2:
             # Formulário de Login
@@ -1092,13 +1086,6 @@ if not st.session_state.registrado:
                 time.sleep(1.2)
                 st.rerun()
     else:
-        # PÁGINA DE CADASTRO
-        st.markdown(f"""
-            <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center;">
-                <h3 style="color: #004B87; margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 700;">{t['reg_titulo_form']}</h3>
-            </div>
-        """, unsafe_allow_html=True)
-        
         col_reg_1, col_reg_2 = st.columns(2)
         with col_reg_1:
             nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
