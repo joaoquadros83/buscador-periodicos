@@ -1053,7 +1053,41 @@ with tab_ia:
             if df_candidatos.empty:
                 st.session_state.aviso_filtro = True
             else:
-                # Seleciona até 100 candidatos para passar ao contexto do modelo de IA
+                # Seleciona candidatos baseados em relevância de palavras-chave do título e resumo
+                texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                # Extrai termos do título/resumo para busca
+                palavras = set(re.findall(r'\b[a-zA-Zá-úÁ-Ú]{4,}\b', texto_busca))
+                # Remove stopwords comuns
+                stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
+                palavras_filtradas = palavras - stopwords
+                
+                if palavras_filtradas:
+                    def calcular_relevancia(row):
+                        score = 0
+                        nome = str(row.iloc[0]).lower()
+                        grande_area = str(row.get("Grande Area", "")).lower()
+                        area = str(row.get("Area do Conhecimento", "")).lower()
+                        subarea = str(row.get("Subárea do Conhecimento", "")).lower()
+                        
+                        for pal in palavras_filtradas:
+                            if pal in nome:
+                                score += 5  # Maior peso para termos no nome da revista
+                            if pal in grande_area:
+                                score += 3
+                            if pal in area:
+                                score += 3
+                            if pal in subarea:
+                                score += 3
+                        return score
+                    
+                    df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
+                    # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
+                    df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                    df_candidatos = df_candidatos.drop(columns=["relevancia"])
+                else:
+                    df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
+                
+                # Seleciona até 100 candidatos realmente relevantes para passar ao contexto do modelo de IA
                 if len(df_candidatos) > 100:
                     df_candidatos = df_candidatos.head(100)
                 
