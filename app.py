@@ -1068,6 +1068,13 @@ if not st.session_state.registrado:
                 # Botão do Google com ícone de simulação
                 btn_google = st.button(f"🌐 {t['log_btn_google']}", key="google_login", use_container_width=True)
                 
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            
+            # Link para ir para a página de Cadastro colocado diretamente abaixo
+            if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
+                st.session_state.modo_login = False
+                st.rerun()
+                
             if btn_entrar:
                 if not email_log.strip() or not senha_log.strip():
                     st.error(t['reg_erro_campos'])
@@ -1083,13 +1090,6 @@ if not st.session_state.registrado:
                 st.session_state.registrado = True
                 st.success(t['log_google_sucesso'])
                 time.sleep(1.2)
-                st.rerun()
-                
-            st.markdown("<br><hr style='border-top:1px dashed #CBD5E1;'><br>", unsafe_allow_html=True)
-            
-            # Link para ir para a página de Cadastro
-            if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
-                st.session_state.modo_login = False
                 st.rerun()
     else:
         # PÁGINA DE CADASTRO
