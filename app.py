@@ -667,7 +667,7 @@ st.sidebar.markdown(f"""
         <span>Perplexity</span>
     </a>
     <a class="btn-custom-menu" href="https://www.connectedpapers.com/" target="_blank">
-        <https://pbs.twimg.com/profile_images/1267529009409208325/avWQ0zGg_400x400.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px; object-fit: contain;">
+        <img src="https://pbs.twimg.com/profile_images/1267529009409208325/avWQ0zGg_400x400.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px; object-fit: contain;">
         <span>ConnectedPapers</span>
     </a>
     <a class="btn-custom-menu" href="https://consensus.app/" target="_blank">
