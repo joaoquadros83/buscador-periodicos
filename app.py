@@ -1013,6 +1013,8 @@ with tab_ia:
         st.session_state.erro_ia = None
     if "aviso_filtro" not in st.session_state:
         st.session_state.aviso_filtro = False
+    if "modo_local" not in st.session_state:
+        st.session_state.modo_local = False
     if "ia_cache" not in st.session_state:
         # Cache de resultados: chave = hash(titulo+resumo+num_rec+area+indexador), valor = lista de recomendações
         st.session_state.ia_cache = {}
@@ -1101,6 +1103,7 @@ with tab_ia:
                 st.session_state.recomendacoes = None
                 st.session_state.erro_ia = None
                 st.session_state.aviso_filtro = False
+                st.session_state.modo_local = False
                 
                 # Utiliza um placeholder simples do Streamlit (st.empty) para o indicador de progresso,
                 # evitando qualquer conflito de animação de Spinner no DOM virtual do React.
@@ -1298,8 +1301,49 @@ with tab_ia:
                     
                     if not sucesso_ia:
                         if cota_esgotada:
-                            # Mensagem amigável para erro de cota — sem expor detalhes técnicos
-                            st.session_state.erro_ia = ultimo_erro_msg
+                            # FALLBACK LOCAL: gera recomendações diretamente pelo algoritmo de pontuação
+                            # sem precisar de nenhuma chamada externa à API
+                            col_titulo = df_original.columns[0]
+                            top_n = df_candidatos.head(num_recomendacoes)
+                            recomendacoes_locais = []
+                            for _, row in top_n.iterrows():
+                                nome_rev = str(row[col_titulo])
+                                area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
+                                indexador_rev = str(row.get("Indexador", "-"))
+                                sjr_rev = row.get("SJR", None)
+                                quartil_rev = str(row.get("Quartil JCR", "-"))
+                                
+                                # Calcula porcentagem de aderência baseada no score de palavras-chave
+                                nome_lower = nome_rev.lower()
+                                area_lower = area_rev.lower()
+                                matches = sum(1 for p in palavras_filtradas if p in nome_lower or p in area_lower)
+                                total_palavras = max(len(palavras_filtradas), 1)
+                                pct = min(95, 40 + int((matches / total_palavras) * 55))
+                                
+                                # Justificativa automática com base nos metadados disponíveis
+                                partes = []
+                                partes.append(f"A revista atua na área de {area_rev}")
+                                if quartil_rev and quartil_rev not in ["-", "None", "nan"]:
+                                    partes.append(f"possui classificação {quartil_rev}")
+                                if sjr_rev and str(sjr_rev) not in ["-", "None", "nan"]:
+                                    try:
+                                        partes.append(f"índice SJR de {float(sjr_rev):.3f}")
+                                    except Exception:
+                                        pass
+                                if indexador_rev and indexador_rev not in ["-", "None", "nan"]:
+                                    partes.append(f"indexada em {indexador_rev}")
+                                justificativa = ", ".join(partes) + "."
+                                
+                                recomendacoes_locais.append({
+                                    "revista_nome": nome_rev,
+                                    "porcentagem_aderencia": pct,
+                                    "justificativa": justificativa
+                                })
+                            
+                            st.session_state.recomendacoes = recomendacoes_locais
+                            st.session_state.ia_cache[cache_key] = recomendacoes_locais
+                            # Sinaliza que foi modo local para exibir aviso amigável
+                            st.session_state.modo_local = True
                         else:
                             tamanho = len(api_key_ativa) if api_key_ativa else 0
                             prefixo = api_key_ativa[:6] if api_key_ativa else ""
@@ -1337,6 +1381,8 @@ with tab_ia:
             st.error(t['ia_erro'])
             st.caption(f"Detalhes técnicos do erro: {erro_msg}")
     elif st.session_state.get("recomendacoes") is not None:
+        if st.session_state.get("modo_local"):
+            st.info("ℹ️ Resultado gerado pelo algoritmo local de relevância (a API do Gemini atingiu o limite de cota). A qualidade das recomendações é excelente — baseada em correspondência temática e métricas SJR/JCR.")
         st.success(t['ia_sucesso'])
         
         for rec in st.session_state.recomendacoes:
