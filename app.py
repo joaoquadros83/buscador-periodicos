@@ -1202,7 +1202,7 @@ with tab_ia:
             placeholder_input = "🔑 Chave global ativa (opcional pessoal)"
             help_input = "Uma chave global já está configurada pelo proprietário do app. Se desejar usar sua própria chave pessoal, digite-a aqui."
         else:
-            placeholder_input = "AIzaSy..."
+            placeholder_input = ""
             help_input = t['ia_chave_ajuda']
             
         user_gemini_key = st.text_input(
