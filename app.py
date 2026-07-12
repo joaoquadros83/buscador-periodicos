@@ -821,7 +821,17 @@ st.sidebar.markdown(
 )
 
 # --- 9. PAINEL PRINCIPAL (HERO DESIGN) ---
-imagem_base64 = obter_imagem_local_base64("logo.png")
+# Seleciona o arquivo de imagem correspondente ao idioma ativo
+nome_logo = "logo.png"
+if st.session_state.idioma == "English":
+    nome_logo = "logo_en.png"
+elif st.session_state.idioma == "Español":
+    nome_logo = "logo_es.png"
+
+imagem_base64 = obter_imagem_local_base64(nome_logo)
+# Fallback caso a versão traduzida específica não exista
+if not imagem_base64:
+    imagem_base64 = obter_imagem_local_base64("logo.png")
 if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo_azul.png")
 if not imagem_base64:
