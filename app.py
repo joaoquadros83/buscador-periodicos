@@ -409,7 +409,6 @@ def carregar_dados():
             df = pd.read_csv(nome_arquivo, sep=separador, encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
             
             df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
-            df = df.drop_duplicates(subset=[df.columns[0]])
             df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
             df.columns = [c.strip() for c in df.columns]
             
@@ -422,15 +421,49 @@ def carregar_dados():
             # Identifica colunas não numéricas e substitui vazios por "-"
             for col in df.columns:
                 if col not in ['SJR', 'JIF', 'h-index', 'H index']:
-                    df[col] = df[col].fillna("-").astype(str)
+                    df[col] = df[col].fillna("-").astype(str).str.strip()
                     df[col] = df[col].replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
             
             # Garante a existência da coluna Homepage
             if "Homepage" not in df.columns:
-                df["Homepage"] = ""
+                df["Homepage"] = "-"
             else:
-                df["Homepage"] = df["Homepage"].fillna("")
+                df["Homepage"] = df["Homepage"].fillna("-").astype(str).str.strip()
+                df["Homepage"] = df["Homepage"].replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
+
+            col_titulo = df.columns[0]
+            
+            # Remove espaços em branco extras nas colunas chaves para garantir agrupamento perfeito
+            df[col_titulo] = df[col_titulo].astype(str).str.strip()
+            if "ISSN" in df.columns:
+                df["ISSN"] = df["ISSN"].astype(str).str.strip()
+            
+            # Funções de agregação personalizadas
+            def agg_indexadores(series):
+                vals = sorted(list(set([str(val).strip() for val in series if str(val).strip() not in ["-", "", "None", "nan"]])))
+                return ", ".join(vals) if vals else "-"
                 
+            def agg_primeiro_valido(series):
+                for val in series:
+                    val_str = str(val).strip()
+                    if val_str not in ["-", "", "None", "nan"]:
+                        return val_str
+                return "-"
+                
+            agg_dict = {}
+            for col in df.columns:
+                if col == col_titulo:
+                    continue
+                if col == "Indexador":
+                    agg_dict[col] = agg_indexadores
+                elif col in ['SJR', 'JIF', 'h-index', 'H index']:
+                    agg_dict[col] = "max"
+                else:
+                    agg_dict[col] = agg_primeiro_valido
+                    
+            # Agrupa pelo título da revista unificando os indexadores na mesma linha
+            df = df.groupby(col_titulo, as_index=False).agg(agg_dict)
+            
             return df, nome_arquivo
         except Exception as e:
             st.error(f"⚠️ Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
