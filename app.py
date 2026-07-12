@@ -1120,7 +1120,20 @@ with tab_ia:
                     tamanho = len(api_key_ativa) if api_key_ativa else 0
                     prefixo = api_key_ativa[:6] if api_key_ativa else ""
                     sufixo = api_key_ativa[-6:] if api_key_ativa else ""
-                    st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}')"
+                    
+                    detalhe_modelos = ""
+                    try:
+                        resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
+                        if resp_models.status_code == 200:
+                            models_data = resp_models.json()
+                            names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
+                            detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
+                        else:
+                            detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
+                    except Exception as e_mod:
+                        detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                        
+                    st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
