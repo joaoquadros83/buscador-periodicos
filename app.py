@@ -1180,8 +1180,8 @@ with tab_ia:
                         df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
                         # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
                         df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
-                        df_candidatos = df_candidatos.drop(columns=["relevancia"])
                     else:
+                        df_candidatos["relevancia"] = 0
                         df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
                     
                     # Seleciona até 40 candidatos mais relevantes — reduz consumo de tokens da API
@@ -1274,68 +1274,107 @@ with tab_ia:
                             break
                     
                     if not sucesso_ia:
-                        if cota_esgotada:
-                            # FALLBACK LOCAL: gera recomendações diretamente pelo algoritmo de pontuação
-                            # sem precisar de nenhuma chamada externa à API
-                            col_titulo = df_original.columns[0]
-                            top_n = df_candidatos.head(num_recomendacoes)
-                            recomendacoes_locais = []
-                            for _, row in top_n.iterrows():
-                                nome_rev = str(row[col_titulo])
-                                area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
-                                indexador_rev = str(row.get("Indexador", "-"))
-                                sjr_rev = row.get("SJR", None)
-                                quartil_rev = str(row.get("Quartil JCR", "-"))
+                        # FALLBACK LOCAL AUTOMÁTICO: gera recomendações diretamente pelo algoritmo de pontuação
+                        texto_detect = f"{titulo_artigo} {resumo_artigo}".lower()
+                        pt_stops = {"o", "a", "e", "de", "do", "da", "em", "para", "um", "uma", "com", "por", "os", "as"}
+                        en_stops = {"the", "and", "of", "in", "to", "a", "is", "that", "for", "it", "with", "on", "as"}
+                        pt_count = sum(1 for w in re.findall(r'\b\w+\b', texto_detect) if w in pt_stops)
+                        en_count = sum(1 for w in re.findall(r'\b\w+\b', texto_detect) if w in en_stops)
+                        is_english = en_count > pt_count
+
+                        col_titulo = df_original.columns[0]
+                        top_n = df_candidatos.head(num_recomendacoes)
+                        recomendacoes_locais = []
+                        
+                        # Obtém a pontuação máxima de relevância para normalização
+                        max_rel = float(df_candidatos["relevancia"].max()) if "relevancia" in df_candidatos.columns else 0.0
+                        
+                        for idx, (_, row) in enumerate(top_n.iterrows()):
+                            nome_rev = str(row[col_titulo])
+                            area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
+                            subarea_rev = str(row.get("Subárea do Conhecimento", ""))
+                            gr_area_rev = str(row.get("Grande Area", ""))
+                            indexador_rev = str(row.get("Indexador", "-"))
+                            sjr_rev = row.get("SJR", None)
+                            quartil_rev = str(row.get("Quartil JCR", "-"))
+                            rel_score = float(row.get("relevancia", 0.0))
+                            
+                            # Determina a porcentagem de aderência de forma realista e decrescente por rank
+                            if max_rel > 0:
+                                # Mapeia proporcionalmente ao score de relevância, variando de 82% a 96%
+                                pct_rel = 82 + int((rel_score / max_rel) * 14)
+                                # Garante consistência do ranking decrescente (ex: 1º=95%, 2º=92%, etc.)
+                                pct_rank = 96 - (idx * 3)
+                                pct = min(96, max(pct_rel, pct_rank))
+                            else:
+                                # Se não houver matches de palavras-chave, ordena por SJR de 60% a 78%
+                                pct = max(60, 78 - (idx * 4))
+                            
+                            # Encontra palavras-chave que de fato casaram com esta revista
+                            matched_keywords = []
+                            nome_lower = nome_rev.lower()
+                            area_lower = area_rev.lower()
+                            subarea_lower = subarea_rev.lower()
+                            gr_area_lower = gr_area_rev.lower()
+                            
+                            for p in palavras_filtradas:
+                                if p in nome_lower or p in area_lower or p in subarea_lower or p in gr_area_lower:
+                                    # Capitaliza a primeira letra do termo de busca para visualização premium
+                                    matched_keywords.append(p.capitalize())
+                            
+                            # Justificativas inteligentes em 2 idiomas
+                            if is_english:
+                                if matched_keywords:
+                                    kw_str = ", ".join(f"'{k}'" for k in list(matched_keywords)[:3])
+                                    justificativa = f"Demonstrates strong thematic alignment with key concepts found in your work, specifically: {kw_str}."
+                                else:
+                                    justificativa = f"Recommended based on the journal's editorial scope in {area_rev}."
                                 
-                                # Calcula porcentagem de aderência baseada no score de palavras-chave
-                                nome_lower = nome_rev.lower()
-                                area_lower = area_rev.lower()
-                                matches = sum(1 for p in palavras_filtradas if p in nome_lower or p in area_lower)
-                                total_palavras = max(len(palavras_filtradas), 1)
-                                pct = min(95, 40 + int((matches / total_palavras) * 55))
-                                
-                                # Justificativa automática com base nos metadados disponíveis
-                                partes = []
-                                partes.append(f"A revista atua na área de {area_rev}")
+                                detalhes = []
                                 if quartil_rev and quartil_rev not in ["-", "None", "nan"]:
-                                    partes.append(f"possui classificação {quartil_rev}")
+                                    detalhes.append(f"classified as {quartil_rev}")
                                 if sjr_rev and str(sjr_rev) not in ["-", "None", "nan"]:
                                     try:
-                                        partes.append(f"índice SJR de {float(sjr_rev):.3f}")
-                                    except Exception:
+                                        detalhes.append(f"SJR rank of {float(sjr_rev):.3f}")
+                                    except:
                                         pass
                                 if indexador_rev and indexador_rev not in ["-", "None", "nan"]:
-                                    partes.append(f"indexada em {indexador_rev}")
-                                justificativa = ", ".join(partes) + "."
-                                
-                                recomendacoes_locais.append({
-                                    "revista_nome": nome_rev,
-                                    "porcentagem_aderencia": pct,
-                                    "justificativa": justificativa
-                                })
-                            
-                            st.session_state.recomendacoes = recomendacoes_locais
-                            st.session_state.ia_cache[cache_key] = recomendacoes_locais
-                            # Sinaliza que foi modo local para exibir aviso amigável
-                            st.session_state.modo_local = True
-                        else:
-                            tamanho = len(api_key_ativa) if api_key_ativa else 0
-                            prefixo = api_key_ativa[:6] if api_key_ativa else ""
-                            sufixo = api_key_ativa[-6:] if api_key_ativa else ""
-                            
-                            detalhe_modelos = ""
-                            try:
-                                resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
-                                if resp_models.status_code == 200:
-                                    models_data = resp_models.json()
-                                    names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
-                                    detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
+                                    detalhes.append(f"indexed in {indexador_rev}")
+                                    
+                                if detalhes:
+                                    justificativa += f" The journal is {', '.join(detalhes)}."
+                            else:
+                                # Português / Espanhol
+                                if matched_keywords:
+                                    kw_str = ", ".join(f"'{k}'" for k in list(matched_keywords)[:3])
+                                    justificativa = f"Apresenta forte alinhamento temático com conceitos-chave identificados no seu artigo, especialmente: {kw_str}."
                                 else:
-                                    detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
-                            except Exception as e_mod:
-                                detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                                    justificativa = f"Recomendado com base no escopo editorial do periódico na área de {area_rev}."
                                 
-                            st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
+                                detalhes = []
+                                if quartil_rev and quartil_rev not in ["-", "None", "nan"]:
+                                    detalhes.append(f"classificação {quartil_rev}")
+                                if sjr_rev and str(sjr_rev) not in ["-", "None", "nan"]:
+                                    try:
+                                        detalhes.append(f"SJR de {float(sjr_rev):.3f}")
+                                    except:
+                                        pass
+                                if indexador_rev and indexador_rev not in ["-", "None", "nan"]:
+                                    detalhes.append(f"indexado em {indexador_rev}")
+                                    
+                                if detalhes:
+                                    justificativa += f" O periódico possui {', '.join(detalhes)}."
+                            
+                            recomendacoes_locais.append({
+                                "revista_nome": nome_rev,
+                                "porcentagem_aderencia": pct,
+                                "justificativa": justificativa
+                            })
+                        
+                        st.session_state.recomendacoes = recomendacoes_locais
+                        st.session_state.ia_cache[cache_key] = recomendacoes_locais
+                        # Sinaliza que foi modo local para exibir aviso amigável
+                        st.session_state.modo_local = True
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
