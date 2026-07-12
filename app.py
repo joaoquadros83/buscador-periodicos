@@ -144,6 +144,29 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         """,
         "ia_refinar_alvos": "🎯 Refinar Alvos",
         "ia_todos": "Todos",
+        "reg_boas_vindas": "### Bem-vindo ao Portal do Pesquisador!",
+        "reg_apresentacao": "Esta é uma plataforma científica de alta tecnologia projetada para simplificar a busca e a seleção de periódicos de impacto para sua publicação. Una forças com ciência de dados e IA.",
+        "reg_beneficios_tit": "✨ Por que usar o Portal?",
+        "reg_beneficio_1_tit": "🔍 Busca Tradicional",
+        "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e métricas consolidadas.",
+        "reg_beneficio_2_tit": "📊 Métricas Unificadas",
+        "reg_beneficio_2_desc": "Quartis JCR/SJR, H-Index e atalhos de impacto no Scholar ao seu alcance.",
+        "reg_beneficio_3_tit": "🧠 Recomendador IA",
+        "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de periódicos.",
+        "reg_formulario_tit": "📝 Registro de Acesso Acadêmico",
+        "reg_formulario_desc": "O acesso ao portal é gratuito e aberto a toda a comunidade científica (de estudantes de graduação a pós-doutores). Preencha o cadastro abaixo para liberar o acesso.",
+        "reg_nome": "Nome Completo:",
+        "reg_email": "E-mail Acadêmico ou Pessoal:",
+        "reg_escolaridade": "Nível de Escolaridade:",
+        "reg_instituicao": "Instituição de Vínculo:",
+        "reg_inst_outra": "Especifique sua Instituição:",
+        "reg_area_interesse": "Grande Área de Interesse (Predominante):",
+        "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
+        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao Portal do Pesquisador.",
+        "reg_erro_campos": "⚠️ Por favor, preencha todos os campos obrigatórios.",
+        "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
+        "reg_lateral_status_liberado": "🔓 Acesso Liberado",
+        "reg_btn_sair": "Desconectar / Novo Registro",
         "areas_trad": {
             "Engenharias": "Engenharias",
             "Linguística, Letras e Artes": "Linguística, Letras e Artes",
@@ -230,6 +253,29 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         """,
         "ia_refinar_alvos": "🎯 Refine Targets",
         "ia_todos": "All",
+        "reg_boas_vindas": "### Welcome to the Researcher's Portal!",
+        "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
+        "reg_beneficios_tit": "✨ Why use the Portal?",
+        "reg_beneficio_1_tit": "🔍 Traditional Search",
+        "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
+        "reg_beneficio_2_tit": "📊 Unified Metrics",
+        "reg_beneficio_2_desc": "JCR/SJR quartiles, H-Index, and impact shortcuts on Google Scholar at your fingertips.",
+        "reg_beneficio_3_tit": "🧠 AI Recommender",
+        "reg_beneficio_3_desc": "Generative recommendations via Gemini 1.5 Flash crossed with our journal database.",
+        "reg_formulario_tit": "📝 Academic Access Registration",
+        "reg_formulario_desc": "Access to the portal is free and open to the entire scientific community (from undergraduate students to postdocs). Fill out the form below to unlock access.",
+        "reg_nome": "Full Name:",
+        "reg_email": "Academic or Personal Email:",
+        "reg_escolaridade": "Education Level / Academic Degree:",
+        "reg_instituicao": "Affiliated Institution:",
+        "reg_inst_outra": "Specify your Institution:",
+        "reg_area_interesse": "Major Research Area of Interest:",
+        "reg_btn_enviar": "Register and Access the Finder ➔",
+        "reg_sucesso": "🎉 Registration completed successfully! Welcome to the Researcher's Portal.",
+        "reg_erro_campos": "⚠️ Please fill in all required fields.",
+        "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
+        "reg_lateral_status_liberado": "🔓 Access Granted",
+        "reg_btn_sair": "Logout / New Registration",
         "areas_trad": {
             "Engenharias": "Engineering",
             "Linguística, Letras e Artes": "Linguistics, Literature & Arts",
@@ -316,6 +362,29 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         """,
         "ia_refinar_alvos": "🎯 Refinar Objetivos",
         "ia_todos": "Todos",
+        "reg_boas_vindas": "### ¡Bienvenido al Portal del Investigador!",
+        "reg_apresentacao": "Esta es una plataforma científica de alta tecnología diseñada para simplificar la búsqueda y selección de revistas de impacto para su publicación. Una fuerzas con ciencia de datos e IA.",
+        "reg_beneficios_tit": "✨ ¿Por qué usar el Portal?",
+        "reg_beneficio_1_tit": "🔍 Búsqueda Tradicional",
+        "reg_beneficio_1_desc": "Filtros por subáreas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y métricas consolidadas.",
+        "reg_beneficio_2_tit": "📊 Métricas Unificadas",
+        "reg_beneficio_2_desc": "Cuartiles JCR/SJR, H-Index y accesos directos de impacto en Scholar a su alcance.",
+        "reg_beneficio_3_tit": "🧠 Recomendador IA",
+        "reg_beneficio_3_desc": "Recomendaciones generativas a través de Gemini 1.5 Flash cruzadas con nuestra base de revistas.",
+        "reg_formulario_tit": "📝 Registro de Acceso Académico",
+        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad científica (desde estudiantes hasta posdoctores). Complete el formulario a continuación para liberar el acceso.",
+        "reg_nome": "Nombre Completo:",
+        "reg_email": "Correo Electrónico Académico o Personal:",
+        "reg_escolaridade": "Nivel de Escolaridad / Grado Académico:",
+        "reg_instituicao": "Institución de Vínculo:",
+        "reg_inst_outra": "Especifique su Institución:",
+        "reg_area_interesse": "Gran Área de Interés Predominante:",
+        "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
+        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido al Portal del Investigador.",
+        "reg_erro_campos": "⚠️ Por favor, complete todos los campos obligatorios.",
+        "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
+        "reg_lateral_status_liberado": "🔓 Acceso Concedido",
+        "reg_btn_sair": "Cerrar Sesión / Nuevo Registro",
         "areas_trad": {
             "Engenharias": "Ingenierías",
             "Linguística, Letras e Artes": "Lingüística, Letras y Artes",
@@ -579,6 +648,27 @@ def carregar_dados():
 df_original, arquivo_usado = carregar_dados()
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
+# Inicializa o estado de registro se não existir
+if "registrado" not in st.session_state:
+    st.session_state.registrado = False
+
+# Exibe o status de acesso na barra lateral
+if st.session_state.registrado:
+    st.sidebar.markdown(f"""
+        <div style="background-color: #10B981; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
+            {t['reg_lateral_status_liberado']}
+        </div>
+    """, unsafe_allow_html=True)
+    if st.sidebar.button(t['reg_btn_sair'], key="btn_logout_sidebar", use_container_width=True):
+        st.session_state.registrado = False
+        st.rerun()
+else:
+    st.sidebar.markdown(f"""
+        <div style="background-color: #EF4444; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
+            {t['reg_lateral_status_bloqueado']}
+        </div>
+    """, unsafe_allow_html=True)
+
 st.sidebar.markdown(f"""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
         <h2 style='margin: 0; font-size: 1.60rem; font-weight: 700; color: #0F172A;'>{t['nav_tit']}</h2>
@@ -855,6 +945,175 @@ st.markdown(f"""
         </div>
     </div>
 """, unsafe_allow_html=True)
+
+# --- 10. CONTROLE DE ACESSO COM REGISTRO ---
+if not st.session_state.registrado:
+    # 1. Apresentação do Portal em formato Landing Page tradicional
+    st.markdown(f"""
+        <div style="margin-top: 15px; margin-bottom: 30px;">
+            <h3 style="color: #004B87; font-weight: 700; margin-bottom: 12px;">{t['reg_boas_vindas']}</h3>
+            <p style="font-size: 1.15rem; color: #475569; line-height: 1.6; margin-top: 10px;">
+                {t['reg_apresentacao']}
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # 2. Benefícios em colunas
+    st.markdown(f"#### {t['reg_beneficios_tit']}")
+    col_b1, col_b2, col_b3 = st.columns(3)
+    with col_b1:
+        st.markdown(f"""
+            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
+                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_1_tit']}</h5>
+                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_1_desc']}</p>
+            </div>
+        """, unsafe_allow_html=True)
+    with col_b2:
+        st.markdown(f"""
+            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
+                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_2_tit']}</h5>
+                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_2_desc']}</p>
+            </div>
+        """, unsafe_allow_html=True)
+    with col_b3:
+        st.markdown(f"""
+            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
+                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_3_tit']}</h5>
+                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_3_desc']}</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # 3. Formulário de Cadastro em um container destacado
+    st.markdown(f"""
+        <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+            <h3 style="color: #0F172A; margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 700;">{t['reg_formulario_tit']}</h3>
+            <p style="color: #475569; font-size: 1.0rem; line-height: 1.5; margin: 0;">{t['reg_formulario_desc']}</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col_c1, col_c2 = st.columns(2)
+    with col_c1:
+        nome_cad = st.text_input(t['reg_nome'], placeholder="Ex: Dr. João da Silva")
+        email_cad = st.text_input(t['reg_email'], placeholder="Ex: joao.silva@ufop.edu.br")
+        
+        # Seleção de escolaridade baseada no idioma
+        opcoes_esc = []
+        if st.session_state.idioma == "Português":
+            opcoes_esc = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
+        elif st.session_state.idioma == "English":
+            opcoes_esc = ["Undergraduate Student", "Specialist / Postgraduate", "Master's Student", "Master", "PhD Candidate", "PhD / Doctor", "Postdoctoral Researcher", "Other"]
+        else:
+            opcoes_esc = ["Estudiante de Grado", "Especialista / Posgrado", "Estudiante de Maestría", "Magíster", "Doctorando", "Doctor", "Posdoctorado", "Otro"]
+            
+        escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
+        
+    with col_c2:
+        # Seleção de instituição de vínculo baseada no idioma
+        opcoes_inst = []
+        if st.session_state.idioma == "Português":
+            opcoes_inst = [
+                "Universidade Federal de Ouro Preto (UFOP)",
+                "Universidade de São Paulo (USP)",
+                "Universidade Estadual de Campinas (UNICAMP)",
+                "Universidade Federal de Minas Gerais (UFMG)",
+                "Universidade Federal do Rio de Janeiro (UFRJ)",
+                "Universidade Federal do Rio Grande do Sul (UFRGS)",
+                "Universidade Estadual Paulista (UNESP)",
+                "Universidade Federal de Santa Catarina (UFSC)",
+                "Universidade Federal de São Paulo (UNIFESP)",
+                "Outra Instituição (Nacional ou Internacional)"
+            ]
+        elif st.session_state.idioma == "English":
+            opcoes_inst = [
+                "Federal University of Ouro Preto (UFOP)",
+                "University of São Paulo (USP)",
+                "State University of Campinas (UNICAMP)",
+                "Federal University of Minas Gerais (UFMG)",
+                "Federal University of Rio de Janeiro (UFRJ)",
+                "Federal University of Rio Grande do Sul (UFRGS)",
+                "São Paulo State University (UNESP)",
+                "Federal University of Santa Catarina (UFSC)",
+                "Federal University of São Paulo (UNIFESP)",
+                "Other Institution (National or International)"
+            ]
+        else:
+            opcoes_inst = [
+                "Universidad Federal de Ouro Preto (UFOP)",
+                "Universidad de São Paulo (USP)",
+                "Universidad Estatal de Campinas (UNICAMP)",
+                "Universidad Federal de Minas Gerais (UFMG)",
+                "Universidad Federal de Río de Janeiro (UFRJ)",
+                "Universidad Federal de Río Grande del Sur (UFRGS)",
+                "Universidad Estatal Paulista (UNESP)",
+                "Universidad Federal de Santa Catarina (UFSC)",
+                "Universidad Federal de São Paulo (UNIFESP)",
+                "Otra Institución (Nacional o Internacional)"
+            ]
+            
+        instituicao_cad_sel = st.selectbox(t['reg_instituicao'], opcoes_inst)
+        
+        # Se for "Outra", pede para especificar
+        escrever_outra = False
+        if instituicao_cad_sel in ["Outra Instituição (Nacional ou Internacional)", "Other Institution (National or International)", "Otra Institución (Nacional o Internacional)"]:
+            instituicao_cad_outra = st.text_input(t['reg_inst_outra'], placeholder="Ex: Harvard University")
+            escrever_outra = True
+        else:
+            instituicao_cad_outra = ""
+            
+        # Área de Interesse
+        opcoes_areas = []
+        if st.session_state.idioma == "Português":
+            opcoes_areas = ["Ciências Humanas", "Ciências da Saúde", "Engenharias", "Linguística, Letras e Artes", "Ciências Sociais Aplicadas", "Ciências Biológicas", "Ciências Exatas e da Terra", "Ciências Agrárias", "Outras / Todas"]
+        elif st.session_state.idioma == "English":
+            opcoes_areas = ["Human Sciences", "Health Sciences", "Engineering", "Linguistics, Literature & Arts", "Applied Social Sciences", "Biological Sciences", "Exact & Earth Sciences", "Agricultural Sciences", "Others / All"]
+        else:
+            opcoes_areas = ["Ciencias Humanas", "Ciencias de la Salud", "Ingenierías", "Lingüística, Letras y Artes", "Ciencias Sociales Aplicadas", "Ciencias Biológicas", "Ciencias Exactas y de la Tierra", "Ciencias Agrarias", "Otras / Todas"]
+            
+        area_interesse_cad = st.selectbox(t['reg_area_interesse'], opcoes_areas)
+        
+    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+    btn_registrar = st.button(t['reg_btn_enviar'], type="primary", use_container_width=True)
+    
+    if btn_registrar:
+        if not nome_cad.strip() or not email_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
+            st.error(t['reg_erro_campos'])
+        else:
+            # Resolve a instituição final
+            inst_final = instituicao_cad_outra.strip() if escrever_outra else instituicao_cad_sel
+            
+            # Salva o usuário no arquivo CSV
+            def registrar_usuario(nome, email, escolaridade, instituicao, area):
+                caminho = "registros.csv"
+                novo_registro = pd.DataFrame([{
+                    "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Nome": nome,
+                    "Email": email,
+                    "Escolaridade": escolaridade,
+                    "Instituição": instituicao,
+                    "Área de Interesse": area
+                }])
+                if os.path.exists(caminho):
+                    try:
+                        df_existente = pd.read_csv(caminho, sep=";")
+                        df_novo = pd.concat([df_existente, novo_registro], ignore_index=True)
+                        df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    except Exception:
+                        novo_registro.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                else:
+                    novo_registro.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+            
+            registrar_usuario(nome_cad.strip(), email_cad.strip(), escolaridade_cad, inst_final, area_interesse_cad)
+            
+            # Seta o estado como registrado e recarrega a página
+            st.session_state.registrado = True
+            st.success(t['reg_sucesso'])
+            time.sleep(1.5)
+            st.rerun()
+            
+    # Para a execução do restante da página (não executa o buscador se não registrado)
+    st.stop()
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
