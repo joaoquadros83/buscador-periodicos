@@ -670,6 +670,11 @@ st.sidebar.markdown(f"""
         <img src="https://logosandtypes.com/wp-content/uploads/2025/04/Consensus-scaled.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px; object-fit: contain;">
         <span>Consensus</span>
     </a>
+    <a class="btn-custom-menu" href="https://www.connectedpapers.com/" target="_blank">
+        <https://pbs.twimg.com/profile_images/1267529009409208325/avWQ0zGg_400x400.jpg" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;">
+        <span>Connected Papers</span>
+   </a>
+
     <a class="btn-custom-menu" href="https://scispace.com/" target="_blank">
         <img src="https://typeset.io/favicon.ico" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px; object-fit: contain;">
         <span>SciSpace</span>
