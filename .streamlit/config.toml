@@ -1,8 +1,8 @@
 [theme]
-primaryColor = "#0F172A"          # Azul Slate Escuro (Super Premium)
-backgroundColor = "#F8FAFC"       # Fundo Off-White Ultra Clean
-secondaryBackgroundColor = "#FFFFFF" # Elementos em Branco Puro
-textColor = "#334155"             # Texto Cinza Grafite Confortável
+primaryColor = "#FF4B4B"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#FAFAFA"
 font = "sans serif"
 [server]
 enableStaticServing = true
