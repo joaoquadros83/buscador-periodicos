@@ -1079,11 +1079,21 @@ with tab_busca:
         # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
         
-        # Limpa strings de link para evitar problemas com LinkColumn
+        # Formata links com fragmentos hash para permitir exibição seletiva (e traço "-" nas células vazias)
         if "Homepage" in df_exibir.columns:
-            df_exibir["Homepage"] = df_exibir["Homepage"].replace("-", "")
+            def format_homepage(val):
+                val_str = str(val).strip()
+                if val_str not in ["-", "", "None", "nan"]:
+                    return val_str + "#🔗 Ver site"
+                return "-"
+            df_exibir["Homepage"] = df_exibir["Homepage"].apply(format_homepage)
         if "Índice h5" in df_exibir.columns:
-            df_exibir["Índice h5"] = df_exibir["Índice h5"].replace("-", "")
+            def format_h5(val):
+                val_str = str(val).strip()
+                if val_str not in ["-", "", "None", "nan"]:
+                    return val_str + "#🔗 Abrir"
+                return "-"
+            df_exibir["Índice h5"] = df_exibir["Índice h5"].apply(format_h5)
         
         # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
@@ -1096,8 +1106,7 @@ with tab_busca:
                 "Homepage": st.column_config.LinkColumn(
                     "Homepage",
                     help="Clique para visitar o site oficial da revista",
-                    display_text="🔗 Ver site",
-                    placeholder="-"
+                    display_text=r"#(.+)$"
                 ),
                 "JIF": st.column_config.Column(
                     alignment="center"
@@ -1117,7 +1126,7 @@ with tab_busca:
                 "Índice h5": st.column_config.LinkColumn(
                     t['col_h5'],
                     help="Clique para abrir o índice h5 no Google Scholar",
-                    display_text="🔗 Abrir",
+                    display_text=r"#(.+)$",
                     alignment="center"
                 )
             },
