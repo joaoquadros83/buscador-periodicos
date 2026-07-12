@@ -143,7 +143,18 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
 </div>
         """,
         "ia_refinar_alvos": "🎯 Refinar Alvos",
-        "ia_todos": "Todos"
+        "ia_todos": "Todos",
+        "areas_trad": {
+            "Engenharias": "Engenharias",
+            "Linguística, Letras e Artes": "Linguística, Letras e Artes",
+            "Ciências Biológicas": "Ciências Biológicas",
+            "Ciências Exatas e da Terra": "Ciências Exatas e da Terra",
+            "Outras / Não Classificado": "Outras / Não Classificado",
+            "Ciências da Saúde": "Ciências da Saúde",
+            "Ciências Sociais Aplicadas": "Ciências Sociais Aplicadas",
+            "Ciências Agrárias": "Ciências Agrárias",
+            "Ciências Humanas": "Ciências Humanas"
+        }
     },
     "English": {
         "titulo": "Researcher's Portal",
@@ -218,7 +229,18 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
 </div>
         """,
         "ia_refinar_alvos": "🎯 Refine Targets",
-        "ia_todos": "All"
+        "ia_todos": "All",
+        "areas_trad": {
+            "Engenharias": "Engineering",
+            "Linguística, Letras e Artes": "Linguistics, Literature & Arts",
+            "Ciências Biológicas": "Biological Sciences",
+            "Ciências Exatas e da Terra": "Exact & Earth Sciences",
+            "Outras / Não Classificado": "Others / Unclassified",
+            "Ciências da Saúde": "Health Sciences",
+            "Ciências Sociais Aplicadas": "Applied Social Sciences",
+            "Ciências Agrárias": "Agricultural Sciences",
+            "Ciências Humanas": "Human Sciences"
+        }
     },
     "Español": {
         "titulo": "Portal del Investigador",
@@ -293,7 +315,18 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
 </div>
         """,
         "ia_refinar_alvos": "🎯 Refinar Objetivos",
-        "ia_todos": "Todos"
+        "ia_todos": "Todos",
+        "areas_trad": {
+            "Engenharias": "Ingenierías",
+            "Linguística, Letras e Artes": "Lingüística, Letras y Artes",
+            "Ciências Biológicas": "Ciencias Biológicas",
+            "Ciências Exatas e da Terra": "Ciencias Exactas y de la Tierra",
+            "Outras / Não Classificado": "Otras / No Clasificado",
+            "Ciências da Saúde": "Ciencias de la Salud",
+            "Ciências Sociais Aplicadas": "Ciencias Sociales Aplicadas",
+            "Ciências Agrárias": "Ciencias Agrarias",
+            "Ciências Humanas": "Ciencias Humanas"
+        }
     }
 }
 # Correção do seletor em inglês caso venha codificado
@@ -1064,6 +1097,26 @@ with tab_busca:
 
 # ==================== ABA 2: RECOMENDADOR POR IA (GEMINI 1.5 FLASH) ====================
 with tab_ia:
+    # Função auxiliar local para traduzir as Grandes Áreas
+    def traduzir_grande_area(area_original, t_dict):
+        if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
+            return "-"
+        import unicodedata
+        def clean_str(s):
+            s = str(s).lower().strip()
+            # Remove acentos
+            s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+            # Remove caracteres especiais
+            s = ''.join(c for c in s if c.isalnum() or c.isspace())
+            return ' '.join(s.split())
+            
+        area_clean = clean_str(area_original)
+        mapeamento = t_dict.get("areas_trad", {})
+        for chave_original, valor_traduzido in mapeamento.items():
+            if clean_str(chave_original) == area_clean:
+                return valor_traduzido
+        return str(area_original).strip()
+
     # Inicialização segura dos estados na Session State
     if "recomendacoes" not in st.session_state:
         st.session_state.recomendacoes = None
@@ -1125,7 +1178,17 @@ with tab_ia:
                 st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
         
         st.markdown(f"#### {t['ia_refinar_alvos']}")
-        area_ia = st.selectbox(f"{t['filtro_area']} (IA)", [t['todas']] + list(df_original["Grande Area"].dropna().unique()))
+        
+        # Mapeia as grandes áreas originais para suas versões traduzidas
+        grandes_areas_originais = sorted(list(df_original["Grande Area"].dropna().unique()))
+        area_ia_opcoes = {t['todas']: "Todas"}
+        for area in grandes_areas_originais:
+            area_traduzida = traduzir_grande_area(area, t)
+            area_ia_opcoes[area_traduzida] = area
+            
+        area_ia_exibicao = st.selectbox(f"{t['filtro_area']} (IA)", list(area_ia_opcoes.keys()))
+        area_ia = area_ia_opcoes[area_ia_exibicao]
+        
         indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + list(df_original["Indexador"].dropna().unique()))
         
         # Slider dinâmico integrado para selecionar entre 3 e 10 recomendações
