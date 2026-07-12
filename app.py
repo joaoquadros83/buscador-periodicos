@@ -993,7 +993,6 @@ with tab_busca:
         if "Índice h5" in df_exibir.columns:
             df_exibir["Índice h5"] = df_exibir["Índice h5"].replace("-", "")
         
-        
         # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
         
@@ -1023,9 +1022,6 @@ with tab_busca:
 
 # ==================== ABA 2: RECOMENDADOR POR IA (GEMINI 1.5 FLASH) ====================
 with tab_ia:
-    st.markdown(f"### {t['ia_titulo']}")
-    st.markdown(f"*{t['ia_subtitulo']}*")
-    
     # Inicialização segura dos estados na Session State
     if "recomendacoes" not in st.session_state:
         st.session_state.recomendacoes = None
@@ -1042,8 +1038,15 @@ with tab_ia:
     col_input, col_meta = st.columns([2, 1])
     
     with col_input:
+        st.markdown(f"### {t['ia_titulo']}")
+        st.markdown(f"*{t['ia_subtitulo']}*")
+        st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
+        
         titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: Análise Epidemiológica de Saúde Coletiva...", key="ia_tit_input")
         resumo_artigo = st.text_area(t['ia_campo_resumo'], placeholder="Paste or type abstract here...", height=250, key="ia_res_input")
+        
+        # Botão posicionado logo abaixo do resumo
+        disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
         
     with col_meta:
         # Credencial e Chave de API inseridas diretamente na aba de controle da IA
@@ -1074,19 +1077,19 @@ with tab_ia:
         # Define a chave ativa final (prioriza input do usuário)
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
         
-        # Guia amigável para obter chave gratuita (exibido somente quando nenhuma chave está ativa)
+        # Guia amigável para obter chave gratuita (com menor fonte e expander recolhido)
         if not api_key_ativa:
-            with st.expander("ℹ️ Como obter uma chave gratuita?", expanded=True):
+            with st.expander("ℹ️ Como obter uma chave gratuita?", expanded=False):
                 st.markdown("""
-**Esta ferramenta é gratuita.** Para usá-la, você precisa de uma chave da API do Google Gemini, também **gratuita**:
-
-1. Acesse **[aistudio.google.com](https://aistudio.google.com)**
-2. Faça login com sua conta Google
-3. Clique em **"Get API Key"** → **"Create API Key"**
-4. Copie a chave gerada e cole no campo acima
-
-> 💡 A chave gratuita permite centenas de consultas por dia, mais do que suficiente para pesquisa acadêmica.
-                """)
+<div style="font-size: 11px; color: gray; line-height: 1.4;">
+Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:<br><br>
+1. Acesse <b><a href="https://aistudio.google.com" target="_blank" style="color: #0066cc;">aistudio.google.com</a></b><br>
+2. Faça login com sua conta Google<br>
+3. Clique em <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copie a chave gerada e cole no campo acima<br><br>
+<i>A chave gratuita permite centenas de consultas por dia.</i>
+</div>
+                """, unsafe_allow_html=True)
         
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
@@ -1101,7 +1104,7 @@ with tab_ia:
             step=1
         )
         
-    if st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar"):
+    if disparar_busca:
         if not api_key_ativa:
             st.error("⚠️ Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
