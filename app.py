@@ -1079,8 +1079,7 @@ with tab_ia:
                 try:
                     url_api = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key_ativa}"
                     payload = {
-                        "contents": [{"parts": [{"text": prompt_ia}]}],
-                        "generationConfig": {"responseMimeType": "application/json"}
+                        "contents": [{"parts": [{"text": prompt_ia}]}]
                     }
                     headers = {"Content-Type": "application/json"}
                     
