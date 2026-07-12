@@ -1061,33 +1061,35 @@ with tab_ia:
                 stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
                 palavras_filtradas = palavras - stopwords
                 
-                # Dicionário de tradução para ampliar a busca bilíngue (Português -> Inglês) para termos acadêmicos comuns
-                dicionario_traducao = {
-                    "educação": "education", "ensino": "teaching", "aprendizado": "learning",
-                    "computação": "computing", "computador": "computer", "tecnologia": "technology",
-                    "saúde": "health", "medicina": "medicine", "médico": "medical",
-                    "ciência": "science", "científico": "scientific", "pesquisa": "research",
-                    "desenvolvimento": "development", "gestão": "management", "administração": "administration",
-                    "economia": "economy", "econômico": "economic", "social": "social",
-                    "cultura": "culture", "história": "history", "geografia": "geography",
-                    "matemática": "mathematics", "física": "physics", "química": "chemistry",
-                    "biologia": "biology", "meio ambiente": "environment", "ambiental": "environmental",
-                    "sustentabilidade": "sustainability", "engenharia": "engineering", "indústria": "industry",
-                    "produção": "production", "sistemas": "systems", "informação": "information",
-                    "comunicação": "communication", "linguagem": "language", "literatura": "literature",
-                    "arte": "art", "música": "music", "psicologia": "psychology",
-                    "filosofia": "philosophy", "política": "politics", "direito": "law",
-                    "energia": "energy", "materiais": "materials", "agricultura": "agriculture",
-                    "florestal": "forestry", "veterinária": "veterinary", "enfermagem": "nursing",
-                    "odontologia": "dentistry", "farmácia": "pharmacy", "nutrição": "nutrition"
-                }
+                # Grupos de sinônimos acadêmicos em 3 idiomas (Português, Inglês e Espanhol) para busca bidirecional completa
+                sinonimos_academicos = [
+                    {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                    {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
+                    {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
+                    {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
+                    {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
+                    {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
+                    {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
+                    {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
+                    {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                    {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
+                    {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
+                    {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                    {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
+                    {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
+                    {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                    {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
+                    {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
+                ]
                 
-                # Adiciona as traduções correspondentes para ampliar a busca bilíngue
-                traducoes = set()
+                # Adiciona sinônimos em outros idiomas se encontrar qualquer termo correspondente
+                novas_palavras = set()
                 for pal in palavras_filtradas:
-                    if pal in dicionario_traducao:
-                        traducoes.add(dicionario_traducao[pal])
-                palavras_filtradas.update(traducoes)
+                    for grupo in sinonimos_academicos:
+                        if pal in grupo:
+                            novas_palavras.update(grupo)
+                            break
+                palavras_filtradas.update(novas_palavras)
                 
                 if palavras_filtradas:
                     def calcular_relevancia(row):
@@ -1131,9 +1133,11 @@ with tab_ia:
 
                 IMPORTANTES DIRETRIZES DE SELEÇÃO:
                 1. Priorize a qualidade científica e o prestígio acadêmico (indicados por quartis JCR e índice SJR elevados).
-                2. Sugira uma mistura equilibrada entre excelentes periódicos nacionais (em português) e periódicos internacionais de alto impacto (em inglês/outros idiomas) que sejam aderentes ao tema do artigo.
-                3. Não se restrinja apenas a periódicos no mesmo idioma do título/resumo; se um periódico internacional de alta relevância e impacto for adequado para a publicação do tema, inclua-o nas recomendações.
-
+                2. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
+                   - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
+                   - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                   - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                
                 Lista de Periódicos Candidatos:
                 {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
