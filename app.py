@@ -402,6 +402,19 @@ st.markdown("""
         line-height: 1.5;
         margin-top: 10px;
     }
+    .premium-text-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 130px;
+        padding: 5px 0;
+    }
+    @media (max-width: 768px) {
+        .premium-text-block {
+            height: auto !important;
+            gap: 10px;
+        }
+    }
     /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
@@ -821,16 +834,16 @@ if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 100px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 130px; width: auto; object-fit: contain;">'
 else:
-    tag_imagem = '<span class="emoji-logo" style="font-size: 3.5rem; margin-right: 10px;">📚</span>'
+    tag_imagem = '<span class="emoji-logo" style="font-size: 5.5rem; line-height: 1; margin-right: 10px;">📚</span>'
 
 st.markdown(f"""
-    <div class="premium-hero" style="display: flex; align-items: center; gap: 25px;">
+    <div class="premium-hero" style="display: flex; align-items: flex-start; gap: 30px;">
         {tag_imagem}
-        <div>
-            <h1 class="premium-title" style="margin:0 !important;">{t['titulo']}</h1>
-            <p class="premium-subtitle" style="margin: 5px 0 0 0 !important;">{t['subtitulo']}</p>
+        <div class="premium-text-block">
+            <h1 class="premium-title" style="margin:0 !important; padding:0 !important; line-height: 1.1;">{t['titulo']}</h1>
+            <p class="premium-subtitle" style="margin: 0 !important; padding:0 !important; line-height: 1.3;">{t['subtitulo']}</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
