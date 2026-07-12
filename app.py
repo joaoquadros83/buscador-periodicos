@@ -1100,7 +1100,10 @@ with tab_ia:
                         
                         st.session_state.recomendacoes = json.loads(texto_resposta)
                     else:
-                        st.session_state.erro_ia = f"API retornou status {response.status_code}: {response.text}"
+                        tamanho = len(api_key_ativa) if api_key_ativa else 0
+                        prefixo = api_key_ativa[:6] if api_key_ativa else ""
+                        sufixo = api_key_ativa[-6:] if api_key_ativa else ""
+                        st.session_state.erro_ia = f"API retornou status {response.status_code}: {response.text} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}')"
                 except Exception as ex:
                     st.session_state.erro_ia = str(ex)
             
