@@ -1076,36 +1076,51 @@ with tab_ia:
                 - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
                 """
                 
-                try:
-                    url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key_ativa}"
-                    payload = {
-                        "contents": [{"parts": [{"text": prompt_ia}]}]
-                    }
-                    headers = {"Content-Type": "application/json"}
-                    
-                    response = requests.post(url_api, json=payload, headers=headers, timeout=30)
-                    
-                    if response.status_code == 200:
-                        dados_resposta = response.json()
-                        texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                modelos_tentar = [
+                    "gemini-1.5-flash",
+                    "gemini-1.5-flash-latest",
+                    "gemini-1.5-pro",
+                    "gemini-1.5-pro-latest",
+                    "gemini-1.0-pro"
+                ]
+                
+                sucesso_ia = False
+                ultimo_erro_msg = ""
+                
+                for modelo in modelos_tentar:
+                    try:
+                        url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                        payload = {
+                            "contents": [{"parts": [{"text": prompt_ia}]}]
+                        }
+                        headers = {"Content-Type": "application/json"}
                         
-                        # Tratamento seguro caso venha markdown de bloco JSON do Gemini
-                        if texto_resposta.startswith("```"):
-                            texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                        response = requests.post(url_api, json=payload, headers=headers, timeout=30)
                         
-                        # Extrai o array JSON via regex se houver texto ao redor
-                        match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                        if match:
-                            texto_resposta = match.group(0)
-                        
-                        st.session_state.recomendacoes = json.loads(texto_resposta)
-                    else:
-                        tamanho = len(api_key_ativa) if api_key_ativa else 0
-                        prefixo = api_key_ativa[:6] if api_key_ativa else ""
-                        sufixo = api_key_ativa[-6:] if api_key_ativa else ""
-                        st.session_state.erro_ia = f"API retornou status {response.status_code}: {response.text} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}')"
-                except Exception as ex:
-                    st.session_state.erro_ia = str(ex)
+                        if response.status_code == 200:
+                            dados_resposta = response.json()
+                            texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                            
+                            if texto_resposta.startswith("```"):
+                                texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                            
+                            match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                            if match:
+                                texto_resposta = match.group(0)
+                            
+                            st.session_state.recomendacoes = json.loads(texto_resposta)
+                            sucesso_ia = True
+                            break
+                        else:
+                            ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
+                    except Exception as ex:
+                        ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                
+                if not sucesso_ia:
+                    tamanho = len(api_key_ativa) if api_key_ativa else 0
+                    prefixo = api_key_ativa[:6] if api_key_ativa else ""
+                    sufixo = api_key_ativa[-6:] if api_key_ativa else ""
+                    st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}')"
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
