@@ -73,7 +73,7 @@ dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
         "subtitulo": "Ciência de dados aplicada à produção científica de alto impacto",
-        "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
+        "filtros_tit": "#### 🔍 Buscador de Periódicos",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
         "aba_escopo": "📂 Escopo Acadêmico & CNPq",
@@ -119,7 +119,7 @@ dic = {
         "ia_campo_resumo": "Resumo / Abstract (Suporta Português, Inglês ou Espanhol)",
         "ia_chave_api": "Chave API do Gemini (Google AI Studio)",
         "ia_chave_ajuda": "Você precisa de uma chave API gratuita obtida no Google AI Studio para rodar a recomendação online.",
-        "ia_num_rec": "Quantidade de recomendações desejadas (máx. 10)",
+        "ia_num_rec": "Quantidade de recomendações desejadas (máx. 20)",
         "ia_btn_buscar": "Analisar e Recomendar",
         "ia_analisando": "A IA está processando o seu resumo e cruzando com o catálogo...",
         "ia_sucesso": "Recomendações geradas com sucesso!",
@@ -159,7 +159,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
     "English": {
         "titulo": "Researcher's Portal",
         "subtitulo": "Data science applied to high-impact scientific output.",
-        "filtros_tit": "#### 🛠️ Smart Search Filters",
+        "filtros_tit": "#### 🔍 Journal Finder",
         "placeholder_busca": "Enter journal title, ISSN...",
         "buscar_reg": "Search specific record:",
         "aba_escopo": "📂 Academic Scope & CNPq",
@@ -205,7 +205,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "ia_campo_resumo": "Abstract (Supports Portuguese, English, or Spanish)",
         "ia_chave_api": "Gemini API Key (Google AI Studio)",
         "ia_chave_ajuda": "You need a free API key from Google AI Studio to run the online recommendation.",
-        "ia_num_rec": "Number of desired recommendations (max. 10)",
+        "ia_num_rec": "Number of desired recommendations (max. 20)",
         "ia_btn_buscar": "Analyze and Recommend",
         "ia_analisando": "AI is processing your abstract and matching with the catalog...",
         "ia_sucesso": "Recommendations generated successfully!",
@@ -245,7 +245,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
     "Español": {
         "titulo": "Portal del Investigador",
         "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
-        "filtros_tit": "#### 🛠️ Filtros de Búsqueda Inteligentes",
+        "filtros_tit": "#### 🔍 Buscador de Revistas",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
         "aba_escopo": "📂 Alcance Académico y CNPq",
@@ -291,7 +291,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
         "ia_chave_api": "Clave API de Gemini (Google AI Studio)",
         "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
-        "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 10)",
+        "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 20)",
         "ia_btn_buscar": "Analar y Recomendar",
         "ia_analisando": "La IA está procesando su resumo y cruzándolo con el catálogo...",
         "ia_sucesso": "¡Recomendaciones generadas con éxito!",
@@ -903,11 +903,12 @@ with st.expander(expander_titulo, expanded=False):
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
+st.markdown(t['filtros_tit'])
+
 tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 
 # ==================== ABA 1: CATÁLOGO TRADICIONAL ====================
 with tab_busca:
-    st.markdown(t['filtros_tit'])
     busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
 
     aba_escopo, aba_impacto = st.tabs([t['aba_escopo'], t['aba_impacto']])
@@ -1238,11 +1239,11 @@ with tab_ia:
         
         indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + list(df_original["Indexador"].dropna().unique()))
         
-        # Slider dinâmico integrado para selecionar entre 3 e 10 recomendações
+        # Slider dinâmico integrado para selecionar entre 3 e 20 recomendações
         num_recomendacoes = st.slider(
             t['ia_num_rec'], 
             min_value=3, 
-            max_value=10, 
+            max_value=20, 
             value=5, 
             step=1
         )
