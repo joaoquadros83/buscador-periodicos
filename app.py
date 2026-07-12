@@ -1194,6 +1194,7 @@ with tab_ia:
                 
                 sucesso_ia = False
                 ultimo_erro_msg = ""
+                cota_esgotada = False
                 
                 for modelo in modelos_tentar:
                     try:
@@ -1219,29 +1220,46 @@ with tab_ia:
                             st.session_state.recomendacoes = json.loads(texto_resposta)
                             sucesso_ia = True
                             break
+                        elif response.status_code == 429:
+                            # Cota esgotada — parar imediatamente, não adianta tentar outros modelos
+                            cota_esgotada = True
+                            try:
+                                erro_json = response.json()
+                                retry_info = ""
+                                for detail in erro_json.get("error", {}).get("details", []):
+                                    if "retryDelay" in detail:
+                                        retry_info = f" Tente novamente em {detail['retryDelay']}."
+                            except Exception:
+                                retry_info = ""
+                            ultimo_erro_msg = f"⏳ Cota da API do Gemini esgotada para sua chave.{retry_info} Aguarde alguns instantes e tente novamente."
+                            break
                         else:
                             ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
                     except Exception as ex:
                         ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
                 
                 if not sucesso_ia:
-                    tamanho = len(api_key_ativa) if api_key_ativa else 0
-                    prefixo = api_key_ativa[:6] if api_key_ativa else ""
-                    sufixo = api_key_ativa[-6:] if api_key_ativa else ""
-                    
-                    detalhe_modelos = ""
-                    try:
-                        resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
-                        if resp_models.status_code == 200:
-                            models_data = resp_models.json()
-                            names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
-                            detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
-                        else:
-                            detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
-                    except Exception as e_mod:
-                        detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                    if cota_esgotada:
+                        # Mensagem amigável para erro de cota — sem expor detalhes técnicos
+                        st.session_state.erro_ia = ultimo_erro_msg
+                    else:
+                        tamanho = len(api_key_ativa) if api_key_ativa else 0
+                        prefixo = api_key_ativa[:6] if api_key_ativa else ""
+                        sufixo = api_key_ativa[-6:] if api_key_ativa else ""
                         
-                    st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
+                        detalhe_modelos = ""
+                        try:
+                            resp_models = requests.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key_ativa}", timeout=10)
+                            if resp_models.status_code == 200:
+                                models_data = resp_models.json()
+                                names = [m["name"].split("/")[-1] for m in models_data.get("models", [])]
+                                detalhe_modelos = f" | Modelos disponíveis nesta chave: {', '.join(names)}"
+                            else:
+                                detalhe_modelos = f" | Erro ao listar modelos (Status {resp_models.status_code}): {resp_models.text}"
+                        except Exception as e_mod:
+                            detalhe_modelos = f" | Falha ao consultar modelos: {e_mod}"
+                            
+                        st.session_state.erro_ia = f"{ultimo_erro_msg} (Tamanho da chave: {tamanho}, inicio: '{prefixo}', fim: '{sufixo}'){detalhe_modelos}"
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
@@ -1253,8 +1271,13 @@ with tab_ia:
     if st.session_state.get("aviso_filtro"):
         st.warning("⚠️ Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
-        st.error(t['ia_erro'])
-        st.caption(f"Detalhes técnicos do erro: {st.session_state.erro_ia}")
+        erro_msg = st.session_state.erro_ia
+        if erro_msg.startswith("⏳"):
+            # Erro de cota — exibe aviso amigável sem detalhes técnicos
+            st.warning(erro_msg)
+        else:
+            st.error(t['ia_erro'])
+            st.caption(f"Detalhes técnicos do erro: {erro_msg}")
     elif st.session_state.get("recomendacoes") is not None:
         st.success(t['ia_sucesso'])
         
