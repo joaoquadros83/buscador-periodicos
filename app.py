@@ -651,6 +651,8 @@ df_original, arquivo_usado = carregar_dados()
 # Inicializa o estado de registro se não existir
 if "registrado" not in st.session_state:
     st.session_state.registrado = False
+if "modo_login" not in st.session_state:
+    st.session_state.modo_login = True
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
@@ -948,171 +950,220 @@ st.markdown(f"""
 
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
 if not st.session_state.registrado:
-    # 1. Apresentação do Portal em formato Landing Page tradicional
-    st.markdown(f"""
-        <div style="margin-top: 15px; margin-bottom: 30px;">
-            <h3 style="color: #004B87; font-weight: 700; margin-bottom: 12px;">{t['reg_boas_vindas']}</h3>
-            <p style="font-size: 1.15rem; color: #475569; line-height: 1.6; margin-top: 10px;">
-                {t['reg_apresentacao']}
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # 2. Benefícios em colunas
-    st.markdown(f"#### {t['reg_beneficios_tit']}")
-    col_b1, col_b2, col_b3 = st.columns(3)
-    with col_b1:
-        st.markdown(f"""
-            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
-                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_1_tit']}</h5>
-                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_1_desc']}</p>
-            </div>
-        """, unsafe_allow_html=True)
-    with col_b2:
-        st.markdown(f"""
-            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
-                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_2_tit']}</h5>
-                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_2_desc']}</p>
-            </div>
-        """, unsafe_allow_html=True)
-    with col_b3:
-        st.markdown(f"""
-            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 20px; border-radius: 10px; min-height: 190px;">
-                <h5 style="color: #004B87; margin-top: 0; font-size: 1.1rem; font-weight: 600;">{t['reg_beneficio_3_tit']}</h5>
-                <p style="font-size: 0.95rem; color: #64748B; line-height: 1.5; margin: 8px 0 0 0;">{t['reg_beneficio_3_desc']}</p>
-            </div>
-        """, unsafe_allow_html=True)
+    # Funções locais auxiliares para banco de dados de credenciais
+    def hash_senha(senha):
+        return hashlib.sha256(senha.encode()).hexdigest()
 
-    st.markdown("<br><br>", unsafe_allow_html=True)
+    def cadastrar_usuario(nome, email, pais, telefone, escolaridade, instituicao, senha):
+        caminho = "usuarios.csv"
+        novo_usuario = pd.DataFrame([{
+            "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Nome": nome,
+            "Email": email.lower().strip(),
+            "País": pais,
+            "Telefone": telefone,
+            "Escolaridade": escolaridade,
+            "Instituição": instituicao,
+            "Senha_Hash": hash_senha(senha)
+        }])
+        if os.path.exists(caminho):
+            try:
+                df_existente = pd.read_csv(caminho, sep=";")
+                # Evita duplicar e-mail
+                emails_cadastrados = df_existente["Email"].astype(str).str.lower().str.strip().tolist()
+                if email.lower().strip() in emails_cadastrados:
+                    return False
+                df_novo = pd.concat([df_existente, novo_usuario], ignore_index=True)
+                df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+            except Exception:
+                novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+        else:
+            novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+        return True
 
-    # 3. Formulário de Cadastro em um container destacado
-    st.markdown(f"""
-        <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
-            <h3 style="color: #0F172A; margin: 0 0 8px 0; font-size: 1.5rem; font-weight: 700;">{t['reg_formulario_tit']}</h3>
-            <p style="color: #475569; font-size: 1.0rem; line-height: 1.5; margin: 0;">{t['reg_formulario_desc']}</p>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    col_c1, col_c2 = st.columns(2)
-    with col_c1:
-        nome_cad = st.text_input(t['reg_nome'], placeholder="Ex: Dr. João da Silva")
-        email_cad = st.text_input(t['reg_email'], placeholder="Ex: joao.silva@ufop.edu.br")
+    def verificar_login(email_ou_usuario, senha):
+        caminho = "usuarios.csv"
+        if not os.path.exists(caminho):
+            return False
+        try:
+            df = pd.read_csv(caminho, sep=";")
+            email_clean = email_ou_usuario.lower().strip()
+            senha_hash_calc = hash_senha(senha)
+            
+            # Filtra pelo e-mail e hash da senha
+            match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Senha_Hash"] == senha_hash_calc)]
+            return not match.empty
+        except Exception:
+            return False
+
+    # Escolha do Modo (Login ou Cadastro)
+    if st.session_state.modo_login:
+        # TÍTULO E APRESENTAÇÃO MINIMALISTA
+        st.markdown(f"""
+            <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center;">
+                <h3 style="color: #004B87; margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 700;">{t['log_titulo']}</h3>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # Seleção de escolaridade baseada no idioma
-        opcoes_esc = []
-        if st.session_state.idioma == "Português":
-            opcoes_esc = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
-        elif st.session_state.idioma == "English":
-            opcoes_esc = ["Undergraduate Student", "Specialist / Postgraduate", "Master's Student", "Master", "PhD Candidate", "PhD / Doctor", "Postdoctoral Researcher", "Other"]
-        else:
-            opcoes_esc = ["Estudiante de Grado", "Especialista / Posgrado", "Estudiante de Maestría", "Magíster", "Doctorando", "Doctor", "Posdoctorado", "Otro"]
+        col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
+        with col_log_2:
+            # Formulário de Login
+            email_log = st.text_input(t['log_email'], placeholder="Ex: joao.silva@ufop.edu.br", key="email_login")
+            senha_log = st.text_input(t['log_senha'], type="password", placeholder="••••••••", key="senha_login")
             
-        escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
-        
-    with col_c2:
-        # Seleção de instituição de vínculo baseada no idioma
-        opcoes_inst = []
-        if st.session_state.idioma == "Português":
-            opcoes_inst = [
-                "Universidade Federal de Ouro Preto (UFOP)",
-                "Universidade de São Paulo (USP)",
-                "Universidade Estadual de Campinas (UNICAMP)",
-                "Universidade Federal de Minas Gerais (UFMG)",
-                "Universidade Federal do Rio de Janeiro (UFRJ)",
-                "Universidade Federal do Rio Grande do Sul (UFRGS)",
-                "Universidade Estadual Paulista (UNESP)",
-                "Universidade Federal de Santa Catarina (UFSC)",
-                "Universidade Federal de São Paulo (UNIFESP)",
-                "Outra Instituição (Nacional ou Internacional)"
-            ]
-        elif st.session_state.idioma == "English":
-            opcoes_inst = [
-                "Federal University of Ouro Preto (UFOP)",
-                "University of São Paulo (USP)",
-                "State University of Campinas (UNICAMP)",
-                "Federal University of Minas Gerais (UFMG)",
-                "Federal University of Rio de Janeiro (UFRJ)",
-                "Federal University of Rio Grande do Sul (UFRGS)",
-                "São Paulo State University (UNESP)",
-                "Federal University of Santa Catarina (UFSC)",
-                "Federal University of São Paulo (UNIFESP)",
-                "Other Institution (National or International)"
-            ]
-        else:
-            opcoes_inst = [
-                "Universidad Federal de Ouro Preto (UFOP)",
-                "Universidad de São Paulo (USP)",
-                "Universidad Estatal de Campinas (UNICAMP)",
-                "Universidad Federal de Minas Gerais (UFMG)",
-                "Universidad Federal de Río de Janeiro (UFRJ)",
-                "Universidad Federal de Río Grande del Sur (UFRGS)",
-                "Universidad Estatal Paulista (UNESP)",
-                "Universidad Federal de Santa Catarina (UFSC)",
-                "Universidad Federal de São Paulo (UNIFESP)",
-                "Otra Institución (Nacional o Internacional)"
-            ]
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
-        instituicao_cad_sel = st.selectbox(t['reg_instituicao'], opcoes_inst)
-        
-        # Se for "Outra", pede para especificar
-        escrever_outra = False
-        if instituicao_cad_sel in ["Outra Instituição (Nacional ou Internacional)", "Other Institution (National or International)", "Otra Institución (Nacional o Internacional)"]:
-            instituicao_cad_outra = st.text_input(t['reg_inst_outra'], placeholder="Ex: Harvard University")
-            escrever_outra = True
-        else:
-            instituicao_cad_outra = ""
-            
-        # Área de Interesse
-        opcoes_areas = []
-        if st.session_state.idioma == "Português":
-            opcoes_areas = ["Ciências Humanas", "Ciências da Saúde", "Engenharias", "Linguística, Letras e Artes", "Ciências Sociais Aplicadas", "Ciências Biológicas", "Ciências Exatas e da Terra", "Ciências Agrárias", "Outras / Todas"]
-        elif st.session_state.idioma == "English":
-            opcoes_areas = ["Human Sciences", "Health Sciences", "Engineering", "Linguistics, Literature & Arts", "Applied Social Sciences", "Biological Sciences", "Exact & Earth Sciences", "Agricultural Sciences", "Others / All"]
-        else:
-            opcoes_areas = ["Ciencias Humanas", "Ciencias de la Salud", "Ingenierías", "Lingüística, Letras y Artes", "Ciencias Sociales Aplicadas", "Ciencias Biológicas", "Ciencias Exactas y de la Tierra", "Ciencias Agrarias", "Otras / Todas"]
-            
-        area_interesse_cad = st.selectbox(t['reg_area_interesse'], opcoes_areas)
-        
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-    btn_registrar = st.button(t['reg_btn_enviar'], type="primary", use_container_width=True)
-    
-    if btn_registrar:
-        if not nome_cad.strip() or not email_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
-            st.error(t['reg_erro_campos'])
-        else:
-            # Resolve a instituição final
-            inst_final = instituicao_cad_outra.strip() if escrever_outra else instituicao_cad_sel
-            
-            # Salva o usuário no arquivo CSV
-            def registrar_usuario(nome, email, escolaridade, instituicao, area):
-                caminho = "registros.csv"
-                novo_registro = pd.DataFrame([{
-                    "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "Nome": nome,
-                    "Email": email,
-                    "Escolaridade": escolaridade,
-                    "Instituição": instituicao,
-                    "Área de Interesse": area
-                }])
-                if os.path.exists(caminho):
-                    try:
-                        df_existente = pd.read_csv(caminho, sep=";")
-                        df_novo = pd.concat([df_existente, novo_registro], ignore_index=True)
-                        df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                    except Exception:
-                        novo_registro.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+            col_btn1, col_btn2 = st.columns(2)
+            with col_btn1:
+                btn_entrar = st.button(t['log_btn_entrar'], type="primary", use_container_width=True)
+            with col_btn2:
+                # Botão do Google com ícone de simulação
+                btn_google = st.button(f"🌐 {t['log_btn_google']}", key="google_login", use_container_width=True)
+                
+            if btn_entrar:
+                if not email_log.strip() or not senha_log.strip():
+                    st.error(t['reg_erro_campos'])
+                elif verificar_login(email_log, senha_log):
+                    st.session_state.registrado = True
+                    st.success(t['reg_sucesso'])
+                    time.sleep(1.2)
+                    st.rerun()
                 else:
-                    novo_registro.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    st.error(t['log_erro_invalido'])
+                    
+            if btn_google:
+                st.session_state.registrado = True
+                st.success(t['log_google_sucesso'])
+                time.sleep(1.2)
+                st.rerun()
+                
+            st.markdown("<br><hr style='border-top:1px dashed #CBD5E1;'><br>", unsafe_allow_html=True)
             
-            registrar_usuario(nome_cad.strip(), email_cad.strip(), escolaridade_cad, inst_final, area_interesse_cad)
+            # Link para ir para a página de Cadastro
+            if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
+                st.session_state.modo_login = False
+                st.rerun()
+    else:
+        # PÁGINA DE CADASTRO
+        st.markdown(f"""
+            <div style="background: linear-gradient(to right, #F8FAFC, #F1F5F9); border: 1px solid #CBD5E1; border-radius: 12px; padding: 25px; margin-bottom: 25px; text-align: center;">
+                <h3 style="color: #004B87; margin: 0 0 5px 0; font-size: 1.5rem; font-weight: 700;">{t['reg_titulo_form']}</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col_reg_1, col_reg_2 = st.columns(2)
+        with col_reg_1:
+            nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
+            email_cad = st.text_input(t['reg_email'], placeholder="Ex: joao.silva@ufop.edu.br")
+            pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
+            tel_cad = st.text_input(t['reg_telefone'], placeholder="Ex: (31) 99999-9999")
             
-            # Seta o estado como registrado e recarrega a página
-            st.session_state.registrado = True
-            st.success(t['reg_sucesso'])
-            time.sleep(1.5)
+        with col_reg_2:
+            # Nível de Escolaridade
+            opcoes_esc = []
+            if st.session_state.idioma == "Português":
+                opcoes_esc = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
+            elif st.session_state.idioma == "English":
+                opcoes_esc = ["Undergraduate Student", "Specialist / Postgraduate", "Master's Student", "Master", "PhD Candidate", "PhD / Doctor", "Postdoctoral Researcher", "Other"]
+            else:
+                opcoes_esc = ["Estudiante de Grado", "Especialista / Posgrado", "Estudiante de Maestría", "Magíster", "Doctorando", "Doctor", "Posdoctorado", "Otro"]
+                
+            escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
+            
+            # Vínculo Institucional
+            opcoes_inst = []
+            if st.session_state.idioma == "Português":
+                opcoes_inst = [
+                    "Universidade Federal de Ouro Preto (UFOP)",
+                    "Universidade de São Paulo (USP)",
+                    "Universidade Estadual de Campinas (UNICAMP)",
+                    "Universidade Federal de Minas Gerais (UFMG)",
+                    "Universidade Federal do Rio de Janeiro (UFRJ)",
+                    "Universidade Federal do Rio Grande do Sul (UFRGS)",
+                    "Universidade Estadual Paulista (UNESP)",
+                    "Universidade Federal de Santa Catarina (UFSC)",
+                    "Universidade Federal de São Paulo (UNIFESP)",
+                    "Outra Instituição"
+                ]
+            elif st.session_state.idioma == "English":
+                opcoes_inst = [
+                    "Federal University of Ouro Preto (UFOP)",
+                    "University of São Paulo (USP)",
+                    "State University of Campinas (UNICAMP)",
+                    "Federal University of Minas Gerais (UFMG)",
+                    "Federal University of Rio de Janeiro (UFRJ)",
+                    "Federal University of Rio Grande do Sul (UFRGS)",
+                    "São Paulo State University (UNESP)",
+                    "Federal University of Santa Catarina (UFSC)",
+                    "Federal University of São Paulo (UNIFESP)",
+                    "Other Institution"
+                ]
+            else:
+                opcoes_inst = [
+                    "Universidad Federal de Ouro Preto (UFOP)",
+                    "Universidad de São Paulo (USP)",
+                    "Universidad Estatal de Campinas (UNICAMP)",
+                    "Universidad Federal de Minas Gerais (UFMG)",
+                    "Universidad Federal de Río de Janeiro (UFRJ)",
+                    "Universidad Federal de Río Grande del Sur (UFRGS)",
+                    "Universidad Estatal Paulista (UNESP)",
+                    "Universidad Federal de Santa Catarina (UFSC)",
+                    "Universidad Federal de São Paulo (UNIFESP)",
+                    "Otra Institución"
+                ]
+                
+            instituicao_cad_sel = st.selectbox(t['reg_instituicao'], opcoes_inst)
+            
+            # Se for "Outra", pede para especificar
+            escrever_outra = False
+            if instituicao_cad_sel in ["Outra Instituição", "Other Institution", "Otra Institución"]:
+                instituicao_cad_outra = st.text_input(t['reg_inst_outra'], placeholder="Ex: Harvard University")
+                escrever_outra = True
+            else:
+                instituicao_cad_outra = ""
+
+        # Senha e confirmação de senha
+        st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="••••••••", key="senha_cad_reg")
+        with col_s2:
+            senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="••••••••", key="senha_cad_conf_reg")
+
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+        btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
+        
+        if btn_registrar:
+            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
+                st.error(t['reg_erro_campos'])
+            elif senha_cad != senha_cad_conf:
+                st.error(t['reg_erro_senha_diferente'])
+            else:
+                inst_final = instituicao_cad_outra.strip() if escrever_outra else instituicao_cad_sel
+                # Grava no CSV
+                sucesso_cadastro = cadastrar_usuario(
+                    nome_cad.strip(),
+                    email_cad.strip(),
+                    pais_cad.strip(),
+                    tel_cad.strip() if tel_cad else "-",
+                    escolaridade_cad,
+                    inst_final,
+                    senha_cad
+                )
+                if sucesso_cadastro:
+                    st.success(t['reg_sucesso'])
+                    st.session_state.registrado = True
+                    time.sleep(1.2)
+                    st.rerun()
+                else:
+                    st.error(t['reg_erro_ja_existe'])
+                    
+        st.markdown("<br>", unsafe_allow_html=True)
+        # Link para voltar ao Login
+        if st.button(t['log_entrar_link'], key="btn_ir_login", use_container_width=True):
+            st.session_state.modo_login = True
             st.rerun()
             
-    # Para a execução do restante da página (não executa o buscador se não registrado)
     st.stop()
 
 # Textos informativos traduzidos
