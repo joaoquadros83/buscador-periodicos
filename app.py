@@ -435,8 +435,8 @@ def carregar_dados():
 
             col_titulo = df.columns[0]
             
-            # Remove espaços em branco extras nas colunas chaves para garantir agrupamento perfeito
-            df[col_titulo] = df[col_titulo].astype(str).str.strip()
+            # Cria a chave de agrupamento normalizada (em minúsculas) para ignorar diferenças de caixa
+            df["titulo_norm"] = df[col_titulo].astype(str).str.lower().str.strip()
             if "ISSN" in df.columns:
                 df["ISSN"] = df["ISSN"].astype(str).str.strip()
             
@@ -452,19 +452,39 @@ def carregar_dados():
                         return val_str
                 return "-"
                 
+            def agg_titulo(series):
+                candidatos = [str(x).strip() for x in series if str(x).strip() not in ["-", "", "None", "nan"]]
+                if not candidatos:
+                    return "-"
+                # Prefere títulos com letras misturadas (Title Case) sobre ALL CAPS
+                suaves = [c for c in candidatos if not c.isupper() and any(ch.isupper() for ch in c)]
+                if suaves:
+                    return suaves[0]
+                sem_caps = [c for c in candidatos if not c.isupper()]
+                if sem_caps:
+                    return sem_caps[0]
+                return candidatos[0]
+
+            def agg_max_numerico(series):
+                nums = pd.to_numeric(series, errors='coerce').dropna()
+                return nums.max() if not nums.empty else 0.0
+                
             agg_dict = {}
             for col in df.columns:
-                if col == col_titulo:
+                if col == "titulo_norm":
                     continue
-                if col == "Indexador":
+                if col == col_titulo:
+                    agg_dict[col] = agg_titulo
+                elif col == "Indexador":
                     agg_dict[col] = agg_indexadores
                 elif col in ['SJR', 'JIF', 'h-index', 'H index']:
-                    agg_dict[col] = "max"
+                    agg_dict[col] = agg_max_numerico
                 else:
                     agg_dict[col] = agg_primeiro_valido
                     
-            # Agrupa pelo título da revista unificando os indexadores na mesma linha
-            df = df.groupby(col_titulo, as_index=False).agg(agg_dict)
+            # Agrupa pelo título normalizado
+            df = df.groupby("titulo_norm", as_index=False).agg(agg_dict)
+            df = df.drop(columns=["titulo_norm"])
             
             return df, nome_arquivo
         except Exception as e:
