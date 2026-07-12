@@ -1081,15 +1081,15 @@ with tab_ia:
         if not api_key_ativa:
             with st.expander("ℹ️ Como obter uma chave gratuita?", expanded=False):
                 st.markdown("""
-Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:
-
-1. Acesse **[aistudio.google.com](https://aistudio.google.com)**
-2. Faça login com sua conta Google
-3. Clique em **"Get API Key"** → **"Create API Key"**
-4. Copie a chave gerada e cole no campo acima
-
-*A chave gratuita permite centenas de consultas por dia.*
-                """)
+<div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
+Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:<br><br>
+1. Acesse <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
+2. Faça login com sua conta Google<br>
+3. Clique em <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copie a chave gerada e cole no campo acima<br><br>
+<i>A chave gratuita permite centenas de consultas por dia.</i>
+</div>
+                """, unsafe_allow_html=True)
         
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
