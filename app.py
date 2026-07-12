@@ -1057,7 +1057,7 @@ if not st.session_state.registrado:
         with col_log_2:
             # Formulário de Login
             email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
-            senha_log = st.text_input(t['log_senha'], type="password", placeholder="••••••••", key="senha_login")
+            senha_log = st.text_input(t['log_senha'], type="password", placeholder="", key="senha_login")
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
@@ -1174,9 +1174,9 @@ if not st.session_state.registrado:
         st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
         col_s1, col_s2 = st.columns(2)
         with col_s1:
-            senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="••••••••", key="senha_cad_reg")
+            senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="", key="senha_cad_reg")
         with col_s2:
-            senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="••••••••", key="senha_cad_conf_reg")
+            senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
 
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
