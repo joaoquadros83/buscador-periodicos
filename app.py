@@ -718,12 +718,6 @@ if st.session_state.registrado:
     if st.sidebar.button(t['reg_btn_sair'], key="btn_logout_sidebar", use_container_width=True):
         st.session_state.registrado = False
         st.rerun()
-else:
-    st.sidebar.markdown(f"""
-        <div style="background-color: #EF4444; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
-            {t['reg_lateral_status_bloqueado']}
-        </div>
-    """, unsafe_allow_html=True)
 
 st.sidebar.markdown(f"""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
@@ -1062,7 +1056,7 @@ if not st.session_state.registrado:
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
         with col_log_2:
             # Formulário de Login
-            email_log = st.text_input(t['log_email'], placeholder="Ex: joao.silva@ufop.edu.br", key="email_login")
+            email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
             senha_log = st.text_input(t['log_senha'], type="password", placeholder="••••••••", key="senha_login")
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
@@ -1108,7 +1102,7 @@ if not st.session_state.registrado:
         col_reg_1, col_reg_2 = st.columns(2)
         with col_reg_1:
             nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
-            email_cad = st.text_input(t['reg_email'], placeholder="Ex: joao.silva@ufop.edu.br")
+            email_cad = st.text_input(t['reg_email'], placeholder="")
             pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
             tel_cad = st.text_input(t['reg_telefone'], placeholder="Ex: (31) 99999-9999")
             
