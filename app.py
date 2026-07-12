@@ -1012,7 +1012,7 @@ with tab_ia:
         )
         
         # Define a chave ativa final (prioriza input do usuário)
-       genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
         
         st.markdown("#### 🎯 Refinar Alvos")
         area_ia = st.selectbox(f"{t['filtro_area']} (IA)", ["Todas"] + list(df_original["Grande Area"].dropna().unique()))
