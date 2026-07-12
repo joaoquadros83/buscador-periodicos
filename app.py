@@ -1004,12 +1004,7 @@ with tab_ia:
             placeholder_input = "AIzaSy..."
             help_input = t['ia_chave_ajuda']
             
-        user_gemini_key = st.text_input(
-            t['ia_chave_api'], 
-            type="password", 
-            placeholder=placeholder_input, 
-            help=help_input
-        )
+        user_gemini_key = st.text_input(t['ia_chave_api'], type="password")
         
         # Define a chave ativa final (prioriza input do usuário)
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
@@ -1077,7 +1072,7 @@ with tab_ia:
                 """
                 
                 try:
-                    url_api = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key_ativa}"
+                    url_api = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key_ativa}"
                     payload = {
                         "contents": [{"parts": [{"text": prompt_ia}]}]
                     }
