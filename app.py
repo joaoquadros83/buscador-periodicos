@@ -765,19 +765,27 @@ if "nome_usuario" not in st.session_state:
     st.session_state.nome_usuario = ""
 if "acessos_usuario" not in st.session_state:
     st.session_state.acessos_usuario = 0
+if "login_via_google" not in st.session_state:
+    st.session_state.login_via_google = False
+if "solicitar_email_google" not in st.session_state:
+    st.session_state.solicitar_email_google = False
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
     nome_usr_exibir = st.session_state.get("nome_usuario", "Usuário")
+    email_usr_exibir = st.session_state.get("email_usuario", "")
     acessos_usr = st.session_state.get("acessos_usuario", 1)
+    
+    # Se for login via Google, exibe o e-mail do usuário na mensagem de boas-vindas
+    usr_identificador = email_usr_exibir if st.session_state.get("login_via_google", False) else nome_usr_exibir
     
     # Determina o texto de boas-vindas com base no número de acessos
     if acessos_usr <= 1:
-        status_texto = f"Seja bem-vindo(a), {nome_usr_exibir}"
+        status_texto = f"Seja bem-vindo(a), {usr_identificador}"
     else:
-        status_texto = f"Bem vindo de volta, {nome_usr_exibir}"
+        status_texto = f"Bem vindo de volta, {usr_identificador}"
         
     if st.session_state.get("is_admin", False):
         status_texto = f"🔑 Admin: {status_texto}"
@@ -795,6 +803,8 @@ if st.session_state.registrado:
         st.session_state.email_usuario = ""
         st.session_state.nome_usuario = ""
         st.session_state.acessos_usuario = 0
+        st.session_state.login_via_google = False
+        st.session_state.solicitar_email_google = False
         st.session_state.is_admin = False
         st.rerun()
 
@@ -1293,6 +1303,7 @@ if not st.session_state.registrado:
                     st.error(t['reg_erro_campos'])
                 elif verificar_login(email_log, senha_log):
                     st.session_state.registrado = True
+                    st.session_state.login_via_google = False
                     
                     email_clean = email_log.lower().strip()
                     st.session_state.email_usuario = email_clean
@@ -1306,10 +1317,50 @@ if not st.session_state.registrado:
                     st.error(t['log_erro_invalido'])
                     
             if btn_google:
-                st.session_state.registrado = True
-                st.success(t['log_google_sucesso'])
-                time.sleep(1.2)
-                st.rerun()
+                user_email_real = None
+                try:
+                    if hasattr(st, "user") and st.user is not None:
+                        user_email_real = st.user.get("email")
+                except Exception:
+                    pass
+                
+                if user_email_real:
+                    st.session_state.registrado = True
+                    st.session_state.login_via_google = True
+                    st.session_state.email_usuario = user_email_real.lower().strip()
+                    st.session_state.nome_usuario = user_email_real.split("@")[0].capitalize()
+                    st.session_state.acessos_usuario = 1
+                    st.session_state.is_admin = (st.session_state.email_usuario == st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip())
+                    st.success(t['log_google_sucesso'])
+                    time.sleep(1.2)
+                    st.rerun()
+                else:
+                    st.session_state.solicitar_email_google = True
+
+            # Formulário amigável de e-mail do Google (fallback local ou de teste)
+            if st.session_state.get("solicitar_email_google", False):
+                st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0 10px 0;'>", unsafe_allow_html=True)
+                email_g = st.text_input("Digite o seu e-mail do Google para conectar:", key="google_input_email")
+                col_c1, col_c2 = st.columns(2)
+                with col_c1:
+                    if st.button("Confirmar Google Login", type="primary", use_container_width=True):
+                        if email_g.strip() and "@" in email_g:
+                            st.session_state.registrado = True
+                            st.session_state.login_via_google = True
+                            st.session_state.email_usuario = email_g.lower().strip()
+                            st.session_state.nome_usuario = email_g.split("@")[0].capitalize()
+                            st.session_state.acessos_usuario = 1
+                            st.session_state.is_admin = (st.session_state.email_usuario == st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip())
+                            st.session_state.solicitar_email_google = False
+                            st.success(t['log_google_sucesso'])
+                            time.sleep(1.2)
+                            st.rerun()
+                        else:
+                            st.error("Por favor, digite um e-mail válido.")
+                with col_c2:
+                    if st.button("Cancelar", key="cancelar_google_login", use_container_width=True):
+                        st.session_state.solicitar_email_google = False
+                        st.rerun()
     else:
         col_reg_1, col_reg_2 = st.columns(2)
         with col_reg_1:
