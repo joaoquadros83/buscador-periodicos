@@ -933,6 +933,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- 6. BLOCO CONTADOR DE VISITAS (SILENCIOSO E PERSISTENTE) ---
+arquivo_contador = "contador_visitas.txt"
 try:
     if 'visitou' not in st.session_state:
         st.session_state.visitou = True
@@ -953,7 +954,6 @@ try:
                 visitas = int(doc.to_dict().get("quantidade", 0))
             else:
                 # Se não existir no DB, inicializa usando o valor do arquivo local como base para não zerar
-                arquivo_contador = "contador_visitas.txt"
                 visitas_inicial = 0
                 if os.path.exists(arquivo_contador):
                     with open(arquivo_contador, "r") as f:
@@ -970,7 +970,6 @@ try:
 
     # Fallback local caso o Firebase não esteja disponível/configurado
     if not sucesso_db:
-        arquivo_contador = "contador_visitas.txt"
         if not os.path.exists(arquivo_contador):
             with open(arquivo_contador, "w") as f:
                 f.write("0")
@@ -983,6 +982,32 @@ try:
             visitas += 1
             with open(arquivo_contador, "w") as f:
                 f.write(str(visitas))
+
+    # --- ABA SECRETA DO ADMINISTRADOR (URL com ?admin=true ou ?visitas=true) ---
+    params = st.query_params
+    if "admin" in params or "visitas" in params:
+        st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+        st.sidebar.markdown(f"📊 **Total de Visitas (Admin):** `{visitas}`")
+        
+        # Campo para atualizar manualmente o valor do contador no Firebase/Local
+        novo_valor = st.sidebar.number_input("Atualizar Contador:", min_value=0, value=visitas, step=1, key="admin_visit_counter")
+        if st.sidebar.button("Salvar Novo Valor", key="admin_save_visits_btn"):
+            visitas = novo_valor
+            # Salva no Firestore se configurado
+            if db is not None:
+                try:
+                    db.collection("metadados").document("visitas").set({"quantidade": visitas}, merge=True)
+                    st.sidebar.success("Firebase atualizado!")
+                except Exception as e:
+                    st.sidebar.error(f"Erro no Firebase: {e}")
+            # Salva no arquivo local
+            try:
+                with open(arquivo_contador, "w") as f:
+                    f.write(str(visitas))
+                st.sidebar.success("Arquivo local atualizado!")
+            except Exception as e:
+                st.sidebar.error(f"Erro local: {e}")
+            st.rerun()
 except Exception:
     pass
 
