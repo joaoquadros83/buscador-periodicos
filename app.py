@@ -1101,7 +1101,8 @@ if not st.session_state.registrado:
             "Telefone": telefone,
             "Escolaridade": escolaridade,
             "Instituição": instituicao,
-            "Senha_Hash": hash_senha(senha)
+            "Senha_Hash": hash_senha(senha),
+            "Acessos": 1
         }])
         if os.path.exists(caminho):
             try:
@@ -1116,6 +1117,24 @@ if not st.session_state.registrado:
                 novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
         else:
             novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+
+        # Tenta cadastrar no Firestore se configurado
+        if db is not None:
+            try:
+                db.collection("usuarios").document(email.lower().strip()).set({
+                    "nome": nome,
+                    "email": email.lower().strip(),
+                    "pais": pais,
+                    "telefone": telefone,
+                    "escolaridade": escolaridade,
+                    "instituicao": instituicao,
+                    "acessos": 1,
+                    "data_cadastro": firestore.SERVER_TIMESTAMP,
+                    "ultimo_acesso": firestore.SERVER_TIMESTAMP
+                }, merge=True)
+            except Exception:
+                pass
+
         return True
 
     def verificar_login(email_ou_usuario, senha):
@@ -1129,7 +1148,36 @@ if not st.session_state.registrado:
             
             # Filtra pelo e-mail e hash da senha
             match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Senha_Hash"] == senha_hash_calc)]
-            return not match.empty
+            if not match.empty:
+                # Incrementa acessos localmente no CSV
+                try:
+                    idx = match.index[0]
+                    if "Acessos" not in df.columns:
+                        df["Acessos"] = 1
+                    current_acessos = df.loc[idx, "Acessos"]
+                    df.loc[idx, "Acessos"] = int(current_acessos) + 1 if pd.notna(current_acessos) else 1
+                    df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                except Exception:
+                    pass
+                
+                # Incrementa acessos no Firestore se disponível
+                if db is not None:
+                    try:
+                        doc_ref = db.collection("usuarios").document(email_clean)
+                        doc = doc_ref.get()
+                        acessos_atuais = 0
+                        if doc.exists:
+                            acessos_atuais = int(doc.to_dict().get("acessos", 0))
+                        
+                        doc_ref.set({
+                            "acessos": acessos_atuais + 1,
+                            "ultimo_acesso": firestore.SERVER_TIMESTAMP
+                        }, merge=True)
+                    except Exception:
+                        pass
+                
+                return True
+            return False
         except Exception:
             return False
 
@@ -1339,7 +1387,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
 st.markdown(t['filtros_tit'])
 
-tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
+# Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL
+params_url = st.query_params
+if "admin" in params_url or "visitas" in params_url:
+    tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "📊 Estatísticas (Admin)"])
+else:
+    tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 
 # ==================== ABA 1: CATÁLOGO TRADICIONAL ====================
 with tab_busca:
@@ -2048,3 +2101,78 @@ with tab_ia:
                     st.caption("⚠️ *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
                     st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
                     st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
+
+# ==================== ABA 3: ESTATÍSTICAS DE ACESSOS (SÓ PARA ADMIN) ====================
+if "admin" in params_url or "visitas" in params_url:
+    with tab_admin:
+        st.subheader("📊 Estatísticas de Acessos dos Usuários")
+        
+        # Função para carregar dados dos usuários
+        usuarios_list = []
+        # 1. Tenta carregar do Firebase se disponível
+        if db is not None:
+            try:
+                docs = db.collection("usuarios").stream()
+                for doc in docs:
+                    d = doc.to_dict()
+                    ultimo = d.get("ultimo_acesso")
+                    usuarios_list.append({
+                        "Nome": d.get("nome", "-"),
+                        "Email": d.get("email", "-"),
+                        "País": d.get("pais", "-"),
+                        "Telefone": d.get("telefone", "-"),
+                        "Escolaridade": d.get("escolaridade", "-"),
+                        "Instituição": d.get("instituicao", "-"),
+                        "Acessos (Logins)": d.get("acessos", 1),
+                        "Último Acesso": ultimo.strftime("%Y-%m-%d %H:%M:%S") if ultimo and hasattr(ultimo, 'strftime') else str(ultimo)
+                    })
+            except Exception:
+                pass
+                
+        # 2. Se a lista estiver vazia (ou Firebase falhou/não configurado), carrega do usuarios.csv local
+        if not usuarios_list:
+            caminho_csv = "usuarios.csv"
+            if os.path.exists(caminho_csv):
+                try:
+                    df_local = pd.read_csv(caminho_csv, sep=";")
+                    for _, row in df_local.iterrows():
+                        acessos_val = row.get("Acessos", 1)
+                        usuarios_list.append({
+                            "Nome": row.get("Nome", "-"),
+                            "Email": row.get("Email", "-"),
+                            "País": row.get("País", "-"),
+                            "Telefone": row.get("Telefone", "-"),
+                            "Escolaridade": row.get("Escolaridade", "-"),
+                            "Instituição": row.get("Instituição", "-"),
+                            "Acessos (Logins)": int(acessos_val) if pd.notna(acessos_val) else 1,
+                            "Último Acesso": row.get("Data/Hora", "-")
+                        })
+                except Exception:
+                    pass
+                    
+        df_stats = pd.DataFrame(usuarios_list)
+        if not df_stats.empty:
+            # Ordena pelo maior número de acessos
+            df_stats = df_stats.sort_values(by="Acessos (Logins)", ascending=False).reset_index(drop=True)
+            
+            # Exibe em uma tabela interativa do Streamlit
+            st.dataframe(
+                df_stats,
+                use_container_width=True,
+                column_config={
+                    "Acessos (Logins)": st.column_config.NumberColumn("Acessos", format="%d"),
+                    "Email": st.column_config.Column("Email")
+                }
+            )
+            
+            # Permite download em CSV
+            csv_data = df_stats.to_csv(index=False, sep=";").encode('utf-8-sig')
+            st.download_button(
+                label="📥 Baixar Planilha de Acessos (CSV)",
+                data=csv_data,
+                file_name="estatisticas_acessos.csv",
+                mime="text/csv",
+                key="admin_download_stats_btn"
+            )
+        else:
+            st.info("Nenhum usuário cadastrado encontrado na base.")
