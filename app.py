@@ -31,10 +31,6 @@ def inicializar_firebase():
         
     return firestore.client()
 
-# Inicializa o banco de dados
-db = inicializar_firebase()
-
-st.title("Buscador de Periódicos 📚")
 
 # --- EXEMPLOS DE USO DO FIRESTORE ---
 
@@ -60,22 +56,6 @@ def obter_dados_usuario(usuario_id):
         return doc.to_dict()
     else:
         return None
-
-# Interface simples de teste no Streamlit
-user_id_teste = "usuario_exemplo_123"
-busca = st.text_input("Digite um termo para pesquisar periódicos:")
-
-if st.button("Buscar e Salvar"):
-    if busca:
-        salvar_historico_usuario(user_id_teste, busca)
-        
-if st.button("Mostrar meu histórico"):
-    dados = obter_dados_usuario(user_id_teste)
-    if dados:
-        st.write("Seus dados salvos no Firebase:", dados)
-    else:
-        st.write("Nenhum histórico encontrado para este usuário.")
-
 
 # Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
 SUPPORTS_NEW_WIDTH = False
