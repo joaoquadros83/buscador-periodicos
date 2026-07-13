@@ -1684,23 +1684,7 @@ if not st.session_state.registrado:
             
     st.stop()
 
-# --- CABEÇALHO COM INFORMAÇÃO DO USUÁRIO NO CANTO SUPERIOR DIREITO ---
-col_head_l, col_head_r = st.columns([3.2, 0.8])
-with col_head_l:
-    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-with col_head_r:
-    email_usr = st.session_state.get("email_usuario", "Usuário")
-    nome_usr = st.session_state.get("nome_usuario", "")
-    if not nome_usr:
-        nome_usr = email_usr.split("@")[0].capitalize()
-        
-    st.markdown(f"""
-        <div style="text-align: right; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 2px;">
-            👤 {nome_usr}
-        </div>
-    """, unsafe_allow_html=True)
-
-st.markdown("<div style='margin-top: -15px;'></div>", unsafe_allow_html=True)
+# Textos informativos traduzidos
 
 # --- TELA DE CONFIGURAÇÕES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
