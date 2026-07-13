@@ -229,7 +229,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_titulo_form": "📝 Criar Conta Acadêmica",
         "reg_nome_sobrenome": "Nome e Sobrenome:",
         "reg_pais": "País:",
-        "reg_telefone": "Telefone (Opcional):",
+        "reg_telefone": "Telefone:",
         "reg_senha": "Senha:",
         "reg_confirmar_senha": "Confirmar Senha:",
         "reg_btn_cadastrar": "Criar Conta e Acessar ➔",
@@ -356,7 +356,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_titulo_form": "📝 Create Academic Account",
         "reg_nome_sobrenome": "First and Last Name:",
         "reg_pais": "Country:",
-        "reg_telefone": "Phone (Optional):",
+        "reg_telefone": "Phone:",
         "reg_senha": "Password:",
         "reg_confirmar_senha": "Confirm Password:",
         "reg_btn_cadastrar": "Create Account and Access ➔",
@@ -483,7 +483,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_titulo_form": "📝 Crear Cuenta Académica",
         "reg_nome_sobrenome": "Nombre y Apellido:",
         "reg_pais": "País:",
-        "reg_telefone": "Teléfono (Opcional):",
+        "reg_telefone": "Teléfono:",
         "reg_senha": "Contraseña:",
         "reg_confirmar_senha": "Confirmar Contraseña:",
         "reg_btn_cadastrar": "Crear Cuenta y Acceder ➔",
@@ -759,16 +759,24 @@ if "registrado" not in st.session_state:
     st.session_state.registrado = False
 if "modo_login" not in st.session_state:
     st.session_state.modo_login = True
+if "email_usuario" not in st.session_state:
+    st.session_state.email_usuario = ""
+if "is_admin" not in st.session_state:
+    st.session_state.is_admin = False
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
+    status_texto = "🔑 Administrador" if st.session_state.get("is_admin", False) else t['reg_lateral_status_liberado']
+    bg_cor = "#0F172A" if st.session_state.get("is_admin", False) else "#10B981"
     st.sidebar.markdown(f"""
-        <div style="background-color: #10B981; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
-            {t['reg_lateral_status_liberado']}
+        <div style="background-color: {bg_cor}; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
+            {status_texto}
         </div>
     """, unsafe_allow_html=True)
     if st.sidebar.button(t['reg_btn_sair'], key="btn_logout_sidebar", use_container_width=True):
         st.session_state.registrado = False
+        st.session_state.email_usuario = ""
+        st.session_state.is_admin = False
         st.rerun()
 
 st.sidebar.markdown(f"""
@@ -983,9 +991,9 @@ try:
             with open(arquivo_contador, "w") as f:
                 f.write(str(visitas))
 
-    # --- ABA SECRETA DO ADMINISTRADOR (URL com ?admin=true ou ?visitas=true) ---
+    # --- ABA SECRETA DO ADMINISTRADOR (URL com ?admin=true ou ?visitas=true ou Admin Logado) ---
     params = st.query_params
-    if "admin" in params or "visitas" in params:
+    if "admin" in params or "visitas" in params or st.session_state.get("is_admin", False):
         st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
         st.sidebar.markdown(f"📊 **Total de Visitas (Admin):** `{visitas}`")
         
@@ -1138,6 +1146,37 @@ if not st.session_state.registrado:
         return True
 
     def verificar_login(email_ou_usuario, senha):
+        email_clean = email_ou_usuario.lower().strip()
+        senha_clean = senha.strip()
+        
+        # Verifica se corresponde à credencial de administrador configurada nos segredos
+        admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+        admin_pass_conf = st.secrets.get("ADMIN_PASSWORD", "Ufop@2026").strip()
+        
+        if email_clean == admin_email_conf and senha_clean == admin_pass_conf:
+            # Incrementa acessos no Firestore se disponível
+            if db is not None:
+                try:
+                    doc_ref = db.collection("usuarios").document(admin_email_conf)
+                    doc = doc_ref.get()
+                    acessos_atuais = 0
+                    if doc.exists:
+                        acessos_atuais = int(doc.to_dict().get("acessos", 0))
+                    
+                    doc_ref.set({
+                        "nome": "João F. Soares-Quadros Jr.",
+                        "email": admin_email_conf,
+                        "pais": "Brasil",
+                        "telefone": "N/A",
+                        "escolaridade": "Doutor",
+                        "instituicao": "Universidade Federal de Ouro Preto (UFOP)",
+                        "acessos": acessos_atuais + 1,
+                        "ultimo_acesso": firestore.SERVER_TIMESTAMP
+                    }, merge=True)
+                except Exception:
+                    pass
+            return True
+
         caminho = "usuarios.csv"
         if not os.path.exists(caminho):
             return False
@@ -1211,6 +1250,12 @@ if not st.session_state.registrado:
                     st.error(t['reg_erro_campos'])
                 elif verificar_login(email_log, senha_log):
                     st.session_state.registrado = True
+                    
+                    email_clean = email_log.lower().strip()
+                    st.session_state.email_usuario = email_clean
+                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+                    st.session_state.is_admin = (email_clean == admin_email_conf)
+                    
                     st.success(t['reg_sucesso'])
                     time.sleep(1.2)
                     st.rerun()
@@ -1306,7 +1351,7 @@ if not st.session_state.registrado:
         btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
         
         if btn_registrar:
-            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
+            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not tel_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
                 st.error(t['reg_erro_campos'])
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
@@ -1317,14 +1362,20 @@ if not st.session_state.registrado:
                     nome_cad.strip(),
                     email_cad.strip(),
                     pais_cad.strip(),
-                    tel_cad.strip() if tel_cad else "-",
+                    tel_cad.strip(),
                     escolaridade_cad,
                     inst_final,
                     senha_cad
                 )
                 if sucesso_cadastro:
-                    st.success(t['reg_sucesso'])
                     st.session_state.registrado = True
+                    
+                    email_clean = email_cad.lower().strip()
+                    st.session_state.email_usuario = email_clean
+                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+                    st.session_state.is_admin = (email_clean == admin_email_conf)
+                    
+                    st.success(t['reg_sucesso'])
                     time.sleep(1.2)
                     st.rerun()
                 else:
@@ -1387,9 +1438,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
 st.markdown(t['filtros_tit'])
 
-# Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL
+# Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL ou se o usuário logado for Admin
 params_url = st.query_params
-if "admin" in params_url or "visitas" in params_url:
+if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "📊 Estatísticas (Admin)"])
 else:
     tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
@@ -2103,7 +2154,7 @@ with tab_ia:
                     st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
 
 # ==================== ABA 3: ESTATÍSTICAS DE ACESSOS (SÓ PARA ADMIN) ====================
-if "admin" in params_url or "visitas" in params_url:
+if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     with tab_admin:
         st.subheader("📊 Estatísticas de Acessos dos Usuários")
         
