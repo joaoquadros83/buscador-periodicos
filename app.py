@@ -222,6 +222,17 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "log_email": "E-mail ou Usuário:",
         "log_senha": "Senha:",
         "log_btn_entrar": "Entrar ➔",
+        "log_esqueceu": "Esqueceu a senha ou o login? Recupere aqui",
+        "rec_titulo": "🔒 Recuperar Acesso",
+        "rec_email": "E-mail Cadastrado:",
+        "rec_tel": "Telefone Cadastrado:",
+        "rec_btn_verificar": "Verificar Informações ➔",
+        "rec_btn_redefinir": "Redefinir Senha",
+        "rec_nova_senha": "Nova Senha:",
+        "rec_conf_senha": "Confirmar Nova Senha:",
+        "rec_sucesso": "🎉 Senha redefinida com sucesso! Faça login.",
+        "rec_erro_nao_encontrado": "⚠️ E-mail ou telefone não coincidem com nossos registros.",
+        "rec_btn_voltar": "Voltar para o Login",
         "log_btn_google": "Conectar com o Google",
         "log_cadastrar_link": "Não tem uma conta? Cadastre-se aqui!",
         "log_entrar_link": "Já tem uma conta? Faça login aqui!",
@@ -349,6 +360,17 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "log_email": "Email or Username:",
         "log_senha": "Password:",
         "log_btn_entrar": "Login ➔",
+        "log_esqueceu": "Forgot password or login? Recover here",
+        "rec_titulo": "🔒 Recover Access",
+        "rec_email": "Registered Email:",
+        "rec_tel": "Registered Phone:",
+        "rec_btn_verificar": "Verify Information ➔",
+        "rec_btn_redefinir": "Reset Password",
+        "rec_nova_senha": "New Password:",
+        "rec_conf_senha": "Confirm New Password:",
+        "rec_sucesso": "🎉 Password reset successfully! Please log in.",
+        "rec_erro_nao_encontrado": "⚠️ Email or phone do not match our records.",
+        "rec_btn_voltar": "Back to Login",
         "log_btn_google": "Sign in with Google",
         "log_cadastrar_link": "Don't have an account? Sign up here!",
         "log_entrar_link": "Already have an account? Log in here!",
@@ -476,6 +498,17 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "log_email": "Correo o Usuario:",
         "log_senha": "Contraseña:",
         "log_btn_entrar": "Ingresar ➔",
+        "log_esqueceu": "¿Olvidó su contraseña o usuario? Recupere aquí",
+        "rec_titulo": "🔒 Recuperar Acceso",
+        "rec_email": "Correo Registrado:",
+        "rec_tel": "Teléfono Registrado:",
+        "rec_btn_verificar": "Verificar Información ➔",
+        "rec_btn_redefinir": "Restablecer Contraseña",
+        "rec_nova_senha": "Nueva Contraseña:",
+        "rec_conf_senha": "Confirmar Nueva Contraseña:",
+        "rec_sucesso": "🎉 ¡Contraseña restablecida con éxito! Inicie sesión.",
+        "rec_erro_nao_encontrado": "⚠️ El correo o teléfono no coinciden con nuestros registros.",
+        "rec_btn_voltar": "Volver al Inicio",
         "log_btn_google": "Conectar con Google",
         "log_cadastrar_link": "¿No tienes una cuenta? ¡Regístrate aquí!",
         "log_entrar_link": "¿Ya tienes una cuenta? ¡Inicia sesión aquí!",
@@ -759,6 +792,10 @@ if "registrado" not in st.session_state:
     st.session_state.registrado = False
 if "modo_login" not in st.session_state:
     st.session_state.modo_login = True
+if "modo_recuperacao" not in st.session_state:
+    st.session_state.modo_recuperacao = False
+if "usuario_recuperado_email" not in st.session_state:
+    st.session_state.usuario_recuperado_email = ""
 if "email_usuario" not in st.session_state:
     st.session_state.email_usuario = ""
 if "nome_usuario" not in st.session_state:
@@ -1198,6 +1235,51 @@ if not st.session_state.registrado:
 
         return True
 
+    def verificar_recuperacao(email, telefone):
+        email_clean = email.lower().strip()
+        tel_clean = telefone.strip()
+        if db is not None:
+            try:
+                doc = db.collection("usuarios").document(email_clean).get()
+                if doc.exists:
+                    d = doc.to_dict()
+                    if str(d.get("telefone", "")).strip() == tel_clean:
+                        return True, d.get("nome", "Usuário")
+            except Exception:
+                pass
+        caminho = "usuarios.csv"
+        if os.path.exists(caminho):
+            try:
+                df = pd.read_csv(caminho, sep=";")
+                match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Telefone"].astype(str).str.strip() == tel_clean)]
+                if not match.empty:
+                    return True, match.iloc[0]["Nome"]
+            except Exception:
+                pass
+        return False, ""
+
+    def redefinir_senha_usuario(email, nova_senha):
+        email_clean = email.lower().strip()
+        senha_hash_nova = hash_senha(nova_senha)
+        if db is not None:
+            try:
+                db.collection("usuarios").document(email_clean).set({
+                    "Senha_Hash": senha_hash_nova
+                }, merge=True)
+            except Exception:
+                pass
+        caminho = "usuarios.csv"
+        if os.path.exists(caminho):
+            try:
+                df = pd.read_csv(caminho, sep=";")
+                idx = df[df["Email"].astype(str).str.lower().str.strip() == email_clean].index
+                if not idx.empty:
+                    df.loc[idx, "Senha_Hash"] = senha_hash_nova
+                    df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+            except Exception:
+                pass
+        return True
+
     def verificar_login(email_ou_usuario, senha):
         email_clean = email_ou_usuario.lower().strip()
         senha_clean = senha.strip()
@@ -1273,8 +1355,57 @@ if not st.session_state.registrado:
         except Exception:
             return False
 
-    # Escolha do Modo (Login ou Cadastro)
-    if st.session_state.modo_login:
+    # Escolha do Modo (Recuperação, Login ou Cadastro)
+    if st.session_state.get("modo_recuperacao", False):
+        col_rec_1, col_rec_2, col_rec_3 = st.columns([1, 1.5, 1])
+        with col_rec_2:
+            st.markdown(f"### {t['rec_titulo']}")
+            email_rec = st.text_input(t['rec_email'], placeholder="", key="email_rec_input")
+            tel_rec = st.text_input(t['rec_tel'], placeholder="", key="tel_rec_input")
+            
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            
+            # Se já verificou os dados, exibe a redefinição de senha
+            if st.session_state.get("usuario_recuperado_email", ""):
+                email_confirmado = st.session_state.usuario_recuperado_email
+                st.info(f"Usuário identificado. Defina uma nova senha para a conta: **{email_confirmado}**")
+                
+                nova_senha = st.text_input(t['rec_nova_senha'], type="password", key="rec_nova_senha_input")
+                conf_senha = st.text_input(t['rec_conf_senha'], type="password", key="rec_conf_senha_input")
+                
+                if st.button(t['rec_btn_redefinir'], type="primary", use_container_width=True):
+                    if not nova_senha.strip():
+                        st.error(t['reg_erro_campos'])
+                    elif nova_senha != conf_senha:
+                        st.error(t['reg_erro_senha_diferente'])
+                    else:
+                        redefinir_senha_usuario(email_confirmado, nova_senha)
+                        st.success(t['rec_sucesso'])
+                        st.session_state.usuario_recuperado_email = ""
+                        st.session_state.modo_recuperacao = False
+                        st.session_state.modo_login = True
+                        time.sleep(1.5)
+                        st.rerun()
+            else:
+                if st.button(t['rec_btn_verificar'], type="primary", use_container_width=True):
+                    if not email_rec.strip() or not tel_rec.strip():
+                        st.error(t['reg_erro_campos'])
+                    else:
+                        sucesso, nome = verificar_recuperacao(email_rec, tel_rec)
+                        if sucesso:
+                            st.session_state.usuario_recuperado_email = email_rec.lower().strip()
+                            st.rerun()
+                        else:
+                            st.error(t['rec_erro_nao_encontrado'])
+            
+            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+            if st.button(t['rec_btn_voltar'], use_container_width=True):
+                st.session_state.usuario_recuperado_email = ""
+                st.session_state.modo_recuperacao = False
+                st.session_state.modo_login = True
+                st.rerun()
+
+    elif st.session_state.modo_login:
         # TÍTULO E APRESENTAÇÃO MINIMALISTA
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
         with col_log_2:
@@ -1291,6 +1422,13 @@ if not st.session_state.registrado:
             # Link para ir para a página de Cadastro colocado diretamente abaixo
             if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
                 st.session_state.modo_login = False
+                st.rerun()
+                
+            # Link para ir para a página de Recuperação
+            if st.button(f"🔑 {t['log_esqueceu']}", key="btn_ir_recuperacao", use_container_width=True):
+                st.session_state.modo_recuperacao = True
+                st.session_state.modo_login = False
+                st.session_state.usuario_recuperado_email = ""
                 st.rerun()
                 
             if btn_entrar:
