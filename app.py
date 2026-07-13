@@ -31,6 +31,11 @@ def inicializar_firebase():
         
     return firestore.client()
 
+# Inicializa o banco de dados
+db = inicializar_firebase()
+
+st.title("Buscador de Periódicos 📚")
+
 # --- EXEMPLOS DE USO DO FIRESTORE ---
 
 # 2. Criar ou Atualizar dados do usuário (Salvar histórico de busca)
