@@ -218,7 +218,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_erro_campos": "⚠️ Por favor, preencha todos os campos obrigatórios.",
         "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "🔓 Acesso Liberado",
-        "reg_btn_sair": "Desconectar / Novo Registro",
+        "reg_btn_sair": "Sair",
         "log_email": "E-mail ou Usuário:",
         "log_senha": "Senha:",
         "log_btn_entrar": "Entrar ➔",
@@ -345,7 +345,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_erro_campos": "⚠️ Please fill in all required fields.",
         "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
         "reg_lateral_status_liberado": "🔓 Access Granted",
-        "reg_btn_sair": "Logout / New Registration",
+        "reg_btn_sair": "Logout",
         "log_email": "Email or Username:",
         "log_senha": "Password:",
         "log_btn_entrar": "Login ➔",
@@ -472,7 +472,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_erro_campos": "⚠️ Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
         "reg_lateral_status_liberado": "🔓 Acceso Concedido",
-        "reg_btn_sair": "Cerrar Sesión / Nuevo Registro",
+        "reg_btn_sair": "Salir",
         "log_email": "Correo o Usuario:",
         "log_senha": "Contraseña:",
         "log_btn_entrar": "Ingresar ➔",
@@ -761,13 +761,30 @@ if "modo_login" not in st.session_state:
     st.session_state.modo_login = True
 if "email_usuario" not in st.session_state:
     st.session_state.email_usuario = ""
+if "nome_usuario" not in st.session_state:
+    st.session_state.nome_usuario = ""
+if "acessos_usuario" not in st.session_state:
+    st.session_state.acessos_usuario = 0
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
-    status_texto = "🔑 Administrador" if st.session_state.get("is_admin", False) else t['reg_lateral_status_liberado']
-    bg_cor = "#0F172A" if st.session_state.get("is_admin", False) else "#10B981"
+    nome_usr_exibir = st.session_state.get("nome_usuario", "Usuário")
+    acessos_usr = st.session_state.get("acessos_usuario", 1)
+    
+    # Determina o texto de boas-vindas com base no número de acessos
+    if acessos_usr <= 1:
+        status_texto = f"Seja bem-vindo(a), {nome_usr_exibir}"
+    else:
+        status_texto = f"Bem vindo de volta, {nome_usr_exibir}"
+        
+    if st.session_state.get("is_admin", False):
+        status_texto = f"🔑 Admin: {status_texto}"
+        bg_cor = "#0F172A"
+    else:
+        bg_cor = "#10B981"
+        
     st.sidebar.markdown(f"""
         <div style="background-color: {bg_cor}; color: white; padding: 10px 14px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; margin-bottom: 15px;">
             {status_texto}
@@ -776,6 +793,8 @@ if st.session_state.registrado:
     if st.sidebar.button(t['reg_btn_sair'], key="btn_logout_sidebar", use_container_width=True):
         st.session_state.registrado = False
         st.session_state.email_usuario = ""
+        st.session_state.nome_usuario = ""
+        st.session_state.acessos_usuario = 0
         st.session_state.is_admin = False
         st.rerun()
 
@@ -1413,24 +1432,21 @@ if not st.session_state.registrado:
             
     st.stop()
 
-# --- CABEÇALHO COM INFORMAÇÃO DO USUÁRIO E LOGOUT NO CANTO SUPERIOR DIREITO ---
+# --- CABEÇALHO COM INFORMAÇÃO DO USUÁRIO NO CANTO SUPERIOR DIREITO ---
 col_head_l, col_head_r = st.columns([3.2, 0.8])
 with col_head_l:
     st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
 with col_head_r:
     email_usr = st.session_state.get("email_usuario", "Usuário")
-    nome_usr = email_usr.split("@")[0].capitalize()
-    
+    nome_usr = st.session_state.get("nome_usuario", "")
+    if not nome_usr:
+        nome_usr = email_usr.split("@")[0].capitalize()
+        
     st.markdown(f"""
         <div style="text-align: right; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 2px;">
             👤 {nome_usr}
         </div>
     """, unsafe_allow_html=True)
-    if st.button("🚪 Logout / Sair", key="btn_logout_topo_direito", use_container_width=True):
-        st.session_state.registrado = False
-        st.session_state.email_usuario = ""
-        st.session_state.is_admin = False
-        st.rerun()
 
 st.markdown("<div style='margin-top: -15px;'></div>", unsafe_allow_html=True)
 
