@@ -31,6 +31,13 @@ def inicializar_firebase():
         
     return firestore.client()
 
+# Inicializa o cliente do Firestore globalmente se os segredos estiverem presentes
+db = None
+try:
+    if "firebase" in st.secrets:
+        db = inicializar_firebase()
+except Exception:
+    pass
 
 # --- EXEMPLOS DE USO DO FIRESTORE ---
 
@@ -925,47 +932,59 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 6. BLOCO CONTADOR DE VISITAS ---
-st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
+# --- 6. BLOCO CONTADOR DE VISITAS (SILENCIOSO E PERSISTENTE) ---
 try:
-    arquivo_contador = "contador_visitas.txt"
-    if not os.path.exists(arquivo_contador):
-        with open(arquivo_contador, "w") as f:
-            f.write("0")
-            
-    with open(arquivo_contador, "r") as f:
-        conteudo = f.read().strip()
-        visitas = int(conteudo) if conteudo.isdigit() else 0
-        
     if 'visitou' not in st.session_state:
         st.session_state.visitou = True
-        visitas += 1
-        with open(arquivo_contador, "w") as f:
-            f.write(str(visitas))
+        incrementar = True
+    else:
+        incrementar = False
+
+    sucesso_db = False
+    visitas = 0
+
+    # Tenta ler/gravar no Firebase Firestore se disponível
+    if db is not None:
+        try:
+            doc_ref = db.collection("metadados").document("visitas")
+            doc = doc_ref.get()
             
-    st.sidebar.markdown(f"""
-        <div style="
-            background-color: #79C83D; 
-            color: white; 
-            padding: 10px 14px; 
-            border-radius: 8px; 
-            text-align: center; 
-            font-weight: 600; 
-            font-size: 0.88rem; 
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            width: 100%;
-            box-sizing: border-box;
-        ">
-            👤 {t['visitas_lbl']}: {visitas}
-        </div>
-    """, unsafe_allow_html=True)
+            if doc.exists:
+                visitas = int(doc.to_dict().get("quantidade", 0))
+            else:
+                # Se não existir no DB, inicializa usando o valor do arquivo local como base para não zerar
+                arquivo_contador = "contador_visitas.txt"
+                visitas_inicial = 0
+                if os.path.exists(arquivo_contador):
+                    with open(arquivo_contador, "r") as f:
+                        conteudo = f.read().strip()
+                        visitas_inicial = int(conteudo) if conteudo.isdigit() else 0
+                visitas = visitas_inicial
+            
+            if incrementar:
+                visitas += 1
+                doc_ref.set({"quantidade": visitas}, merge=True)
+            sucesso_db = True
+        except Exception:
+            pass
+
+    # Fallback local caso o Firebase não esteja disponível/configurado
+    if not sucesso_db:
+        arquivo_contador = "contador_visitas.txt"
+        if not os.path.exists(arquivo_contador):
+            with open(arquivo_contador, "w") as f:
+                f.write("0")
+                
+        with open(arquivo_contador, "r") as f:
+            conteudo = f.read().strip()
+            visitas = int(conteudo) if conteudo.isdigit() else 0
+            
+        if incrementar:
+            visitas += 1
+            with open(arquivo_contador, "w") as f:
+                f.write(str(visitas))
 except Exception:
-    st.sidebar.markdown("""
-        <div style="background-color: #475569; color: white; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.88rem; width: 100%;">
-            📊 Portal Online
-        </div>
-    """, unsafe_allow_html=True)
+    pass
 
 # --- 7. METADADOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
