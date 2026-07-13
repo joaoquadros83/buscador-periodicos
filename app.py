@@ -31,6 +31,8 @@ def inicializar_firebase():
         
     return firestore.client()
 
+# Dispara o contador silenciosamente assim que o app é carregado
+incrementar_contador_visitas_invisivel()
 
 # --- EXEMPLOS DE USO DO FIRESTORE ---
 
@@ -46,6 +48,20 @@ def salvar_historico_usuario(usuario_id, termo_busca):
     }, merge=True) # merge=True impede que outros campos sejam apagados ao atualizar
     
     st.success(f"Busca por '{termo_busca}' salva no histórico!")
+
+def incrementar_contador_visitas_invisivel():
+    try:
+        # Acessa um documento fixo chamado 'metricas' na coleção 'configuracoes'
+        contador_ref = db.collection("configuracoes").document("metricas")
+        
+        # Incrementa o contador de forma atômica diretamente no servidor do Firebase
+        # Isso impede que o número zere ou sofra conflito entre múltiplos acessos
+        contador_ref.set({
+            "total_visitas": firestore.Increment(1)
+        }, merge=True)
+    except Exception as e:
+        # Mantém em silêncio para não exibir erros na tela do usuário caso falhe
+        pass
 
 # 3. Ler dados do usuário
 def obter_dados_usuario(usuario_id):
@@ -148,7 +164,6 @@ dic = {
         "meta_ativo": "Ativo",
         "direitos_tit": "Direitos Autorais & Propriedade",
         "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
-        "visitas_lbl": "Visitas ao Portal",
         "gov_tit": "SITES GOVERNAMENTAIS",
         "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
         "pessoal_lbl": "👤 Site pessoal",
@@ -275,7 +290,6 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "meta_ativo": "Active",
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
-        "visitas_lbl": "Portal Visits",
         "gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
         "pessoal_lbl": "👤 Personal website",
@@ -402,7 +416,6 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
-        "visitas_lbl": "Visitas al Portal",
         "gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
         "pessoal_lbl": "👤 Sitio personal",
