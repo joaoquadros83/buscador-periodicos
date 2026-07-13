@@ -991,16 +991,40 @@ try:
             with open(arquivo_contador, "w") as f:
                 f.write(str(visitas))
 
+    # Calcula a soma de todos os acessos individuais dos usuários cadastrados
+    soma_acessos_individuais = 0
+    if db is not None:
+        try:
+            docs = db.collection("usuarios").stream()
+            for doc in docs:
+                soma_acessos_individuais += int(doc.to_dict().get("acessos", 0))
+        except Exception:
+            pass
+            
+    if soma_acessos_individuais == 0:
+        caminho_csv = "usuarios.csv"
+        if os.path.exists(caminho_csv):
+            try:
+                df_local = pd.read_csv(caminho_csv, sep=";")
+                if "Acessos" in df_local.columns:
+                    soma_acessos_individuais = int(df_local["Acessos"].sum())
+            except Exception:
+                pass
+
+    visitas_totais = visitas + soma_acessos_individuais
+
     # --- ABA SECRETA DO ADMINISTRADOR (URL com ?admin=true ou ?visitas=true ou Admin Logado) ---
     params = st.query_params
     if "admin" in params or "visitas" in params or st.session_state.get("is_admin", False):
         st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
-        st.sidebar.markdown(f"📊 **Total de Visitas (Admin):** `{visitas}`")
+        # Exibe em preto (color: #000000)
+        st.sidebar.markdown(f"<p style='color: #000000; font-weight: bold; margin-bottom: 0;'>📊 Total de Visitas (Admin): {visitas_totais}</p>", unsafe_allow_html=True)
         
         # Campo para atualizar manualmente o valor do contador no Firebase/Local
-        novo_valor = st.sidebar.number_input("Atualizar Contador:", min_value=0, value=visitas, step=1, key="admin_visit_counter")
+        novo_valor = st.sidebar.number_input("Atualizar Contador:", min_value=0, value=visitas_totais, step=1, key="admin_visit_counter")
         if st.sidebar.button("Salvar Novo Valor", key="admin_save_visits_btn"):
-            visitas = novo_valor
+            # O valor geral será ajustado descontando os acessos dos usuários
+            visitas = max(0, novo_valor - soma_acessos_individuais)
             # Salva no Firestore se configurado
             if db is not None:
                 try:
@@ -1388,6 +1412,27 @@ if not st.session_state.registrado:
             st.rerun()
             
     st.stop()
+
+# --- CABEÇALHO COM INFORMAÇÃO DO USUÁRIO E LOGOUT NO CANTO SUPERIOR DIREITO ---
+col_head_l, col_head_r = st.columns([3.2, 0.8])
+with col_head_l:
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+with col_head_r:
+    email_usr = st.session_state.get("email_usuario", "Usuário")
+    nome_usr = email_usr.split("@")[0].capitalize()
+    
+    st.markdown(f"""
+        <div style="text-align: right; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 2px;">
+            👤 {nome_usr}
+        </div>
+    """, unsafe_allow_html=True)
+    if st.button("🚪 Logout / Sair", key="btn_logout_topo_direito", use_container_width=True):
+        st.session_state.registrado = False
+        st.session_state.email_usuario = ""
+        st.session_state.is_admin = False
+        st.rerun()
+
+st.markdown("<div style='margin-top: -15px;'></div>", unsafe_allow_html=True)
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
