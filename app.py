@@ -11,6 +11,71 @@ import os
 import re
 import time
 import hashlib
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# 1. Função para inicializar o Firebase com segurança e cache
+@st.cache_resource
+def inicializar_firebase():
+    # Converte os segredos do Streamlit para um dicionário Python normal
+    firebase_info = dict(st.secrets["firebase"])
+    
+    # Corrige problemas comuns de escape com a chave privada no Streamlit Cloud
+    firebase_info["private_key"] = firebase_info["private_key"].replace("\\n", "\n")
+    
+    # Inicializa o app se ele já não estiver ativo
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(firebase_info)
+        firebase_admin.initialize_app(cred)
+        
+    return firestore.client()
+
+# Inicializa o banco de dados
+db = inicializar_firebase()
+
+st.title("Buscador de Periódicos 📚")
+
+# --- EXEMPLOS DE USO DO FIRESTORE ---
+
+# 2. Criar ou Atualizar dados do usuário (Salvar histórico de busca)
+def salvar_historico_usuario(usuario_id, termo_busca):
+    # Acessa o documento do usuário na coleção 'usuarios'
+    user_ref = db.collection("usuarios").document(usuario_id)
+    
+    # Cria o documento ou atualiza adicionando a busca ao histórico
+    user_ref.set({
+        "historico_buscas": firestore.ArrayUnion([termo_busca]),
+        "ultimo_acesso": firestore.SERVER_TIMESTAMP
+    }, merge=True) # merge=True impede que outros campos sejam apagados ao atualizar
+    
+    st.success(f"Busca por '{termo_busca}' salva no histórico!")
+
+# 3. Ler dados do usuário
+def obter_dados_usuario(usuario_id):
+    user_ref = db.collection("usuarios").document(usuario_id)
+    doc = user_ref.get()
+    
+    if doc.exists:
+        return doc.to_dict()
+    else:
+        return None
+
+# Interface simples de teste no Streamlit
+user_id_teste = "usuario_exemplo_123"
+busca = st.text_input("Digite um termo para pesquisar periódicos:")
+
+if st.button("Buscar e Salvar"):
+    if busca:
+        salvar_historico_usuario(user_id_teste, busca)
+        
+if st.button("Mostrar meu histórico"):
+    dados = obter_dados_usuario(user_id_teste)
+    if dados:
+        st.write("Seus dados salvos no Firebase:", dados)
+    else:
+        st.write("Nenhum histórico encontrado para este usuário.")
+
 
 # Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
 SUPPORTS_NEW_WIDTH = False
