@@ -1284,13 +1284,8 @@ if not st.session_state.registrado:
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
-            col_btn1, col_btn2 = st.columns(2)
-            with col_btn1:
-                btn_entrar = st.button(t['log_btn_entrar'], type="primary", use_container_width=True)
-            with col_btn2:
-                # Botão do Google com ícone de simulação
-                btn_google = st.button(f"🌐 {t['log_btn_google']}", key="google_login", use_container_width=True)
-                
+            btn_entrar = st.button(t['log_btn_entrar'], type="primary", use_container_width=True)
+            
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
             # Link para ir para a página de Cadastro colocado diretamente abaixo
@@ -1315,52 +1310,6 @@ if not st.session_state.registrado:
                     st.rerun()
                 else:
                     st.error(t['log_erro_invalido'])
-                    
-            if btn_google:
-                user_email_real = None
-                try:
-                    if hasattr(st, "user") and st.user is not None:
-                        user_email_real = st.user.get("email")
-                except Exception:
-                    pass
-                
-                if user_email_real:
-                    st.session_state.registrado = True
-                    st.session_state.login_via_google = True
-                    st.session_state.email_usuario = user_email_real.lower().strip()
-                    st.session_state.nome_usuario = user_email_real.split("@")[0].capitalize()
-                    st.session_state.acessos_usuario = 1
-                    st.session_state.is_admin = (st.session_state.email_usuario == st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip())
-                    st.success(t['log_google_sucesso'])
-                    time.sleep(1.2)
-                    st.rerun()
-                else:
-                    st.session_state.solicitar_email_google = True
-
-            # Formulário amigável de e-mail do Google (fallback local ou de teste)
-            if st.session_state.get("solicitar_email_google", False):
-                st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0 10px 0;'>", unsafe_allow_html=True)
-                email_g = st.text_input("Digite o seu e-mail do Google para conectar:", key="google_input_email")
-                col_c1, col_c2 = st.columns(2)
-                with col_c1:
-                    if st.button("Confirmar Google Login", type="primary", use_container_width=True):
-                        if email_g.strip() and "@" in email_g:
-                            st.session_state.registrado = True
-                            st.session_state.login_via_google = True
-                            st.session_state.email_usuario = email_g.lower().strip()
-                            st.session_state.nome_usuario = email_g.split("@")[0].capitalize()
-                            st.session_state.acessos_usuario = 1
-                            st.session_state.is_admin = (st.session_state.email_usuario == st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip())
-                            st.session_state.solicitar_email_google = False
-                            st.success(t['log_google_sucesso'])
-                            time.sleep(1.2)
-                            st.rerun()
-                        else:
-                            st.error("Por favor, digite um e-mail válido.")
-                with col_c2:
-                    if st.button("Cancelar", key="cancelar_google_login", use_container_width=True):
-                        st.session_state.solicitar_email_google = False
-                        st.rerun()
     else:
         col_reg_1, col_reg_2 = st.columns(2)
         with col_reg_1:
