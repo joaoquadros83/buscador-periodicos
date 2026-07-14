@@ -1324,23 +1324,21 @@ def cadastrar_usuario(nome, email, pais, telefone, escolaridade, instituicao, se
             pass
     return True
 
-def verificar_recuperacao(email, telefone):
+def verificar_recuperacao(email):
     email_clean = email.lower().strip()
-    tel_clean = telefone.strip()
     if db is not None:
         try:
             doc = db.collection("usuarios").document(email_clean).get()
             if doc.exists:
                 d = doc.to_dict()
-                if str(d.get("telefone", "")).strip() == tel_clean:
-                    return True, d.get("nome", "Usuário")
+                return True, d.get("nome", "Usuário")
         except Exception:
             pass
     caminho = "usuarios.csv"
     if os.path.exists(caminho):
         try:
             df = pd.read_csv(caminho, sep=";")
-            match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Telefone"].astype(str).str.strip() == tel_clean)]
+            match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean)]
             if not match.empty:
                 return True, match.iloc[0]["Nome"]
         except Exception:
@@ -1449,7 +1447,6 @@ if not st.session_state.registrado:
         with col_rec_2:
             st.markdown(f"### {t['rec_titulo']}")
             email_rec = st.text_input(t['rec_email'], placeholder="", key="email_rec_input")
-            tel_rec = st.text_input(t['rec_tel'], placeholder="", key="tel_rec_input")
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
@@ -1476,10 +1473,10 @@ if not st.session_state.registrado:
                         st.rerun()
             else:
                 if st.button(t['rec_btn_verificar'], type="primary", use_container_width=True):
-                    if not email_rec.strip() or not tel_rec.strip():
+                    if not email_rec.strip():
                         st.error(t['reg_erro_campos'])
                     else:
-                        sucesso, nome = verificar_recuperacao(email_rec, tel_rec)
+                        sucesso, nome = verificar_recuperacao(email_rec)
                         if sucesso:
                             # Gera senha temporária alfanumérica
                             senha_temp = gerar_senha_temporaria()
