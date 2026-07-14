@@ -2123,22 +2123,7 @@ with tab_busca:
     if col_ordenar in df_filtrado.columns: 
         df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-    # METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
-    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    with col_m1: 
-        st.metric(t['m_selecionadas'], f"{len(df_filtrado):,}".replace(",", "."))
-    with col_m2: 
-        h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
-        max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
-        st.metric(t['m_hindex'], max_h)
-    with col_m3: 
-        jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
-        max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
-        st.metric(t['m_jif'], max_jif)
-    with col_m4: 
-        sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
-        max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
-        st.metric(t['m_sjr'], max_sjr)
+
 
     st.markdown("<br>", unsafe_allow_html=True)
 
