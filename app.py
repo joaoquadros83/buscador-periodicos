@@ -107,7 +107,12 @@ if not imagem_base64_icon:
 if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
 
-novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "ðŸ“š"
+st.set_page_config(
+    page_title="Portal do Pesquisador",
+    page_icon="🔍",  # <-- Mudei aqui para um emoji direto em texto
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # --- INJEÃ‡ÃƒO DE TEMA DINÃ‚MICO (DIURNO / NOTURNO) ---
 if st.session_state.get("dark_mode", False):
