@@ -1460,7 +1460,7 @@ if not st.session_state.registrado:
                 
                 if st.button(t['rec_btn_redefinir'], type="primary", use_container_width=True):
                     if not nova_senha.strip():
-                        st.error(t['reg_erro_campos'])
+                        st.error(t['reg_erro_campos'] + " (Faltando: Nova Senha)")
                     elif nova_senha != conf_senha:
                         st.error(t['reg_erro_senha_diferente'])
                     else:
@@ -1474,7 +1474,7 @@ if not st.session_state.registrado:
             else:
                 if st.button(t['rec_btn_verificar'], type="primary", use_container_width=True):
                     if not email_rec.strip():
-                        st.error(t['reg_erro_campos'])
+                        st.error(t['reg_erro_campos'] + " (Faltando: E-mail)")
                     else:
                         sucesso, nome = verificar_recuperacao(email_rec)
                         if sucesso:
@@ -1535,7 +1535,10 @@ if not st.session_state.registrado:
                 
             if btn_entrar:
                 if not email_log.strip() or not senha_log.strip():
-                    st.error(t['reg_erro_campos'])
+                    faltam = []
+                    if not email_log.strip(): faltam.append("E-mail")
+                    if not senha_log.strip(): faltam.append("Senha")
+                    st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
                 elif verificar_login(email_log, senha_log):
                     st.session_state.registrado = True
                     st.session_state.login_via_google = False
@@ -1635,7 +1638,14 @@ if not st.session_state.registrado:
         
         if btn_registrar:
             if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not tel_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
-                st.error(t['reg_erro_campos'])
+                faltam = []
+                if not nome_cad.strip(): faltam.append("Nome")
+                if not email_cad.strip(): faltam.append("E-mail")
+                if not pais_cad.strip(): faltam.append("País")
+                if not tel_cad.strip(): faltam.append("Telefone")
+                if not senha_cad.strip(): faltam.append("Senha")
+                if escrever_outra and not instituicao_cad_outra.strip(): faltam.append("Instituição Específica")
+                st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
             else:
