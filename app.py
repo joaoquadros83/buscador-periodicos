@@ -1578,59 +1578,7 @@ if not st.session_state.registrado:
             escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
             
             # Vínculo Institucional
-            opcoes_inst = []
-            if st.session_state.idioma == "Português":
-                opcoes_inst = [
-                    "",
-                    "Universidade Federal de Ouro Preto (UFOP)",
-                    "Universidade de São Paulo (USP)",
-                    "Universidade Estadual de Campinas (UNICAMP)",
-                    "Universidade Federal de Minas Gerais (MG)",
-                    "Universidade Federal do Rio de Janeiro (RJ)",
-                    "Universidade Federal do Rio Grande do Sul (RS)",
-                    "Universidade Estadual Paulista (SP)",
-                    "Universidade Federal de Santa Catarina (SC)",
-                    "Universidade Federal de São Paulo (SP)",
-                    "Outra Instituição"
-                ]
-            elif st.session_state.idioma == "English":
-                opcoes_inst = [
-                    "",
-                    "Federal University of Ouro Preto (UFOP)",
-                    "University of São Paulo (USP)",
-                    "State University of Campinas (UNICAMP)",
-                    "Federal University of Minas Gerais (UFMG)",
-                    "Federal University of Rio de Janeiro (UFRJ)",
-                    "Federal University of Rio Grande do Sul (UFRGS)",
-                    "São Paulo State University (UNESP)",
-                    "Federal University of Santa Catarina (UFSC)",
-                    "Federal University of São Paulo (UNIFESP)",
-                    "Other Institution"
-                ]
-            else:
-                opcoes_inst = [
-                    "",
-                    "Universidad Federal de Ouro Preto (UFOP)",
-                    "Universidad de São Paulo (USP)",
-                    "Universidad Estatal de Campinas (UNICAMP)",
-                    "Universidad Federal de Minas Gerais (UFMG)",
-                    "Universidad Federal de Río de Janeiro (UFRJ)",
-                    "Universidad Federal de Río Grande del Sur (UFRGS)",
-                    "Universidad Estatal Paulista (UNESP)",
-                    "Universidad Federal de Santa Catarina (UFSC)",
-                    "Universidad Federal de São Paulo (UNIFESP)",
-                    "Otra Institución"
-                ]
-                
-            instituicao_cad_sel = st.selectbox(t['reg_instituicao'], opcoes_inst)
-            
-            # Se for "Outra", pede para especificar
-            escrever_outra = False
-            if instituicao_cad_sel in ["Outra Instituição", "Other Institution", "Otra Institución"]:
-                instituicao_cad_outra = st.text_input(t['reg_inst_outra'], placeholder="Ex: Harvard University")
-                escrever_outra = True
-            else:
-                instituicao_cad_outra = ""
+            instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
                 
             idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
             raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
@@ -1647,18 +1595,19 @@ if not st.session_state.registrado:
         btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
         
         if btn_registrar:
-            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
+            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
                 faltam = []
                 if not nome_cad.strip(): faltam.append("Nome")
                 if not email_cad.strip(): faltam.append("E-mail")
                 if not pais_cad.strip(): faltam.append("País")
+                if not instituicao_cad.strip(): faltam.append("Instituição de Vínculo")
                 if not senha_cad.strip(): faltam.append("Senha")
-                if escrever_outra and not instituicao_cad_outra.strip(): faltam.append("Instituição Específica")
                 st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
+            elif not senha_cad_conf.strip():
+                st.error(f"{t['reg_erro_campos']} (Faltando: Confirmação de Senha)")
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
             else:
-                inst_final = instituicao_cad_outra.strip() if escrever_outra else instituicao_cad_sel
                 idade_final = idade_cad if idade_cad > 0 else ""
                 
                 # Grava no CSV
