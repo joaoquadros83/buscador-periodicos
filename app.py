@@ -1207,33 +1207,29 @@ st.sidebar.markdown(
 )
 
 # --- 9. PAINEL PRINCIPAL (HERO DESIGN) ---
-# Seleciona o arquivo de imagem correspondente ao idioma ativo
-nome_logo = "logo.png"
-if st.session_state.idioma == "English":
-    nome_logo = "logo_en.png"
-elif st.session_state.idioma == "Español":
-    nome_logo = "logo_es.png"
-
-imagem_base64 = obter_imagem_local_base64(nome_logo)
-# Fallback caso a versão traduzida específica não exista
-if not imagem_base64:
-    imagem_base64 = obter_imagem_local_base64("logo.png")
-if not imagem_base64:
-    imagem_base64 = obter_imagem_local_base64("logo_azul.png")
-if not imagem_base64:
-    imagem_base64 = obter_imagem_local_base64("st_static/logo.png")
-
-if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 160px; width: auto; object-fit: contain;">'
-else:
-    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
+tag_logo_texto = """
+<div class="logo-scipub-text" style="
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 3.8rem;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #FF2B2B 0%, #FF8A8A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    padding: 5px 0;
+">SciPub</div>
+"""
 
 st.markdown(f"""
-    <div class="premium-hero" style="display: flex; align-items: center; gap: 40px; padding: 40px 45px;">
-        {tag_imagem}
+    <div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 30px 40px;">
+        {tag_logo_texto}
+        <div class="divider-line" style="width: 2px; height: 60px; background-color: rgba(255,255,255,0.15);"></div>
         <div class="premium-text-block">
-            <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important;">{t['titulo']}</h1>
-            <p class="premium-subtitle" style="margin: 0 !important; padding: 0 !important;">{t['subtitulo']}</p>
+            <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
+            <p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -1856,9 +1852,9 @@ if st.session_state.get("abrir_configuracoes", False):
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
-    expander_titulo = "📖 Sobre o Portal & Como Utilizar"
+    expander_titulo = "📖 Sobre o SciPub & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao Portal do Pesquisador!
+### Bem-vindo ao SciPub - O Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 #### 🛠️ O que você pode fazer aqui?
@@ -1869,9 +1865,9 @@ Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos cient�
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 elif st.session_state.idioma == "English":
-    expander_titulo = "📖 About the Portal & How to Use"
+    expander_titulo = "📖 About SciPub & How to Use"
     sobre_texto = """
-### Welcome to the Researcher's Portal!
+### Welcome to SciPub - The Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
 #### 🛠️ What can you do here?
@@ -1882,9 +1878,9 @@ This is a tool developed to optimize the search for high-impact scientific journ
 5. **Data Export:** Filter results according to your needs and download the customized table immediately.
 """
 else: # Español
-    expander_titulo = "📖 Sobre o Portal y Cómo Utilizar"
+    expander_titulo = "📖 Sobre SciPub y Cómo Utilizar"
     sobre_texto = """
-### ¡Bienvenido al Portal del Investigador!
+### ¡Bienvenido a SciPub - El Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
 #### 🛠️ ¿Qué puedes fazer aquí?
