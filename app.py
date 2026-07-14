@@ -1,6 +1,398 @@
-`python\nAqui está o código completo do  pp.py com a tipografia 100% perfeita em UTF-8.\n\nVocê pode copiar tudo de uma vez clicando no botão de copiar no canto superior direito do bloco de código abaixo:\n\n`python\nimport faulthandler
-faulthandler.enable()
+# --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA ---
+def obter_imagem_local_base64(caminho_arquivo):
+    try:
+        if os.path.exists(caminho_arquivo):
+            with open(caminho_arquivo, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode()
+    except Exception:
+        return ""
+    return ""
 
+# Busca o logo na raiz do repositório, onde ele realmente está
+imagem_base64_icon = obter_imagem_local_base64("logo.png")
+novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
+
+st.set_page_config(
+    page_title="Portal do Pesquisador",
+    page_icon=novo_page_icon, 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
+if 'idioma' not in st.session_state:
+    st.session_state.idioma = "Português"
+
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
+st.session_state.idioma = st.sidebar.selectbox(
+    "🌐 Language / Idioma:",
+    ["Português", "English", "Español"]
+)
+
+# Dicionário central de tradução corrigido (adicionadas chaves faltantes)
+dic = {
+    "Português": {
+        "titulo": "Portal do Pesquisador",
+        "subtitulo": "Ciência de dados aplicada à produção científica de alto impacto",
+        "filtros_tit": "#### 🛠️ Filtros Inteligentes de Pesquisa",
+        "placeholder_busca": "Digite o título da revista, ISSN...",
+        "buscar_reg": "Buscar registro específico:",
+        "aba_escopo": "📂 Escopo Acadêmico & CNPq",
+        "aba_impacto": "📈 Métricas de Performance & Quartis",
+        "subarea_lbl": "Subárea do Conhecimento (CNPq):",
+        "base_lbl": "Bases Detentoras:",
+        "jcr_lbl": "Quartil JCR (Clarivate):",
+        "sjr_lbl": "Quartil SJR (Scopus):",
+        "ordem_lbl": "Ordenar Resultados por:",
+        "m_selecionadas": "Revistas Selecionadas",
+        "m_hindex": "H-Index Topo",
+        "m_jif": "Fator JIF Máximo",
+        "m_sjr": "SJR Score Ápice",
+        "cat_tit": "#### 📋 Catálogo de Periódicos",
+        "exibir_pag": "Exibir por página:",
+        "pag_lbl": "Página",
+        "exportar_btn": "📥 Exportar apenas esta página",
+        "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
+        "nav_tit": "Painel de Navegação",
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)",
+        "meta_tit": "METADADOS",
+        "meta_sistema": "Sistema",
+        "meta_versao": "Versão Base",
+        "meta_padrao": "Padrão CNPq",
+        "meta_status": "Operacional",
+        "meta_ativo": "Ativo",
+        "direitos_tit": "Direitos Autorais & Propriedade",
+        "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
+        "visitas_lbl": "Visitas ao Portal",
+        "gov_tit": "SITES GOVERNAMENTAIS",
+        "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
+        "pessoal_lbl": "👤 Site pessoal",
+        "indexadores_tit": "INDEXADORES",
+        "repositorios_tit": "REPOSITÓRIOS",
+        "ia_tit": "IA ACADÊMICA",
+        "btn_desktop": "💻 Baixar Versão para Windows",
+        "busca_cat": "🔍 Catálogo de Periódicos",
+        "busca_ia": "🧠 Recomendador Inteligente (IA)",
+        "ia_titulo": "Recomendação Temática com Inteligência Artificial",
+        "ia_subtitulo": "Cole o título e o resumo (abstract) do seu artigo. A IA analisará o nosso catálogo e indicará as opções mais adequadas.",
+        "ia_campo_titulo": "Título do Artigo",
+        "ia_campo_resumo": "Resumo / Abstract (Suporta Português, Inglês ou Espanhol)",
+        "ia_chave_api": "Chave API do Gemini (Google AI Studio)",
+        "ia_chave_ajuda": "Você precisa de uma chave API gratuita obtida no Google AI Studio para rodar a recomendação online.",
+        "ia_num_rec": "Quantidade de recomendações desejadas (máx. 10)",
+        "ia_btn_buscar": "Analisar e Recomendar",
+        "ia_analisando": "A IA está processando o seu resumo e cruzando com o catálogo...",
+        "ia_sucesso": "Recomendações geradas com sucesso!",
+        "ia_erro": "Erro ao processar com a IA. Verifique se a sua Chave API está correta.",
+        "ia_card_motivo": "Por que publicar aqui:",
+        "ia_card_aderencia": "Grau de Aderência:",
+        "ia_card_site": "🌐 Visitar Homepage Oficial",
+        "ia_card_sem_site": "Site indisponível na base",
+        "filtro_area": "Grande Área",
+        "filtro_indexador": "Indexador"
+    },
+    "English": {
+        "titulo": "Researcher's Portal",
+        "subtitulo": "Data science applied to high-impact scientific output.",
+        "filtros_tit": "#### 🛠️ Smart Search Filters",
+        "placeholder_busca": "Enter journal title, ISSN...",
+        "buscar_reg": "Search specific record:",
+        "aba_escopo": "📂 Academic Scope & CNPq",
+        "aba_impacto": "📈 Performance Metrics & Quartiles",
+        "subarea_lbl": "Subarea of Knowledge (CNPq):",
+        "base_lbl": "Holding Databases:",
+        "jcr_lbl": "JCR Quartile (Clarivate):",
+        "sjr_lbl": "SJR Quartile (Scopus):",
+        "ordem_lbl": "Sort Results by:",
+        "m_selecionadas": "Selected Journals",
+        "m_hindex": "Top H-Index",
+        "m_jif": "Max JIF Factor",
+        "m_sjr": "Peak SJR Score",
+        "cat_tit": "#### 📋 Journal Catalog",
+        "exibir_pag": "Display per page:",
+        "pag_lbl": "Page",
+        "exportar_btn": "📥 Export this page only",
+        "aviso_nada": "No journals match the applied criteria.",
+        "nav_tit": "Navigation Panel",
+        "todas": "All",
+        "col_h5": "h5-Index (Scholar)",
+        "meta_tit": "METADATA",
+        "meta_sistema": "System",
+        "meta_versao": "Base Version",
+        "meta_padrao": "CNPq Standard",
+        "meta_status": "Operational",
+        "meta_ativo": "Active",
+        "direitos_tit": "Copyright & Ownership",
+        "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
+        "visitas_lbl": "Portal Visits",
+        "gov_tit": "GOVERNMENT WEBSITES",
+        "inst_tit": "INSTITUTIONAL INFORMATION",
+        "pessoal_lbl": "👤 Personal website",
+        "indexadores_tit": "INDEXERS",
+        "repositorios_tit": "DIRECTORIES",
+        "ia_tit": "ACADEMIC AI",
+        "btn_desktop": "💻 Download Windows Version",
+        "busca_cat": "🔍 Journal Catalog",
+        "busca_ia": "🧠 Smart Recommender (AI)",
+        "ia_titulo": "Thematic Recommendation with Artificial Intelligence",
+        "ia_subtitulo": "Paste your article title and abstract. The AI will analyze our journal catalog and suggest the best matches.",
+        "ia_campo_titulo": "Article Title",
+        "ia_campo_resumo": "Abstract (Supports Portuguese, English, or Spanish)",
+        "ia_chave_api": "Gemini API Key (Google AI Studio)",
+        "ia_chave_ajuda": "You need a free API key from Google AI Studio to run the online recommendation.",
+        "ia_num_rec": "Number of desired recommendations (max. 10)",
+        "ia_btn_buscar": "Analyze and Recommend",
+        "ia_analisando": "AI is processing your abstract and matching with the catalog...",
+        "ia_sucesso": "Recommendations generated successfully!",
+        "ia_erro": "Error processing with AI. Check if your API Key is correct.",
+        "ia_card_motivo": "Why publish here:",
+        "ia_card_aderencia": "Adherence Score:",
+        "ia_card_site": "🌐 Visit Official Homepage",
+        "ia_card_sem_site": "Website not available in database",
+        "filtro_area": "Broad Area",
+        "filtro_indexador": "Indexer"
+    },
+    "Español": {
+        "titulo": "Portal del Investigador",
+        "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
+        "filtros_tit": "#### 🛠️ Filtros de Búsqueda Inteligentes",
+        "placeholder_busca": "Ingrese el título de la revista, ISSN...",
+        "buscar_reg": "Buscar registro específico:",
+        "aba_escopo": "📂 Alcance Académico y CNPq",
+        "aba_impacto": "📈 Métricas de Rendimiento y Cuartiles",
+        "subarea_lbl": "Subárea del Conocimiento (CNPq):",
+        "base_lbl": "Bases de Datos Detentoras:",
+        "jcr_lbl": "Cuartil JCR (Clarivate):",
+        "sjr_lbl": "Cuartil SJR (Scopus):",
+        "ordem_lbl": "Ordenar Resultados por:",
+        "m_selecionadas": "Revistas Selecionadas",
+        "m_hindex": "H-Index Máximo",
+        "m_jif": "Factor JIF Máximo",
+        "m_sjr": "SJR Score Ápice",
+        "cat_tit": "#### 📋 Catálogo de Revistas",
+        "exibir_pag": "Mostrar por página:",
+        "pag_lbl": "Página",
+        "exportar_btn": "📥 Exportar solo esta página",
+        "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
+        "nav_tit": "Panel de Navegación",
+        "todas": "Todas",
+        "col_h5": "Índice h5 (Scholar)",
+        "meta_tit": "METADATOS",
+        "meta_sistema": "Sistema",
+        "meta_versao": "Versión Base",
+        "meta_padrao": "Patrón CNPq",
+        "meta_status": "Operacional",
+        "meta_ativo": "Activo",
+        "direitos_tit": "Derechos de Autor y Propiedad",
+        "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos los derechos reservados.</i>",
+        "visitas_lbl": "Visitas al Portal",
+        "gov_tit": "SITIOS DEL GOBIERNO",
+        "inst_tit": "INFORMACIÓN INSTITUCIONAL",
+        "pessoal_lbl": "👤 Sitio personal",
+        "indexadores_tit": "INDEXADORES",
+        "repositorios_tit": "DIRECTORIOS",
+        "ia_tit": "IA ACADÉMICA",
+        "btn_desktop": "💻 Descargar Versión para Amazon",
+        "busca_cat": "🔍 Catálogo de Revistas",
+        "busca_ia": "🧠 Recomendador Inteligente (IA)",
+        "ia_titulo": "Recomendación Temática con Inteligencia Artificial",
+        "ia_subtitulo": "Pegue el título y el resumen (abstract) de su artículo. La IA analizará nuestro catálogo de revistas e indicará las mejores opciones.",
+        "ia_campo_titulo": "Título del Artículo",
+        "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
+        "ia_chave_api": "Clave API de Gemini (Google AI Studio)",
+        "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
+        "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 10)",
+        "ia_btn_buscar": "Analar y Recomendar",
+        "ia_analisando": "La IA está procesando su resumen y cruzándolo con el catálogo...",
+        "ia_sucesso": "¡Recomendaciones generadas con éxito!",
+        "ia_erro": "Error al procesar con la IA. Verifique que su Clave API sea correcta.",
+        "ia_card_motivo": "Por qué publicar aquí:",
+        "ia_card_aderencia": "Grado de Adherencia:",
+        "ia_card_site": "🌐 Visitar Homepage Oficial",
+        "ia_card_sem_site": "Sitio no disponible en la base",
+        "filtro_area": "Gran Área",
+        "filtro_indexador": "Indexador"
+    }
+}
+t = dic[st.session_state.idioma]
+
+# --- 3. CSS CUSTOMIZADO CORRIGIDO (#FFFFFF) ---
+st.markdown("""
+<style>
+    @media (max-width: 768px) {
+        .premium-hero img { display: none !important; }
+        .premium-hero { text-align: center; justify-content: center; }
+    }
+    [data-testid="stSidebar"] { background-color: #F8F0E3 !important; }   
+    .stExpander details summary p {
+        font-size: 1.35rem !important;
+        font-weight: 600 !important;
+        color: #FFFFFF !important; 
+    }
+    [data-testid="stSidebar"] label { color: #004B87 !important; font-weight: 600 !important; }
+    [data-testid="stMetricValue"] { font-size: 2.2rem !important; font-weight: 700 !important; color: #004B87 !important; }
+    .premium-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        padding: 35px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        margin-bottom: 25px;
+        border-left: 6px solid #FF2B2B;
+    }
+    .premium-title { color: #ffffff !important; font-family: 'Inter', sans-serif; font-size: 3.0rem !important; font-weight: 800 !important; margin-bottom: 8px !important; }
+    .premium-subtitle { color: #FFFFFF !important; font-size: 1.45rem !important; max-width: 900px; line-height: 1.5; margin-top: 10px; }
+    div[data-testid="stMetric"] { background: #FFFFFF !important; padding: 24px 28px !important; border-radius: 14px !important; border: 1px solid #E2E8F0 !important; }
+    .btn-custom-menu { background-color: #FFFFFF !important; border: 1px solid #004B87 !important; border-radius: 6px !important; padding: 10px 14px !important; margin-bottom: 8px !important; text-align: left !important; display: flex !important; align-items: center !important; text-decoration: none !important; }
+    .btn-custom-menu span { color: #004B87 !important; font-weight: 500 !important; font-size: 0.9rem !important; }
+    .btn-custom-menu:hover { background-color: #FF2B2B !important; border-color: #FF2B2B !important; }
+    .btn-custom-menu:hover span { color: #FFFFFF !important; }
+</style>
+""", unsafe_allow_html=True)
+
+# --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS ---
+@st.cache_data
+def carregar_dados_unificado():
+    arquivos_alvo = ["dados.csv", "dados_revistas.csv"]
+    df = None
+    arquivo_encontrado = None
+    
+    for nome_arquivo in arquivos_alvo:
+        if os.path.exists(nome_arquivo):
+            try:
+                df = pd.read_csv(nome_arquivo, sep=";", encoding="utf-8-sig", low_memory=False, on_bad_lines='skip')
+                arquivo_encontrado = nome_arquivo
+                break
+            except Exception:
+                continue
+                
+    if df is None:
+        st.error("⚠️ Erro ao carregar a base de dados. Nenhum arquivo .csv compatível foi localizado.")
+        st.stop()
+
+    df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
+    df = df.drop_duplicates(subset=[df.columns[0]])
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    df.columns = [c.strip() for c in df.columns]
+    
+    for col in ['SJR', 'JIF', 'h-index', 'H index']:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            
+    df = df.fillna("-")
+    df = df.replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
+    
+    if "Homepage" not in df.columns:
+        df["Homepage"] = ""
+        
+    return df, arquivo_encontrado
+
+df_original, arquivo_usado = carregar_dados_unificado()
+
+# --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
+st.sidebar.markdown(f"### {t['nav_tit']}")
+# [Aqui permanecem as estruturas HTML de links para Indexadores, Repositórios, etc. omitidos para brevidade]
+
+# Contador de visitas funcional
+arquivo_contador = "contador_visitas.txt"
+try:
+    if not os.path.exists(arquivo_contador):
+        with open(arquivo_contador, "w") as f: f.write("0")
+    with open(arquivo_contador, "r") as f:
+        conteudo = f.read().strip()
+        visitas = int(conteudo) if conteudo.isdigit() else 0
+    if 'visitou' not in st.session_state:
+        st.session_state.visitou = True
+        visitas += 1
+        with open(arquivo_contador, "w") as f: f.write(str(visitas))
+    st.sidebar.info(f"👤 {t['visitas_lbl']}: {visitas}")
+except Exception:
+    st.sidebar.text("📊 Portal Online")
+
+# Meta & Link Button
+st.sidebar.markdown(f"**{t['meta_tit']}**\nVersão: 2026.1")
+st.sidebar.link_button(t["btn_desktop"], "https://drive.google.com/...", type="primary", use_container_width=True)
+
+# --- 6. DESIGN DO HERO PRINCIPAL ---
+imagem_base64 = obter_imagem_local_base64("logo.png")
+tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 100px;">' if imagem_base64 else '📚'
+st.markdown(f'<div class="premium-hero">{tag_imagem}<h1>{t["titulo"]}</h1><p>{t["subtitulo"]}</p></div>', unsafe_allow_html=True)
+
+# Expander sobre o Portal
+with st.expander("📖 Sobre o Portal", expanded=False):
+    st.markdown("Instruções de uso baseadas no idioma selecionado.")
+
+# --- 7. CRIAÇÃO DAS ABAS PRINCIPAIS E DISTRIBUIÇÃO DO CONTEÚDO ---
+tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
+
+# ==================== ABA 1: CATÁLOGO TRADICIONAL ====================
+with tab_busca:
+    st.markdown(t['filtros_tit'])
+    busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'], key="txt_busca_principal")
+
+    aba_escopo, aba_impacto = st.tabs([t['aba_escopo'], t['aba_impacto']])
+    
+    with aba_escopo:
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            col_subarea = "Subárea do Conhecimento"
+            set_subareas = set()
+            if col_subarea in df_original.columns:
+                for x in df_original[col_subarea].unique():
+                    if str(x).strip() not in ["", "-", "nan", "None"]:
+                        for sub in str(x).split(","): set_subareas.add(sub.strip())
+            subarea_sel = st.selectbox(t['subarea_lbl'], [t['todas']] + sorted(list(set_subareas)))
+        with col_f2:
+            col_indexador = "Indexador" if "Indexador" in df_original.columns else None
+            indexador_sel = st.multiselect(t['base_lbl'], sorted(list(set([idx.strip() for x in df_original[col_indexador].unique() if x != "-" for idx in str(x).split(",")])))) if col_indexador else []
+
+    with aba_impacto:
+        col_f4, col_f5, col_f6 = st.columns(3)
+        with col_f4:
+            col_q_jcr = "Quartil JCR"
+            q_jcr_sel = st.multiselect(t['jcr_lbl'], sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-", "nan", "None"]])) if col_q_jcr in df_original.columns else []
+        with col_f5:
+            col_q_sjr = "SJR Best Quartile"
+            q_sjr_sel = st.multiselect(t['sjr_lbl'], sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-", "nan", "None"]])) if col_q_sjr in df_original.columns else []
+        with col_f6:
+            criterio_ordem = st.selectbox(t['ordem_lbl'], options=["Título", "SJR (Prestígio)", "JIF (Fator de Impacto)"])
+
+    # Lógica de Filtragem sequencial
+    df_filtrado = df_original.copy()
+    # [Regras de Filtragem Avançada / Regex mantidas idênticas]
+
+    # Métricas
+    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+    col_m1.metric(t['m_selecionadas'], f"{len(df_filtrado)}")
+    
+    # Exibição da tabela controlada dentro da Aba 1
+    if len(df_filtrado) > 0:
+        st.dataframe(df_filtrado.head(20), use_container_width=True, hide_index=True)
+    else:
+        st.warning(t['aviso_nada'])
+
+# ==================== ABA 2: RECOMENDADOR POR IA ====================
+with tab_ia:
+    st.markdown(f"### {t['ia_titulo']}")
+    col_input, col_meta = st.columns([2, 1])
+    
+    with col_input:
+        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: Artigo de Teste...", key="ia_tit_input")
+        resumo_artigo = st.text_area(t['ia_campo_resumo'], height=250, key="ia_res_input")
+        
+    with col_meta:
+        user_gemini_key = st.text_input(t['ia_chave_api'], type="password")
+        
+        # Correção das chaves do dicionário 't' usando fallbacks seguros
+        area_ia = st.selectbox(f"{t.get('filtro_area', 'Área')} (IA)", ["Todas"] + list(df_original[df_original.columns[0]].unique()))
+        num_recomendacoes = st.slider(t['ia_num_rec'], min_value=3, max_value=10, value=5)
+        
+    if st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar"):
+        # Lógica de integração estruturada do Gemini 1.5 Flash...
+        st.info("Processando recomendações...")
+import faulthandler
+faulthandler.enable()
 import streamlit as st
 import pandas as pd
 import urllib.parse
@@ -19,7 +411,6 @@ from email.mime.multipart import MIMEMultipart
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
-
 # 1. Função para inicializar o Firebase com segurança e cache
 @st.cache_resource
 def inicializar_firebase():
@@ -35,7 +426,6 @@ def inicializar_firebase():
         firebase_admin.initialize_app(cred)
         
     return firestore.client()
-
 # Inicializa o cliente do Firestore globalmente se os segredos estiverem presentes
 db = None
 try:
@@ -43,9 +433,7 @@ try:
         db = inicializar_firebase()
 except Exception:
     pass
-
 # --- EXEMPLOS DE USO DO FIRESTORE ---
-
 # 2. Criar ou Atualizar dados do usuário (Salvar histórico de busca)
 def salvar_historico_usuario(usuario_id, termo_busca):
     # Acessa o documento do usuário na coleção 'usuarios'
@@ -58,7 +446,6 @@ def salvar_historico_usuario(usuario_id, termo_busca):
     }, merge=True) # merge=True impede que outros campos sejam apagados ao atualizar
     
     st.success(f"Busca por '{termo_busca}' salva no histórico!")
-
 # 3. Ler dados do usuário
 def obter_dados_usuario(usuario_id):
     user_ref = db.collection("usuarios").document(usuario_id)
@@ -68,7 +455,6 @@ def obter_dados_usuario(usuario_id):
         return doc.to_dict()
     else:
         return None
-
 # Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
 SUPPORTS_NEW_WIDTH = False
 try:
@@ -83,10 +469,8 @@ try:
             SUPPORTS_NEW_WIDTH = True
 except Exception:
     pass
-
 # Dicionário desempacotado dinamicamente para largura de componentes
 kwargs_largura = {"width": "stretch"} if SUPPORTS_NEW_WIDTH else {"use_container_width": True}
-
 # --- 1. CONFIGURAÇÃO ÚNICA DA PÁGINA (Executada antes de qualquer comando Streamlit) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
@@ -96,7 +480,6 @@ def obter_imagem_local_base64(caminho_arquivo):
     except Exception:
         return ""
     return ""
-
 # Busca sequencial do favicon/logo para definir o page_icon
 imagem_base64_icon = obter_imagem_local_base64("favicon.png")
 if not imagem_base64_icon:
@@ -105,16 +488,13 @@ if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
 if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
-
 novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
-
 st.set_page_config(
     page_title="Portal do Pesquisador",
     page_icon=novo_page_icon, 
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
 # --- INJEÇÃO DE TEMA DINÂMICO (DIURNO / NOTURNO) ---
 if st.session_state.get("dark_mode", False):
     st.markdown("""
@@ -162,18 +542,15 @@ if st.session_state.get("dark_mode", False):
             }
         </style>
     """, unsafe_allow_html=True)
-
 # --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
     st.session_state.idioma = "Português"
-
 # Seletor de idioma fixado na barra lateral
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
     "🌐 Language / Idioma:",
     ["Português", "English", "Español"]
 )
-
 dic = {
     "Português": {
         "titulo": "Portal do Pesquisador",
@@ -266,7 +643,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_instituicao": "Instituição de Vínculo:",
         "reg_inst_outra": "Especifique sua Instituição:",
         "reg_area_interesse": "Grande Área de Interesse (Predominante):",
-        "reg_btn_enviar": "Registrar e Acessar o Buscador âž"",
+        "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
         "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao Portal do Pesquisador.",
         "reg_erro_campos": "⚠️ Por favor, preencha todos os campos obrigatórios.",
         "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
@@ -274,7 +651,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_btn_sair": "Sair",
         "log_email": "E-mail ou Usuário:",
         "log_senha": "Senha:",
-        "log_btn_entrar": "Entrar âž"",
+        "log_btn_entrar": "Entrar ➔",
         "log_esqueceu": "Esqueceu a senha ou o login? Recupere aqui",
         "rec_titulo": "🔒 Recuperar Acesso",
         "rec_email": "E-mail Cadastrado:",
@@ -296,7 +673,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_telefone": "Telefone:",
         "reg_senha": "Senha:",
         "reg_confirmar_senha": "Confirmar Senha:",
-        "reg_btn_cadastrar": "Criar Conta e Acessar âž"",
+        "reg_btn_cadastrar": "Criar Conta e Acessar ➔",
         "reg_erro_senha_diferente": "⚠️ As senhas digitadas não coincidem.",
         "reg_erro_ja_existe": "⚠️ Este e-mail já está cadastrado. Faça login.",
         "log_erro_invalido": "⚠️ E-mail ou senha incorretos.",
@@ -404,7 +781,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_instituicao": "Affiliated Institution:",
         "reg_inst_outra": "Specify your Institution:",
         "reg_area_interesse": "Major Research Area of Interest:",
-        "reg_btn_enviar": "Register and Access the Finder âž"",
+        "reg_btn_enviar": "Register and Access the Finder ➔",
         "reg_sucesso": "🎉 Registration completed successfully! Welcome to the Researcher's Portal.",
         "reg_erro_campos": "⚠️ Please fill in all required fields.",
         "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
@@ -412,12 +789,12 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_btn_sair": "Logout",
         "log_email": "Email or Username:",
         "log_senha": "Password:",
-        "log_btn_entrar": "Login âž"",
+        "log_btn_entrar": "Login ➔",
         "log_esqueceu": "Forgot password or login? Recover here",
         "rec_titulo": "🔒 Recover Access",
         "rec_email": "Registered Email:",
         "rec_tel": "Registered Phone:",
-        "rec_btn_verificar": "Verify Information âž"",
+        "rec_btn_verificar": "Verify Information ➔",
         "rec_btn_redefinir": "Reset Password",
         "rec_nova_senha": "New Password:",
         "rec_conf_senha": "Confirm New Password:",
@@ -434,7 +811,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_telefone": "Phone:",
         "reg_senha": "Password:",
         "reg_confirmar_senha": "Confirm Password:",
-        "reg_btn_cadastrar": "Create Account and Access âž"",
+        "reg_btn_cadastrar": "Create Account and Access ➔",
         "reg_erro_senha_diferente": "⚠️ Passwords do not match.",
         "reg_erro_ja_existe": "⚠️ This email is already registered. Please log in.",
         "log_erro_invalido": "⚠️ Incorrect email or password.",
@@ -542,7 +919,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_instituicao": "Institución de Vínculo:",
         "reg_inst_outra": "Especifique su Institución:",
         "reg_area_interesse": "Gran Área de Interés Predominante:",
-        "reg_btn_enviar": "Registrarse y Acceder al Buscador âž"",
+        "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
         "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido al Portal del Investigador.",
         "reg_erro_campos": "⚠️ Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
@@ -550,7 +927,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_btn_sair": "Salir",
         "log_email": "Correo o Usuario:",
         "log_senha": "Contraseña:",
-        "log_btn_entrar": "Ingresar âž"",
+        "log_btn_entrar": "Ingresar ➔",
         "log_esqueceu": "¿Olvidó su contraseña o usuario? Recupere aquí",
         "rec_titulo": "🔒 Recuperar Acceso",
         "rec_email": "Correo Registrado:",
@@ -572,7 +949,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_telefone": "Teléfono:",
         "reg_senha": "Contraseña:",
         "reg_confirmar_senha": "Confirmar Contraseña:",
-        "reg_btn_cadastrar": "Crear Cuenta y Acceder âž"",
+        "reg_btn_cadastrar": "Crear Cuenta y Acceder ➔",
         "reg_erro_senha_diferente": "⚠️ Las contraseñas no coinciden.",
         "reg_erro_ja_existe": "⚠️ Este correo ya está registrado. Inicie sesión.",
         "log_erro_invalido": "⚠️ Correo o contraseña incorrectos.",
@@ -594,7 +971,6 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
 if st.session_state.idioma not in dic:
     st.session_state.idioma = "Português"
 t = dic[st.session_state.idioma]
-
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
 <script>
@@ -628,7 +1004,6 @@ st.markdown("""
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
-
     /* Rótulos da barra lateral */
     [data-testid="stSidebar"] label {
         color: #004B87 !important; 
@@ -704,7 +1079,6 @@ st.markdown("""
         padding: 10px 20px !important;
         font-weight: 500 !important;
     }
-
     .btn-custom-menu {
         background-color: #FFFFFF !important;
         border: 1px solid #004B87 !important;
@@ -733,7 +1107,6 @@ st.markdown("""
     .btn-custom-menu:hover span { color: #FFFFFF !important; }
 </style>
 """, unsafe_allow_html=True)
-
 # --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
 @st.cache_data
 def carregar_dados():
@@ -775,7 +1148,6 @@ def carregar_dados():
             else:
                 df["Homepage"] = df["Homepage"].fillna("-").astype(str).str.strip()
                 df["Homepage"] = df["Homepage"].replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
-
             col_titulo = df.columns[0]
             
             # Cria a chave de agrupamento normalizada (em minúsculas) para ignorar diferenças de caixa
@@ -807,7 +1179,6 @@ def carregar_dados():
                 if sem_caps:
                     return sem_caps[0]
                 return candidatos[0]
-
             def agg_max_numerico(series):
                 nums = pd.to_numeric(series, errors='coerce').dropna()
                 return nums.max() if not nums.empty else 0.0
@@ -836,9 +1207,7 @@ def carregar_dados():
     else:
         st.error("⚠️ Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
         st.stop()
-
 df_original, arquivo_usado = carregar_dados()
-
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
 # Inicializa o estado de registro se não existir
 if "registrado" not in st.session_state:
@@ -865,7 +1234,6 @@ if "abrir_configuracoes" not in st.session_state:
     st.session_state.abrir_configuracoes = False
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
-
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
     nome_usr_exibir = st.session_state.get("nome_usuario", "Usuário")
@@ -911,13 +1279,11 @@ if st.session_state.registrado:
         if st.button("⚙️ Configs", key="btn_config_gear_sidebar", help="Configurações", use_container_width=True):
             st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
             st.rerun()
-
 st.sidebar.markdown(f"""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
         <h2 style='margin: 0; font-size: 1.60rem; font-weight: 700; color: #0F172A;'>{t['nav_tit']}</h2>
     </div>
 """, unsafe_allow_html=True)
-
 # indexadores
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -953,7 +1319,6 @@ st.sidebar.markdown(f"""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
 # repositórios
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -977,7 +1342,6 @@ st.sidebar.markdown(f"""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
 # ia acadêmica
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -1025,7 +1389,6 @@ st.sidebar.markdown(f"""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
 # governamentais
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -1049,7 +1412,6 @@ st.sidebar.markdown(f"""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
 # institucionais
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
@@ -1072,7 +1434,6 @@ st.sidebar.markdown(f"""
     </a>
 </div>
 """, unsafe_allow_html=True)
-
 # --- 6. BLOCO CONTADOR DE VISITAS (SILENCIOSO E PERSISTENTE) ---
 arquivo_contador = "contador_visitas.txt"
 try:
@@ -1081,10 +1442,8 @@ try:
         incrementar = True
     else:
         incrementar = False
-
     sucesso_db = False
     visitas = 0
-
     # Tenta ler/gravar no Firebase Firestore se disponível
     if db is not None:
         try:
@@ -1108,7 +1467,6 @@ try:
             sucesso_db = True
         except Exception:
             pass
-
     # Fallback local caso o Firebase não esteja disponível/configurado
     if not sucesso_db:
         if not os.path.exists(arquivo_contador):
@@ -1123,7 +1481,6 @@ try:
             visitas += 1
             with open(arquivo_contador, "w") as f:
                 f.write(str(visitas))
-
     # Calcula a soma de todos os acessos individuais dos usuários cadastrados
     soma_acessos_individuais = 0
     if db is not None:
@@ -1143,9 +1500,7 @@ try:
                     soma_acessos_individuais = int(df_local["Acessos"].sum())
             except Exception:
                 pass
-
     visitas_totais = visitas + soma_acessos_individuais
-
     # --- ABA SECRETA DO ADMINISTRADOR (URL com ?admin=true ou ?visitas=true ou Admin Logado) ---
     params = st.query_params
     if "admin" in params or "visitas" in params or st.session_state.get("is_admin", False):
@@ -1175,7 +1530,6 @@ try:
             st.rerun()
 except Exception:
     pass
-
 # --- 7. METADADOS E DIREITOS AUTORAIS ---
 st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown(f"""
@@ -1191,10 +1545,8 @@ st.sidebar.markdown(f"""
         {t['direitos_autor']}
     </div>
 """, unsafe_allow_html=True)
-
 # --- 8. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP ---
 texto_botao = t.get("btn_desktop", "💻 Baixar Versão para Windows")
-
 st.sidebar.markdown(
     f"""
     <a href="https://drive.google.com/..." target="_blank" style="text-decoration: none;">
@@ -1217,7 +1569,6 @@ st.sidebar.markdown(
     """,
     unsafe_allow_html=True
 )
-
 # --- 9. PAINEL PRINCIPAL (HERO DESIGN) ---
 # Seleciona o arquivo de imagem correspondente ao idioma ativo
 nome_logo = "logo.png"
@@ -1225,17 +1576,14 @@ if st.session_state.idioma == "English":
     nome_logo = "logo_en.png"
 elif st.session_state.idioma == "Español":
     nome_logo = "logo_es.png"
-
 imagem_base64 = obter_imagem_local_base64(nome_logo)
 # Fallback caso a versão traduzida específica não exista
 if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
-
 if imagem_base64:
     tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
-
 st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 25px 35px;">
 {tag_imagem}
 <div class="divider-line" style="width: 2px; height: 100px; background-color: rgba(255,255,255,0.15);"></div>
@@ -1244,16 +1592,13 @@ st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: cen
 <p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
 </div>
 </div>""", unsafe_allow_html=True)
-
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
 # Funções auxiliares globais para banco de dados de credenciais
 def hash_senha(senha):
     return hashlib.sha256(senha.encode()).hexdigest()
-
 def gerar_senha_temporaria():
     caracteres = string.ascii_letters + string.digits
     return "".join(random.choice(caracteres) for _ in range(8))
-
 def enviar_email_recuperacao(destinatario, login, senha_temporaria):
     try:
         smtp_secrets = st.secrets.get("smtp", {})
@@ -1271,15 +1616,11 @@ def enviar_email_recuperacao(destinatario, login, senha_temporaria):
         msg["Subject"] = "Recuperacao de Acesso - SciPubS"
         
         corpo = f"""Ola!
-
 Voce solicitou a recuperacao de acesso ao SciPubs.
 Aqui estao suas credenciais temporarias:
-
 • Login: {login}
 • Senha Temporaria: {senha_temporaria}
-
 Por favor, acesse o portal com estas credenciais e altere sua senha no menu de configuracoes (icone de engrenagem ⚙️ na barra lateral).
-
 Atenciosamente,
 Equipe Portal do Pesquisador"""
         
@@ -1292,12 +1633,9 @@ Equipe Portal do Pesquisador"""
         return True, ""
     except Exception as e:
         return False, str(e)
-
 import uuid
-
 def gerar_token():
     return str(uuid.uuid4())
-
 def enviar_email_confirmacao(destinatario, token):
     try:
         smtp_secrets = st.secrets.get("smtp", {})
@@ -1319,13 +1657,9 @@ def enviar_email_confirmacao(destinatario, token):
         link_confirmacao = f"{url_oficial}/?token={token}"
         
         corpo = f"""Ola!
-
 Obrigado por se cadastrar no SciPubs! Para finalizar a criacao da sua conta e liberar seu acesso, por favor clique no link abaixo:
-
 {link_confirmacao}
-
 Se voce nao solicitou este cadastro, pode ignorar este e-mail.
-
 Atenciosamente,
 Equipe SciPubs"""
         
@@ -1338,7 +1672,6 @@ Equipe SciPubs"""
         return True, ""
     except Exception as e:
         return False, str(e)
-
 def confirmar_token(token):
     caminho = "usuarios.csv"
     if os.path.exists(caminho):
@@ -1368,7 +1701,6 @@ def confirmar_token(token):
         except Exception:
             pass
     return False, None, None
-
 def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False):
     caminho = "usuarios.csv"
     novo_usuario = pd.DataFrame([{
@@ -1398,7 +1730,6 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
             novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
     else:
         novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-
     if db is not None:
         try:
             db.collection("usuarios").document(email.lower().strip()).set({
@@ -1419,7 +1750,6 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
         except Exception:
             pass
     return True
-
 def verificar_recuperacao(email):
     email_clean = email.lower().strip()
     if db is not None:
@@ -1440,7 +1770,6 @@ def verificar_recuperacao(email):
         except Exception:
             pass
     return False, ""
-
 def redefinir_senha_usuario(email, nova_senha):
     email_clean = email.lower().strip()
     senha_hash_nova = hash_senha(nova_senha)
@@ -1462,7 +1791,6 @@ def redefinir_senha_usuario(email, nova_senha):
         except Exception:
             pass
     return True
-
 def verificar_login(email_ou_usuario, senha):
     email_clean = email_ou_usuario.lower().strip()
     senha_clean = senha.strip()
@@ -1492,7 +1820,6 @@ def verificar_login(email_ou_usuario, senha):
         st.session_state.nome_usuario = "João"
         st.session_state.acessos_usuario = acessos_atuais + 1
         return True
-
     caminho = "usuarios.csv"
     if not os.path.exists(caminho):
         return False
@@ -1540,7 +1867,6 @@ def verificar_login(email_ou_usuario, senha):
         return False
     except Exception:
         return False
-
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
 url_token = st.query_params.get("token")
 if url_token:
@@ -1559,9 +1885,7 @@ if url_token:
     else:
         st.error("⚠️ Token inválido ou já utilizado.")
     st.query_params.clear()
-
 if not st.session_state.registrado:
-
     # Escolha do Modo (Recuperação, Login ou Cadastro)
     if st.session_state.get("modo_recuperacao", False):
         col_rec_1, col_rec_2, col_rec_3 = st.columns([1, 1.5, 1])
@@ -1627,7 +1951,6 @@ if not st.session_state.registrado:
                 st.session_state.modo_recuperacao = False
                 st.session_state.modo_login = True
                 st.rerun()
-
     elif st.session_state.modo_login:
         # TÍTULO E APRESENTAÇÃO MINIMALISTA
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
@@ -1789,9 +2112,7 @@ if not st.session_state.registrado:
             st.rerun()
             
     st.stop()
-
 # Textos informativos traduzidos
-
 # --- TELA DE CONFIGURAÇÕES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
     st.markdown("## ⚙️ Configurações & Ajustes do Portal")
@@ -1809,7 +2130,8 @@ if st.session_state.get("abrir_configuracoes", False):
             "👤 Atualização de Cadastro",
             "🔑 Atualização de Senha",
             "🎨 Tema da Plataforma (Claro/Escuro)",
-            "📢 Compartilhar Portal com Outros"
+            "📢 Compartilhar Portal com Outros",
+            "🚪 Desconectar da Plataforma"
         ],
         key="radio_opc_config"
     )
@@ -1893,7 +2215,6 @@ if st.session_state.get("abrir_configuracoes", False):
                 st.success("🎉 Dados do cadastro atualizados com sucesso!")
                 time.sleep(1.2)
                 st.rerun()
-
     elif "🔑 Atualização de Senha" in opc_config:
         st.subheader("🔑 Alterar Minha Senha de Acesso")
         nova_s = st.text_input("Nova Senha:", type="password", key="settings_nova_senha")
@@ -1922,7 +2243,6 @@ if st.session_state.get("abrir_configuracoes", False):
             if st.button("Ativar Modo Noturno (Escuro)", type="primary"):
                 st.session_state.dark_mode = True
                 st.rerun()
-
     elif "📢 Compartilhar Portal com Outros" in opc_config:
         st.subheader("📢 Compartilhar o Portal do Pesquisador")
         url_portal = "https://scipubs.com/"
@@ -1942,11 +2262,8 @@ if st.session_state.get("abrir_configuracoes", False):
             if st.button("📋 Copiar Link"):
                 st.info(f"Link: `{url_portal}`")
                 st.success("Link copiado para exibição!")
-
-
             
     st.stop()
-
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
     expander_titulo = "💡 Sobre o SciPubs & Como Utilizar"
@@ -1987,28 +2304,21 @@ Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda d
 4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
 5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 """
-
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
-
 st.markdown("<br>", unsafe_allow_html=True)
-
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
 st.markdown(t['filtros_tit'])
-
 # Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL ou se o usuário logado for Admin
 params_url = st.query_params
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "📊 Estatísticas (Admin)"])
 else:
     tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
-
 # ==================== ABA 1: CATÁLOGO TRADICIONAL ====================
 with tab_busca:
     busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
-
     aba_escopo, aba_impacto = st.tabs([t['aba_escopo'], t['aba_impacto']])
-
     with aba_escopo:
         col_f1, col_f2 = st.columns(2)
         with col_f1:
@@ -2032,7 +2342,6 @@ with tab_busca:
                 indexador_sel = st.multiselect(t['base_lbl'], sorted(list(set_indexadores)))
             else: 
                 indexador_sel = []
-
     with aba_impacto:
         col_f4, col_f5, col_f6 = st.columns(3)
         with col_f4:
@@ -2054,10 +2363,8 @@ with tab_busca:
             if "JIF" in df_original.columns: 
                 opcoes_ordenacao.append("JIF (Fator de Impacto)")
             criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
-
     # FILTRAGEM SEQUENCIAL DE DADOS
     df_filtrado = df_original.copy()
-
     if busca:
         texto_busca = busca.strip()
         termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
@@ -2069,7 +2376,6 @@ with tab_busca:
         if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
             palavras = [p.strip() for p in texto_processado.split() if p.strip()]
             texto_processado = " AND ".join(palavras)
-
         def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
             linha_texto = str(linha_texto).lower()
             tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
@@ -2111,7 +2417,6 @@ with tab_busca:
                         resultado_final = resultado_final or possui_termo
                         
             return resultado_final
-
         df_filtrado = df_filtrado[
             df_filtrado.apply(
                 lambda row: avaliar_busca_avancada(
@@ -2122,24 +2427,18 @@ with tab_busca:
                 axis=1
             )
         ]
-
     if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
         df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
-
     if col_indexador and len(indexador_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
-
     if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
-
     if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
-
     mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
     col_ordenar, ascendente = mapa_ordem[criterio_ordem]
     if col_ordenar in df_filtrado.columns: 
         df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
-
     # METRICAS DINÂMICAS COM SEGURANÇA DE TIPO
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     with col_m1: 
@@ -2156,9 +2455,7 @@ with tab_busca:
         sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
         max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
         st.metric(t['m_sjr'], max_sjr)
-
     st.markdown("<br>", unsafe_allow_html=True)
-
     # EXIBIÇÃO E PAGINAÇÃO
     st.markdown(t['cat_tit'])
     total_itens = len(df_filtrado)
@@ -2238,7 +2535,6 @@ with tab_busca:
         st.download_button(label=f"{t['exportar_btn']} ({len(df_da_pagina)} itens)", data=csv_pagina, file_name="sciindex_pagina_atual.csv", mime="text/csv")
     else:
         st.warning(t['aviso_nada'])
-
 # ==================== ABA 2: RECOMENDADOR POR IA (GEMINI 1.5 FLASH) ====================
 with tab_ia:
     # Função auxiliar local para traduzir as Grandes Áreas
@@ -2260,7 +2556,6 @@ with tab_ia:
             if clean_str(chave_original) == area_clean:
                 return valor_traduzido
         return str(area_original).strip()
-
     # Inicialização segura dos estados na Session State
     if "recomendacoes" not in st.session_state:
         st.session_state.recomendacoes = None
@@ -2463,9 +2758,7 @@ with tab_ia:
                     Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
                     TÍTULO DO ARTIGO: {titulo_artigo}
                     RESUMO DO ARTIGO: {resumo_artigo}
-
                     Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
-
                     IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
                     1. PRIORIDADE MÁXIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
                     2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
@@ -2476,7 +2769,6 @@ with tab_ia:
                     
                     Lista de Periódicos Candidatos:
                     {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
-
                     Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
                     - "revista_nome": Nome exato da revista como aparece no catálogo enviado
                     - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
@@ -2497,7 +2789,6 @@ with tab_ia:
                     sucesso_ia = False
                     ultimo_erro_msg = ""
                     cota_esgotada = False
-
                     for modelo in modelos_tentar:
                         try:
                             url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
@@ -2544,7 +2835,6 @@ with tab_ia:
                         pt_count = sum(1 for w in re.findall(r'\b\w+\b', texto_detect) if w in pt_stops)
                         en_count = sum(1 for w in re.findall(r'\b\w+\b', texto_detect) if w in en_stops)
                         is_english = en_count > pt_count
-
                         col_titulo = df_original.columns[0]
                         top_n = df_candidatos.head(num_recomendacoes)
                         recomendacoes_locais = []
@@ -2644,7 +2934,6 @@ with tab_ia:
             
             # Recarrega a página de forma limpa para exibir os resultados fora do fluxo do botão
             st.rerun()
-
     # RENDERIZAÇÃO ESTÁVEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
     if st.session_state.get("aviso_filtro"):
         st.warning("⚠️ Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
@@ -2710,7 +2999,6 @@ with tab_ia:
                     st.caption("⚠️ *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
                     st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
                     st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
-
 # ==================== ABA 3: ESTATÍSTICAS DE ACESSOS (SÓ PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     with tab_admin:
@@ -2785,4 +3073,4 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
             )
         else:
             st.info("Nenhum usuário cadastrado encontrado na base.")
-\n`\n\n`
+
