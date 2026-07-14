@@ -233,7 +233,7 @@ dic = {
         "ia_card_aderencia": "Grau de Aderência:",
         "ia_card_site": "  Visitar Homepage Oficial",
         "ia_card_sem_site": "Site indisponível na base",
-        "filtro_area": "Grande  rea",
+        "filtro_area": "Grande Área",
         "filtro_indexador": "Indexador",
         "ia_credencial_tit": "🔑 Credencial",
         "ia_como_obter_titulo": "ℹ  Como obter uma chave gratuita?",
@@ -265,7 +265,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_escolaridade": "Titulação:",
         "reg_instituicao": "Instituição de Vínculo:",
         "reg_inst_outra": "Especifique sua Instituição:",
-        "reg_area_interesse": "Grande  rea de Interesse (Predominante):",
+        "reg_area_interesse": "Grande Área de Interesse (Predominante):",
         "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
         "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo(a) ao SciPubs: O Portal do Pesquisador.",
         "reg_erro_campos": "    Por favor, preencha todos os campos obrigatórios.",
@@ -2141,7 +2141,7 @@ with tab_busca:
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
         # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
-        df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
+        df_exibir = df_da_pagina.drop(columns=["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
         
         # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
@@ -2207,7 +2207,7 @@ with tab_busca:
 
 # ==================== ABA 2: RECOMENDADOR POR IA (GEMINI 1.5 FLASH) ====================
 with tab_ia:
-    # Função auxiliar local para traduzir as Grandes  reas
+    # Função auxiliar local para traduzir as Grandes Áreas
     def traduzir_grande_area(area_original, t_dict):
         if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
             return "-"
@@ -2290,7 +2290,7 @@ with tab_ia:
         st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
         # Mapeia as grandes áreas originais para suas versões traduzidas
-        grandes_areas_originais = sorted(list(df_original["Grande Area"].dropna().unique()))
+        grandes_areas_originais = sorted(list(df_original["Grande Área"].dropna().unique()))
         area_ia_opcoes = {t['todas']: "Todas"}
         for area in grandes_areas_originais:
             area_traduzida = traduzir_grande_area(area, t)
@@ -2341,7 +2341,7 @@ with tab_ia:
                 
                 df_candidatos = df_original.copy()
                 if area_ia != "Todas":
-                    df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
+                    df_candidatos = df_candidatos[df_candidatos["Grande Área"] == area_ia]
                 if indexador_ia != "Todos":
                     df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
                 
@@ -2391,7 +2391,7 @@ with tab_ia:
                         def calcular_relevancia(row):
                             score = 0
                             nome = str(row.iloc[0]).lower()
-                            grande_area = str(row.get("Grande Area", "")).lower()
+                            grande_area = str(row.get("Grande Área", "")).lower()
                             area = str(row.get("Area do Conhecimento", "")).lower()
                             subarea = str(row.get("Subárea do Conhecimento", "")).lower()
                             
@@ -2419,7 +2419,7 @@ with tab_ia:
                     
                     # Payload enxuto: somente os campos essenciais para a IA tomar a decisão
                     cols_envio = [df_original.columns[0]]
-                    for col in ["Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
+                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
                         if col in df_candidatos.columns:
                             cols_envio.append(col)
                     lista_periodicos_envio = df_candidatos[cols_envio].to_dict(orient="records")
@@ -2520,9 +2520,9 @@ with tab_ia:
                         
                         for idx, (_, row) in enumerate(top_n.iterrows()):
                             nome_rev = str(row[col_titulo])
-                            area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
+                            area_rev = str(row.get("Area do Conhecimento", row.get("Grande Área", "-")))
                             subarea_rev = str(row.get("Subárea do Conhecimento", ""))
-                            gr_area_rev = str(row.get("Grande Area", ""))
+                            gr_area_rev = str(row.get("Grande Área", ""))
                             indexador_rev = str(row.get("Indexador", "-"))
                             sjr_rev = row.get("SJR", None)
                             quartil_rev = str(row.get("Quartil JCR", "-"))
@@ -2613,7 +2613,7 @@ with tab_ia:
 
     # RENDERIZAÇÃO EST VEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
     if st.session_state.get("aviso_filtro"):
-        st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande  rea e Indexador selecionados. Por favor, ajuste os filtros.")
+        st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
         erro_msg = st.session_state.erro_ia
         if erro_msg.startswith("➔"):
