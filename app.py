@@ -1837,9 +1837,9 @@ Data da Última Atualização: 13 de julho de 2026
 8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado por e-mail ou por aviso em destaque na Plataforma, sendo convidado a anuir com as novas condições.
 8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do SciPubs, com renúncia expressa a qualquer outro, por mais privilegiado que seja.""")
                 
-            aceitou_termos = st.checkbox("Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs")
-            aceitou_pesquisa = st.checkbox("Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos")
-            deseja_doar = st.checkbox("Desejo realizar uma doação ao SciPubs")
+            aceitou_termos = st.checkbox("Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)")
+            aceitou_pesquisa = st.checkbox("Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)")
+            deseja_doar = st.checkbox("Desejo realizar uma doação ao SciPubs (Opcional)")
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
             btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
