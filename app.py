@@ -1,4 +1,4 @@
-﻿import faulthandler
+import faulthandler
 faulthandler.enable()
 
 import streamlit as st
@@ -177,7 +177,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 dic = {
     "PortuguÃªs": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "CiÃªncia de dados aplicada Ã  produÃ§Ã£o cientÃ­fica de alto impacto",
+        "subtitulo": "CiÃªncia de dados aplicada Ã  produÃ§Ã£o cientÃ­fica de alto impacto",
         "filtros_tit": "#### ðŸ” Buscador de PeriÃ³dicos",
         "placeholder_busca": "Digite o tÃ­tulo da revista, ISSN...",
         "buscar_reg": "Buscar registro especÃ­fico:",
@@ -217,7 +217,7 @@ dic = {
         "ia_tit": "IA ACADÃŠMICA",
         "btn_desktop": "ðŸ’» Baixar VersÃ£o para Windows",
         "busca_cat": "ðŸ” CatÃ¡logo de PeriÃ³dicos",
-        "busca_ia": "ðŸ§  Recomendador Inteligente (IA)",
+        "busca_ia": "ðŸ§  Recomendador Inteligente (IA)",
         "ia_titulo": "RecomendaÃ§Ã£o TemÃ¡tica com InteligÃªncia Artificial",
         "ia_subtitulo": "Cole o tÃ­tulo e o resumo (abstract) do seu artigo. A IA analisarÃ¡ o nosso catÃ¡logo e indicarÃ¡ as opÃ§Ãµes mais adequadas.",
         "ia_campo_titulo": "TÃ­tulo do Artigo",
@@ -256,7 +256,7 @@ Esta ferramenta Ã© gratuita. Para usÃ¡-la, vocÃª precisa de uma chave da A
         "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e mÃ©tricas consolidadas.",
         "reg_beneficio_2_tit": "ðŸ“Š MÃ©tricas Unificadas",
         "reg_beneficio_2_desc": "Quartis JCR/SJR, H-Index e atalhos de impacto no Scholar ao seu alcance.",
-        "reg_beneficio_3_tit": "ðŸ§  Recomendador IA",
+        "reg_beneficio_3_tit": "ðŸ§  Recomendador IA",
         "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de periÃ³dicos.",
         "reg_formulario_tit": "ðŸ“ Registro de Acesso AcadÃªmico",
         "reg_formulario_desc": "O acesso ao portal Ã© gratuito e aberto a toda a comunidade cientÃ­fica (de estudantes de graduaÃ§Ã£o a pÃ³s-doutores). Preencha o cadastro abaixo para liberar o acesso.",
@@ -268,7 +268,7 @@ Esta ferramenta Ã© gratuita. Para usÃ¡-la, vocÃª precisa de uma chave da A
         "reg_area_interesse": "Grande Ãrea de Interesse (Predominante):",
         "reg_btn_enviar": "Registrar e Acessar o Buscador âž”",
         "reg_sucesso": "ðŸŽ‰ Registro concluÃ­do com sucesso! Bem-vindo ao Portal do Pesquisador.",
-        "reg_erro_campos": "âš ï¸ Por favor, preencha todos os campos obrigatÃ³rios.",
+        "reg_erro_campos": "âš ï¸ Por favor, preencha todos os campos obrigatÃ³rios.",
         "reg_lateral_status_bloqueado": "ðŸ”’ Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "ðŸ”“ Acesso Liberado",
         "reg_btn_sair": "Sair",
@@ -284,7 +284,7 @@ Esta ferramenta Ã© gratuita. Para usÃ¡-la, vocÃª precisa de uma chave da A
         "rec_nova_senha": "Nova Senha:",
         "rec_conf_senha": "Confirmar Nova Senha:",
         "rec_sucesso": "ðŸŽ‰ Senha redefinida com sucesso! FaÃ§a login.",
-        "rec_erro_nao_encontrado": "âš ï¸ E-mail nÃ£o encontrado em nossos registros.",
+        "rec_erro_nao_encontrado": "âš ï¸ E-mail nÃ£o encontrado em nossos registros.",
         "rec_btn_voltar": "Voltar para o Login",
         "log_btn_google": "Conectar com o Google",
         "log_cadastrar_link": "NÃ£o tem uma conta? Cadastre-se aqui!",
@@ -297,9 +297,9 @@ Esta ferramenta Ã© gratuita. Para usÃ¡-la, vocÃª precisa de uma chave da A
         "reg_senha": "Senha:",
         "reg_confirmar_senha": "Confirmar Senha:",
         "reg_btn_cadastrar": "Criar Conta e Acessar âž”",
-        "reg_erro_senha_diferente": "âš ï¸ As senhas digitadas nÃ£o coincidem.",
-        "reg_erro_ja_existe": "âš ï¸ Este e-mail jÃ¡ estÃ¡ cadastrado. FaÃ§a login.",
-        "log_erro_invalido": "âš ï¸ E-mail ou senha incorretos.",
+        "reg_erro_senha_diferente": "âš ï¸ As senhas digitadas nÃ£o coincidem.",
+        "reg_erro_ja_existe": "âš ï¸ Este e-mail jÃ¡ estÃ¡ cadastrado. FaÃ§a login.",
+        "log_erro_invalido": "âš ï¸ E-mail ou senha incorretos.",
         "log_google_sucesso": "ðŸš€ Conectado com o Google! Redirecionando...",
         "areas_trad": {
             "Engenharias": "Engenharias",
@@ -355,7 +355,7 @@ Esta ferramenta Ã© gratuita. Para usÃ¡-la, vocÃª precisa de uma chave da A
         "ia_tit": "ACADEMIC AI",
         "btn_desktop": "ðŸ’» Download Windows Version",
         "busca_cat": "ðŸ” Journal Catalog",
-        "busca_ia": "ðŸ§  Smart Recommender (AI)",
+        "busca_ia": "ðŸ§  Smart Recommender (AI)",
         "ia_titulo": "Thematic Recommendation with Artificial Intelligence",
         "ia_subtitulo": "Paste your article title and abstract. The AI will analyze our journal catalog and suggest the best matches.",
         "ia_campo_titulo": "Article Title",
@@ -394,7 +394,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
         "reg_beneficio_2_tit": "ðŸ“Š Unified Metrics",
         "reg_beneficio_2_desc": "JCR/SJR quartiles, H-Index, and impact shortcuts on Google Scholar at your fingertips.",
-        "reg_beneficio_3_tit": "ðŸ§  AI Recommender",
+        "reg_beneficio_3_tit": "ðŸ§  AI Recommender",
         "reg_beneficio_3_desc": "Generative recommendations via Gemini 1.5 Flash crossed with our journal database.",
         "reg_formulario_tit": "ðŸ“ Academic Access Registration",
         "reg_formulario_desc": "Access to the portal is free and open to the entire scientific community (from undergraduate students to postdocs). Fill out the form below to unlock access.",
@@ -406,7 +406,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_area_interesse": "Major Research Area of Interest:",
         "reg_btn_enviar": "Register and Access the Finder âž”",
         "reg_sucesso": "ðŸŽ‰ Registration completed successfully! Welcome to the Researcher's Portal.",
-        "reg_erro_campos": "âš ï¸ Please fill in all required fields.",
+        "reg_erro_campos": "âš ï¸ Please fill in all required fields.",
         "reg_lateral_status_bloqueado": "ðŸ”’ Registration pending to unlock search.",
         "reg_lateral_status_liberado": "ðŸ”“ Access Granted",
         "reg_btn_sair": "Logout",
@@ -422,7 +422,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "rec_nova_senha": "New Password:",
         "rec_conf_senha": "Confirm New Password:",
         "rec_sucesso": "ðŸŽ‰ Password reset successfully! Please log in.",
-        "rec_erro_nao_encontrado": "âš ï¸ E-mail not found in our records.",
+        "rec_erro_nao_encontrado": "âš ï¸ E-mail not found in our records.",
         "rec_btn_voltar": "Back to Login",
         "log_btn_google": "Sign in with Google",
         "log_cadastrar_link": "Don't have an account? Sign up here!",
@@ -435,9 +435,9 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_senha": "Password:",
         "reg_confirmar_senha": "Confirm Password:",
         "reg_btn_cadastrar": "Create Account and Access âž”",
-        "reg_erro_senha_diferente": "âš ï¸ Passwords do not match.",
-        "reg_erro_ja_existe": "âš ï¸ This email is already registered. Please log in.",
-        "log_erro_invalido": "âš ï¸ Incorrect email or password.",
+        "reg_erro_senha_diferente": "âš ï¸ Passwords do not match.",
+        "reg_erro_ja_existe": "âš ï¸ This email is already registered. Please log in.",
+        "log_erro_invalido": "âš ï¸ Incorrect email or password.",
         "log_google_sucesso": "ðŸš€ Connected with Google! Redirecting...",
         "areas_trad": {
             "Engenharias": "Engineering",
@@ -493,7 +493,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "ia_tit": "IA ACADÃ‰MICA",
         "btn_desktop": "ðŸ’» Descargar VersiÃ³n para Windows",
         "busca_cat": "ðŸ” CatÃ¡logo de Revistas",
-        "busca_ia": "ðŸ§  Recomendador Inteligente (IA)",
+        "busca_ia": "ðŸ§  Recomendador Inteligente (IA)",
         "ia_titulo": "RecomendaciÃ³n TemÃ¡tica con Inteligencia Artificial",
         "ia_subtitulo": "Pegue el tÃ­tulo y el resumen (abstract) de su artÃ­culo. La IA analizarÃ¡ nuestro catÃ¡logo de revistas e indicarÃ¡ las mejores opciones.",
         "ia_campo_titulo": "TÃ­tulo del ArtÃ­culo",
@@ -532,7 +532,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_beneficio_1_desc": "Filtros por subÃ¡reas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y mÃ©tricas consolidadas.",
         "reg_beneficio_2_tit": "ðŸ“Š MÃ©tricas Unificadas",
         "reg_beneficio_2_desc": "Cuartiles JCR/SJR, H-Index y accesos directos de impacto en Scholar a su alcance.",
-        "reg_beneficio_3_tit": "ðŸ§  Recomendador IA",
+        "reg_beneficio_3_tit": "ðŸ§  Recomendador IA",
         "reg_beneficio_3_desc": "Recomendaciones generativas a travÃ©s de Gemini 1.5 Flash cruzadas con nuestra base de revistas.",
         "reg_formulario_tit": "ðŸ“ Registro de Acceso AcadÃ©mico",
         "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad cientÃ­fica (desde estudiantes hasta posdoctores). Complete el formulario a continuaciÃ³n para liberar el acceso.",
@@ -544,7 +544,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_area_interesse": "Gran Ãrea de InterÃ©s Predominante:",
         "reg_btn_enviar": "Registrarse y Acceder al Buscador âž”",
         "reg_sucesso": "ðŸŽ‰ Â¡Registro completado con Ã©xito! Bienvenido al Portal del Investigador.",
-        "reg_erro_campos": "âš ï¸ Por favor, complete todos los campos obligatorios.",
+        "reg_erro_campos": "âš ï¸ Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "ðŸ”’ Registro pendiente para habilitar el buscador.",
         "reg_lateral_status_liberado": "ðŸ”“ Acceso Concedido",
         "reg_btn_sair": "Salir",
@@ -560,7 +560,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "rec_nova_senha": "Nueva ContraseÃ±a:",
         "rec_conf_senha": "Confirmar Nueva ContraseÃ±a:",
         "rec_sucesso": "ðŸŽ‰ Â¡ContraseÃ±a restablecida con Ã©xito! Inicie sesiÃ³n.",
-        "rec_erro_nao_encontrado": "âš ï¸ Correo electrÃ³nico no encontrado en nuestros registros.",
+        "rec_erro_nao_encontrado": "âš ï¸ Correo electrÃ³nico no encontrado en nuestros registros.",
         "rec_btn_voltar": "Volver al Inicio",
         "log_btn_google": "Conectar con Google",
         "log_cadastrar_link": "Â¿No tienes una cuenta? Â¡RegÃ­strate aquÃ­!",
@@ -573,9 +573,9 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_senha": "ContraseÃ±a:",
         "reg_confirmar_senha": "Confirmar ContraseÃ±a:",
         "reg_btn_cadastrar": "Crear Cuenta y Acceder âž”",
-        "reg_erro_senha_diferente": "âš ï¸ Las contraseÃ±as no coinciden.",
-        "reg_erro_ja_existe": "âš ï¸ Este correo ya estÃ¡ registrado. Inicie sesiÃ³n.",
-        "log_erro_invalido": "âš ï¸ Correo o contraseÃ±a incorrectos.",
+        "reg_erro_senha_diferente": "âš ï¸ Las contraseÃ±as no coinciden.",
+        "reg_erro_ja_existe": "âš ï¸ Este correo ya estÃ¡ registrado. Inicie sesiÃ³n.",
+        "log_erro_invalido": "âš ï¸ Correo o contraseÃ±a incorrectos.",
         "log_google_sucesso": "ðŸš€ Â¡Conectado con Google! Redireccionando...",
         "areas_trad": {
             "Engenharias": "IngenierÃ­as",
@@ -831,10 +831,10 @@ def carregar_dados():
             
             return df, nome_arquivo
         except Exception as e:
-            st.error(f"âš ï¸ Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
+            st.error(f"âš ï¸ Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
             st.stop()
     else:
-        st.error("âš ï¸ Base de dados nÃ£o encontrada. O arquivo 'dados.csv' nÃ£o foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositÃ³rio GitHub correspondente.")
+        st.error("âš ï¸ Base de dados nÃ£o encontrada. O arquivo 'dados.csv' nÃ£o foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositÃ³rio GitHub correspondente.")
         st.stop()
 
 df_original, arquivo_usado = carregar_dados()
@@ -1557,7 +1557,7 @@ if url_token:
         time.sleep(2)
         st.rerun()
     else:
-        st.error("âš ï¸ Token invÃ¡lido ou jÃ¡ utilizado.")
+        st.error("âš ï¸ Token invÃ¡lido ou jÃ¡ utilizado.")
     st.query_params.clear()
 
 if not st.session_state.registrado:
@@ -1615,7 +1615,7 @@ if not st.session_state.registrado:
                                 st.rerun()
                             else:
                                 # Fallback se SMTP nÃ£o estiver configurado
-                                st.warning("âš ï¸ NÃ£o foi possÃ­vel enviar o e-mail no momento (Servidor SMTP nÃ£o configurado).")
+                                st.warning("âš ï¸ NÃ£o foi possÃ­vel enviar o e-mail no momento (Servidor SMTP nÃ£o configurado).")
                                 st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha TemporÃ¡ria:** `{senha_temp}`\n\nEm caso de dÃºvidas, contate o suporte: **support@scipubs.com**")
                                 st.session_state.usuario_recuperado_email = email_rec.lower().strip()
                         else:
@@ -1664,7 +1664,7 @@ if not st.session_state.registrado:
                 else:
                     res_login = verificar_login(email_log, senha_log)
                     if res_login == "NOT_CONFIRMED":
-                        st.warning("âš ï¸ Sua conta ainda nÃ£o foi confirmada. Verifique o link enviado para o seu e-mail.")
+                        st.warning("âš ï¸ Sua conta ainda nÃ£o foi confirmada. Verifique o link enviado para o seu e-mail.")
                     elif res_login:
                         st.session_state.registrado = True
                         st.session_state.login_via_google = False
@@ -1697,7 +1697,7 @@ if not st.session_state.registrado:
                     time.sleep(2)
                     st.rerun()
                 else:
-                    st.error("âš ï¸ Token invÃ¡lido ou jÃ¡ utilizado.")
+                    st.error("âš ï¸ Token invÃ¡lido ou jÃ¡ utilizado.")
     else:
         with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
@@ -1772,7 +1772,7 @@ if not st.session_state.registrado:
                     if enviado:
                         st.success("âœ… Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
                     else:
-                        st.warning("âš ï¸ Conta criada, mas nÃ£o foi possÃ­vel enviar o e-mail de confirmaÃ§Ã£o.")
+                        st.warning("âš ï¸ Conta criada, mas nÃ£o foi possÃ­vel enviar o e-mail de confirmaÃ§Ã£o.")
                         st.info(f"Para testes, vocÃª mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
                     
                     st.session_state.modo_cadastro = False
@@ -1863,7 +1863,7 @@ if st.session_state.get("abrir_configuracoes", False):
         
         if st.button("Salvar AlteraÃ§Ãµes do Cadastro", type="primary"):
             if not nome_edit.strip() or not tel_edit.strip() or not inst_edit.strip():
-                st.error("âš ï¸ Preencha todos os campos obrigatÃ³rios.")
+                st.error("âš ï¸ Preencha todos os campos obrigatÃ³rios.")
             else:
                 if os.path.exists(caminho_csv):
                     try:
@@ -1900,9 +1900,9 @@ if st.session_state.get("abrir_configuracoes", False):
         conf_s = st.text_input("Confirmar Nova Senha:", type="password", key="settings_conf_senha")
         if st.button("Atualizar Senha", type="primary"):
             if not nova_s.strip():
-                st.error("âš ï¸ A senha nÃ£o pode estar em branco.")
+                st.error("âš ï¸ A senha nÃ£o pode estar em branco.")
             elif nova_s != conf_s:
-                st.error("âš ï¸ As senhas digitadas sÃ£o diferentes.")
+                st.error("âš ï¸ As senhas digitadas sÃ£o diferentes.")
             else:
                 redefinir_senha_usuario(st.session_state.email_usuario, nova_s)
                 st.success("ðŸŽ‰ Senha alterada com sucesso!")
@@ -1954,9 +1954,9 @@ if st.session_state.idioma == "PortuguÃªs":
 ### Bem-vindo ao SciPubs: o Portal do Pesquisador!
 Esta Ã© uma ferramenta desenvolvida para otimizar a busca por periÃ³dicos cientÃ­ficos de alto impacto.
   
-#### ðŸ› ï¸ O que vocÃª pode fazer aqui?
+#### ðŸ› ï¸ O que vocÃª pode fazer aqui?
 1. **Busca AvanÃ§ada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educaÃ§Ã£o musical"`) ou combine mÃºltiplos critÃ©rios usando os operadores lÃ³gicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
-2. **Filtros por SubÃ¡rea (CNPq):** Encontre periÃ³dicos perfeitamente alinhados Ã  sua subÃ¡rea especÃ­fica de atuaÃ§Ã£o e conhecimento.
+2. **Filtros por SubÃ¡rea (CNPq):** Encontre periÃ³dicos perfeitamente alinhados Ã  sua subÃ¡rea especÃ­fica de atuaÃ§Ã£o e conhecimento.
 3. **MÃ©tricas de Impacto:** Analise o prestÃ­gio internacional atravÃ©s de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Ãndice h5 (Google Scholar)**.
 4. **RecomendaÃ§Ã£o Inteligente (IA):** Use a inteligÃªncia artificial do Google Gemini para colar o tÃ­tulo e resumo do seu artigo e obter as recomendaÃ§Ãµes de periÃ³dicos ideais com justificativa e link direto.
 5. **ExportaÃ§Ã£o de Dados:** Filtre os resultados de acordo com sua necessidade e faÃ§a o download da tabela customizada imediatamente.
@@ -1967,7 +1967,7 @@ elif st.session_state.idioma == "English":
 ### Welcome to SciPubs: the Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
-#### ðŸ› ï¸ What can you do here?
+#### ðŸ› ï¸ What can you do here?
 1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
 2. **Filters by Subarea (CNPq):** Find journals perfectly aligned with your specific subarea of expertise.
 3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
@@ -1980,7 +1980,7 @@ else: # EspaÃ±ol
 ### Â¡Bienvenido al Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la bÃºsqueda de revistas cientÃ­ficas de alto impacto.
  
-#### ðŸ› ï¸ Â¿QuÃ© puedes fazer aquÃ­?
+#### ðŸ› ï¸ Â¿QuÃ© puedes fazer aquÃ­?
 1. **BÃºsqueda Avanzada y Booleana:** Busque tÃ©rminos exactos usando comillas (por ejemplo: `"educaciÃ³n musical"`) o combine mÃºltiples criterios usando los operadores lÃ³gicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
 2. **Filtros por SubÃ¡rea (CNPq):** Encuentre revistas perfectamente alineadas con su subÃ¡rea especÃ­fica de conocimiento.
 3. **MÃ©tricas de Impacto:** Analise el prestigio internacional a travÃ©s de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Ãndice h5 (Google Scholar)**.
@@ -2346,9 +2346,9 @@ with tab_ia:
         
     if disparar_busca:
         if not api_key_ativa:
-            st.error("âš ï¸ Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
+            st.error("âš ï¸ Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
-            st.warning("âš ï¸ Preencha o TÃ­tulo e o Resumo do seu artigo cientÃ­fico para rodar a recomendaÃ§Ã£o.")
+            st.warning("âš ï¸ Preencha o TÃ­tulo e o Resumo do seu artigo cientÃ­fico para rodar a recomendaÃ§Ã£o.")
         else:
             # Gera chave de cache baseada nos parÃ¢metros da busca (sem depender da chave API)
             cache_key = hashlib.md5(
@@ -2647,7 +2647,7 @@ with tab_ia:
 
     # RENDERIZAÃ‡ÃƒO ESTÃVEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
     if st.session_state.get("aviso_filtro"):
-        st.warning("âš ï¸ Nenhum periÃ³dico no catÃ¡logo atende aos filtros de Grande Ãrea e Indexador selecionados. Por favor, ajuste os filtros.")
+        st.warning("âš ï¸ Nenhum periÃ³dico no catÃ¡logo atende aos filtros de Grande Ãrea e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
         erro_msg = st.session_state.erro_ia
         if erro_msg.startswith("â³"):
@@ -2707,7 +2707,7 @@ with tab_ia:
                 # Caso a IA recomende um nome de revista que sofreu uma variaÃ§Ã£o de string e nÃ£o casou no CSV
                 with st.container(border=True):
                     st.markdown(f"### {rec['revista_nome']}")
-                    st.caption("âš ï¸ *PeriÃ³dico sugerido pela IA, mas metadados detalhados nÃ£o localizados na base local.*")
+                    st.caption("âš ï¸ *PeriÃ³dico sugerido pela IA, mas metadados detalhados nÃ£o localizados na base local.*")
                     st.markdown(f"ðŸŽ¯ **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
                     st.markdown(f"ðŸ’¡ **{t['ia_card_motivo']}** {rec['justificativa']}")
 
