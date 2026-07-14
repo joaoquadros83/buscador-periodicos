@@ -1303,7 +1303,7 @@ def enviar_email_confirmacao(destinatario, token):
         msg["Subject"] = "Confirme seu Cadastro - SciPubs"
         
         # URL Oficial
-        url_oficial = "https://scipubs.com"
+        url_oficial = "https://buscador-periodicos.streamlit.app"
         link_confirmacao = f"{url_oficial}/?token={token}"
         
         corpo = f"""Ola!
@@ -1761,7 +1761,7 @@ if not st.session_state.registrado:
                         st.success("✅ Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
                     else:
                         st.warning("⚠️ Conta criada, mas não foi possível enviar o e-mail de confirmação.")
-                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://scipubs.com/?token={token_confirmacao}")
+                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
                     
                     st.session_state.modo_cadastro = False
                     st.session_state.modo_login = True
