@@ -267,7 +267,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_inst_outra": "Especifique sua Instituição:",
         "reg_area_interesse": "Grande  rea de Interesse (Predominante):",
         "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
-        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao SciPubs: O Portal do Pesquisador.",
+        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo(a) ao SciPubs: O Portal do Pesquisador.",
         "reg_erro_campos": "    Por favor, preencha todos os campos obrigatórios.",
         "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "🔓 Acesso Liberado",
@@ -1932,7 +1932,7 @@ if st.session_state.get("abrir_configuracoes", False):
 if st.session_state.idioma == "Português":
     expander_titulo = "💡 Sobre o SciPubs & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao SciPubs: O Portal do Pesquisador!
+### Bem-vindo(a) ao SciPubs: O Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 ####     O que você pode fazer aqui?
