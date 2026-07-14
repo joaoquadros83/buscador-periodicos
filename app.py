@@ -1232,7 +1232,7 @@ if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 250px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 240px; width: auto; object-fit: contain;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
@@ -1680,24 +1680,7 @@ if not st.session_state.registrado:
                     else:
                         st.error(t['log_erro_invalido'])
                         
-            st.divider()
-            st.markdown("### 🔑 Confirmar Conta Manualmente")
-            st.write("Não conseguiu confirmar pelo link? Cole o token recebido no e-mail abaixo:")
-            token_manual = st.text_input("Token de Confirmação")
-            if st.button("Validar Token"):
-                sucesso_token, email_token, nome_token = confirmar_token(token_manual)
-                if sucesso_token:
-                    st.session_state.registrado = True
-                    st.session_state.login_via_google = False
-                    st.session_state.email_usuario = email_token.lower().strip()
-                    st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
-                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-                    st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
-                    st.success("✅ E-mail confirmado com sucesso! Acesso liberado.")
-                    time.sleep(2)
-                    st.rerun()
-                else:
-                    st.error("    Token inválido ou já utilizado.")
+
     else:
         with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
