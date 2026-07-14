@@ -888,7 +888,7 @@ if st.session_state.registrado:
         bg_cor = "#10B981"
         
     # Caixa de boas-vindas
-    st.markdown(f"""
+    st.sidebar.markdown(f"""
         <div style="background-color: {bg_cor}; color: white; padding: 10px 8px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.82rem; line-height: 1.3; margin-bottom: 8px;">
             {status_texto}
         </div>
@@ -2175,7 +2175,7 @@ with tab_busca:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
-                    return val_str + "#[ 🎯 Acessar h5 ]"
+                    return val_str + "#🎯 Acessar h5"
                 return "-"
             df_exibir["Índice h5"] = df_exibir["Índice h5"].apply(format_h5)
         
