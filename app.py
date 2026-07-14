@@ -1562,8 +1562,12 @@ if not st.session_state.registrado:
         with col_reg_1:
             nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
             email_cad = st.text_input(t['reg_email'], placeholder="")
-            pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-            idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
+            
+            c_pais, c_idade = st.columns([2, 1])
+            with c_pais:
+                pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
+            with c_idade:
+                idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
             
         with col_reg_2:
             # Nível de Escolaridade
