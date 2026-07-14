@@ -109,7 +109,7 @@ if not imagem_base64_icon:
 novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
-    page_title="SciPub - O Portal do Pesquisador",
+    page_title="Portal do Pesquisador",
     page_icon=novo_page_icon, 
     layout="wide",
     initial_sidebar_state="expanded"
@@ -176,7 +176,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 
 dic = {
     "Português": {
-        "titulo": "SciPub - O Portal do Pesquisador",
+        "titulo": "Portal do Pesquisador",
         "subtitulo": "Ciência de dados aplicada à produção científica de alto impacto",
         "filtros_tit": "#### 🔍 Buscador de Periódicos",
         "placeholder_busca": "Digite o título da revista, ISSN...",
@@ -249,9 +249,9 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         """,
         "ia_refinar_alvos": "🎯 Refinar Alvos",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### Bem-vindo ao SciPub - O Portal do Pesquisador!",
+        "reg_boas_vindas": "### Bem-vindo ao Portal do Pesquisador!",
         "reg_apresentacao": "Esta é uma plataforma científica de alta tecnologia projetada para simplificar a busca e a seleção de periódicos de impacto para sua publicação. Una forças com ciência de dados e IA.",
-        "reg_beneficios_tit": "✨ Por que usar o SciPub?",
+        "reg_beneficios_tit": "✨ Por que usar o Portal?",
         "reg_beneficio_1_tit": "🔍 Busca Tradicional",
         "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e métricas consolidadas.",
         "reg_beneficio_2_tit": "📊 Métricas Unificadas",
@@ -267,7 +267,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_inst_outra": "Especifique sua Instituição:",
         "reg_area_interesse": "Grande Área de Interesse (Predominante):",
         "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
-        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao SciPub - O Portal do Pesquisador.",
+        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao Portal do Pesquisador.",
         "reg_erro_campos": "⚠️ Por favor, preencha todos os campos obrigatórios.",
         "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "🔓 Acesso Liberado",
@@ -314,7 +314,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         }
     },
     "English": {
-        "titulo": "SciPub - The Researcher's Portal",
+        "titulo": "The Researcher's Portal",
         "subtitulo": "Data science applied to high-impact scientific output.",
         "filtros_tit": "#### 🔍 Journal Finder",
         "placeholder_busca": "Enter journal title, ISSN...",
@@ -387,9 +387,9 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         """,
         "ia_refinar_alvos": "🎯 Refine Targets",
         "ia_todos": "All",
-        "reg_boas_vindas": "### Welcome to SciPub - The Researcher's Portal!",
+        "reg_boas_vindas": "### Welcome to the Researcher's Portal!",
         "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
-        "reg_beneficios_tit": "✨ Why use SciPub?",
+        "reg_beneficios_tit": "✨ Why use the Portal?",
         "reg_beneficio_1_tit": "🔍 Traditional Search",
         "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
         "reg_beneficio_2_tit": "📊 Unified Metrics",
@@ -405,7 +405,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_inst_outra": "Specify your Institution:",
         "reg_area_interesse": "Major Research Area of Interest:",
         "reg_btn_enviar": "Register and Access the Finder ➔",
-        "reg_sucesso": "🎉 Registration completed successfully! Welcome to SciPub - The Researcher's Portal.",
+        "reg_sucesso": "🎉 Registration completed successfully! Welcome to the Researcher's Portal.",
         "reg_erro_campos": "⚠️ Please fill in all required fields.",
         "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
         "reg_lateral_status_liberado": "🔓 Access Granted",
@@ -452,7 +452,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         }
     },
     "Español": {
-        "titulo": "SciPub - El Portal del Investigador",
+        "titulo": "Portal del Investigador",
         "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
         "filtros_tit": "#### 🔍 Buscador de Revistas",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
@@ -525,9 +525,9 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         """,
         "ia_refinar_alvos": "🎯 Refinar Objetivos",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### ¡Bienvenido a SciPub - El Portal del Investigador!",
+        "reg_boas_vindas": "### ¡Bienvenido al Portal del Investigador!",
         "reg_apresentacao": "Esta es una plataforma científica de alta tecnología diseñada para simplificar la búsqueda y selección de revistas de impacto para su publicación. Una fuerzas con ciencia de datos e IA.",
-        "reg_beneficios_tit": "✨ ¿Por qué usar SciPub?",
+        "reg_beneficios_tit": "✨ ¿Por qué usar el Portal?",
         "reg_beneficio_1_tit": "🔍 Búsqueda Tradicional",
         "reg_beneficio_1_desc": "Filtros por subáreas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y métricas consolidadas.",
         "reg_beneficio_2_tit": "📊 Métricas Unificadas",
@@ -535,7 +535,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_beneficio_3_tit": "🧠 Recomendador IA",
         "reg_beneficio_3_desc": "Recomendaciones generativas a través de Gemini 1.5 Flash cruzadas con nuestra base de revistas.",
         "reg_formulario_tit": "📝 Registro de Acceso Académico",
-        "reg_formulario_desc": "El acceso a SciPub es gratuito y abierto a toda la comunidad científica (desde estudiantes hasta posdoctores). Complete el formulario a continuación para liberar el acceso.",
+        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad científica (desde estudiantes hasta posdoctores). Complete el formulario a continuación para liberar el acceso.",
         "reg_nome": "Nombre Completo:",
         "reg_email": "Correo Electrónico Académico o Personal:",
         "reg_escolaridade": "Nivel de Escolaridad / Grado Académico:",
@@ -543,7 +543,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_inst_outra": "Especifique su Institución:",
         "reg_area_interesse": "Gran Área de Interés Predominante:",
         "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
-        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido a SciPub - El Portal del Investigador.",
+        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido al Portal del Investigador.",
         "reg_erro_campos": "⚠️ Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
         "reg_lateral_status_liberado": "🔓 Acceso Concedido",
@@ -1220,7 +1220,7 @@ if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/jpeg;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
@@ -1851,9 +1851,9 @@ if st.session_state.get("abrir_configuracoes", False):
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
-    expander_titulo = "📖 Sobre o SciPub & Como Utilizar"
+    expander_titulo = "📖 Sobre o Portal do Pesquisador & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao SciPub - O Portal do Pesquisador!
+### Bem-vindo ao Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 #### 🛠️ O que você pode fazer aqui?
@@ -1864,9 +1864,9 @@ Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos cient�
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 elif st.session_state.idioma == "English":
-    expander_titulo = "📖 About SciPub & How to Use"
+    expander_titulo = "📖 About the Researcher's Portal & How to Use"
     sobre_texto = """
-### Welcome to SciPub - The Researcher's Portal!
+### Welcome to the Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
 #### 🛠️ What can you do here?
@@ -1877,9 +1877,9 @@ This is a tool developed to optimize the search for high-impact scientific journ
 5. **Data Export:** Filter results according to your needs and download the customized table immediately.
 """
 else: # Español
-    expander_titulo = "📖 Sobre SciPub y Cómo Utilizar"
+    expander_titulo = "📖 Sobre el Portal del Investigador y Cómo Utilizar"
     sobre_texto = """
-### ¡Bienvenido a SciPub - El Portal del Investigador!
+### ¡Bienvenido al Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
 #### 🛠️ ¿Qué puedes fazer aquí?
