@@ -1254,13 +1254,13 @@ def enviar_email_recuperacao(destinatario, login, senha_temporaria):
             return False, "SMTP_NOT_CONFIGURED"
             
         msg = MIMEMultipart()
-        msg["From"] = "SciPub Support <support@scipub.com>"
+        msg["From"] = "SciPubs Support <support@scipubs.com>"
         msg["To"] = destinatario
-        msg["Subject"] = "Recuperacao de Acesso - SciPub"
+        msg["Subject"] = "Recuperacao de Acesso - SciPubS"
         
         corpo = f"""Ola!
 
-Voce solicitou a recuperacao de acesso ao SciPub.
+Voce solicitou a recuperacao de acesso ao SciPubs.
 Aqui estao suas credenciais temporarias:
 
 • Login: {login}
@@ -1298,9 +1298,9 @@ def enviar_email_confirmacao(destinatario, token):
             return False, "SMTP_NOT_CONFIGURED"
             
         msg = MIMEMultipart()
-        msg["From"] = "SciPub Support <support@scipub.com>"
+        msg["From"] = "SciPubs Support <support@scipubs.com>"
         msg["To"] = destinatario
-        msg["Subject"] = "Confirme seu Cadastro - SciPub"
+        msg["Subject"] = "Confirme seu Cadastro - SciPubs"
         
         # URL do Streamlit Cloud
         url_oficial = "https://buscador-periodicos.streamlit.app"
@@ -1308,14 +1308,14 @@ def enviar_email_confirmacao(destinatario, token):
         
         corpo = f"""Ola!
 
-Obrigado por se cadastrar no SciPub! Para finalizar a criacao da sua conta e liberar seu acesso, por favor clique no link abaixo:
+Obrigado por se cadastrar no SciPubs! Para finalizar a criacao da sua conta e liberar seu acesso, por favor clique no link abaixo:
 
 {link_confirmacao}
 
 Se voce nao solicitou este cadastro, pode ignorar este e-mail.
 
 Atenciosamente,
-Equipe SciPub"""
+Equipe SciPubs"""
         
         msg.attach(MIMEText(corpo, "plain", "utf-8"))
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -1592,7 +1592,7 @@ if not st.session_state.registrado:
                             else:
                                 # Fallback se SMTP não estiver configurado
                                 st.warning("⚠️ Não foi possível enviar o e-mail no momento (Servidor SMTP não configurado).")
-                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`\n\nEm caso de dúvidas, contate o suporte: **support@scipub.com**")
+                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`\n\nEm caso de dúvidas, contate o suporte: **support@scipubs.com**")
                                 st.session_state.usuario_recuperado_email = email_rec.lower().strip()
                         else:
                             st.error(t['rec_erro_nao_encontrado'])
@@ -1919,9 +1919,9 @@ if st.session_state.get("abrir_configuracoes", False):
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
-    expander_titulo = "💡 Sobre o SciPub & Como Utilizar"
+    expander_titulo = "💡 Sobre o SciPubs & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao SciPub: o Portal do Pesquisador!
+### Bem-vindo ao SciPubs: o Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 #### 🛠️ O que você pode fazer aqui?
@@ -1932,9 +1932,9 @@ Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos cient�
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 elif st.session_state.idioma == "English":
-    expander_titulo = "💡 About SciPub & How to Use"
+    expander_titulo = "💡 About SciPubs & How to Use"
     sobre_texto = """
-### Welcome to SciPub: the Researcher's Portal!
+### Welcome to SciPubs: the Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
 #### 🛠️ What can you do here?
