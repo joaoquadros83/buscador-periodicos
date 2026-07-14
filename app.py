@@ -1631,6 +1631,9 @@ if not st.session_state.registrado:
                 escrever_outra = True
             else:
                 instituicao_cad_outra = ""
+                
+            idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
+            raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
 
         # Senha e confirmação de senha
         st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
