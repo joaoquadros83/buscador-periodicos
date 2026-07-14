@@ -1223,16 +1223,14 @@ tag_logo_texto = """
 ">SciPub</div>
 """
 
-st.markdown(f"""
-    <div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 30px 40px;">
-        {tag_logo_texto}
-        <div class="divider-line" style="width: 2px; height: 60px; background-color: rgba(255,255,255,0.15);"></div>
-        <div class="premium-text-block">
-            <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
-            <p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 30px 40px;">
+{tag_logo_texto}
+<div class="divider-line" style="width: 2px; height: 60px; background-color: rgba(255,255,255,0.15);"></div>
+<div class="premium-text-block">
+<h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
+<p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
+</div>
+</div>""", unsafe_allow_html=True)
 
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
 # Funções auxiliares globais para banco de dados de credenciais
