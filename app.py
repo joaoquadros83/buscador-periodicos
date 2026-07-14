@@ -247,7 +247,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
 <i>A chave gratuita permite centenas de consultas por dia.</i>
 </div>
         """,
-        "ia_refinar_alvos": "🎯 Refinar Alvos",
+        "ia_refinar_pesquisa": "🎯 Refinar Pesquisa",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### Bem-vindo(a) ao SciPubs!",
         "reg_apresentacao": "Esta é uma plataforma científica de alta tecnologia projetada para simplificar a busca e a seleção de periódicos de impacto para sua publicação. Una forças com ciência de dados e IA.",
@@ -384,7 +384,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
 <i>The free key allows hundreds of queries per day.</i>
 </div>
         """,
-        "ia_refinar_alvos": "🎯 Refine Targets",
+        "ia_refinar_pesquisa": "🎯 Refine Targets",
         "ia_todos": "All",
         "reg_boas_vindas": "### Welcome to the SciPubs: The Researcher's Portal!",
         "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
@@ -521,7 +521,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
 <i>La clave gratuita permite cientos de consultas al día.</i>
 </div>
         """,
-        "ia_refinar_alvos": "🎯 Refinar Objetivos",
+        "ia_refinar_pesquisa": "🎯 Refinar Búsqueda",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### ¡Bienvenido a SciPubs: El Portal del Investigador!",
         "reg_apresentacao": "Esta es una plataforma científica de alta tecnología diseñada para simplificar la búsqueda y selección de revistas de impacto para su publicación. Una fuerzas con ciencia de datos e IA.",
@@ -2287,7 +2287,7 @@ with tab_ia:
             with st.expander(t['ia_como_obter_titulo'], expanded=False):
                 st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
         
-        st.markdown(f"#### {t['ia_refinar_alvos']}")
+        st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
         # Mapeia as grandes áreas originais para suas versões traduzidas
         grandes_areas_originais = sorted(list(df_original["Grande Area"].dropna().unique()))
