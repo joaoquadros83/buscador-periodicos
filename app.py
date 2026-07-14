@@ -474,7 +474,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
         "nav_tit": "Panel de Navegación",
         "todas": "Todas",
-        "col_h5": " ndice h5 (Scholar)",
+        "col_h5": "Índice h5 (Scholar)",
         "meta_tit": "METADATOS",
         "meta_sistema": "Sistema",
         "meta_versao": "Versión Base",
@@ -754,6 +754,20 @@ def carregar_dados():
             df.columns = df.columns.str.replace('^\ufeff', '', regex=True)
             df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
             df.columns = [c.strip() for c in df.columns]
+            
+            # Renomeia as colunas do CSV para garantir a acentuação correta utilizada no código
+            df = df.rename(columns={
+                "Grande Area": "Grande Área",
+                "Grande  rea": "Grande Área",
+                "Area do Conhecimento": "Área do Conhecimento",
+                " rea do Conhecimento": "Área do Conhecimento",
+                "Subrea do Conhecimento": "Subárea do Conhecimento",
+                "Sub rea do Conhecimento": "Subárea do Conhecimento",
+                "Ttulo da Revista": "Título da Revista",
+                "T tulo da Revista": "Título da Revista",
+                "Índice h5": "Índice h5"
+            })
+
             
             # Tratamento numérico padrão das métricas
             for col in ['SJR', 'JIF', 'h-index', 'H index']:
@@ -1938,7 +1952,7 @@ Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos cient�
 ####     O que você pode fazer aqui?
 1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
 2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados    sua subárea específica de atuação e conhecimento.
-3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o ** ndice h5 (Google Scholar)**.
+3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
 4. **Recomendação Inteligente (IA):** Use a inteligência artificial do Google Gemini para colar o título e resumo do seu artigo e obter as recomendações de periódicos ideais com justificativa e link direto.
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
@@ -1964,7 +1978,7 @@ Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda d
 ####     ¿Qué puedes fazer aquí?
 1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
 2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
-3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al ** ndice h5 (Google Scholar)**.
+3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
 4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
 5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 """
