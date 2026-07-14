@@ -1822,9 +1822,9 @@ if st.session_state.get("abrir_configuracoes", False):
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
-    expander_titulo = "📖 Sobre o Portal do Pesquisador & Como Utilizar"
+    expander_titulo = "💡 Sobre o SciPub & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao Portal do Pesquisador!
+### Bem-vindo ao SciPub: o Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 #### 🛠️ O que você pode fazer aqui?
@@ -1835,9 +1835,9 @@ Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos cient�
 5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 elif st.session_state.idioma == "English":
-    expander_titulo = "📖 About the Researcher's Portal & How to Use"
+    expander_titulo = "💡 About SciPub & How to Use"
     sobre_texto = """
-### Welcome to the Researcher's Portal!
+### Welcome to SciPub: the Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
 #### 🛠️ What can you do here?
