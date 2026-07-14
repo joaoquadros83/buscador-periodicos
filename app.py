@@ -1516,12 +1516,13 @@ if not st.session_state.registrado:
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
         with col_log_2:
             # Formulário de Login
-            email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
-            senha_log = st.text_input(t['log_senha'], type="password", placeholder="", key="senha_login")
-            
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            
-            btn_entrar = st.button(t['log_btn_entrar'], type="primary", use_container_width=True)
+            with st.form("form_login_usuario", clear_on_submit=False):
+                email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
+                senha_log = st.text_input(t['log_senha'], type="password", placeholder="", key="senha_login")
+                
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                
+                btn_entrar = st.form_submit_button(t['log_btn_entrar'], type="primary", use_container_width=True)
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
@@ -1558,42 +1559,43 @@ if not st.session_state.registrado:
                 else:
                     st.error(t['log_erro_invalido'])
     else:
-        col_reg_1, col_reg_2 = st.columns(2)
-        with col_reg_1:
-            nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
-            email_cad = st.text_input(t['reg_email'], placeholder="")
-            pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-            sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
-            
-        with col_reg_2:
-            # Titulação
-            opcoes_esc = []
-            if st.session_state.idioma == "Português":
-                opcoes_esc = ["Graduação", "Especialização", "Mestrado", "Doutorado", "Outra"]
-            elif st.session_state.idioma == "English":
-                opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
-            else:
-                opcoes_esc = ["Grado", "Especialización", "Maestría", "Doctorado", "Otra"]
+        with st.form("form_cadastro_usuario", clear_on_submit=False):
+            col_reg_1, col_reg_2 = st.columns(2)
+            with col_reg_1:
+                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
+                email_cad = st.text_input(t['reg_email'], placeholder="")
+                pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
+                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
                 
-            escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
-            
-            # Vínculo Institucional
-            instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
+            with col_reg_2:
+                # Titulação
+                opcoes_esc = []
+                if st.session_state.idioma == "Português":
+                    opcoes_esc = ["Graduação", "Especialização", "Mestrado", "Doutorado", "Outra"]
+                elif st.session_state.idioma == "English":
+                    opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
+                else:
+                    opcoes_esc = ["Grado", "Especialización", "Maestría", "Doctorado", "Otra"]
+                    
+                escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
                 
-            idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
-            raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
-
-        # Senha e confirmação de senha
-        st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
-        col_s1, col_s2 = st.columns(2)
-        with col_s1:
-            senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="", key="senha_cad_reg")
-        with col_s2:
-            senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
-
-        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-        btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
-        
+                # Vínculo Institucional
+                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
+                    
+                idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
+                raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
+    
+            # Senha e confirmação de senha
+            st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
+            col_s1, col_s2 = st.columns(2)
+            with col_s1:
+                senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="", key="senha_cad_reg")
+            with col_s2:
+                senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
+    
+            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
+            
         if btn_registrar:
             if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
                 faltam = []
@@ -1615,10 +1617,12 @@ if not st.session_state.registrado:
                     nome_cad.strip(),
                     email_cad.strip(),
                     pais_cad.strip(),
-                    tel_cad.strip(),
                     escolaridade_cad,
-                    inst_final,
-                    senha_cad
+                    instituicao_cad.strip(),
+                    senha_cad.strip(),
+                    idade_final,
+                    sexo_cad,
+                    raca_cad
                 )
                 if sucesso_cadastro:
                     st.session_state.registrado = True
