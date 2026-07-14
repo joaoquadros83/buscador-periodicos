@@ -2192,7 +2192,7 @@ with tab_busca:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
-                    return val_str + "#🔗 Abrir"
+                    return val_str + "#[ 🎯 Acessar h5 ]"
                 return "-"
             df_exibir[" ndice h5"] = df_exibir[" ndice h5"].apply(format_h5)
         
@@ -2703,6 +2703,10 @@ with tab_ia:
                             st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
                         else:
                             st.info(t['ia_card_sem_site'])
+                        
+                        h5_link = str(registro_revista.iloc[0].get("Índice h5", "")) if "Índice h5" in registro_revista.columns else ""
+                        if h5_link and h5_link not in ["nan", "-", "None", ""]:
+                            st.link_button("🎯 Índice h5", h5_link, type="secondary", **kwargs_largura)
             else:
                 # Caso a IA recomende um nome de revista que sofreu uma variação de string e não casou no CSV
                 with st.container(border=True):
