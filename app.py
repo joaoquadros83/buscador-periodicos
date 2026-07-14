@@ -1302,8 +1302,8 @@ def enviar_email_confirmacao(destinatario, token):
         msg["To"] = destinatario
         msg["Subject"] = "Confirme seu Cadastro - SciPubs"
         
-        # URL do Streamlit Cloud
-        url_oficial = "https://buscador-periodicos.streamlit.app"
+        # URL Oficial
+        url_oficial = "https://scipubs.com"
         link_confirmacao = f"{url_oficial}/?token={token}"
         
         corpo = f"""Ola!
@@ -1730,7 +1730,7 @@ if not st.session_state.registrado:
                         st.success("✅ Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
                     else:
                         st.warning("⚠️ Conta criada, mas não foi possível enviar o e-mail de confirmação.")
-                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
+                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://scipubs.com/?token={token_confirmacao}")
                     
                     st.session_state.modo_cadastro = False
                     st.session_state.modo_login = True
@@ -1883,7 +1883,7 @@ if st.session_state.get("abrir_configuracoes", False):
 
     elif "📢 Compartilhar Portal com Outros" in opc_config:
         st.subheader("📢 Compartilhar o Portal do Pesquisador")
-        url_portal = "https://buscador-periodicos.streamlit.app/"
+        url_portal = "https://scipubs.com/"
         texto_compartilhar = f"Confira o Buscador de Periodicos Cientificos do PPGE UFOP: {url_portal}"
         
         msg_encoded = urllib.parse.quote(texto_compartilhar)
