@@ -20,6 +20,13 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+st.set_page_config(
+    page_title="Portal do Pesquisador",
+    page_icon=novo_page_icon, 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # 1. FunÃ§Ã£o para inicializar o Firebase com seguranÃ§a e cache
 @st.cache_resource
 def inicializar_firebase():
@@ -107,13 +114,6 @@ if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
 
 novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "ðŸ“š"
-
-st.set_page_config(
-    page_title="Portal do Pesquisador",
-    page_icon=novo_page_icon, 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # --- INJEÃ‡ÃƒO DE TEMA DINÃ‚MICO (DIURNO / NOTURNO) ---
 if st.session_state.get("dark_mode", False):
