@@ -1498,8 +1498,8 @@ if not st.session_state.registrado:
                                 st.rerun()
                             else:
                                 # Fallback se SMTP não estiver configurado
-                                st.warning("⚠️ O envio de e-mail falhou ou o servidor SMTP nos segredos não está configurado.")
-                                st.info(f"Para testes, use estas credenciais temporárias:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`")
+                                st.warning("⚠️ Não foi possível enviar o e-mail no momento (Servidor SMTP não configurado).")
+                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`\n\nEm caso de dúvidas, contate o suporte: **support@scipub.com**")
                                 st.session_state.usuario_recuperado_email = email_rec.lower().strip()
                         else:
                             st.error(t['rec_erro_nao_encontrado'])
