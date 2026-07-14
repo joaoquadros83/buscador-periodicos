@@ -1334,7 +1334,8 @@ def confirmar_token(token):
         try:
             df = pd.read_csv(caminho, sep=";")
             if "Token_Confirmacao" in df.columns:
-                mask = df["Token_Confirmacao"] == token
+                # Transforma as colunas em string para evitar erro de tipo (float/NaN)
+                mask = df["Token_Confirmacao"].astype(str).str.strip() == str(token).strip()
                 if mask.any():
                     idx = df[mask].index[0]
                     email_encontrado = df.loc[idx, "Email"]
