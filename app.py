@@ -109,7 +109,7 @@ if not imagem_base64_icon:
 novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
-    page_title="Portal do Pesquisador",
+    page_title="O Portal do Pesquisador",
     page_icon=novo_page_icon, 
     layout="wide",
     initial_sidebar_state="expanded"
@@ -176,8 +176,8 @@ st.session_state.idioma = st.sidebar.selectbox(
 
 dic = {
     "Português": {
-        "titulo": "Portal do Pesquisador",
-        "subtitulo": "Ciência de dados aplicada    produção científica de alto impacto",
+        "titulo": "O Portal do Pesquisador",
+        "subtitulo": "Ciência de dados aplicada produção científica de alto impacto",
         "filtros_tit": "####   Buscador de Periódicos",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -199,7 +199,7 @@ dic = {
         "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
         "nav_tit": "Painel de Navegação",
         "todas": "Todas",
-        "col_h5": " ndice h5 (Scholar)",
+        "col_h5": " Índice h5 (Scholar)",
         "meta_tit": "METADADOS",
         "meta_sistema": "Sistema",
         "meta_versao": "Versão Base",
@@ -249,9 +249,9 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         """,
         "ia_refinar_alvos": "🎯 Refinar Alvos",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### Bem-vindo ao Portal do Pesquisador!",
+        "reg_boas_vindas": "### Bem-vindo(a) ao SciPubs!",
         "reg_apresentacao": "Esta é uma plataforma científica de alta tecnologia projetada para simplificar a busca e a seleção de periódicos de impacto para sua publicação. Una forças com ciência de dados e IA.",
-        "reg_beneficios_tit": "✨ Por que usar o Portal?",
+        "reg_beneficios_tit": "✨ Por que usar o SciPubs?",
         "reg_beneficio_1_tit": "  Busca Tradicional",
         "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e métricas consolidadas.",
         "reg_beneficio_2_tit": "📊 Métricas Unificadas",
@@ -267,7 +267,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_inst_outra": "Especifique sua Instituição:",
         "reg_area_interesse": "Grande  rea de Interesse (Predominante):",
         "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
-        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao Portal do Pesquisador.",
+        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo ao SciPubs: O Portal do Pesquisador.",
         "reg_erro_campos": "    Por favor, preencha todos os campos obrigatórios.",
         "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "🔓 Acesso Liberado",
@@ -289,7 +289,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "log_btn_google": "Conectar com o Google",
         "log_cadastrar_link": "Não tem uma conta? Cadastre-se aqui!",
         "log_entrar_link": "Já tem uma conta? Faça login aqui!",
-        "log_titulo": "🔒 Entrar no Portal",
+        "log_titulo": "🔒 Entrar no SciPubs",
         "reg_titulo_form": "  Criar Conta Acadêmica",
         "reg_nome_sobrenome": "Nome e Sobrenome:",
         "reg_pais": "País:",
@@ -346,7 +346,6 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "meta_ativo": "Active",
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
-        "visitas_lbl": "Portal Visits",
         "gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
         "pessoal_lbl": "👤 Personal website",
@@ -387,9 +386,9 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         """,
         "ia_refinar_alvos": "🎯 Refine Targets",
         "ia_todos": "All",
-        "reg_boas_vindas": "### Welcome to the Researcher's Portal!",
+        "reg_boas_vindas": "### Welcome to the SciPubs: The Researcher's Portal!",
         "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
-        "reg_beneficios_tit": "✨ Why use the Portal?",
+        "reg_beneficios_tit": "✨ Why use SciPubs?",
         "reg_beneficio_1_tit": "  Traditional Search",
         "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
         "reg_beneficio_2_tit": "📊 Unified Metrics",
@@ -405,7 +404,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_inst_outra": "Specify your Institution:",
         "reg_area_interesse": "Major Research Area of Interest:",
         "reg_btn_enviar": "Register and Access the Finder ➔",
-        "reg_sucesso": "🎉 Registration completed successfully! Welcome to the Researcher's Portal.",
+        "reg_sucesso": "🎉 Registration completed successfully! Welcome to the SciPubs: The Researcher's Portal.",
         "reg_erro_campos": "    Please fill in all required fields.",
         "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
         "reg_lateral_status_liberado": "🔓 Access Granted",
@@ -427,7 +426,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "log_btn_google": "Sign in with Google",
         "log_cadastrar_link": "Don't have an account? Sign up here!",
         "log_entrar_link": "Already have an account? Log in here!",
-        "log_titulo": "🔒 Log in to the Portal",
+        "log_titulo": "🔒 Log in to SciPubs",
         "reg_titulo_form": "  Create Academic Account",
         "reg_nome_sobrenome": "First and Last Name:",
         "reg_pais": "Country:",
@@ -452,7 +451,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         }
     },
     "Español": {
-        "titulo": "Portal del Investigador",
+        "titulo": "El Portal del Investigador",
         "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
         "filtros_tit": "####   Buscador de Revistas",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
@@ -484,7 +483,6 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
-        "visitas_lbl": "Visitas al Portal",
         "gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
         "pessoal_lbl": "👤 Sitio personal",
@@ -525,9 +523,9 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         """,
         "ia_refinar_alvos": "🎯 Refinar Objetivos",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### ¡Bienvenido al Portal del Investigador!",
+        "reg_boas_vindas": "### ¡Bienvenido a SciPubs: El Portal del Investigador!",
         "reg_apresentacao": "Esta es una plataforma científica de alta tecnología diseñada para simplificar la búsqueda y selección de revistas de impacto para su publicación. Una fuerzas con ciencia de datos e IA.",
-        "reg_beneficios_tit": "✨ ¿Por qué usar el Portal?",
+        "reg_beneficios_tit": "✨ ¿Por qué usar SciPubs?",
         "reg_beneficio_1_tit": "  Búsqueda Tradicional",
         "reg_beneficio_1_desc": "Filtros por subáreas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y métricas consolidadas.",
         "reg_beneficio_2_tit": "📊 Métricas Unificadas",
@@ -543,7 +541,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_inst_outra": "Especifique su Institución:",
         "reg_area_interesse": "Gran  rea de Interés Predominante:",
         "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
-        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido al Portal del Investigador.",
+        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido a SciPubs: El Portal del Investigador.",
         "reg_erro_campos": "    Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
         "reg_lateral_status_liberado": "🔓 Acceso Concedido",
@@ -565,7 +563,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "log_btn_google": "Conectar con Google",
         "log_cadastrar_link": "¿No tienes una cuenta? ¡Regístrate aquí!",
         "log_entrar_link": "¿Ya tienes una cuenta? ¡Inicia sesión aquí!",
-        "log_titulo": "🔒 Iniciar Sesión en el Portal",
+        "log_titulo": "🔒 Iniciar Sesión en SciPubs",
         "reg_titulo_form": "  Crear Cuenta Académica",
         "reg_nome_sobrenome": "Nombre y Apellido:",
         "reg_pais": "País:",
@@ -1281,7 +1279,7 @@ Aqui estao suas credenciais temporarias:
 Por favor, acesse o portal com estas credenciais e altere sua senha no menu de configuracoes (icone de engrenagem ⚙  na barra lateral).
 
 Atenciosamente,
-Equipe Portal do Pesquisador"""
+Equipe SciPubs"""
         
         msg.attach(MIMEText(corpo, "plain", "utf-8"))
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -1777,7 +1775,7 @@ if not st.session_state.registrado:
 
 # --- TELA DE CONFIGURAÇÕES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
-    st.markdown("## ⚙  Configurações & Ajustes do Portal")
+    st.markdown("## ⚙  Configurações & Ajustes do SciPubs")
     
     # Botão para fechar e retornar ao buscador
     if st.button("⬅  Voltar para o Buscador", key="btn_fechar_config"):
@@ -1792,7 +1790,7 @@ if st.session_state.get("abrir_configuracoes", False):
             "👤 Atualização de Cadastro",
             "🔑 Atualização de Senha",
             "🎨 Tema da Plataforma (Claro/Escuro)",
-            "📢 Compartilhar Portal com Outros"
+            "📢 Compartilhe o SciPubs" 
         ],
         key="radio_opc_config"
     )
@@ -1906,9 +1904,9 @@ if st.session_state.get("abrir_configuracoes", False):
                 st.session_state.dark_mode = True
                 st.rerun()
 
-    elif "📢 Compartilhar Portal com Outros" in opc_config:
-        st.subheader("📢 Compartilhar o Portal do Pesquisador")
-        url_portal = "https://scipubs.com/"
+    elif "📢 Compartilhar o SciPubs" in opc_config:
+        st.subheader("📢 Compartilhar o SciPubs")
+        url_portal = "https://www.scipubs.com/"
         texto_compartilhar = f"Confira o Buscador de Periodicos Cientificos do PPGE UFOP: {url_portal}"
         
         msg_encoded = urllib.parse.quote(texto_compartilhar)
@@ -1934,7 +1932,7 @@ if st.session_state.get("abrir_configuracoes", False):
 if st.session_state.idioma == "Português":
     expander_titulo = "💡 Sobre o SciPubs & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao SciPubs: o Portal do Pesquisador!
+### Bem-vindo ao SciPubs: O Portal do Pesquisador!
 Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
 ####     O que você pode fazer aqui?
