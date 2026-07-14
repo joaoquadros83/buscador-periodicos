@@ -1254,13 +1254,13 @@ def enviar_email_recuperacao(destinatario, login, senha_temporaria):
             return False, "SMTP_NOT_CONFIGURED"
             
         msg = MIMEMultipart()
-        msg["From"] = sender_email
+        msg["From"] = "SciPub Support <support@scipub.com>"
         msg["To"] = destinatario
-        msg["Subject"] = "Recuperacao de Acesso - Portal do Pesquisador"
+        msg["Subject"] = "Recuperacao de Acesso - SciPub"
         
         corpo = f"""Ola!
 
-Voce solicitou a recuperacao de acesso ao Portal do Pesquisador.
+Voce solicitou a recuperacao de acesso ao SciPub.
 Aqui estao suas credenciais temporarias:
 
 • Login: {login}
@@ -1281,7 +1281,81 @@ Equipe Portal do Pesquisador"""
     except Exception as e:
         return False, str(e)
 
-def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca):
+import uuid
+
+def gerar_token():
+    return str(uuid.uuid4())
+
+def enviar_email_confirmacao(destinatario, token):
+    try:
+        smtp_secrets = st.secrets.get("smtp", {})
+        sender_email = smtp_secrets.get("email")
+        sender_password = smtp_secrets.get("password")
+        smtp_server = smtp_secrets.get("server", "smtp.gmail.com")
+        smtp_port = int(smtp_secrets.get("port", 587))
+        
+        if not sender_email or not sender_password:
+            return False, "SMTP_NOT_CONFIGURED"
+            
+        msg = MIMEMultipart()
+        msg["From"] = "SciPub Support <support@scipub.com>"
+        msg["To"] = destinatario
+        msg["Subject"] = "Confirme seu Cadastro - SciPub"
+        
+        # URL do Streamlit Cloud
+        url_oficial = "https://buscador-periodicos.streamlit.app"
+        link_confirmacao = f"{url_oficial}/?token={token}"
+        
+        corpo = f"""Ola!
+
+Obrigado por se cadastrar no SciPub! Para finalizar a criacao da sua conta e liberar seu acesso, por favor clique no link abaixo:
+
+{link_confirmacao}
+
+Se voce nao solicitou este cadastro, pode ignorar este e-mail.
+
+Atenciosamente,
+Equipe SciPub"""
+        
+        msg.attach(MIMEText(corpo, "plain", "utf-8"))
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, destinatario, msg.as_string())
+        server.quit()
+        return True, ""
+    except Exception as e:
+        return False, str(e)
+
+def confirmar_token(token):
+    caminho = "usuarios.csv"
+    confirmado = False
+    if os.path.exists(caminho):
+        try:
+            df = pd.read_csv(caminho, sep=";")
+            if "Token_Confirmacao" in df.columns:
+                mask = df["Token_Confirmacao"] == token
+                if mask.any():
+                    idx = df[mask].index[0]
+                    email_encontrado = df.loc[idx, "Email"]
+                    df.loc[idx, "Status_Confirmado"] = True
+                    df.loc[idx, "Token_Confirmacao"] = ""
+                    df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    confirmado = True
+                    
+                    # Atualiza também no firebase
+                    if db is not None:
+                        try:
+                            db.collection("usuarios").document(str(email_encontrado)).set({
+                                "status_confirmado": True,
+                                "token_confirmacao": ""
+                            }, merge=True)
+                        except: pass
+        except Exception:
+            pass
+    return confirmado
+
+def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False):
     caminho = "usuarios.csv"
     novo_usuario = pd.DataFrame([{
         "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1294,7 +1368,9 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
         "Sexo": sexo,
         "Raça/Etnia": raca,
         "Senha_Hash": hash_senha(senha),
-        "Acessos": 1
+        "Acessos": 1,
+        "Status_Confirmado": status_confirmado,
+        "Token_Confirmacao": token_confirmacao
     }])
     if os.path.exists(caminho):
         try:
@@ -1321,6 +1397,8 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
                 "sexo": sexo,
                 "raca": raca,
                 "acessos": 1,
+                "status_confirmado": status_confirmado,
+                "token_confirmacao": token_confirmacao,
                 "data_cadastro": firestore.SERVER_TIMESTAMP,
                 "ultimo_acesso": firestore.SERVER_TIMESTAMP
             }, merge=True)
@@ -1410,6 +1488,13 @@ def verificar_login(email_ou_usuario, senha):
         match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Senha_Hash"] == senha_hash_calc)]
         if not match.empty:
             idx = match.index[0]
+            
+            # Verifica se o e-mail foi confirmado (tratando contas antigas que não têm a coluna como confirmadas)
+            if "Status_Confirmado" in df.columns:
+                status = df.loc[idx, "Status_Confirmado"]
+                if pd.notna(status) and str(status).strip().lower() == "false":
+                    return "NOT_CONFIRMED"
+                    
             if "Acessos" not in df.columns:
                 df["Acessos"] = 1
             current_acessos = df.loc[idx, "Acessos"]
@@ -1443,6 +1528,14 @@ def verificar_login(email_ou_usuario, senha):
         return False
 
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
+url_token = st.query_params.get("token")
+if url_token:
+    if confirmar_token(url_token):
+        st.success("✅ E-mail confirmado com sucesso! Você já pode fazer o login.")
+    else:
+        st.error("⚠️ Token inválido ou já utilizado.")
+    st.query_params.clear()
+
 if not st.session_state.registrado:
 
     # Escolha do Modo (Recuperação, Login ou Cadastro)
@@ -1544,20 +1637,24 @@ if not st.session_state.registrado:
                     if not email_log.strip(): faltam.append("E-mail")
                     if not senha_log.strip(): faltam.append("Senha")
                     st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
-                elif verificar_login(email_log, senha_log):
-                    st.session_state.registrado = True
-                    st.session_state.login_via_google = False
-                    
-                    email_clean = email_log.lower().strip()
-                    st.session_state.email_usuario = email_clean
-                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-                    st.session_state.is_admin = (email_clean == admin_email_conf)
-                    
-                    st.success(t['reg_sucesso'])
-                    time.sleep(1.2)
-                    st.rerun()
                 else:
-                    st.error(t['log_erro_invalido'])
+                    res_login = verificar_login(email_log, senha_log)
+                    if res_login == "NOT_CONFIRMED":
+                        st.warning("⚠️ Sua conta ainda não foi confirmada. Verifique o link enviado para o seu e-mail.")
+                    elif res_login:
+                        st.session_state.registrado = True
+                        st.session_state.login_via_google = False
+                        
+                        email_clean = email_log.lower().strip()
+                        st.session_state.email_usuario = email_clean
+                        admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+                        st.session_state.is_admin = (email_clean == admin_email_conf)
+                        
+                        st.success(t['reg_sucesso'])
+                        time.sleep(1.2)
+                        st.rerun()
+                    else:
+                        st.error(t['log_erro_invalido'])
     else:
         with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
@@ -1613,6 +1710,7 @@ if not st.session_state.registrado:
                 idade_final = idade_cad if idade_cad > 0 else ""
                 
                 # Grava no CSV
+                token_confirmacao = gerar_token()
                 sucesso_cadastro = cadastrar_usuario(
                     nome_cad.strip(),
                     email_cad.strip(),
@@ -1622,22 +1720,21 @@ if not st.session_state.registrado:
                     senha_cad.strip(),
                     idade_final,
                     sexo_cad,
-                    raca_cad
+                    raca_cad,
+                    token_confirmacao,
+                    status_confirmado=False
                 )
                 if sucesso_cadastro:
-                    st.session_state.registrado = True
+                    enviado, erro = enviar_email_confirmacao(email_cad.strip(), token_confirmacao)
+                    if enviado:
+                        st.success("✅ Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
+                    else:
+                        st.warning("⚠️ Conta criada, mas não foi possível enviar o e-mail de confirmação.")
+                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
                     
-                    email_clean = email_cad.lower().strip()
-                    st.session_state.email_usuario = email_clean
-                    st.session_state.nome_usuario = nome_cad.strip().split(" ")[0].capitalize()
-                    st.session_state.acessos_usuario = 1
-                    st.session_state.login_via_google = False
-                    
-                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-                    st.session_state.is_admin = (email_clean == admin_email_conf)
-                    
-                    st.success(t['reg_sucesso'])
-                    time.sleep(1.2)
+                    st.session_state.modo_cadastro = False
+                    st.session_state.modo_login = True
+                    time.sleep(4)
                     st.rerun()
                 else:
                     st.error(t['reg_erro_ja_existe'])
