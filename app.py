@@ -2171,13 +2171,13 @@ with tab_busca:
                     return val_str + "#🔗 Ver site"
                 return "-"
             df_exibir["Homepage"] = df_exibir["Homepage"].apply(format_homepage)
-        if " ndice h5" in df_exibir.columns:
+        if "Índice h5" in df_exibir.columns:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
                     return val_str + "#[ 🎯 Acessar h5 ]"
                 return "-"
-            df_exibir[" ndice h5"] = df_exibir[" ndice h5"].apply(format_h5)
+            df_exibir["Índice h5"] = df_exibir["Índice h5"].apply(format_h5)
         
         # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
@@ -2207,7 +2207,7 @@ with tab_busca:
                 "H index": st.column_config.Column(
                     alignment="center"
                 ),
-                " ndice h5": st.column_config.LinkColumn(
+                "Índice h5": st.column_config.LinkColumn(
                     t['col_h5'],
                     help="Clique para abrir o índice h5 no Google Scholar",
                     display_text=r"#(.+)$",
