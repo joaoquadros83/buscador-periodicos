@@ -262,7 +262,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
         "reg_formulario_desc": "O acesso ao portal é gratuito e aberto a toda a comunidade científica (de estudantes de graduação a pós-doutores). Preencha o cadastro abaixo para liberar o acesso.",
         "reg_nome": "Nome Completo:",
         "reg_email": "E-mail Acadêmico ou Pessoal:",
-        "reg_escolaridade": "Nível de Escolaridade:",
+        "reg_escolaridade": "Titulação:",
         "reg_instituicao": "Instituição de Vínculo:",
         "reg_inst_outra": "Especifique sua Instituição:",
         "reg_area_interesse": "Grande Área de Interesse (Predominante):",
@@ -400,7 +400,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_formulario_desc": "Access to the portal is free and open to the entire scientific community (from undergraduate students to postdocs). Fill out the form below to unlock access.",
         "reg_nome": "Full Name:",
         "reg_email": "Academic or Personal Email:",
-        "reg_escolaridade": "Education Level / Academic Degree:",
+        "reg_escolaridade": "Degree:",
         "reg_instituicao": "Affiliated Institution:",
         "reg_inst_outra": "Specify your Institution:",
         "reg_area_interesse": "Major Research Area of Interest:",
@@ -538,7 +538,7 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad científica (desde estudiantes hasta posdoctores). Complete el formulario a continuación para liberar el acceso.",
         "reg_nome": "Nombre Completo:",
         "reg_email": "Correo Electrónico Académico o Personal:",
-        "reg_escolaridade": "Nivel de Escolaridad / Grado Académico:",
+        "reg_escolaridade": "Titulación:",
         "reg_instituicao": "Institución de Vínculo:",
         "reg_inst_outra": "Especifique su Institución:",
         "reg_area_interesse": "Gran Área de Interés Predominante:",
@@ -1562,22 +1562,18 @@ if not st.session_state.registrado:
         with col_reg_1:
             nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
             email_cad = st.text_input(t['reg_email'], placeholder="")
-            
-            c_pais, c_idade = st.columns([2, 1])
-            with c_pais:
-                pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-            with c_idade:
-                idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
+            pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
+            sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
             
         with col_reg_2:
-            # Nível de Escolaridade
+            # Titulação
             opcoes_esc = []
             if st.session_state.idioma == "Português":
-                opcoes_esc = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
+                opcoes_esc = ["Graduação", "Especialização", "Mestrado", "Doutorado", "Outra"]
             elif st.session_state.idioma == "English":
-                opcoes_esc = ["Undergraduate Student", "Specialist / Postgraduate", "Master's Student", "Master", "PhD Candidate", "PhD / Doctor", "Postdoctoral Researcher", "Other"]
+                opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
             else:
-                opcoes_esc = ["Estudiante de Grado", "Especialista / Posgrado", "Estudiante de Maestría", "Magíster", "Doctorando", "Doctor", "Posdoctorado", "Otro"]
+                opcoes_esc = ["Grado", "Especialización", "Maestría", "Doctorado", "Otra"]
                 
             escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
             
