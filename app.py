@@ -1329,7 +1329,6 @@ Equipe SciPubs"""
 
 def confirmar_token(token):
     caminho = "usuarios.csv"
-    confirmado = False
     if os.path.exists(caminho):
         try:
             df = pd.read_csv(caminho, sep=";")
@@ -1339,10 +1338,10 @@ def confirmar_token(token):
                 if mask.any():
                     idx = df[mask].index[0]
                     email_encontrado = df.loc[idx, "Email"]
+                    nome_encontrado = df.loc[idx, "Nome"]
                     df.loc[idx, "Status_Confirmado"] = True
                     df.loc[idx, "Token_Confirmacao"] = ""
                     df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                    confirmado = True
                     
                     # Atualiza também no firebase
                     if db is not None:
@@ -1352,9 +1351,11 @@ def confirmar_token(token):
                                 "token_confirmacao": ""
                             }, merge=True)
                         except: pass
+                        
+                    return True, email_encontrado, nome_encontrado
         except Exception:
             pass
-    return confirmado
+    return False, None, None
 
 def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False):
     caminho = "usuarios.csv"
@@ -1531,8 +1532,18 @@ def verificar_login(email_ou_usuario, senha):
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
 url_token = st.query_params.get("token")
 if url_token:
-    if confirmar_token(url_token):
-        st.success("✅ E-mail confirmado com sucesso! Você já pode fazer o login.")
+    sucesso_token, email_token, nome_token = confirmar_token(url_token)
+    if sucesso_token:
+        st.session_state.registrado = True
+        st.session_state.login_via_google = False
+        st.session_state.email_usuario = email_token.lower().strip()
+        st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
+        admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+        st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
+        st.success("✅ Conta ativada e acesso liberado com sucesso!")
+        st.query_params.clear()
+        time.sleep(2)
+        st.rerun()
     else:
         st.error("⚠️ Token inválido ou já utilizado.")
     st.query_params.clear()
@@ -1656,6 +1667,25 @@ if not st.session_state.registrado:
                         st.rerun()
                     else:
                         st.error(t['log_erro_invalido'])
+                        
+            st.divider()
+            st.markdown("### 🔑 Confirmar Conta Manualmente")
+            st.write("Não conseguiu confirmar pelo link? Cole o token recebido no e-mail abaixo:")
+            token_manual = st.text_input("Token de Confirmação")
+            if st.button("Validar Token"):
+                sucesso_token, email_token, nome_token = confirmar_token(token_manual)
+                if sucesso_token:
+                    st.session_state.registrado = True
+                    st.session_state.login_via_google = False
+                    st.session_state.email_usuario = email_token.lower().strip()
+                    st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
+                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
+                    st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
+                    st.success("✅ E-mail confirmado com sucesso! Acesso liberado.")
+                    time.sleep(2)
+                    st.rerun()
+                else:
+                    st.error("⚠️ Token inválido ou já utilizado.")
     else:
         with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
