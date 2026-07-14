@@ -20,12 +20,6 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-st.set_page_config(
-    page_title="Portal do Pesquisador",
-    page_icon=novo_page_icon, 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # 1. FunÃ§Ã£o para inicializar o Firebase com seguranÃ§a e cache
 @st.cache_resource
