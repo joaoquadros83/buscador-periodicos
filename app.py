@@ -1232,13 +1232,13 @@ if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 250px; width: auto; object-fit: contain;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
 st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 25px 35px;">
 {tag_imagem}
-<div class="divider-line" style="width: 2px; height: 100px; background-color: rgba(255,255,255,0.15);"></div>
+<div class="divider-line" style="width: 2px; height: 140px; background-color: rgba(255,255,255,0.15);"></div>
 <div class="premium-text-block">
 <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
 <p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
