@@ -1281,16 +1281,18 @@ Equipe Portal do Pesquisador"""
     except Exception as e:
         return False, str(e)
 
-def cadastrar_usuario(nome, email, pais, telefone, escolaridade, instituicao, senha):
+def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca):
     caminho = "usuarios.csv"
     novo_usuario = pd.DataFrame([{
         "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Nome": nome,
         "Email": email.lower().strip(),
         "País": pais,
-        "Telefone": telefone,
         "Escolaridade": escolaridade,
         "Instituição": instituicao,
+        "Idade": idade,
+        "Sexo": sexo,
+        "Raça/Etnia": raca,
         "Senha_Hash": hash_senha(senha),
         "Acessos": 1
     }])
@@ -1313,9 +1315,11 @@ def cadastrar_usuario(nome, email, pais, telefone, escolaridade, instituicao, se
                 "nome": nome,
                 "email": email.lower().strip(),
                 "pais": pais,
-                "telefone": telefone,
                 "escolaridade": escolaridade,
                 "instituicao": instituicao,
+                "idade": idade,
+                "sexo": sexo,
+                "raca": raca,
                 "acessos": 1,
                 "data_cadastro": firestore.SERVER_TIMESTAMP,
                 "ultimo_acesso": firestore.SERVER_TIMESTAMP
@@ -1559,7 +1563,7 @@ if not st.session_state.registrado:
             nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
             email_cad = st.text_input(t['reg_email'], placeholder="")
             pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-            tel_cad = st.text_input(t['reg_telefone'], placeholder="Ex: (31) 99999-9999")
+            idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
             
         with col_reg_2:
             # Nível de Escolaridade
@@ -1577,19 +1581,21 @@ if not st.session_state.registrado:
             opcoes_inst = []
             if st.session_state.idioma == "Português":
                 opcoes_inst = [
+                    "",
                     "Universidade Federal de Ouro Preto (UFOP)",
                     "Universidade de São Paulo (USP)",
                     "Universidade Estadual de Campinas (UNICAMP)",
-                    "Universidade Federal de Minas Gerais (UFMG)",
-                    "Universidade Federal do Rio de Janeiro (UFRJ)",
-                    "Universidade Federal do Rio Grande do Sul (UFRGS)",
-                    "Universidade Estadual Paulista (UNESP)",
-                    "Universidade Federal de Santa Catarina (UFSC)",
-                    "Universidade Federal de São Paulo (UNIFESP)",
+                    "Universidade Federal de Minas Gerais (MG)",
+                    "Universidade Federal do Rio de Janeiro (RJ)",
+                    "Universidade Federal do Rio Grande do Sul (RS)",
+                    "Universidade Estadual Paulista (SP)",
+                    "Universidade Federal de Santa Catarina (SC)",
+                    "Universidade Federal de São Paulo (SP)",
                     "Outra Instituição"
                 ]
             elif st.session_state.idioma == "English":
                 opcoes_inst = [
+                    "",
                     "Federal University of Ouro Preto (UFOP)",
                     "University of São Paulo (USP)",
                     "State University of Campinas (UNICAMP)",
@@ -1603,6 +1609,7 @@ if not st.session_state.registrado:
                 ]
             else:
                 opcoes_inst = [
+                    "",
                     "Universidad Federal de Ouro Preto (UFOP)",
                     "Universidad de São Paulo (USP)",
                     "Universidad Estatal de Campinas (UNICAMP)",
@@ -1625,6 +1632,13 @@ if not st.session_state.registrado:
             else:
                 instituicao_cad_outra = ""
 
+        # Campos Opcionais Extras
+        col_opt1, col_opt2 = st.columns(2)
+        with col_opt1:
+            sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
+        with col_opt2:
+            raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
+
         # Senha e confirmação de senha
         st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
         col_s1, col_s2 = st.columns(2)
@@ -1637,12 +1651,11 @@ if not st.session_state.registrado:
         btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
         
         if btn_registrar:
-            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not tel_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
+            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not senha_cad.strip() or (escrever_outra and not instituicao_cad_outra.strip()):
                 faltam = []
                 if not nome_cad.strip(): faltam.append("Nome")
                 if not email_cad.strip(): faltam.append("E-mail")
                 if not pais_cad.strip(): faltam.append("País")
-                if not tel_cad.strip(): faltam.append("Telefone")
                 if not senha_cad.strip(): faltam.append("Senha")
                 if escrever_outra and not instituicao_cad_outra.strip(): faltam.append("Instituição Específica")
                 st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
@@ -1650,6 +1663,8 @@ if not st.session_state.registrado:
                 st.error(t['reg_erro_senha_diferente'])
             else:
                 inst_final = instituicao_cad_outra.strip() if escrever_outra else instituicao_cad_sel
+                idade_final = idade_cad if idade_cad > 0 else ""
+                
                 # Grava no CSV
                 sucesso_cadastro = cadastrar_usuario(
                     nome_cad.strip(),
