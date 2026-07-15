@@ -1961,7 +1961,7 @@ if not st.session_state.registrado:
     else:
         
 
-        with st.container():
+        with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
             with col_reg_1:
                 nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
@@ -1998,7 +1998,11 @@ if not st.session_state.registrado:
                 elif st.session_state.get('idioma', 'Português') == 'Español':
                     lbl_nascimento = "Fecha de Nacimiento (Opcional):"
                 import datetime
-                idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
+                if st.session_state.get('idioma', 'Português') == 'English':
+                    date_format = "YYYY/MM/DD"
+                else:
+                    date_format = "DD/MM/YYYY"
+                idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today(), format=date_format)
                 
                 lbl_raca = "Raça/Etnia (Opcional):"
                 opcoes_raca = ["", "Branca", "Parda", "Preta", "Indígena", "Outra"]
@@ -2035,7 +2039,7 @@ if not st.session_state.registrado:
             
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
+            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
             
         if btn_registrar:
             if not aceitou_termos:
