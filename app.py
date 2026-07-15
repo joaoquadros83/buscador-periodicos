@@ -1968,14 +1968,14 @@ if not st.session_state.registrado:
                 email_cad = st.text_input(t['reg_email'], placeholder="")
                 pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
                 lbl_sexo = "Sexo (Opcional):"
-            opcoes_sexo = ["", "Masculino", "Feminino", "Não informar"]
-            if st.session_state.get('idioma', 'Português') == 'English':
-                lbl_sexo = "Gender (Optional):"
-                opcoes_sexo = ["", "Male", "Female", "Prefer not to say"]
-            elif st.session_state.get('idioma', 'Português') == 'Español':
-                lbl_sexo = "Sexo (Opcional):"
-                opcoes_sexo = ["", "Masculino", "Femenino", "Prefiero no decirlo"]
-            sexo_cad = st.selectbox(lbl_sexo, opcoes_sexo)
+                opcoes_sexo = ["", "Masculino", "Feminino", "Não informar"]
+                if st.session_state.get('idioma', 'Português') == 'English':
+                    lbl_sexo = "Gender (Optional):"
+                    opcoes_sexo = ["", "Male", "Female", "Prefer not to say"]
+                elif st.session_state.get('idioma', 'Português') == 'Español':
+                    lbl_sexo = "Sexo (Opcional):"
+                    opcoes_sexo = ["", "Masculino", "Femenino", "Prefiero no decirlo"]
+                sexo_cad = st.selectbox(lbl_sexo, opcoes_sexo)
                 
             with col_reg_2:
                 # Titulação
@@ -1993,21 +1993,22 @@ if not st.session_state.registrado:
                 instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
                     
                 lbl_nascimento = "Data de Nascimento (Opcional):"
-            if st.session_state.get('idioma', 'Português') == 'English':
-                lbl_nascimento = "Date of Birth (Optional):"
-            elif st.session_state.get('idioma', 'Português') == 'Español':
-                lbl_nascimento = "Fecha de Nacimiento (Opcional):"
-            import datetime
-            idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
-            lbl_raca = "Raça/Etnia (Opcional):"
-            opcoes_raca = ["", "Branca", "Parda", "Preta", "Indígena", "Outra"]
-            if st.session_state.get('idioma', 'Português') == 'English':
-                lbl_raca = "Race/Ethnicity (Optional):"
-                opcoes_raca = ["", "White", "Mixed-race", "Black", "Indigenous", "Other"]
-            elif st.session_state.get('idioma', 'Português') == 'Español':
-                lbl_raca = "Raza/Etnia (Opcional):"
-                opcoes_raca = ["", "Blanca", "Mestiza", "Negra", "Indígena", "Otra"]
-            raca_cad = st.selectbox(lbl_raca, opcoes_raca)
+                if st.session_state.get('idioma', 'Português') == 'English':
+                    lbl_nascimento = "Date of Birth (Optional):"
+                elif st.session_state.get('idioma', 'Português') == 'Español':
+                    lbl_nascimento = "Fecha de Nacimiento (Opcional):"
+                import datetime
+                idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
+                
+                lbl_raca = "Raça/Etnia (Opcional):"
+                opcoes_raca = ["", "Branca", "Parda", "Preta", "Indígena", "Outra"]
+                if st.session_state.get('idioma', 'Português') == 'English':
+                    lbl_raca = "Race/Ethnicity (Optional):"
+                    opcoes_raca = ["", "White", "Mixed-race", "Black", "Indigenous", "Other"]
+                elif st.session_state.get('idioma', 'Português') == 'Español':
+                    lbl_raca = "Raza/Etnia (Opcional):"
+                    opcoes_raca = ["", "Blanca", "Mestiza", "Negra", "Indígena", "Otra"]
+                raca_cad = st.selectbox(lbl_raca, opcoes_raca)
     
             # Senha e confirmação de senha
             st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
