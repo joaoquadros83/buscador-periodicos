@@ -1147,17 +1147,22 @@ if st.session_state.registrado:
     usr_identificador = email_usr_exibir if st.session_state.get("login_via_google", False) else nome_usr_exibir
     
     # Determina o texto de boas-vindas com base no número de acessos
+    lang = st.session_state.get('idioma', 'Português')
     if acessos_usr <= 1:
-        status_texto = f"Seja bem-vindo(a), {usr_identificador}"
+        if lang == 'English': status_texto = f"Welcome, {usr_identificador}"
+        elif lang == 'Español': status_texto = f"Bienvenido(a), {usr_identificador}"
+        else: status_texto = f"Seja bem-vindo(a), {usr_identificador}"
     else:
-        status_texto = f"Bem-vindo(a) de volta, {usr_identificador}"
+        if lang == 'English': status_texto = f"Welcome back, {usr_identificador}"
+        elif lang == 'Español': status_texto = f"Bienvenido(a) de vuelta, {usr_identificador}"
+        else: status_texto = f"Bem-vindo(a) de volta, {usr_identificador}"
         
     if st.session_state.get("is_admin", False):
         status_texto = f"🔑 Admin: {status_texto}"
         bg_cor = "#0F172A"
     else:
         bg_cor = "#10B981"
-        
+
     # Caixa de boas-vindas
     st.sidebar.markdown(f"""
         <div style="background-color: {bg_cor}; color: white; padding: 10px 8px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.82rem; line-height: 1.3; margin-bottom: 8px;">
@@ -1165,10 +1170,26 @@ if st.session_state.registrado:
         </div>
     """, unsafe_allow_html=True)
     
+    # Strings dos botões
+    btn_sair_text = "🚪 Sair"
+    btn_sair_help = "Encerrar sessão"
+    btn_conf_text = "⚙ Configs"
+    btn_conf_help = "Configurações"
+    if lang == 'English':
+        btn_sair_text = "🚪 Logout"
+        btn_sair_help = "Log out"
+        btn_conf_text = "⚙ Settings"
+        btn_conf_help = "Settings"
+    elif lang == 'Español':
+        btn_sair_text = "🚪 Salir"
+        btn_sair_help = "Cerrar sesión"
+        btn_conf_text = "⚙ Configuración"
+        btn_conf_help = "Configuración"
+
     # Colunas para exibir botões de Sair e Configurações lado a lado
     col_sair, col_config = st.sidebar.columns([1, 1])
     with col_sair:
-        if st.button("🚪 Sair", key="btn_sair_sidebar", help="Encerrar sessão", use_container_width=True):
+        if st.button(btn_sair_text, key="btn_sair_sidebar", help=btn_sair_help, use_container_width=True):
             st.session_state.registrado = False
             st.session_state.email_usuario = ""
             st.session_state.nome_usuario = ""
@@ -1179,7 +1200,7 @@ if st.session_state.registrado:
             st.session_state.is_admin = False
             st.rerun()
     with col_config:
-        if st.button("⚙  Configs", key="btn_config_gear_sidebar", help="Configurações", use_container_width=True):
+        if st.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
             st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
             st.rerun()
 
