@@ -6,7 +6,7 @@ import streamlit as st
 @st.dialog("📄 Termos de Uso e Política de Privacidade / Terms of Use / Términos de Uso", width="large")
 def modal_termos():
     lang = st.session_state.get('idioma', 'PT')
-    if lang == 'EN':
+    if lang == 'English':
         texto_termos = '''
 ### SciPubs Terms of Use and Privacy Policy
 
@@ -66,7 +66,7 @@ def modal_termos():
 
 8.1. These Terms may be updated. The Data Subject will be notified of substantial changes.
 '''
-    elif lang == 'ES':
+    elif lang == 'Español':
         texto_termos = '''
 ### Términos de Uso y Política de Privacidad de SciPubs
 
@@ -190,8 +190,8 @@ def modal_termos():
     st.markdown(texto_termos)
     
     fechar_btn = "Fechar"
-    if lang == 'EN': fechar_btn = "Close"
-    elif lang == 'ES': fechar_btn = "Cerrar"
+    if lang == 'English': fechar_btn = "Close"
+    elif lang == 'Español': fechar_btn = "Cerrar"
         
     if st.button(fechar_btn, type="primary"):
         st.rerun()
@@ -200,7 +200,7 @@ def modal_termos():
 def modal_doacao():
     lang = st.session_state.get('idioma', 'PT')
     
-    if lang == 'EN':
+    if lang == 'English':
         st.markdown('''
         Your voluntary donation is essential for us to keep our servers active and continue developing new technological tools for the academic and scientific community.
         
@@ -211,7 +211,7 @@ def modal_doacao():
         - [☕ Buy Me a Coffee](https://buymeacoffee.com/scipubs)
         ''')
         btn_close = "Close"
-    elif lang == 'ES':
+    elif lang == 'Español':
         st.markdown('''
         Su donación voluntaria es fundamental para mantener nuestros servidores activos y continuar desarrollando nuevas herramientas tecnológicas para la comunidad académica y científica.
         
@@ -1944,13 +1944,9 @@ if not st.session_state.registrado:
     else:
         
 
-        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-        lbl_doacao = "❤️ Desejo apoiar o SciPubs (Doação)" if st.session_state.get('idioma', 'PT') == 'PT' else ("❤️ I want to support SciPubs (Donation)" if st.session_state.get('idioma', 'PT') == 'EN' else "❤️ Deseo apoyar SciPubs (Donación)")
-        if st.button(lbl_doacao, type="secondary", use_container_width=True):
-            modal_doacao()
-        st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
+
         
-        with st.form("form_cadastro_usuario", clear_on_submit=False):
+        with st.container():
             col_reg_1, col_reg_2 = st.columns(2)
             with col_reg_1:
                 nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
@@ -2034,9 +2030,13 @@ Data da Última Atualização: 13 de julho de 2026
                 
             aceitou_termos = st.checkbox("Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)")
             aceitou_pesquisa = st.checkbox("Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)")
+            
+            lbl_doacao = "❤️ Desejo apoiar o SciPubs (Doação)" if st.session_state.get('idioma', 'Português') == 'Português' else ("❤️ I want to support SciPubs (Donation)" if st.session_state.get('idioma', 'Português') == 'English' else "❤️ Deseo apoyar SciPubs (Donación)")
+            if st.button(lbl_doacao, type="secondary", use_container_width=True):
+                modal_doacao()
                 
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
+            btn_registrar = st.button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
             
         if btn_registrar:
             if not aceitou_termos:
