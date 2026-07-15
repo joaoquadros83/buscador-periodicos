@@ -2,6 +2,80 @@ import faulthandler
 faulthandler.enable()
 
 import streamlit as st
+
+@st.dialog("Termos de uso e política de privacidade", width="large")
+def modal_termos():
+    st.markdown("""
+### Termos de Uso e Política de Privacidade do SciPubs
+
+TERMOS DE USO E POLÍTICA DE PRIVACIDADE
+
+SciPubs: O Portal do Pesquisador
+
+Data da Última Atualização: 13 de julho de 2026
+
+1. INTRODUÇÃO E ACEITAÇÃO
+1.1. Bem-vindo ao SciPubs: O Portal do Pesquisador ("Plataforma"). Este documento ("Termos") rege a sua relação com a nossa Plataforma, estabelecendo as condições de uso e as práticas de tratamento de dados pessoais, em estrita conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - "LGPD").
+1.2. ACEITAÇÃO: Ao clicar no botão "Eu li e aceito os Termos de Uso e Política de Privacidade" e concluir o seu cadastro, você ("Titular") declara ter lido, compreendido e concordado integralmente com todas as disposições aqui contidas, manifestando seu consentimento livre, informado e inequívoco para o tratamento de seus dados pessoais para as finalidades aqui descritas. Caso não concorde com estes Termos, você não deverá utilizar a Plataforma.
+
+2. OBJETO E GRATUIDADE
+2.1. A Plataforma tem como objetivo auxiliar pesquisadores na produção e publicação de artigos científicos, oferecendo uma ferramenta de busca em periódicos, integrada com Inteligência Artificial (Google Gemini), e links para recursos acadêmicos externos.
+2.2. O acesso e uso de todas as funcionalidades da Plataforma são, na presente data, inteiramente gratuitos. O Titular será notificado com antecedência mínima de 30 (trinta) dias caso haja qualquer alteração no modelo de negócio.
+
+3. DOAÇÕES VOLUNTÁRIAS
+3.1. O Titular que desejar apoiar a manutenção e o desenvolvimento contínuo da Plataforma poderá fazê-lo através de doações voluntárias, realizadas em seção específica dentro do aplicativo.
+3.2. AUSÊNCIA DE CONTRAPARTIDA: As doações são atos de mera liberalidade e não conferem ao Titular doador quaisquer direitos, benefícios, funcionalidades exclusivas, produtos ou serviços em contrapartida. O acesso e os recursos da Plataforma permanecem idênticos para todos os Titulares, doadores ou não.
+3.3. INTERMEDIADOR DE PAGAMENTO: As transações de doação serão processadas por meio de plataformas de pagamento de terceiros (ex: PayPal, Stripe, PagSeguro). Ao optar por doar, o Titular será direcionado ao ambiente seguro do intermediador e estará sujeito aos Termos de Uso e Políticas de Privacidade da respectiva plataforma de pagamento.
+3.4. ISENÇÃO DE RESPONSABILIDADE: O SciPubs não se responsabiliza por eventuais falhas, violações de segurança ou pela coleta de dados realizada pela plataforma de pagamento. A transação financeira e os dados a ela associados (como dados de cartão de crédito) são de responsabilidade do intermediador escolhido.
+3.5. NÃO REEMBOLSO: Por sua natureza de ato voluntário e sem contrapartida, as doações realizadas são, em regra, finais e não reembolsáveis.
+
+4. AGENTES DE TRATAMENTO E ENCARREGADO (DPO)
+4.1. Para os fins da LGPD, o SciPubs atua como Controlador dos dados pessoais. Para a viabilização técnica do serviço, utilizamos a infraestrutura da Google LLC (Firebase), que atua como Operadora.
+4.2. ENCARREGADO PELO TRATAMENTO DE DADOS (DPO): Para qualquer questão relativa a estes Termos ou ao exercício de seus direitos, o Titular poderá contatar nosso Encarregado através do e-mail: support@scipubs.com.
+
+5. TRATAMENTO DE DADOS PESSOAIS
+5.1. BASE LEGAL: O tratamento de todos os dados pessoais coletados pela Plataforma fundamenta-se exclusivamente no Consentimento do Titular (Art. 7º, I, da LGPD), fornecido no ato do cadastro ou em seções específicas da Plataforma.
+5.2. DADOS COLETADOS PARA FUNCIONAMENTO DA PLATAFORMA (OBRIGATÓRIO): Coletamos o mínimo de dados necessários para as seguintes finalidades específicas, cujo consentimento é fornecido no ato do cadastro principal: * Nome Completo e Endereço de E-mail: Para identificação, criação e gerenciamento da sua conta, controle de acesso e envio de comunicações transacionais indispensáveis ao uso da Plataforma. * Vínculo Institucional e Nível de Escolaridade: Para personalizar e otimizar a relevância dos resultados de busca oferecidos pela ferramenta.
+5.3. DADOS PARA FINS DE PESQUISA DE USO (FINALIDADE SECUNDÁRIA): Com o seu consentimento específico (fornecido através de caixa de seleção própria no momento do cadastro), os dados listados no item 5.2, somados a dados de uso da plataforma, poderão ser utilizados para a elaboração de estudos, artigos e pesquisas científicas. * GARANTIA DE ANONIMIZAÇÃO: Para esta finalidade, todos os dados serão previamente submetidos a um processo de anonimização, que desvincula permanentemente as informações da sua identidade, impossibilitando a sua identificação por terceiros, em conformidade com o Art. 12 da LGPD.
+5.4. DADOS PARA PESQUISA DE PERFIL DEMOGRÁFICO (OPCIONAL E SENSÍVEL): * a) Voluntariedade: A Plataforma oferece ao Titular a oportunidade opcional de contribuir com pesquisas sobre diversidade e inclusão no meio científico. A não participação não gera qualquer prejuízo ou limitação no uso das funcionalidades da Plataforma. * b) Dados Coletados Opcionalmente: Em seção própria e identificada, o Titular poderá, se assim desejar, fornecer dados pessoais como idade, país, gênero e raça/etnia. O dado referente à raça/etnia é classificado pela LGPD como dado pessoal sensível. * c) Consentimento Específico e Destacado: A coleta destes dados está condicionada a um novo consentimento, específico, informado e destacado, que será solicitado ao Titular dentro da seção opcional, antes de qualquer preenchimento, em conformidade com o Art. 11 da LGPD. * d) Finalidade: Os dados coletados nesta seção voluntária serão utilizados exclusivamente para a elaboração de estudos e relatórios estatísticos sobre o perfil demográfico de pesquisadores, visando fomentar o debate sobre políticas de acesso e diversidade. * e) Anonimização Reforçada: Para qualquer publicação ou divulgação externa, os dados e conclusões serão apresentados de forma agregada e rigorosamente anonimizada, sendo impossível a identificação de qualquer Titular.
+5.5. DADOS NÃO COLETADOS DE FORMA OBRIGATÓRIA: O SciPubs não coleta, como condição para o uso da plataforma, dados sensíveis (como origem racial ou étnica, convicção religiosa, opinião política, dados de saúde ou genéticos) nem dados como número de telefone, por não serem estritamente necessários às finalidades essenciais da Plataforma (Princípio da Necessidade, Art. 6º, III, da LGPD).
+
+6. DIREITOS DO TITULAR
+6.1. Em conformidade com o Art. 18 da LGPD, o Titular tem o direito de, a qualquer momento e mediante requisição ao nosso Encarregado (DPO): a) Confirmar a existência de tratamento de seus dados; b) Acessar seus dados; c) Corrigir dados incompletos, inexatos ou desatualizados; d) Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD; e) Solicitar a portabilidade dos dados a outro fornecedor de serviço; f) Solicitar a eliminação dos dados pessoais tratados com o seu consentimento; g) Obter informação sobre as entidades com as quais o Controlador realizou uso compartilhado de dados; h) Revogar o consentimento a qualquer tempo.
+6.2. A revogação do consentimento para o tratamento de dados indispensáveis (item 5.2) implicará na impossibilidade de uso da Plataforma e na eliminação da conta.
+
+7. SEGURANÇA E TRANSFERÊNCIA INTERNACIONAL
+7.1. Empregamos medidas técnicas e administrativas aptas a proteger os dados pessoais de acessos não autorizados e de situações de destruição, perda ou alteração. Os dados são armazenados em infraestrutura de nuvem segura (Google Firebase), que adota padrões de criptografia e segurança reconhecidos internacionalmente.
+7.2. TRANSFERÊNCIA INTERNACIONAL: Ao utilizar a infraestrutura global da Google, os dados pessoais do Titular podem ser transferidos e processados em servidores localizados fora do Brasil. Essa transferência é realizada em conformidade com a LGPD, assegurando que o país de destino ou o operador ofereçam o grau de proteção de dados exigido pela legislação brasileira.
+8. ALTERAÇÕES E FORO
+8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado por e-mail ou por aviso em destaque na Plataforma, sendo convidado a anuir com as novas condições.
+8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do SciPubs, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
+
+    """)
+    if st.button("Fechar", type="primary"):
+        st.rerun()
+
+@st.dialog("❤️ Muito obrigado por apoiar o SciPubs!", width="large")
+def modal_doacao():
+    st.markdown("""
+    A sua doação voluntária é fundamental para mantermos os nossos servidores ativos e continuarmos desenvolvendo novas ferramentas tecnológicas para a comunidade acadêmica e científica.
+    
+    **Importante:** A sua doação é totalmente espontânea e não exige nenhuma contrapartida de serviços da nossa plataforma.
+    
+    **Doações Nacionais (PIX):**
+    - **Chave PIX:** `seu-email-ou-telefone@aqui.com`
+    - **Titular:** Seu Nome Completo
+    - **Banco:** Seu Banco
+    
+    **Doações Internacionais:**
+    Para pesquisadores de fora do Brasil, aceitamos contribuições via PayPal ou BuyMeACoffee:
+    - [Apoiar via PayPal](https://paypal.com/)
+    - [Buy Me a Coffee](https://buymeacoffee.com/)
+    """)
+    if st.button("Finalizar Cadastro e Fechar", type="primary"):
+        st.session_state.modo_cadastro = False
+        st.session_state.modo_login = True
+        st.rerun()
 import pandas as pd
 import urllib.parse
 import requests
@@ -20,16 +94,16 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# 1. Fun├º├úo para inicializar o Firebase com seguran├ºa e cache
+# 1. Função para inicializar o Firebase com segurança e cache
 @st.cache_resource
 def inicializar_firebase():
-    # Converte os segredos do Streamlit para um dicion├írio Python normal
+    # Converte os segredos do Streamlit para um dicionário Python normal
     firebase_info = dict(st.secrets["firebase"])
     
     # Corrige problemas comuns de escape com a chave privada no Streamlit Cloud
     firebase_info["private_key"] = firebase_info["private_key"].replace("\\n", "\n")
     
-    # Inicializa o app se ele j├í n├úo estiver ativo
+    # Inicializa o app se ele já não estiver ativo
     if not firebase_admin._apps:
         cred = credentials.Certificate(firebase_info)
         firebase_admin.initialize_app(cred)
@@ -46,20 +120,20 @@ except Exception:
 
 # --- EXEMPLOS DE USO DO FIRESTORE ---
 
-# 2. Criar ou Atualizar dados do usu├írio (Salvar hist├│rico de busca)
+# 2. Criar ou Atualizar dados do usuário (Salvar histórico de busca)
 def salvar_historico_usuario(usuario_id, termo_busca):
-    # Acessa o documento do usu├írio na cole├º├úo 'usuarios'
+    # Acessa o documento do usuário na coleção 'usuarios'
     user_ref = db.collection("usuarios").document(usuario_id)
     
-    # Cria o documento ou atualiza adicionando a busca ao hist├│rico
+    # Cria o documento ou atualiza adicionando a busca ao histórico
     user_ref.set({
         "historico_buscas": firestore.ArrayUnion([termo_busca]),
         "ultimo_acesso": firestore.SERVER_TIMESTAMP
     }, merge=True) # merge=True impede que outros campos sejam apagados ao atualizar
     
-    st.success(f"Busca por '{termo_busca}' salva no hist🚀")
+    st.success(f"Busca por '{termo_busca}' salva no histórico!")
 
-# 3. Ler dados do usu├írio
+# 3. Ler dados do usuário
 def obter_dados_usuario(usuario_id):
     user_ref = db.collection("usuarios").document(usuario_id)
     doc = user_ref.get()
@@ -69,7 +143,7 @@ def obter_dados_usuario(usuario_id):
     else:
         return None
 
-# Detec├º├úo din├ómica de vers├úo do Streamlit para evitar erros de TypeError
+# Detecção dinâmica de versão do Streamlit para evitar erros de TypeError
 SUPPORTS_NEW_WIDTH = False
 try:
     version_str = st.__version__.split("+")[0]
@@ -84,10 +158,10 @@ try:
 except Exception:
     pass
 
-# Dicion├írio desempacotado dinamicamente para largura de componentes
+# Dicionário desempacotado dinamicamente para largura de componentes
 kwargs_largura = {"width": "stretch"} if SUPPORTS_NEW_WIDTH else {"use_container_width": True}
 
-# --- 1. CONFIGURA├ç├âO ├ÜNICA DA P├üGINA (Executada antes de qualquer comando Streamlit) ---
+# --- 1. CONFIGURAÇÃO ÚNICA DA P GINA (Executada antes de qualquer comando Streamlit) ---
 def obter_imagem_local_base64(caminho_arquivo):
     try:
         if os.path.exists(caminho_arquivo):
@@ -106,16 +180,16 @@ if not imagem_base64_icon:
 if not imagem_base64_icon:
     imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
 
-novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "­ƒôÜ"
+novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
 
 st.set_page_config(
-    page_title="Portal do Pesquisador",
+    page_title="O Portal do Pesquisador",
     page_icon=novo_page_icon, 
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- INJE├ç├âO DE TEMA DIN├éMICO (DIURNO / NOTURNO) ---
+# --- INJEÇÃO DE TEMA DINÂMICO (DIURNO / NOTURNO) ---
 if st.session_state.get("dark_mode", False):
     st.markdown("""
         <style>
@@ -131,7 +205,7 @@ if st.session_state.get("dark_mode", False):
             section[data-testid="stSidebar"] * {
                 color: #F8FAFC !important;
             }
-            /* Textos e t├¡tulos */
+            /* Textos e títulos */
             h1, h2, h3, h4, h5, h6, p, span, label, div {
                 color: #F8FAFC !important;
             }
@@ -146,7 +220,7 @@ if st.session_state.get("dark_mode", False):
                 background-color: #1E293B !important;
                 border: 1px solid #334155 !important;
             }
-            /* Bot├Áes secund├írios */
+            /* Botões secundários */
             button {
                 color: #F8FAFC !important;
                 background-color: #334155 !important;
@@ -163,164 +237,164 @@ if st.session_state.get("dark_mode", False):
         </style>
     """, unsafe_allow_html=True)
 
-# --- 2. SISTEMA DE TRADU├ç├âO MULTIL├ìNGUE ---
+# --- 2. SISTEMA DE TRADUÇÃO MULTIL NGUE ---
 if 'idioma' not in st.session_state:
-    st.session_state.idioma = "Portugu🚀"
+    st.session_state.idioma = "Português"
 
 # Seletor de idioma fixado na barra lateral
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
-    "­ƒîÉ Language / Idioma:",
-    ["Portugu🚀", "English", "Espa🚀"]
+    "  Language / Idioma:",
+    ["Português", "English", "Español"]
 )
 
 dic = {
-    "Portugu🚀": {
-        "titulo": "Portal do Pesquisador",
-        "subtitulo": "Ci🚀",
-        "filtros_tit": "#### ­ƒöì Buscador de Peri🚀",
-        "placeholder_busca": "Digite o t🚀",
-        "buscar_reg": "Buscar registro espec🚀",
-        "aba_escopo": "­ƒôé Escopo Acad🚀",
-        "aba_impacto": "­ƒôê M🚀",
-        "subarea_lbl": "Sub🚀",
+    "Português": {
+        "titulo": "O Portal do Pesquisador",
+        "subtitulo": "Ciência de dados aplicada produção científica de alto impacto",
+        "filtros_tit": "####   Buscador de Periódicos",
+        "placeholder_busca": "Digite o título da revista, ISSN...",
+        "buscar_reg": "Buscar registro específico:",
+        "aba_escopo": "📂 Escopo Acadêmico & CNPq",
+        "aba_impacto": "📈 Métricas de Performance & Quartis",
+        "subarea_lbl": "Subárea do Conhecimento (CNPq):",
         "base_lbl": "Bases Detentoras:",
         "jcr_lbl": "Quartil JCR (Clarivate):",
         "sjr_lbl": "Quartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
         "m_selecionadas": "Revistas Selecionadas",
         "m_hindex": "H-Index Topo",
-        "m_jif": "Fator JIF M🚀",
-        "m_sjr": "SJR Score 🚀",
-        "cat_tit": "#### ­ƒôï Cat🚀",
-        "exibir_pag": "Exibir por p🚀",
-        "pag_lbl": "P🚀",
-        "exportar_btn": "­ƒôÑ Exportar apenas esta p🚀",
-        "aviso_nada": "Nenhum peri🚀",
-        "nav_tit": "Painel de Navega🚀",
+        "m_jif": "Fator JIF Máximo",
+        "m_sjr": "SJR Score  pice",
+        "cat_tit": "#### 📋 Catálogo de Periódicos",
+        "exibir_pag": "Exibir por página:",
+        "pag_lbl": "Página",
+        "exportar_btn": "📥 Exportar apenas esta página",
+        "aviso_nada": "Nenhum periódico atende aos critérios aplicados.",
+        "nav_tit": "Painel de Navegação",
         "todas": "Todas",
-        "col_h5": "🚀",
+        "col_h5": " Índice h5 (Scholar)",
         "meta_tit": "METADADOS",
         "meta_sistema": "Sistema",
-        "meta_versao": "Vers🚀",
-        "meta_padrao": "Padr🚀",
+        "meta_versao": "Versão Base",
+        "meta_padrao": "Padrão CNPq",
         "meta_status": "Operacional",
         "meta_ativo": "Ativo",
         "direitos_tit": "Direitos Autorais & Propriedade",
         "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
         "visitas_lbl": "Visitas ao Portal",
         "gov_tit": "SITES GOVERNAMENTAIS",
-        "inst_tit": "INFORMA🚀",
-        "pessoal_lbl": "­ƒæñ Site pessoal",
+        "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
+        "pessoal_lbl": "👤 Site pessoal",
         "indexadores_tit": "INDEXADORES",
-        "repositorios_tit": "REPOSIT🚀",
-        "ia_tit": "IA ACAD🚀",
-        "btn_desktop": "­ƒÆ╗ Baixar Vers🚀",
-        "busca_cat": "­ƒöì Cat🚀",
-        "busca_ia": "­ƒºá Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomenda🚀",
-        "ia_subtitulo": "Cole o t🚀",
-        "ia_campo_titulo": "T🚀",
-        "ia_campo_resumo": "Resumo / Abstract (Suporta Portugu🚀",
+        "repositorios_tit": "REPOSITÓRIOS",
+        "ia_tit": "IA ACADÊMICA",
+        "btn_desktop": "💻 Baixar Versão para Windows",
+        "busca_cat": "  Catálogo de Periódicos",
+        "busca_ia": "   Recomendador Inteligente (IA)",
+        "ia_titulo": "Recomendação Temática com Inteligência Artificial",
+        "ia_subtitulo": "Cole o título e o resumo (abstract) do seu artigo. A IA analisará o nosso catálogo e indicará as opções mais adequadas.",
+        "ia_campo_titulo": "Título do Artigo",
+        "ia_campo_resumo": "Resumo / Abstract (Suporta Português, Inglês ou Espanhol)",
         "ia_chave_api": "Chave API do Gemini (Google AI Studio)",
-        "ia_chave_ajuda": "Voc🚀",
-        "ia_num_rec": "Quantidade de recomenda🚀",
+        "ia_chave_ajuda": "Você precisa de uma chave API gratuita obtida no Google AI Studio para rodar a recomendação online.",
+        "ia_num_rec": "Quantidade de recomendações desejadas (máx. 20)",
         "ia_btn_buscar": "Analisar e Recomendar",
-        "ia_analisando": "A IA est🚀",
-        "ia_sucesso": "Recomenda🚀",
-        "ia_erro": "Erro ao processar com a IA. Verifique se a sua Chave API est🚀",
+        "ia_analisando": "A IA está processando o seu resumo e cruzando com o catálogo...",
+        "ia_sucesso": "Recomendações geradas com sucesso!",
+        "ia_erro": "Erro ao processar com a IA. Verifique se a sua Chave API está correta.",
         "ia_card_motivo": "Por que publicar aqui:",
-        "ia_card_aderencia": "Grau de Ader🚀",
-        "ia_card_site": "­ƒîÉ Visitar Homepage Oficial",
-        "ia_card_sem_site": "Site indispon🚀",
-        "filtro_area": "Grande 🚀",
+        "ia_card_aderencia": "Grau de Aderência:",
+        "ia_card_site": "  Visitar Homepage Oficial",
+        "ia_card_sem_site": "Site indisponível na base",
+        "filtro_area": "Grande Área",
         "filtro_indexador": "Indexador",
-        "ia_credencial_tit": "­ƒöæ Credencial",
-        "ia_como_obter_titulo": "Ôä╣´©Å Como obter uma chave gratuita?",
+        "ia_credencial_tit": "🔑 Credencial",
+        "ia_como_obter_titulo": "ℹ  Como obter uma chave gratuita?",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-Esta ferramenta ├® gratuita. Para us├í-la, voc├¬ precisa de uma chave da API do Google Gemini, tamb├®m gratuita:<br><br>
+Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do Google Gemini, também gratuita:<br><br>
 1. Acesse <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
-2. Fa├ºa login com sua conta Google<br>
-3. Clique em <b>"Get API Key"</b> ÔåÆ <b>"Create API Key"</b><br>
+2. Faça login com sua conta Google<br>
+3. Clique em <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
 4. Copie a chave gerada e cole no campo acima<br><br>
 <i>A chave gratuita permite centenas de consultas por dia.</i>
 </div>
         """,
-        "ia_refinar_alvos": "­ƒÄ» Refinar Alvos",
+        "ia_refinar_pesquisa": "🎯 Refinar Pesquisa",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### Bem-vindo ao Portal do Pesquisador!",
-        "reg_apresentacao": "Esta 🚀",
-        "reg_beneficios_tit": "Ô£¿ Por que usar o Portal?",
-        "reg_beneficio_1_tit": "­ƒöì Busca Tradicional",
-        "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e m🚀",
-        "reg_beneficio_2_tit": "­ƒôè M🚀",
+        "reg_boas_vindas": "### Bem-vindo(a) ao SciPubs!",
+        "reg_apresentacao": "Esta é uma plataforma científica de alta tecnologia projetada para simplificar a busca e a seleção de periódicos de impacto para sua publicação. Una forças com ciência de dados e IA.",
+        "reg_beneficios_tit": "✨ Por que usar o SciPubs?",
+        "reg_beneficio_1_tit": "  Busca Tradicional",
+        "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e métricas consolidadas.",
+        "reg_beneficio_2_tit": "📊 Métricas Unificadas",
         "reg_beneficio_2_desc": "Quartis JCR/SJR, H-Index e atalhos de impacto no Scholar ao seu alcance.",
-        "reg_beneficio_3_tit": "­ƒºá Recomendador IA",
-        "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de peri🚀",
-        "reg_formulario_tit": "­ƒôØ Registro de Acesso Acad🚀",
-        "reg_formulario_desc": "O acesso ao portal 🚀",
+        "reg_beneficio_3_tit": "   Recomendador IA",
+        "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de periódicos.",
+        "reg_formulario_tit": "  Registro de Acesso Acadêmico",
+        "reg_formulario_desc": "O acesso ao portal é gratuito e aberto a toda a comunidade científica (de estudantes de graduação a pós-doutores). Preencha o cadastro abaixo para liberar o acesso.",
         "reg_nome": "Nome Completo:",
-        "reg_email": "E-mail Acad🚀",
-        "reg_escolaridade": "Titula🚀",
-        "reg_instituicao": "Institui🚀",
-        "reg_inst_outra": "Especifique sua Institui🚀",
-        "reg_area_interesse": "Grande 🚀",
-        "reg_btn_enviar": "Registrar e Acessar o Buscador 🚀",
-        "reg_sucesso": "­ƒÄë Registro conclu🚀",
-        "reg_erro_campos": "ÔÜá´©Å Por favor, preencha todos os campos obrigat🚀",
-        "reg_lateral_status_bloqueado": "­ƒöÆ Cadastro pendente para liberar o buscador.",
-        "reg_lateral_status_liberado": "­ƒöô Acesso Liberado",
+        "reg_email": "E-mail Acadêmico ou Pessoal:",
+        "reg_escolaridade": "Titulação:",
+        "reg_instituicao": "Instituição de Vínculo:",
+        "reg_inst_outra": "Especifique sua Instituição:",
+        "reg_area_interesse": "Grande Área de Interesse (Predominante):",
+        "reg_btn_enviar": "Registrar e Acessar o Buscador ➔",
+        "reg_sucesso": "🎉 Registro concluído com sucesso! Bem-vindo(a) ao SciPubs: O Portal do Pesquisador.",
+        "reg_erro_campos": "    Por favor, preencha todos os campos obrigatórios.",
+        "reg_lateral_status_bloqueado": "🔒 Cadastro pendente para liberar o buscador.",
+        "reg_lateral_status_liberado": "🔓 Acesso Liberado",
         "reg_btn_sair": "Sair",
-        "log_email": "E-mail ou Usu🚀",
+        "log_email": "E-mail ou Usuário:",
         "log_senha": "Senha:",
-        "log_btn_entrar": "Entrar 🚀",
+        "log_btn_entrar": "Entrar ➔",
         "log_esqueceu": "Esqueceu a senha ou o login? Recupere aqui",
-        "rec_titulo": "­ƒöÆ Recuperar Acesso",
+        "rec_titulo": "🔒 Recuperar Acesso",
         "rec_email": "E-mail Cadastrado:",
         "rec_tel": "Telefone Cadastrado:",
-        "rec_btn_verificar": "Verificar Informa🚀",
+        "rec_btn_verificar": "Verificar Informações ➔",
         "rec_btn_redefinir": "Redefinir Senha",
         "rec_nova_senha": "Nova Senha:",
         "rec_conf_senha": "Confirmar Nova Senha:",
-        "rec_sucesso": "­ƒÄë Senha redefinida com sucesso! Fa🚀",
-        "rec_erro_nao_encontrado": "ÔÜá´©Å E-mail n🚀",
+        "rec_sucesso": "🎉 Senha redefinida com sucesso! Faça login.",
+        "rec_erro_nao_encontrado": "    E-mail não encontrado em nossos registros.",
         "rec_btn_voltar": "Voltar para o Login",
         "log_btn_google": "Conectar com o Google",
-        "log_cadastrar_link": "N🚀",
-        "log_entrar_link": "J🚀",
-        "log_titulo": "­ƒöÆ Entrar no Portal",
-        "reg_titulo_form": "­ƒôØ Criar Conta Acad🚀",
+        "log_cadastrar_link": "Não tem uma conta? Cadastre-se aqui!",
+        "log_entrar_link": "Já tem uma conta? Faça login aqui!",
+        "log_titulo": "🔒 Entrar no SciPubs",
+        "reg_titulo_form": "  Criar Conta Acadêmica",
         "reg_nome_sobrenome": "Nome e Sobrenome:",
-        "reg_pais": "Pa🚀",
+        "reg_pais": "País:",
         "reg_telefone": "Telefone:",
         "reg_senha": "Senha:",
         "reg_confirmar_senha": "Confirmar Senha:",
-        "reg_btn_cadastrar": "Cadastrar 🚀",
-        "reg_erro_senha_diferente": "ÔÜá´©Å As senhas digitadas n🚀",
-        "reg_erro_ja_existe": "ÔÜá´©Å Este e-mail j🚀",
-        "log_erro_invalido": "ÔÜá´©Å E-mail ou senha incorretos.",
-        "log_google_sucesso": "­ƒÜÇ Conectado com o Google! Redirecionando...",
+        "reg_btn_cadastrar": "Criar Conta e Acessar ➔",
+        "reg_erro_senha_diferente": "    As senhas digitadas não coincidem.",
+        "reg_erro_ja_existe": "    Este e-mail já está cadastrado. Faça login.",
+        "log_erro_invalido": "    E-mail ou senha incorretos.",
+        "log_google_sucesso": "🚀 Conectado com o Google! Redirecionando...",
         "areas_trad": {
             "Engenharias": "Engenharias",
-            "Lingu🚀": "Lingu🚀",
-            "Ci🚀": "Ci🚀",
-            "Ci🚀": "Ci🚀",
-            "Outras / N🚀": "Outras / N🚀",
-            "Ci🚀": "Ci🚀",
-            "Ci🚀": "Ci🚀",
-            "Ci🚀": "Ci🚀",
-            "Ci🚀": "Ci🚀"
+            "Linguística, Letras e Artes": "Linguística, Letras e Artes",
+            "Ciências Biológicas": "Ciências Biológicas",
+            "Ciências Exatas e da Terra": "Ciências Exatas e da Terra",
+            "Outras / Não Classificado": "Outras / Não Classificado",
+            "Ciências da Saúde": "Ciências da Saúde",
+            "Ciências Sociais Aplicadas": "Ciências Sociais Aplicadas",
+            "Ciências Agrárias": "Ciências Agrárias",
+            "Ciências Humanas": "Ciências Humanas"
         }
     },
     "English": {
         "titulo": "The Researcher's Portal",
         "subtitulo": "Data science applied to high-impact scientific output.",
-        "filtros_tit": "#### ­ƒöì Journal Finder",
+        "filtros_tit": "####   Journal Finder",
         "placeholder_busca": "Enter journal title, ISSN...",
         "buscar_reg": "Search specific record:",
-        "aba_escopo": "­ƒôé Academic Scope & CNPq",
-        "aba_impacto": "­ƒôê Performance Metrics & Quartiles",
+        "aba_escopo": "📂 Academic Scope & CNPq",
+        "aba_impacto": "📈 Performance Metrics & Quartiles",
         "subarea_lbl": "Subarea of Knowledge (CNPq):",
         "base_lbl": "Holding Databases:",
         "jcr_lbl": "JCR%20Quartile%20(Clarivate):", # URL encoded helper
@@ -330,10 +404,10 @@ Esta ferramenta ├® gratuita. Para us├í-la, voc├¬ precisa de uma chave d
         "m_hindex": "Top H-Index",
         "m_jif": "Max JIF Factor",
         "m_sjr": "Peak SJR Score",
-        "cat_tit": "#### ­ƒôï Journal Catalog",
+        "cat_tit": "#### 📋 Journal Catalog",
         "exibir_pag": "Display per page:",
         "pag_lbl": "Page",
-        "exportar_btn": "­ƒôÑ Export this page only",
+        "exportar_btn": "📥 Export this page only",
         "aviso_nada": "No journals match the applied criteria.",
         "nav_tit": "Navigation Panel",
         "todas": "All",
@@ -346,16 +420,15 @@ Esta ferramenta ├® gratuita. Para us├í-la, voc├¬ precisa de uma chave d
         "meta_ativo": "Active",
         "direitos_tit": "Copyright & Ownership",
         "direitos_autor": "Federal University of Ouro Preto<br>Minas Gerais, Brazil.<br><i>All rights reserved.</i>",
-        "visitas_lbl": "Portal Visits",
         "gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
-        "pessoal_lbl": "­ƒæñ Personal website",
+        "pessoal_lbl": "👤 Personal website",
         "indexadores_tit": "INDEXERS",
         "repositorios_tit": "DIRECTORIES",
         "ia_tit": "ACADEMIC AI",
-        "btn_desktop": "­ƒÆ╗ Download Windows Version",
-        "busca_cat": "­ƒöì Journal Catalog",
-        "busca_ia": "­ƒºá Smart Recommender (AI)",
+        "btn_desktop": "💻 Download Windows Version",
+        "busca_cat": "  Journal Catalog",
+        "busca_ia": "   Smart Recommender (AI)",
         "ia_titulo": "Thematic Recommendation with Artificial Intelligence",
         "ia_subtitulo": "Paste your article title and abstract. The AI will analyze our journal catalog and suggest the best matches.",
         "ia_campo_titulo": "Article Title",
@@ -369,34 +442,34 @@ Esta ferramenta ├® gratuita. Para us├í-la, voc├¬ precisa de uma chave d
         "ia_erro": "Error processing with AI. Check if your API Key is correct.",
         "ia_card_motivo": "Why publish here:",
         "ia_card_aderencia": "Adherence Score:",
-        "ia_card_site": "­ƒîÉ Visit Official Homepage",
+        "ia_card_site": "  Visit Official Homepage",
         "ia_card_sem_site": "Website not available in database",
         "filtro_area": "Broad Area",
         "filtro_indexador": "Indexer",
-        "ia_credencial_tit": "­ƒöæ Credentials",
-        "ia_como_obter_titulo": "Ôä╣´©Å How to get a free API key?",
+        "ia_credencial_tit": "🔑 Credentials",
+        "ia_como_obter_titulo": "ℹ  How to get a free API key?",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 This tool is free. To use it, you need a Google Gemini API key, which is also free:<br><br>
 1. Go to <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
 2. Sign in with your Google account<br>
-3. Click <b>"Get API Key"</b> ÔåÆ <b>"Create API Key"</b><br>
+3. Click <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
 4. Copy the generated key and paste it into the field above<br><br>
 <i>The free key allows hundreds of queries per day.</i>
 </div>
         """,
-        "ia_refinar_alvos": "­ƒÄ» Refine Targets",
+        "ia_refinar_pesquisa": "🎯 Refine Targets",
         "ia_todos": "All",
-        "reg_boas_vindas": "### Welcome to the Researcher's Portal!",
+        "reg_boas_vindas": "### Welcome to the SciPubs: The Researcher's Portal!",
         "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
-        "reg_beneficios_tit": "Ô£¿ Why use the Portal?",
-        "reg_beneficio_1_tit": "­ƒöì Traditional Search",
+        "reg_beneficios_tit": "✨ Why use SciPubs?",
+        "reg_beneficio_1_tit": "  Traditional Search",
         "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
-        "reg_beneficio_2_tit": "­ƒôè Unified Metrics",
+        "reg_beneficio_2_tit": "📊 Unified Metrics",
         "reg_beneficio_2_desc": "JCR/SJR quartiles, H-Index, and impact shortcuts on Google Scholar at your fingertips.",
-        "reg_beneficio_3_tit": "­ƒºá AI Recommender",
+        "reg_beneficio_3_tit": "   AI Recommender",
         "reg_beneficio_3_desc": "Generative recommendations via Gemini 1.5 Flash crossed with our journal database.",
-        "reg_formulario_tit": "­ƒôØ Academic Access Registration",
+        "reg_formulario_tit": "  Academic Access Registration",
         "reg_formulario_desc": "Access to the portal is free and open to the entire scientific community (from undergraduate students to postdocs). Fill out the form below to unlock access.",
         "reg_nome": "Full Name:",
         "reg_email": "Academic or Personal Email:",
@@ -404,201 +477,200 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_instituicao": "Affiliated Institution:",
         "reg_inst_outra": "Specify your Institution:",
         "reg_area_interesse": "Major Research Area of Interest:",
-        "reg_btn_enviar": "Registrar e Acessar o Buscador 🚀",
-        "reg_sucesso": "­ƒÄë Registration completed successfully! Welcome to the Researcher's Portal.",
-        "reg_erro_campos": "ÔÜá´©Å Please fill in all required fields.",
-        "reg_lateral_status_bloqueado": "­ƒöÆ Registration pending to unlock search.",
-        "reg_lateral_status_liberado": "­ƒöô Access Granted",
+        "reg_btn_enviar": "Register and Access the Finder ➔",
+        "reg_sucesso": "🎉 Registration completed successfully! Welcome to the SciPubs: The Researcher's Portal.",
+        "reg_erro_campos": "    Please fill in all required fields.",
+        "reg_lateral_status_bloqueado": "🔒 Registration pending to unlock search.",
+        "reg_lateral_status_liberado": "🔓 Access Granted",
         "reg_btn_sair": "Logout",
         "log_email": "Email or Username:",
         "log_senha": "Password:",
-        "log_btn_entrar": "Entrar 🚀",
+        "log_btn_entrar": "Login ➔",
         "log_esqueceu": "Forgot password or login? Recover here",
-        "rec_titulo": "­ƒöÆ Recover Access",
+        "rec_titulo": "🔒 Recover Access",
         "rec_email": "Registered Email:",
         "rec_tel": "Registered Phone:",
-        "rec_btn_verificar": "Verify Information 🚀",
+        "rec_btn_verificar": "Verify Information ➔",
         "rec_btn_redefinir": "Reset Password",
         "rec_nova_senha": "New Password:",
         "rec_conf_senha": "Confirm New Password:",
-        "rec_sucesso": "­ƒÄë Password reset successfully! Please log in.",
-        "rec_erro_nao_encontrado": "ÔÜá´©Å E-mail not found in our records.",
+        "rec_sucesso": "🎉 Password reset successfully! Please log in.",
+        "rec_erro_nao_encontrado": "    E-mail not found in our records.",
         "rec_btn_voltar": "Back to Login",
         "log_btn_google": "Sign in with Google",
         "log_cadastrar_link": "Don't have an account? Sign up here!",
         "log_entrar_link": "Already have an account? Log in here!",
-        "log_titulo": "­ƒöÆ Log in to the Portal",
-        "reg_titulo_form": "­ƒôØ Create Academic Account",
+        "log_titulo": "🔒 Log in to SciPubs",
+        "reg_titulo_form": "  Create Academic Account",
         "reg_nome_sobrenome": "First and Last Name:",
         "reg_pais": "Country:",
         "reg_telefone": "Phone:",
         "reg_senha": "Password:",
         "reg_confirmar_senha": "Confirm Password:",
-        "reg_btn_cadastrar": "Cadastrar 🚀",
-        "reg_erro_senha_diferente": "ÔÜá´©Å Passwords do not match.",
-        "reg_erro_ja_existe": "ÔÜá´©Å This email is already registered. Please log in.",
-        "log_erro_invalido": "ÔÜá´©Å Incorrect email or password.",
-        "log_google_sucesso": "­ƒÜÇ Connected with Google! Redirecting...",
+        "reg_btn_cadastrar": "Create Account and Access ➔",
+        "reg_erro_senha_diferente": "    Passwords do not match.",
+        "reg_erro_ja_existe": "    This email is already registered. Please log in.",
+        "log_erro_invalido": "    Incorrect email or password.",
+        "log_google_sucesso": "🚀 Connected with Google! Redirecting...",
         "areas_trad": {
             "Engenharias": "Engineering",
-            "Lingu🚀": "Linguistics, Literature & Arts",
-            "Ci🚀": "Biological Sciences",
-            "Ci🚀": "Exact & Earth Sciences",
-            "Outras / N🚀": "Others / Unclassified",
-            "Ci🚀": "Health Sciences",
-            "Ci🚀": "Applied Social Sciences",
-            "Ci🚀": "Agricultural Sciences",
-            "Ci🚀": "Human Sciences"
+            "Linguística, Letras e Artes": "Linguistics, Literature & Arts",
+            "Ciências Biológicas": "Biological Sciences",
+            "Ciências Exatas e da Terra": "Exact & Earth Sciences",
+            "Outras / Não Classificado": "Others / Unclassified",
+            "Ciências da Saúde": "Health Sciences",
+            "Ciências Sociais Aplicadas": "Applied Social Sciences",
+            "Ciências Agrárias": "Agricultural Sciences",
+            "Ciências Humanas": "Human Sciences"
         }
     },
-    "Espa🚀": {
-        "titulo": "Portal del Investigador",
-        "subtitulo": "Ciencia de datos aplicada a la producci🚀",
-        "filtros_tit": "#### ­ƒöì Buscador de Revistas",
-        "placeholder_busca": "Ingrese el t🚀",
-        "buscar_reg": "Buscar registro espec🚀",
-        "aba_escopo": "­ƒôé Alcance Acad🚀",
-        "aba_impacto": "­ƒôê M🚀",
-        "subarea_lbl": "Sub🚀",
+    "Español": {
+        "titulo": "El Portal del Investigador",
+        "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
+        "filtros_tit": "####   Buscador de Revistas",
+        "placeholder_busca": "Ingrese el título de la revista, ISSN...",
+        "buscar_reg": "Buscar registro específico:",
+        "aba_escopo": "📂 Alcance Académico y CNPq",
+        "aba_impacto": "📈 Métricas de Rendimiento y Cuartiles",
+        "subarea_lbl": "Subárea del Conocimiento (CNPq):",
         "base_lbl": "Bases de Datos Detentoras:",
         "jcr_lbl": "Cuartil JCR (Clarivate):",
         "sjr_lbl": "Cuartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
         "m_selecionadas": "Revistas Selecionadas",
-        "m_hindex": "H-Index M🚀",
-        "m_jif": "Factor JIF M🚀",
-        "m_sjr": "SJR Score 🚀",
-        "cat_tit": "#### ­ƒôï Cat🚀",
-        "exibir_pag": "Mostrar por p🚀",
-        "pag_lbl": "P🚀",
-        "exportar_btn": "­ƒôÑ Exportar solo esta p🚀",
+        "m_hindex": "H-Index Máximo",
+        "m_jif": "Factor JIF Máximo",
+        "m_sjr": "SJR Score  pice",
+        "cat_tit": "#### 📋 Catálogo de Revistas",
+        "exibir_pag": "Mostrar por página:",
+        "pag_lbl": "Página",
+        "exportar_btn": "📥 Exportar solo esta página",
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
-        "nav_tit": "Panel de Navegaci🚀",
+        "nav_tit": "Panel de Navegación",
         "todas": "Todas",
-        "col_h5": "🚀",
+        "col_h5": "Índice h5 (Scholar)",
         "meta_tit": "METADATOS",
         "meta_sistema": "Sistema",
-        "meta_versao": "Versi🚀",
-        "meta_padrao": "Patr🚀",
+        "meta_versao": "Versión Base",
+        "meta_padrao": "Patrón CNPq",
         "meta_status": "Operacional",
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
-        "visitas_lbl": "Visitas al Portal",
         "gov_tit": "SITIOS DEL GOBIERNO",
-        "inst_tit": "INFORMACI🚀",
-        "pessoal_lbl": "­ƒæñ Sitio personal",
+        "inst_tit": "INFORMACIÓN INSTITUCIONAL",
+        "pessoal_lbl": "👤 Sitio personal",
         "indexadores_tit": "INDEXADORES",
         "repositorios_tit": "DIRECTORIOS",
-        "ia_tit": "IA ACAD🚀",
-        "btn_desktop": "­ƒÆ╗ Descargar Versi🚀",
-        "busca_cat": "­ƒöì Cat🚀",
-        "busca_ia": "­ƒºá Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomendaci🚀",
-        "ia_subtitulo": "Pegue el t🚀",
-        "ia_campo_titulo": "T🚀",
-        "ia_campo_resumo": "Resumen / Abstract (Soporta Portugu🚀",
+        "ia_tit": "IA ACADÉMICA",
+        "btn_desktop": "💻 Descargar Versión para Windows",
+        "busca_cat": "  Catálogo de Revistas",
+        "busca_ia": "   Recomendador Inteligente (IA)",
+        "ia_titulo": "Recomendación Temática con Inteligencia Artificial",
+        "ia_subtitulo": "Pegue el título y el resumen (abstract) de su artículo. La IA analizará nuestro catálogo de revistas e indicará las mejores opciones.",
+        "ia_campo_titulo": "Título del Artículo",
+        "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
         "ia_chave_api": "Clave API de Gemini (Google AI Studio)",
-        "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendaci🚀",
-        "ia_num_rec": "Cantidad de recomendaciones deseadas (m🚀",
+        "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendación en línea.",
+        "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 20)",
         "ia_btn_buscar": "Analar y Recomendar",
-        "ia_analisando": "La IA est🚀",
-        "ia_sucesso": "┬íRecomendaciones generadas con 🚀",
+        "ia_analisando": "La IA está procesando su resumo y cruzándolo con el catálogo...",
+        "ia_sucesso": "¡Recomendaciones generadas con éxito!",
         "ia_erro": "Error al procesar con la IA. Verifique que su Clave API sea correcta.",
-        "ia_card_motivo": "Por qu🚀",
+        "ia_card_motivo": "Por qué publicar aqui:",
         "ia_card_aderencia": "Grado de Adherencia:",
-        "ia_card_site": "­ƒîÉ Visitar Homepage Oficial",
+        "ia_card_site": "  Visitar Homepage Oficial",
         "ia_card_sem_site": "Sitio no disponible en la base",
-        "filtro_area": "Gran 🚀",
+        "filtro_area": "Gran  rea",
         "filtro_indexador": "Indexador",
-        "ia_credencial_tit": "­ƒöæ Credenciales",
-        "ia_como_obter_titulo": "Ôä╣´©Å ┬┐C🚀",
+        "ia_credencial_tit": "🔑 Credenciales",
+        "ia_como_obter_titulo": "ℹ  ¿Cómo obtener una clave gratuita?",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google Gemini, tambi├®n gratuita:<br><br>
+Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google Gemini, también gratuita:<br><br>
 1. Acceda a <b><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></b><br>
-2. Inicie sesi├│n con su cuenta de Google<br>
-3. Haga clic en <b>"Get API Key"</b> ÔåÆ <b>"Create API Key"</b><br>
-4. Copie la clave generada y p├®guela en el campo de arriba<br><br>
-<i>La clave gratuita permite cientos de consultas al d├¡a.</i>
+2. Inicie sesión con su cuenta de Google<br>
+3. Haga clic en <b>"Get API Key"</b> → <b>"Create API Key"</b><br>
+4. Copie la clave generada y péguela en el campo de arriba<br><br>
+<i>La clave gratuita permite cientos de consultas al día.</i>
 </div>
         """,
-        "ia_refinar_alvos": "­ƒÄ» Refinar Objetivos",
+        "ia_refinar_pesquisa": "🎯 Refinar Búsqueda",
         "ia_todos": "Todos",
-        "reg_boas_vindas": "### ┬íBienvenido al Portal del Investigador!",
-        "reg_apresentacao": "Esta es una plataforma cient🚀",
-        "reg_beneficios_tit": "Ô£¿ ┬┐Por qu🚀",
-        "reg_beneficio_1_tit": "­ƒöì B🚀",
-        "reg_beneficio_1_desc": "Filtros por sub🚀",
-        "reg_beneficio_2_tit": "­ƒôè M🚀",
+        "reg_boas_vindas": "### ¡Bienvenido a SciPubs: El Portal del Investigador!",
+        "reg_apresentacao": "Esta es una plataforma científica de alta tecnología diseñada para simplificar la búsqueda y selección de revistas de impacto para su publicación. Una fuerzas con ciencia de datos e IA.",
+        "reg_beneficios_tit": "✨ ¿Por qué usar SciPubs?",
+        "reg_beneficio_1_tit": "  Búsqueda Tradicional",
+        "reg_beneficio_1_desc": "Filtros por subáreas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y métricas consolidadas.",
+        "reg_beneficio_2_tit": "📊 Métricas Unificadas",
         "reg_beneficio_2_desc": "Cuartiles JCR/SJR, H-Index y accesos directos de impacto en Scholar a su alcance.",
-        "reg_beneficio_3_tit": "­ƒºá Recomendador IA",
-        "reg_beneficio_3_desc": "Recomendaciones generativas a trav🚀",
-        "reg_formulario_tit": "­ƒôØ Registro de Acceso Acad🚀",
-        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad cient🚀",
+        "reg_beneficio_3_tit": "   Recomendador IA",
+        "reg_beneficio_3_desc": "Recomendaciones generativas a través de Gemini 1.5 Flash cruzadas con nuestra base de revistas.",
+        "reg_formulario_tit": "  Registro de Acceso Académico",
+        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad científica (desde estudiantes hasta posdoctores). Complete el formulario a continuación para liberar el acceso.",
         "reg_nome": "Nombre Completo:",
-        "reg_email": "Correo Electr🚀",
-        "reg_escolaridade": "Titulaci🚀",
-        "reg_instituicao": "Instituci🚀",
-        "reg_inst_outra": "Especifique su Instituci🚀",
-        "reg_area_interesse": "Gran 🚀",
-        "reg_btn_enviar": "Registrar e Acessar o Buscador 🚀",
-        "reg_sucesso": "­ƒÄë ┬íRegistro completado con 🚀",
-        "reg_erro_campos": "ÔÜá´©Å Por favor, complete todos los campos obligatorios.",
-        "reg_lateral_status_bloqueado": "­ƒöÆ Registro pendiente para habilitar el buscador.",
-        "reg_lateral_status_liberado": "­ƒöô Acceso Concedido",
+        "reg_email": "Correo Electrónico Académico o Personal:",
+        "reg_escolaridade": "Titulación:",
+        "reg_instituicao": "Institución de Vínculo:",
+        "reg_inst_outra": "Especifique su Institución:",
+        "reg_area_interesse": "Gran  rea de Interés Predominante:",
+        "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
+        "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido a SciPubs: El Portal del Investigador.",
+        "reg_erro_campos": "    Por favor, complete todos los campos obligatorios.",
+        "reg_lateral_status_bloqueado": "🔒 Registro pendiente para habilitar el buscador.",
+        "reg_lateral_status_liberado": "🔓 Acceso Concedido",
         "reg_btn_sair": "Salir",
         "log_email": "Correo o Usuario:",
-        "log_senha": "Contrase🚀",
-        "log_btn_entrar": "Entrar 🚀",
-        "log_esqueceu": "┬┐Olvid🚀",
-        "rec_titulo": "­ƒöÆ Recuperar Acceso",
+        "log_senha": "Contraseña:",
+        "log_btn_entrar": "Ingresar ➔",
+        "log_esqueceu": "¿Olvidó su contraseña o usuario? Recupere aquí",
+        "rec_titulo": "🔒 Recuperar Acceso",
         "rec_email": "Correo Registrado:",
-        "rec_tel": "Tel🚀",
-        "rec_btn_verificar": "Verificar Informaci🚀",
-        "rec_btn_redefinir": "Restablecer Contrase🚀",
-        "rec_nova_senha": "Nueva Contrase🚀",
-        "rec_conf_senha": "Confirmar Nueva Contrase🚀",
-        "rec_sucesso": "­ƒÄë ┬íContrase🚀",
-        "rec_erro_nao_encontrado": "ÔÜá´©Å Correo electr🚀",
+        "rec_tel": "Teléfono Registrado:",
+        "rec_btn_verificar": "Verificar Información ➔",
+        "rec_btn_redefinir": "Restablecer Contraseña",
+        "rec_nova_senha": "Nueva Contraseña:",
+        "rec_conf_senha": "Confirmar Nueva Contraseña:",
+        "rec_sucesso": "🎉 ¡Contraseña restablecida con éxito! Inicie sesión.",
+        "rec_erro_nao_encontrado": "    Correo electrónico no encontrado en nuestros registros.",
         "rec_btn_voltar": "Volver al Inicio",
         "log_btn_google": "Conectar con Google",
-        "log_cadastrar_link": "┬┐No tienes una cuenta? ┬íReg🚀",
-        "log_entrar_link": "┬┐Ya tienes una cuenta? ┬íInicia sesi🚀",
-        "log_titulo": "­ƒöÆ Iniciar Sesi🚀",
-        "reg_titulo_form": "­ƒôØ Crear Cuenta Acad🚀",
+        "log_cadastrar_link": "¿No tienes una cuenta? ¡Regístrate aquí!",
+        "log_entrar_link": "¿Ya tienes una cuenta? ¡Inicia sesión aquí!",
+        "log_titulo": "🔒 Iniciar Sesión en SciPubs",
+        "reg_titulo_form": "  Crear Cuenta Académica",
         "reg_nome_sobrenome": "Nombre y Apellido:",
-        "reg_pais": "Pa🚀",
-        "reg_telefone": "Tel🚀",
-        "reg_senha": "Contrase🚀",
-        "reg_confirmar_senha": "Confirmar Contrase🚀",
-        "reg_btn_cadastrar": "Cadastrar 🚀",
-        "reg_erro_senha_diferente": "ÔÜá´©Å Las contrase🚀",
-        "reg_erro_ja_existe": "ÔÜá´©Å Este correo ya est🚀",
-        "log_erro_invalido": "ÔÜá´©Å Correo o contrase🚀",
-        "log_google_sucesso": "­ƒÜÇ ┬íConectado con Google! Redireccionando...",
+        "reg_pais": "País:",
+        "reg_telefone": "Teléfono:",
+        "reg_senha": "Contraseña:",
+        "reg_confirmar_senha": "Confirmar Contraseña:",
+        "reg_btn_cadastrar": "Crear Cuenta y Acceder ➔",
+        "reg_erro_senha_diferente": "    Las contraseñas no coinciden.",
+        "reg_erro_ja_existe": "    Este correo ya está registrado. Inicie sesión.",
+        "log_erro_invalido": "    Correo o contraseña incorrectos.",
+        "log_google_sucesso": "🚀 ¡Conectado con Google! Redireccionando...",
         "areas_trad": {
-            "Engenharias": "Ingenier🚀",
-            "Lingu🚀": "Ling🚀",
-            "Ci🚀": "Ciencias Biol🚀",
-            "Ci🚀": "Ciencias Exactas y de la Tierra",
-            "Outras / N🚀": "Otras / No Clasificado",
-            "Ci🚀": "Ciencias de la Salud",
-            "Ci🚀": "Ciencias Sociales Aplicadas",
-            "Ci🚀": "Ciencias Agrarias",
-            "Ci🚀": "Ciencias Humanas"
+            "Engenharias": "Ingenierías",
+            "Linguística, Letras e Artes": "Lingüística, Letras y Artes",
+            "Ciências Biológicas": "Ciencias Biológicas",
+            "Ciências Exatas e da Terra": "Ciencias Exactas y de la Tierra",
+            "Outras / Não Classificado": "Otras / No Clasificado",
+            "Ciências da Saúde": "Ciencias de la Salud",
+            "Ciências Sociais Aplicadas": "Ciencias Sociales Aplicadas",
+            "Ciências Agrárias": "Ciencias Agrarias",
+            "Ciências Humanas": "Ciencias Humanas"
         }
     }
 }
-# Corre├º├úo do seletor em ingl├¬s caso venha codificado
+# Correção do seletor em inglês caso venha codificado
 if st.session_state.idioma not in dic:
-    st.session_state.idioma = "Portugu🚀"
+    st.session_state.idioma = "Português"
 t = dic[st.session_state.idioma]
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
 <script>
-    // Previne que ferramentas de tradu├º├úo autom├ítica corrompam o DOM do React/Streamlit
+    // Previne que ferramentas de tradução automática corrompam o DOM do React/Streamlit
     const meta = document.createElement('meta');
     meta.name = 'google';
     meta.content = 'notranslate';
@@ -617,19 +689,19 @@ st.markdown("""
             justify-content: center;
         }
     }
-    /* For├ºa o fundo do menu lateral com a cor definida */
+    /* Força o fundo do menu lateral com a cor definida */
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
     }   
     
-    /* Destaque para o t├¡tulo do expander */
+    /* Destaque para o título do expander */
     .stExpander details summary p {
         font-size: 1.1rem !important;
         font-weight: 600 !important;
         color: #FFFFFF !important;
     }
 
-    /* R├│tulos da barra lateral */
+    /* Rótulos da barra lateral */
     [data-testid="stSidebar"] label {
         color: #004B87 !important; 
         font-weight: 600 !important; 
@@ -670,7 +742,7 @@ st.markdown("""
         justify-content: center;
         gap: 10px;
     }
-    /* Cards de M├®tricas */
+    /* Cards de Métricas */
     div[data-testid="stMetric"] {
         background: #FFFFFF !important;
         padding: 24px 28px !important;
@@ -734,7 +806,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 4. FUN├ç├âO ├ÜNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
+# --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
 @st.cache_data
 def carregar_dados():
     nome_arquivo = "dados.csv"
@@ -757,19 +829,33 @@ def carregar_dados():
             df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
             df.columns = [c.strip() for c in df.columns]
             
-            # Tratamento num├®rico padr├úo das m├®tricas
+            # Renomeia as colunas do CSV para garantir a acentuação correta utilizada no código
+            df = df.rename(columns={
+                "Grande Area": "Grande Área",
+                "Grande  rea": "Grande Área",
+                "Area do Conhecimento": "Área do Conhecimento",
+                " rea do Conhecimento": "Área do Conhecimento",
+                "Subrea do Conhecimento": "Subárea do Conhecimento",
+                "Sub rea do Conhecimento": "Subárea do Conhecimento",
+                "Ttulo da Revista": "Título da Revista",
+                "T tulo da Revista": "Título da Revista",
+                "Índice h5": "Índice h5"
+            })
+
+            
+            # Tratamento numérico padrão das métricas
             for col in ['SJR', 'JIF', 'h-index', 'H index']:
                 if col in df.columns:
                     df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
                     df[col] = pd.to_numeric(df[col], errors='coerce')
                     
-            # Identifica colunas n🚀"-"
+            # Identifica colunas não numéricas e substitui vazios por "-"
             for col in df.columns:
                 if col not in ['SJR', 'JIF', 'h-index', 'H index']:
                     df[col] = df[col].fillna("-").astype(str).str.strip()
                     df[col] = df[col].replace(["None", "none", "NONE", "nan", "NaN", "null", ""], "-")
             
-            # Garante a exist├¬ncia da coluna Homepage
+            # Garante a existência da coluna Homepage
             if "Homepage" not in df.columns:
                 df["Homepage"] = "-"
             else:
@@ -778,12 +864,12 @@ def carregar_dados():
 
             col_titulo = df.columns[0]
             
-            # Cria a chave de agrupamento normalizada (em min├║sculas) para ignorar diferen├ºas de caixa
+            # Cria a chave de agrupamento normalizada (em minúsculas) para ignorar diferenças de caixa
             df["titulo_norm"] = df[col_titulo].astype(str).str.lower().str.strip()
             if "ISSN" in df.columns:
                 df["ISSN"] = df["ISSN"].astype(str).str.strip()
             
-            # Fun├º├Áes de agrega├º├úo personalizadas
+            # Funções de agregação personalizadas
             def agg_indexadores(series):
                 vals = sorted(list(set([str(val).strip() for val in series if str(val).strip() not in ["-", "", "None", "nan"]])))
                 return ", ".join(vals) if vals else "-"
@@ -799,7 +885,7 @@ def carregar_dados():
                 candidatos = [str(x).strip() for x in series if str(x).strip() not in ["-", "", "None", "nan"]]
                 if not candidatos:
                     return "-"
-                # Prefere t├¡tulos com letras misturadas (Title Case) sobre ALL CAPS
+                # Prefere títulos com letras misturadas (Title Case) sobre ALL CAPS
                 suaves = [c for c in candidatos if not c.isupper() and any(ch.isupper() for ch in c)]
                 if suaves:
                     return suaves[0]
@@ -825,22 +911,22 @@ def carregar_dados():
                 else:
                     agg_dict[col] = agg_primeiro_valido
                     
-            # Agrupa pelo t├¡tulo normalizado
+            # Agrupa pelo título normalizado
             df = df.groupby("titulo_norm", as_index=False).agg(agg_dict)
             df = df.drop(columns=["titulo_norm"])
             
             return df, nome_arquivo
         except Exception as e:
-            st.error(f"ÔÜá´©Å Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
+            st.error(f"    Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
             st.stop()
     else:
-        st.error("ÔÜá´©Å Base de dados n🚀")
+        st.error("    Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
         st.stop()
 
 df_original, arquivo_usado = carregar_dados()
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
-# Inicializa o estado de registro se n├úo existir
+# Inicializa o estado de registro se não existir
 if "registrado" not in st.session_state:
     st.session_state.registrado = False
 if "modo_login" not in st.session_state:
@@ -868,36 +954,36 @@ if "is_admin" not in st.session_state:
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
-    nome_usr_exibir = st.session_state.get("nome_usuario", "Usu🚀")
+    nome_usr_exibir = st.session_state.get("nome_usuario", "Usuário")
     email_usr_exibir = st.session_state.get("email_usuario", "")
     acessos_usr = st.session_state.get("acessos_usuario", 1)
     
-    # Se for login via Google, exibe o e-mail do usu├írio na mensagem de boas-vindas
+    # Se for login via Google, exibe o e-mail do usuário na mensagem de boas-vindas
     usr_identificador = email_usr_exibir if st.session_state.get("login_via_google", False) else nome_usr_exibir
     
-    # Determina o texto de boas-vindas com base no n├║mero de acessos
+    # Determina o texto de boas-vindas com base no número de acessos
     if acessos_usr <= 1:
         status_texto = f"Seja bem-vindo(a), {usr_identificador}"
     else:
         status_texto = f"Bem-vindo(a) de volta, {usr_identificador}"
         
     if st.session_state.get("is_admin", False):
-        status_texto = f"­ƒöæ Admin: {status_texto}"
+        status_texto = f"🔑 Admin: {status_texto}"
         bg_cor = "#0F172A"
     else:
         bg_cor = "#10B981"
         
     # Caixa de boas-vindas
-    st.markdown(f"""
+    st.sidebar.markdown(f"""
         <div style="background-color: {bg_cor}; color: white; padding: 10px 8px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.82rem; line-height: 1.3; margin-bottom: 8px;">
             {status_texto}
         </div>
     """, unsafe_allow_html=True)
     
-    # Colunas para exibir bot├Áes de Sair e Configura├º├Áes lado a lado
+    # Colunas para exibir botões de Sair e Configurações lado a lado
     col_sair, col_config = st.sidebar.columns([1, 1])
     with col_sair:
-        if st.button("­ƒÜ¬ Sair", key="btn_sair_sidebar", help="Encerrar sess🚀", use_container_width=True):
+        if st.button("🚪 Sair", key="btn_sair_sidebar", help="Encerrar sessão", use_container_width=True):
             st.session_state.registrado = False
             st.session_state.email_usuario = ""
             st.session_state.nome_usuario = ""
@@ -908,7 +994,7 @@ if st.session_state.registrado:
             st.session_state.is_admin = False
             st.rerun()
     with col_config:
-        if st.button("ÔÜÖ´©Å Configs", key="btn_config_gear_sidebar", help="Configura🚀", use_container_width=True):
+        if st.button("⚙  Configs", key="btn_config_gear_sidebar", help="Configurações", use_container_width=True):
             st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
             st.rerun()
 
@@ -954,7 +1040,7 @@ st.sidebar.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# reposit├│rios
+# repositórios
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['repositorios_tit']}</p>
@@ -973,12 +1059,12 @@ st.sidebar.markdown(f"""
     </a>
     <a class="btn-custom-menu" href="https://catalogodeteses.capes.gov.br/catalogo-teses/#!/" target="_blank">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ04fk8I3y7LecgydHxbQybU3R9TB7qb99ikUFKNUsZNQ&s" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 2px; object-fit: contain;">
-        <span>Cat├ílogo da CAPES</span>
+        <span>Catálogo da CAPES</span>
     </a>
 </div>
 """, unsafe_allow_html=True)
 
-# ia acad├¬mica
+# ia acadêmica
 st.sidebar.markdown(f"""
 <hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>
 <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin-bottom:12px; letter-spacing: 0.05em;'>{t['ia_tit']}</p>
@@ -1041,11 +1127,11 @@ st.sidebar.markdown(f"""
     </a>
     <a class="btn-custom-menu" href="https://lattes.cnpq.br/" target="_blank">
         <img src="https://www.gov.br/observatorio/pt-br/assuntos/programas-academicos/imagens/Lattes.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;">
-        <span>Curr├¡culo Lattes</span>
+        <span>Currículo Lattes</span>
     </a>
     <a class="btn-custom-menu" href="https://www.periodicos.capes.gov.br/" target="_blank">
         <img src="https://www.periodicos.capes.gov.br/templates/periodicos_gov/images/icon-periodicos.png" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;">
-        <span>Portal de Peri├│dicos CAPES</span>
+        <span>Portal de Periódicos CAPES</span>
     </a>
 </div>
 """, unsafe_allow_html=True)
@@ -1065,7 +1151,7 @@ st.sidebar.markdown(f"""
     </a>
     <a class="btn-custom-menu" href="https://www.musica.ufop.br" target="_blank">
         <img src="https://musica.ufop.br/sites/default/files/styles/os_files_xxlarge/public/musica/files/logo22_1_03.png?m=1542714207&itok=i3jpi-oe" style="width: 16px; height: 16px; margin-right: 10px; border-radius: 3px; object-fit: cover;">
-        <span>M├║sica-UFOP</span>
+        <span>Música-UFOP</span>
     </a>
     <a class="btn-custom-menu" href="https://professor.ufop.br/joaoquadros" target="_blank">
         <span style="font-weight: 500; font-size: 0.9rem; color: #004B87;">{t['pessoal_lbl']}</span>
@@ -1085,7 +1171,7 @@ try:
     sucesso_db = False
     visitas = 0
 
-    # Tenta ler/gravar no Firebase Firestore se dispon├¡vel
+    # Tenta ler/gravar no Firebase Firestore se disponível
     if db is not None:
         try:
             doc_ref = db.collection("metadados").document("visitas")
@@ -1094,7 +1180,7 @@ try:
             if doc.exists:
                 visitas = int(doc.to_dict().get("quantidade", 0))
             else:
-                # Se n├úo existir no DB, inicializa usando o valor do arquivo local como base para n├úo zerar
+                # Se não existir no DB, inicializa usando o valor do arquivo local como base para não zerar
                 visitas_inicial = 0
                 if os.path.exists(arquivo_contador):
                     with open(arquivo_contador, "r") as f:
@@ -1109,7 +1195,7 @@ try:
         except Exception:
             pass
 
-    # Fallback local caso o Firebase n├úo esteja dispon├¡vel/configurado
+    # Fallback local caso o Firebase não esteja disponível/configurado
     if not sucesso_db:
         if not os.path.exists(arquivo_contador):
             with open(arquivo_contador, "w") as f:
@@ -1124,7 +1210,7 @@ try:
             with open(arquivo_contador, "w") as f:
                 f.write(str(visitas))
 
-    # Calcula a soma de todos os acessos individuais dos usu├írios cadastrados
+    # Calcula a soma de todos os acessos individuais dos usuários cadastrados
     soma_acessos_individuais = 0
     if db is not None:
         try:
@@ -1151,12 +1237,12 @@ try:
     if "admin" in params or "visitas" in params or st.session_state.get("is_admin", False):
         st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin: 15px 0 10px 0;'>", unsafe_allow_html=True)
         # Exibe em preto (color: #000000)
-        st.sidebar.markdown(f"<p style='color: #000000; font-weight: bold; margin-bottom: 0;'>­ƒôè Total de Visitas (Admin): {visitas_totais}</p>", unsafe_allow_html=True)
+        st.sidebar.markdown(f"<p style='color: #000000; font-weight: bold; margin-bottom: 0;'>📊 Total de Visitas (Admin): {visitas_totais}</p>", unsafe_allow_html=True)
         
         # Campo para atualizar manualmente o valor do contador no Firebase/Local
         novo_valor = st.sidebar.number_input("Atualizar Contador:", min_value=0, value=visitas_totais, step=1, key="admin_visit_counter")
         if st.sidebar.button("Salvar Novo Valor", key="admin_save_visits_btn"):
-            # O valor geral ser├í ajustado descontando os acessos dos usu├írios
+            # O valor geral será ajustado descontando os acessos dos usuários
             visitas = max(0, novo_valor - soma_acessos_individuais)
             # Salva no Firestore se configurado
             if db is not None:
@@ -1181,19 +1267,19 @@ st.sidebar.markdown("<hr style='border: 0; border-top: 1px solid #E2E8F0; margin
 st.sidebar.markdown(f"""
     <div style='color: #0F172A; font-size: 0.8rem; padding-left: 5px; line-height: 1.6;'>
         <p style='font-size:0.85rem; font-weight:700; color:#0F172A; margin:0 0 8px 0; letter-spacing: 0.05em;'>{t['meta_tit']}</p>
-        <span style='color: #A91D22;'>ÔùÅ</span> <b>{t['meta_sistema']}:</b> {t['meta_status']}<br>
+        <span style='color: #A91D22;'> </span> <b>{t['meta_sistema']}:</b> {t['meta_status']}<br>
         <b>{t['meta_versao']}:</b> 2026.1<br>
         <b>{t['meta_padrao']}:</b> {t['meta_ativo']}
         <br><br>
         <hr style='border: 0; border-top: 1px dashed #E2E8F0; margin: 10px 0;'>
         <b>{t['direitos_tit']}:</b><br>
-        <b>┬® 2026 Jo├úo F. Soares-Quadros Jr.</b><br>
+        <b>© 2026 João F. Soares-Quadros Jr.</b><br>
         {t['direitos_autor']}
     </div>
 """, unsafe_allow_html=True)
 
-# --- 8. BOT├âO DE DOWNLOAD DA VERS├âO DESKTOP ---
-texto_botao = t.get("btn_desktop", "­ƒÆ╗ Baixar Vers🚀")
+# --- 8. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP ---
+texto_botao = t.get("btn_desktop", "💻 Baixar Versão para Windows")
 
 st.sidebar.markdown(
     f"""
@@ -1223,22 +1309,22 @@ st.sidebar.markdown(
 nome_logo = "logo.png"
 if st.session_state.idioma == "English":
     nome_logo = "logo_en.png"
-elif st.session_state.idioma == "Espa🚀":
+elif st.session_state.idioma == "Español":
     nome_logo = "logo_es.png"
 
 imagem_base64 = obter_imagem_local_base64(nome_logo)
-# Fallback caso a vers├úo traduzida espec├¡fica n├úo exista
+# Fallback caso a versão traduzida específica não exista
 if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 180px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 220px; width: auto; object-fit: contain;">'
 else:
-    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">­ƒôÜ</span>'
+    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
-st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: wrap; gap: 30px; padding: 25px 35px;">
+st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 30px; padding: 25px 35px;">
 {tag_imagem}
-<div class="divider-line" style="width: 2px; height: 100px; background-color: rgba(255,255,255,0.15);"></div>
+<div class="divider-line" style="width: 2px; height: 140px; background-color: rgba(255,255,255,0.15);"></div>
 <div class="premium-text-block">
 <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
 <p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
@@ -1246,7 +1332,7 @@ st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: cen
 </div>""", unsafe_allow_html=True)
 
 # --- 10. CONTROLE DE ACESSO COM REGISTRO ---
-# Fun├º├Áes auxiliares globais para banco de dados de credenciais
+# Funções auxiliares globais para banco de dados de credenciais
 def hash_senha(senha):
     return hashlib.sha256(senha.encode()).hexdigest()
 
@@ -1275,13 +1361,13 @@ def enviar_email_recuperacao(destinatario, login, senha_temporaria):
 Voce solicitou a recuperacao de acesso ao SciPubs.
 Aqui estao suas credenciais temporarias:
 
-ÔÇó Login: {login}
-ÔÇó Senha Temporaria: {senha_temporaria}
+• Login: {login}
+• Senha Temporaria: {senha_temporaria}
 
-Por favor, acesse o portal com estas credenciais e altere sua senha no menu de configuracoes (icone de engrenagem ÔÜÖ´©Å na barra lateral).
+Por favor, acesse o portal com estas credenciais e altere sua senha no menu de configuracoes (icone de engrenagem ⚙  na barra lateral).
 
 Atenciosamente,
-Equipe Portal do Pesquisador"""
+Equipe SciPubs"""
         
         msg.attach(MIMEText(corpo, "plain", "utf-8"))
         server = smtplib.SMTP(smtp_server, smtp_port)
@@ -1355,7 +1441,7 @@ def confirmar_token(token):
                     df.loc[idx, "Token_Confirmacao"] = ""
                     df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
                     
-                    # Atualiza tamb├®m no firebase
+                    # Atualiza também no firebase
                     if db is not None:
                         try:
                             db.collection("usuarios").document(str(email_encontrado)).set({
@@ -1369,22 +1455,25 @@ def confirmar_token(token):
             pass
     return False, None, None
 
-def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False):
+def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False, aceitou_termos=False, aceitou_pesquisa=False, deseja_doar=False):
     caminho = "usuarios.csv"
     novo_usuario = pd.DataFrame([{
         "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Nome": nome,
         "Email": email.lower().strip(),
-        "Pa🚀": pais,
+        "País": pais,
         "Escolaridade": escolaridade,
-        "Institui🚀": instituicao,
+        "Instituição": instituicao,
         "Idade": idade,
         "Sexo": sexo,
-        "Ra🚀": raca,
+        "Raça/Etnia": raca,
         "Senha_Hash": hash_senha(senha),
         "Acessos": 1,
         "Status_Confirmado": status_confirmado,
-        "Token_Confirmacao": token_confirmacao
+        "Token_Confirmacao": token_confirmacao,
+        "Aceitou_Termos": aceitou_termos,
+        "Aceitou_Pesquisa": aceitou_pesquisa,
+        "Deseja_Doar": deseja_doar
     }])
     if os.path.exists(caminho):
         try:
@@ -1413,6 +1502,9 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
                 "acessos": 1,
                 "status_confirmado": status_confirmado,
                 "token_confirmacao": token_confirmacao,
+                "aceitou_termos": aceitou_termos,
+                "aceitou_pesquisa": aceitou_pesquisa,
+                "deseja_doar": deseja_doar,
                 "data_cadastro": firestore.SERVER_TIMESTAMP,
                 "ultimo_acesso": firestore.SERVER_TIMESTAMP
             }, merge=True)
@@ -1427,7 +1519,7 @@ def verificar_recuperacao(email):
             doc = db.collection("usuarios").document(email_clean).get()
             if doc.exists:
                 d = doc.to_dict()
-                return True, d.get("nome", "Usu🚀")
+                return True, d.get("nome", "Usuário")
         except Exception:
             pass
     caminho = "usuarios.csv"
@@ -1478,7 +1570,7 @@ def verificar_login(email_ou_usuario, senha):
                 if doc.exists:
                     acessos_atuais = int(doc.to_dict().get("acessos", 0))
                 doc_ref.set({
-                    "nome": "Jo🚀",
+                    "nome": "João F. Soares-Quadros Jr.",
                     "email": admin_email_conf,
                     "pais": "Brasil",
                     "telefone": "N/A",
@@ -1489,7 +1581,7 @@ def verificar_login(email_ou_usuario, senha):
                 }, merge=True)
             except Exception:
                 pass
-        st.session_state.nome_usuario = "Jo🚀"
+        st.session_state.nome_usuario = "João"
         st.session_state.acessos_usuario = acessos_atuais + 1
         return True
 
@@ -1503,7 +1595,7 @@ def verificar_login(email_ou_usuario, senha):
         if not match.empty:
             idx = match.index[0]
             
-            # Verifica se o e-mail foi confirmado (tratando contas antigas que n├úo t├¬m a coluna como confirmadas)
+            # Verifica se o e-mail foi confirmado (tratando contas antigas que não têm a coluna como confirmadas)
             if "Status_Confirmado" in df.columns:
                 status = df.loc[idx, "Status_Confirmado"]
                 if pd.notna(status) and str(status).strip().lower() == "false":
@@ -1514,7 +1606,7 @@ def verificar_login(email_ou_usuario, senha):
             current_acessos = df.loc[idx, "Acessos"]
             novo_acessos = int(current_acessos) + 1 if pd.notna(current_acessos) else 1
             
-            # Seta as Session States do Usu├írio logado
+            # Seta as Session States do Usuário logado
             st.session_state.nome_usuario = str(match.iloc[0]["Nome"]).split(" ")[0].capitalize()
             st.session_state.acessos_usuario = novo_acessos
             
@@ -1552,17 +1644,17 @@ if url_token:
         st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
         admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
         st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
-        st.success("Ô£à Conta ativada e acesso liberado com sucesso!")
+        st.success("✅ Conta ativada e acesso liberado com sucesso!")
         st.query_params.clear()
         time.sleep(2)
         st.rerun()
     else:
-        st.error("ÔÜá´©Å Token inv🚀")
+        st.error("    Token inválido ou já utilizado.")
     st.query_params.clear()
 
 if not st.session_state.registrado:
 
-    # Escolha do Modo (Recupera├º├úo, Login ou Cadastro)
+    # Escolha do Modo (Recuperação, Login ou Cadastro)
     if st.session_state.get("modo_recuperacao", False):
         col_rec_1, col_rec_2, col_rec_3 = st.columns([1, 1.5, 1])
         with col_rec_2:
@@ -1571,10 +1663,10 @@ if not st.session_state.registrado:
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
-            # Se j├í verificou os dados, exibe a redefini├º├úo de senha
+            # Se já verificou os dados, exibe a redefinição de senha
             if st.session_state.get("usuario_recuperado_email", ""):
                 email_confirmado = st.session_state.usuario_recuperado_email
-                st.info(f"Usu🚀")
+                st.info(f"Usuário identificado. Defina uma nova senha para a conta: **{email_confirmado}**")
                 
                 nova_senha = st.text_input(t['rec_nova_senha'], type="password", key="rec_nova_senha_input")
                 conf_senha = st.text_input(t['rec_conf_senha'], type="password", key="rec_conf_senha_input")
@@ -1599,7 +1691,7 @@ if not st.session_state.registrado:
                     else:
                         sucesso, nome = verificar_recuperacao(email_rec)
                         if sucesso:
-                            # Gera senha tempor├íria alfanum├®rica
+                            # Gera senha temporária alfanumérica
                             senha_temp = gerar_senha_temporaria()
                             # Atualiza a senha no banco de dados
                             redefinir_senha_usuario(email_rec.lower().strip(), senha_temp)
@@ -1608,15 +1700,15 @@ if not st.session_state.registrado:
                             enviado, erro = enviar_email_recuperacao(email_rec.lower().strip(), email_rec.lower().strip(), senha_temp)
                             
                             if enviado:
-                                st.success("­ƒÄë Uma senha tempor🚀")
+                                st.success("🎉 Uma senha temporária foi enviada para o seu e-mail cadastrado! Acesse o portal e atualize-a nas configurações.")
                                 st.session_state.modo_recuperacao = False
                                 st.session_state.modo_login = True
                                 time.sleep(3.0)
                                 st.rerun()
                             else:
-                                # Fallback se SMTP n├úo estiver configurado
-                                st.warning("ÔÜá´©Å N🚀")
-                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Tempor🚀")
+                                # Fallback se SMTP não estiver configurado
+                                st.warning("    Não foi possível enviar o e-mail no momento (Servidor SMTP não configurado).")
+                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`\n\nEm caso de dúvidas, contate o suporte: **support@scipubs.com**")
                                 st.session_state.usuario_recuperado_email = email_rec.lower().strip()
                         else:
                             st.error(t['rec_erro_nao_encontrado'])
@@ -1629,10 +1721,10 @@ if not st.session_state.registrado:
                 st.rerun()
 
     elif st.session_state.modo_login:
-        # T├ìTULO E APRESENTA├ç├âO MINIMALISTA
+        # T TULO E APRESENTAÇÃO MINIMALISTA
         col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
         with col_log_2:
-            # Formul├írio de Login
+            # Formulário de Login
             with st.form("form_login_usuario", clear_on_submit=False):
                 email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
                 senha_log = st.text_input(t['log_senha'], type="password", placeholder="", key="senha_login")
@@ -1643,13 +1735,13 @@ if not st.session_state.registrado:
             
             st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
             
-            # Link para ir para a p├ígina de Cadastro colocado diretamente abaixo
+            # Link para ir para a página de Cadastro colocado diretamente abaixo
             if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
                 st.session_state.modo_login = False
                 st.rerun()
                 
-            # Link para ir para a p├ígina de Recupera├º├úo
-            if st.button(f"­ƒöæ {t['log_esqueceu']}", key="btn_ir_recuperacao", use_container_width=True):
+            # Link para ir para a página de Recuperação
+            if st.button(f"🔑 {t['log_esqueceu']}", key="btn_ir_recuperacao", use_container_width=True):
                 st.session_state.modo_recuperacao = True
                 st.session_state.modo_login = False
                 st.session_state.usuario_recuperado_email = ""
@@ -1664,7 +1756,7 @@ if not st.session_state.registrado:
                 else:
                     res_login = verificar_login(email_log, senha_log)
                     if res_login == "NOT_CONFIRMED":
-                        st.warning("ÔÜá´©Å Sua conta ainda n🚀")
+                        st.warning("    Sua conta ainda não foi confirmada. Verifique o link enviado para o seu e-mail.")
                     elif res_login:
                         st.session_state.registrado = True
                         st.session_state.login_via_google = False
@@ -1680,73 +1772,113 @@ if not st.session_state.registrado:
                     else:
                         st.error(t['log_erro_invalido'])
                         
-            st.divider()
-            st.markdown("### ­ƒöæ Confirmar Conta Manualmente")
-            st.write("N🚀")
-            token_manual = st.text_input("Token de Confirma🚀")
-            if st.button("Validar Token"):
-                sucesso_token, email_token, nome_token = confirmar_token(token_manual)
-                if sucesso_token:
-                    st.session_state.registrado = True
-                    st.session_state.login_via_google = False
-                    st.session_state.email_usuario = email_token.lower().strip()
-                    st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
-                    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-                    st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
-                    st.success("Ô£à E-mail confirmado com sucesso! Acesso liberado.")
-                    time.sleep(2)
-                    st.rerun()
-                else:
-                    st.error("ÔÜá´©Å Token inv🚀")
+
     else:
-        with st.container():
+        if st.button("📄 Abrir Pop-up de Termos de Uso e Política de Privacidade"):
+            modal_termos()
+
+        with st.form("form_cadastro_usuario", clear_on_submit=False):
             col_reg_1, col_reg_2 = st.columns(2)
             with col_reg_1:
-                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: Jo🚀")
+                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
                 email_cad = st.text_input(t['reg_email'], placeholder="")
                 pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "N🚀"])
+                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
                 
             with col_reg_2:
-                # Titula├º├úo
+                # Titulação
                 opcoes_esc = []
-                if st.session_state.idioma == "Portugu🚀":
-                    opcoes_esc = ["Gradua🚀", "Especializa🚀", "Mestrado", "Doutorado", "Outra"]
+                if st.session_state.idioma == "Português":
+                    opcoes_esc = ["Graduação", "Especialização", "Mestrado", "Doutorado", "Outra"]
                 elif st.session_state.idioma == "English":
                     opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
                 else:
-                    opcoes_esc = ["Grado", "Especializaci🚀", "Maestr🚀", "Doctorado", "Otra"]
+                    opcoes_esc = ["Grado", "Especialización", "Maestría", "Doctorado", "Otra"]
                     
                 escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
                 
-                # V├¡nculo Institucional
-                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de S🚀")
+                # Vínculo Institucional
+                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
                     
                 idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
-                raca_cad = st.selectbox("Ra🚀", ["", "Branca", "Parda", "Preta", "Ind🚀", "Outra"])
+                raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
     
-            # Senha e confirma├º├úo de senha
+            # Senha e confirmação de senha
             st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
             col_s1, col_s2 = st.columns(2)
             with col_s1:
                 senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="", key="senha_cad_reg")
             with col_s2:
                 senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
+            
+            st.markdown("<hr style='border-top:1px solid #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
+            st.markdown("### Termos e Consentimentos")
+            # Como st.button não é permitido dentro de st.form, usamos um expander que age como um pop-up embutido
+            with st.expander("📄 Ler Termos de uso e política de privacidade"):
+                st.info("Para ler os termos em uma janela flutuante maior, use o botão disponível acima do formulário de cadastro.")
+                st.markdown("""**TERMOS DE USO E POLÍTICA DE PRIVACIDADE
+
+SciPubs: O Portal do Pesquisador
+
+Data da Última Atualização: 13 de julho de 2026
+
+1. INTRODUÇÃO E ACEITAÇÃO
+1.1. Bem-vindo ao SciPubs: O Portal do Pesquisador ("Plataforma"). Este documento ("Termos") rege a sua relação com a nossa Plataforma, estabelecendo as condições de uso e as práticas de tratamento de dados pessoais, em estrita conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - "LGPD").
+1.2. ACEITAÇÃO: Ao clicar no botão "Eu li e aceito os Termos de Uso e Política de Privacidade" e concluir o seu cadastro, você ("Titular") declara ter lido, compreendido e concordado integralmente com todas as disposições aqui contidas, manifestando seu consentimento livre, informado e inequívoco para o tratamento de seus dados pessoais para as finalidades aqui descritas. Caso não concorde com estes Termos, você não deverá utilizar a Plataforma.
+
+2. OBJETO E GRATUIDADE
+2.1. A Plataforma tem como objetivo auxiliar pesquisadores na produção e publicação de artigos científicos, oferecendo uma ferramenta de busca em periódicos, integrada com Inteligência Artificial (Google Gemini), e links para recursos acadêmicos externos.
+2.2. O acesso e uso de todas as funcionalidades da Plataforma são, na presente data, inteiramente gratuitos. O Titular será notificado com antecedência mínima de 30 (trinta) dias caso haja qualquer alteração no modelo de negócio.
+
+3. DOAÇÕES VOLUNTÁRIAS
+3.1. O Titular que desejar apoiar a manutenção e o desenvolvimento contínuo da Plataforma poderá fazê-lo através de doações voluntárias, realizadas em seção específica dentro do aplicativo.
+3.2. AUSÊNCIA DE CONTRAPARTIDA: As doações são atos de mera liberalidade e não conferem ao Titular doador quaisquer direitos, benefícios, funcionalidades exclusivas, produtos ou serviços em contrapartida. O acesso e os recursos da Plataforma permanecem idênticos para todos os Titulares, doadores ou não.
+3.3. INTERMEDIADOR DE PAGAMENTO: As transações de doação serão processadas por meio de plataformas de pagamento de terceiros (ex: PayPal, Stripe, PagSeguro). Ao optar por doar, o Titular será direcionado ao ambiente seguro do intermediador e estará sujeito aos Termos de Uso e Políticas de Privacidade da respectiva plataforma de pagamento.
+3.4. ISENÇÃO DE RESPONSABILIDADE: O SciPubs não se responsabiliza por eventuais falhas, violações de segurança ou pela coleta de dados realizada pela plataforma de pagamento. A transação financeira e os dados a ela associados (como dados de cartão de crédito) são de responsabilidade do intermediador escolhido.
+3.5. NÃO REEMBOLSO: Por sua natureza de ato voluntário e sem contrapartida, as doações realizadas são, em regra, finais e não reembolsáveis.
+
+4. AGENTES DE TRATAMENTO E ENCARREGADO (DPO)
+4.1. Para os fins da LGPD, o SciPubs atua como Controlador dos dados pessoais. Para a viabilização técnica do serviço, utilizamos a infraestrutura da Google LLC (Firebase), que atua como Operadora.
+4.2. ENCARREGADO PELO TRATAMENTO DE DADOS (DPO): Para qualquer questão relativa a estes Termos ou ao exercício de seus direitos, o Titular poderá contatar nosso Encarregado através do e-mail: support@scipubs.com.
+
+5. TRATAMENTO DE DADOS PESSOAIS
+5.1. BASE LEGAL: O tratamento de todos os dados pessoais coletados pela Plataforma fundamenta-se exclusivamente no Consentimento do Titular (Art. 7º, I, da LGPD), fornecido no ato do cadastro ou em seções específicas da Plataforma.
+5.2. DADOS COLETADOS PARA FUNCIONAMENTO DA PLATAFORMA (OBRIGATÓRIO): Coletamos o mínimo de dados necessários para as seguintes finalidades específicas, cujo consentimento é fornecido no ato do cadastro principal: * Nome Completo e Endereço de E-mail: Para identificação, criação e gerenciamento da sua conta, controle de acesso e envio de comunicações transacionais indispensáveis ao uso da Plataforma. * Vínculo Institucional e Nível de Escolaridade: Para personalizar e otimizar a relevância dos resultados de busca oferecidos pela ferramenta.
+5.3. DADOS PARA FINS DE PESQUISA DE USO (FINALIDADE SECUNDÁRIA): Com o seu consentimento específico (fornecido através de caixa de seleção própria no momento do cadastro), os dados listados no item 5.2, somados a dados de uso da plataforma, poderão ser utilizados para a elaboração de estudos, artigos e pesquisas científicas. * GARANTIA DE ANONIMIZAÇÃO: Para esta finalidade, todos os dados serão previamente submetidos a um processo de anonimização, que desvincula permanentemente as informações da sua identidade, impossibilitando a sua identificação por terceiros, em conformidade com o Art. 12 da LGPD.
+5.4. DADOS PARA PESQUISA DE PERFIL DEMOGRÁFICO (OPCIONAL E SENSÍVEL): * a) Voluntariedade: A Plataforma oferece ao Titular a oportunidade opcional de contribuir com pesquisas sobre diversidade e inclusão no meio científico. A não participação não gera qualquer prejuízo ou limitação no uso das funcionalidades da Plataforma. * b) Dados Coletados Opcionalmente: Em seção própria e identificada, o Titular poderá, se assim desejar, fornecer dados pessoais como idade, país, gênero e raça/etnia. O dado referente à raça/etnia é classificado pela LGPD como dado pessoal sensível. * c) Consentimento Específico e Destacado: A coleta destes dados está condicionada a um novo consentimento, específico, informado e destacado, que será solicitado ao Titular dentro da seção opcional, antes de qualquer preenchimento, em conformidade com o Art. 11 da LGPD. * d) Finalidade: Os dados coletados nesta seção voluntária serão utilizados exclusivamente para a elaboração de estudos e relatórios estatísticos sobre o perfil demográfico de pesquisadores, visando fomentar o debate sobre políticas de acesso e diversidade. * e) Anonimização Reforçada: Para qualquer publicação ou divulgação externa, os dados e conclusões serão apresentados de forma agregada e rigorosamente anonimizada, sendo impossível a identificação de qualquer Titular.
+5.5. DADOS NÃO COLETADOS DE FORMA OBRIGATÓRIA: O SciPubs não coleta, como condição para o uso da plataforma, dados sensíveis (como origem racial ou étnica, convicção religiosa, opinião política, dados de saúde ou genéticos) nem dados como número de telefone, por não serem estritamente necessários às finalidades essenciais da Plataforma (Princípio da Necessidade, Art. 6º, III, da LGPD).
+
+6. DIREITOS DO TITULAR
+6.1. Em conformidade com o Art. 18 da LGPD, o Titular tem o direito de, a qualquer momento e mediante requisição ao nosso Encarregado (DPO): a) Confirmar a existência de tratamento de seus dados; b) Acessar seus dados; c) Corrigir dados incompletos, inexatos ou desatualizados; d) Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD; e) Solicitar a portabilidade dos dados a outro fornecedor de serviço; f) Solicitar a eliminação dos dados pessoais tratados com o seu consentimento; g) Obter informação sobre as entidades com as quais o Controlador realizou uso compartilhado de dados; h) Revogar o consentimento a qualquer tempo.
+6.2. A revogação do consentimento para o tratamento de dados indispensáveis (item 5.2) implicará na impossibilidade de uso da Plataforma e na eliminação da conta.
+
+7. SEGURANÇA E TRANSFERÊNCIA INTERNACIONAL
+7.1. Empregamos medidas técnicas e administrativas aptas a proteger os dados pessoais de acessos não autorizados e de situações de destruição, perda ou alteração. Os dados são armazenados em infraestrutura de nuvem segura (Google Firebase), que adota padrões de criptografia e segurança reconhecidos internacionalmente.
+7.2. TRANSFERÊNCIA INTERNACIONAL: Ao utilizar a infraestrutura global da Google, os dados pessoais do Titular podem ser transferidos e processados em servidores localizados fora do Brasil. Essa transferência é realizada em conformidade com a LGPD, assegurando que o país de destino ou o operador ofereçam o grau de proteção de dados exigido pela legislação brasileira.
+8. ALTERAÇÕES E FORO
+8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado por e-mail ou por aviso em destaque na Plataforma, sendo convidado a anuir com as novas condições.
+8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do SciPubs, com renúncia expressa a qualquer outro, por mais privilegiado que seja.""")
+                
+            aceitou_termos = st.checkbox("Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)")
+            aceitou_pesquisa = st.checkbox("Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)")
+            deseja_doar = st.checkbox("Desejo realizar uma doação ao SciPubs (Opcional)")
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
+            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
             
         if btn_registrar:
-            if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
+            if not aceitou_termos:
+                st.error("    Você deve aceitar os Termos de Uso e Política de Privacidade para se cadastrar.")
+            elif not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
                 faltam = []
                 if not nome_cad.strip(): faltam.append("Nome")
                 if not email_cad.strip(): faltam.append("E-mail")
-                if not pais_cad.strip(): faltam.append("Pa🚀")
-                if not instituicao_cad.strip(): faltam.append("Institui🚀")
+                if not pais_cad.strip(): faltam.append("País")
+                if not instituicao_cad.strip(): faltam.append("Instituição de Vínculo")
                 if not senha_cad.strip(): faltam.append("Senha")
                 st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
             elif not senha_cad_conf.strip():
-                st.error(f"{t['reg_erro_campos']} (Faltando: Confirma🚀")
+                st.error(f"{t['reg_erro_campos']} (Faltando: Confirmação de Senha)")
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
             else:
@@ -1765,18 +1897,25 @@ if not st.session_state.registrado:
                     sexo_cad,
                     raca_cad,
                     token_confirmacao,
-                    status_confirmado=False
+                    status_confirmado=False,
+                    aceitou_termos=aceitou_termos,
+                    aceitou_pesquisa=aceitou_pesquisa,
+                    deseja_doar=deseja_doar
                 )
                 if sucesso_cadastro:
                     enviado, erro = enviar_email_confirmacao(email_cad.strip(), token_confirmacao)
                     if enviado:
-                        st.success("Ô£à Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
+                        st.success("✅ Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
                     else:
-                        st.warning("ÔÜá´©Å Conta criada, mas n🚀")
-                        st.info(f"Para testes, voc🚀")
+                        st.warning("    Conta criada, mas não foi possível enviar o e-mail de confirmação.")
+                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
                     
-                    st.session_state.modo_cadastro = False
-                    st.session_state.modo_login = True
+                    if deseja_doar:
+                        modal_doacao()
+                    else:
+                        st.session_state.modo_cadastro = False
+                        st.session_state.modo_login = True
+                        st.rerun()
                     time.sleep(4)
                     st.rerun()
                 else:
@@ -1792,36 +1931,36 @@ if not st.session_state.registrado:
 
 # Textos informativos traduzidos
 
-# --- TELA DE CONFIGURA├ç├òES & AJUSTES ---
+# --- TELA DE CONFIGURAÇÕES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
-    st.markdown("## ÔÜÖ´©Å Configura🚀")
+    st.markdown("## ⚙  Configurações & Ajustes do SciPubs")
     
-    # Bot├úo para fechar e retornar ao buscador
-    if st.button("Ô¼à´©Å Voltar para o Buscador", key="btn_fechar_config"):
+    # Botão para fechar e retornar ao buscador
+    if st.button("⬅  Voltar para o Buscador", key="btn_fechar_config"):
         st.session_state.abrir_configuracoes = False
         st.rerun()
         
     st.markdown("<hr style='margin:10px 0;'>", unsafe_allow_html=True)
     
     opc_config = st.radio(
-        "Selecione uma op🚀",
+        "Selecione uma opção de ajuste:",
         [
-            "­ƒæñ Atualiza🚀",
-            "­ƒöæ Atualiza🚀",
-            "­ƒÄ¿ Tema da Plataforma (Claro/Escuro)",
-            "­ƒôó Compartilhar Portal com Outros"
+            "👤 Atualização de Cadastro",
+            "🔑 Atualização de Senha",
+            "🎨 Tema da Plataforma (Claro/Escuro)",
+            "📢 Compartilhe o SciPubs" 
         ],
         key="radio_opc_config"
     )
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if "­ƒæñ Atualiza🚀" in opc_config:
-        st.subheader("­ƒæñ Atualizar Meus Dados de Cadastro")
+    if "👤 Atualização de Cadastro" in opc_config:
+        st.subheader("👤 Atualizar Meus Dados de Cadastro")
         email_atual = st.session_state.email_usuario
         nome_atual = st.session_state.get("nome_usuario", "")
         
-        # Carrega dados atuais do usu├írio
+        # Carrega dados atuais do usuário
         caminho_csv = "usuarios.csv"
         telefone_atual = ""
         escolaridade_atual = "Doutor"
@@ -1854,16 +1993,16 @@ if st.session_state.get("abrir_configuracoes", False):
         nome_edit = st.text_input("Nome Completo:", value=nome_atual)
         tel_edit = st.text_input("Telefone:", value=telefone_atual)
         
-        opcoes_esc_edit = ["Estudante de Gradua🚀", "Especialista / P🚀", "Mestrando", "Mestre", "Doutorando", "Doutor", "P🚀", "Outro"]
+        opcoes_esc_edit = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
         if escolaridade_atual not in opcoes_esc_edit:
             opcoes_esc_edit.append(escolaridade_atual)
         esc_edit = st.selectbox("Escolaridade:", opcoes_esc_edit, index=opcoes_esc_edit.index(escolaridade_atual))
         
-        inst_edit = st.text_input("Institui🚀", value=inst_atual)
+        inst_edit = st.text_input("Instituição de Vínculo:", value=inst_atual)
         
-        if st.button("Salvar Altera🚀", type="primary"):
+        if st.button("Salvar Alterações do Cadastro", type="primary"):
             if not nome_edit.strip() or not tel_edit.strip() or not inst_edit.strip():
-                st.error("ÔÜá´©Å Preencha todos os campos obrigat🚀")
+                st.error("    Preencha todos os campos obrigatórios.")
             else:
                 if os.path.exists(caminho_csv):
                     try:
@@ -1890,29 +2029,29 @@ if st.session_state.get("abrir_configuracoes", False):
                         pass
                         
                 st.session_state.nome_usuario = nome_edit.strip().split(" ")[0].capitalize()
-                st.success("­ƒÄë Dados do cadastro atualizados com sucesso!")
+                st.success("🎉 Dados do cadastro atualizados com sucesso!")
                 time.sleep(1.2)
                 st.rerun()
 
-    elif "­ƒöæ Atualiza🚀" in opc_config:
-        st.subheader("­ƒöæ Alterar Minha Senha de Acesso")
+    elif "🔑 Atualização de Senha" in opc_config:
+        st.subheader("🔑 Alterar Minha Senha de Acesso")
         nova_s = st.text_input("Nova Senha:", type="password", key="settings_nova_senha")
         conf_s = st.text_input("Confirmar Nova Senha:", type="password", key="settings_conf_senha")
         if st.button("Atualizar Senha", type="primary"):
             if not nova_s.strip():
-                st.error("ÔÜá´©Å A senha n🚀")
+                st.error("    A senha não pode estar em branco.")
             elif nova_s != conf_s:
-                st.error("ÔÜá´©Å As senhas digitadas s🚀")
+                st.error("    As senhas digitadas são diferentes.")
             else:
                 redefinir_senha_usuario(st.session_state.email_usuario, nova_s)
-                st.success("­ƒÄë Senha alterada com sucesso!")
+                st.success("🎉 Senha alterada com sucesso!")
                 time.sleep(1.2)
                 st.rerun()
                 
-    elif "­ƒÄ¿ Tema da Plataforma (Claro/Escuro)" in opc_config:
-        st.subheader("­ƒÄ¿ Estilo e Apar🚀")
+    elif "🎨 Tema da Plataforma (Claro/Escuro)" in opc_config:
+        st.subheader("🎨 Estilo e Aparência da Plataforma")
         tema_atual = "Modo Noturno (Escuro)" if st.session_state.get("dark_mode", False) else "Modo Diurno (Claro)"
-        st.info(f"O tema ativo atualmente 🚀")
+        st.info(f"O tema ativo atualmente é: **{tema_atual}**")
         
         if st.session_state.get("dark_mode", False):
             if st.button("Ativar Modo Diurno (Claro)", type="primary"):
@@ -1923,9 +2062,9 @@ if st.session_state.get("abrir_configuracoes", False):
                 st.session_state.dark_mode = True
                 st.rerun()
 
-    elif "­ƒôó Compartilhar Portal com Outros" in opc_config:
-        st.subheader("­ƒôó Compartilhar o Portal do Pesquisador")
-        url_portal = "https://scipubs.com/"
+    elif "📢 Compartilhar o SciPubs" in opc_config:
+        st.subheader("📢 Compartilhar o SciPubs")
+        url_portal = "https://www.scipubs.com/"
         texto_compartilhar = f"Confira o Buscador de Periodicos Cientificos do PPGE UFOP: {url_portal}"
         
         msg_encoded = urllib.parse.quote(texto_compartilhar)
@@ -1935,57 +2074,57 @@ if st.session_state.get("abrir_configuracoes", False):
         st.write("Escolha uma das formas abaixo para divulgar o portal:")
         col_c1, col_c2, col_c3 = st.columns(3)
         with col_c1:
-            st.markdown(f"[­ƒÆ¼ WhatsApp]({link_wa})", unsafe_allow_html=True)
+            st.markdown(f"[💬 WhatsApp]({link_wa})", unsafe_allow_html=True)
         with col_c2:
-            st.markdown(f"[Ô£ë´©Å E-mail]({link_mail})", unsafe_allow_html=True)
+            st.markdown(f"[✉  E-mail]({link_mail})", unsafe_allow_html=True)
         with col_c3:
-            if st.button("­ƒôï Copiar Link"):
+            if st.button("📋 Copiar Link"):
                 st.info(f"Link: `{url_portal}`")
-                st.success("Link copiado para exibi🚀")
+                st.success("Link copiado para exibição!")
 
 
             
     st.stop()
 
 # Textos informativos traduzidos
-if st.session_state.idioma == "Portugu🚀":
-    expander_titulo = "­ƒÆí Sobre o SciPubs & Como Utilizar"
+if st.session_state.idioma == "Português":
+    expander_titulo = "💡 Sobre o SciPubs & Como Utilizar"
     sobre_texto = """
-### Bem-vindo ao SciPubs: o Portal do Pesquisador!
-Esta ├® uma ferramenta desenvolvida para otimizar a busca por peri├│dicos cient├¡ficos de alto impacto.
+### Bem-vindo(a) ao SciPubs: O Portal do Pesquisador!
+Esta é uma ferramenta desenvolvida para otimizar a busca por periódicos científicos de alto impacto.
   
-#### ­ƒøá´©Å O que voc├¬ pode fazer aqui?
-1. **Busca Avan🚀"educa🚀"`) ou combine m├║ltiplos crit├®rios usando os operadores l├│gicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
-2. **Filtros por Sub├írea (CNPq):** Encontre peri├│dicos perfeitamente alinhados ├á sua sub├írea espec├¡fica de atua├º├úo e conhecimento.
-3. **M├®tricas de Impacto:** Analise o prest├¡gio internacional atrav├®s de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **├ìndice h5 (Google Scholar)**.
-4. **Recomenda├º├úo Inteligente (IA):** Use a intelig├¬ncia artificial do Google Gemini para colar o t├¡tulo e resumo do seu artigo e obter as recomenda├º├Áes de peri├│dicos ideais com justificativa e link direto.
-5. **Exporta├º├úo de Dados:** Filtre os resultados de acordo com sua necessidade e fa├ºa o download da tabela customizada imediatamente.
+####     O que você pode fazer aqui?
+1. **Busca Avançada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educação musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encontre periódicos perfeitamente alinhados    sua subárea específica de atuação e conhecimento.
+3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
+4. **Recomendação Inteligente (IA):** Use a inteligência artificial do Google Gemini para colar o título e resumo do seu artigo e obter as recomendações de periódicos ideais com justificativa e link direto.
+5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 elif st.session_state.idioma == "English":
-    expander_titulo = "­ƒÆí About SciPubs & How to Use"
+    expander_titulo = "💡 About SciPubs & How to Use"
     sobre_texto = """
 ### Welcome to SciPubs: the Researcher's Portal!
 This is a tool developed to optimize the search for high-impact scientific journals.
  
-#### ­ƒøá´©Å What can you do here?
+####     What can you do here?
 1. **Advanced & Boolean Search:** Search for exact phrases using quotation marks (e.g., `"music education"`) or combine multiple criteria using the logical operators `AND`, `OR`, and `NOT` (e.g., `music AND education NOT medicine`).
 2. **Filters by Subarea (CNPq):** Find journals perfectly aligned with your specific subarea of expertise.
 3. **Impact Metrics:** Analyze international prestige through consolidated quartiles and indicators from **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index**, and direct links to the **h5-Index (Google Scholar)**.
 4. **Smart Recommender (AI):** Paste your title and abstract, and let the Google Gemini AI recommend the best matches with specific rationale and homepage links.
 5. **Data Export:** Filter results according to your needs and download the customized table immediately.
 """
-else: # Espa├▒ol
-    expander_titulo = "­ƒôû Sobre el Portal del Investigador y C🚀"
+else: # Español
+    expander_titulo = "📖 Sobre el Portal del Investigador y Cómo Utilizar"
     sobre_texto = """
-### ┬íBienvenido al Portal del Investigador!
-Esta es una herramienta desarrollada con el objetivo de optimizar la b├║squeda de revistas cient├¡ficas de alto impacto.
+### ¡Bienvenido al Portal del Investigador!
+Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
-#### ­ƒøá´©Å ┬┐Qu├® puedes fazer aqu├¡?
-1. **B🚀"educaci🚀"`) o combine m├║ltiples criterios usando los operadores l├│gicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
-2. **Filtros por Sub├írea (CNPq):** Encuentre revistas perfectamente alineadas con su sub├írea espec├¡fica de conocimiento.
-3. **M├®tricas de Impacto:** Analise el prestigio internacional a trav├®s de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **├ìndice h5 (Google Scholar)**.
-4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias tem├íticas personalizadas basadas en el t├¡tulo y resumen de su art├¡culo.
-5. **Exportaci├│n de Dados:** Filtre los resultados seg├║n sus necesidades y descargue la tabla personalizada inmediatamente.
+####     ¿Qué puedes fazer aquí?
+1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
+3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
+4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
+5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
 """
 
 with st.expander(expander_titulo, expanded=False):
@@ -1996,14 +2135,14 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
 st.markdown(t['filtros_tit'])
 
-# Define as abas com base na presen├ºa do par├ómetro ?admin=true ou ?visitas=true na URL ou se o usu├írio logado for Admin
+# Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL ou se o usuário logado for Admin
 params_url = st.query_params
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
-    tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "­ƒôè Estat🚀"])
+    tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "📊 Estatísticas (Admin)"])
 else:
     tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 
-# ==================== ABA 1: CAT├üLOGO TRADICIONAL ====================
+# ==================== ABA 1: CAT LOGO TRADICIONAL ====================
 with tab_busca:
     busca = st.text_input(t['buscar_reg'], placeholder=t['placeholder_busca'])
 
@@ -2012,7 +2151,7 @@ with tab_busca:
     with aba_escopo:
         col_f1, col_f2 = st.columns(2)
         with col_f1:
-            col_subarea = "Sub🚀"
+            col_subarea = "Subárea do Conhecimento"
             set_subareas = set()
             if col_subarea in df_original.columns:
                 for x in df_original[col_subarea].unique():
@@ -2048,9 +2187,9 @@ with tab_busca:
                 opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
             q_sjr_sel = st.multiselect(t['sjr_lbl'], opcoes_sjr)
         with col_f6:
-            opcoes_ordenacao = ["T🚀"]
+            opcoes_ordenacao = ["Título"]
             if "SJR" in df_original.columns: 
-                opcoes_ordenacao.append("SJR (Prest🚀")
+                opcoes_ordenacao.append("SJR (Prestígio)")
             if "JIF" in df_original.columns: 
                 opcoes_ordenacao.append("JIF (Fator de Impacto)")
             criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
@@ -2135,31 +2274,16 @@ with tab_busca:
     if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
-    mapa_ordem = {"SJR (Prest🚀": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "T🚀": (df_filtrado.columns[0], True)}
+    mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
     col_ordenar, ascendente = mapa_ordem[criterio_ordem]
     if col_ordenar in df_filtrado.columns: 
         df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
-    # METRICAS DIN├éMICAS COM SEGURAN├çA DE TIPO
-    col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    with col_m1: 
-        st.metric(t['m_selecionadas'], f"{len(df_filtrado):,}".replace(",", "."))
-    with col_m2: 
-        h_index_numerico = pd.to_numeric(df_filtrado["H index"], errors='coerce')
-        max_h = int(h_index_numerico.max()) if pd.notna(h_index_numerico.max()) else 0
-        st.metric(t['m_hindex'], max_h)
-    with col_m3: 
-        jif_numerico = pd.to_numeric(df_filtrado['JIF'], errors='coerce')
-        max_jif = f"{jif_numerico.max():.2f}" if pd.notna(jif_numerico.max()) else "0.00"
-        st.metric(t['m_jif'], max_jif)
-    with col_m4: 
-        sjr_numerico = pd.to_numeric(df_filtrado['SJR'], errors='coerce')
-        max_sjr = f"{sjr_numerico.max():.3f}" if pd.notna(sjr_numerico.max()) else "0.000"
-        st.metric(t['m_sjr'], max_sjr)
+
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # EXIBI├ç├âO E PAGINA├ç├âO
+    # EXIBIÇÃO E PAGINAÇÃO
     st.markdown(t['cat_tit'])
     total_itens = len(df_filtrado)
     if total_itens > 0:
@@ -2174,32 +2298,32 @@ with tab_busca:
         fim = inicio + itens_por_pagina
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
-        # Remove as colunas de ├írea para simplificar a exibi├º├úo na tabela e evitar crashes de mapeamento do PyArrow
-        df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Sub🚀"], errors="ignore")
+        # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
+        df_exibir = df_da_pagina.drop(columns=["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
         
-        # Limpa o index para evitar falhas de segmenta├º├úo em ├¡ndices n├úo cont├¡guos (bug do PyArrow p├│s-filtragem)
+        # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
         
-        # Formata links com fragmentos hash para permitir exibi🚀"-" nas c├®lulas vazias)
+        # Formata links com fragmentos hash para permitir exibição seletiva (e traço "-" nas células vazias)
         if "Homepage" in df_exibir.columns:
             def format_homepage(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
-                    return val_str + "#­ƒöù Ver site"
+                    return val_str + "#🔗 Ver site"
                 return "-"
             df_exibir["Homepage"] = df_exibir["Homepage"].apply(format_homepage)
-        if "🚀" in df_exibir.columns:
+        if "Índice h5" in df_exibir.columns:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
-                    return val_str + "#­ƒöù Abrir"
+                    return val_str + "#🎯 Acessar h5"
                 return "-"
-            df_exibir["🚀"] = df_exibir["🚀"].apply(format_h5)
+            df_exibir["Índice h5"] = df_exibir["Índice h5"].apply(format_h5)
         
-        # Reconstru├º├úo ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
+        # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
         
-        # EXIBI├ç├âO DA HOMEPAGE NA TABELA COM LINK CLIC├üVEL
+        # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLIC VEL
         st.dataframe(
             df_exibir, 
             hide_index=True,
@@ -2224,9 +2348,9 @@ with tab_busca:
                 "H index": st.column_config.Column(
                     alignment="center"
                 ),
-                "🚀": st.column_config.LinkColumn(
+                "Índice h5": st.column_config.LinkColumn(
                     t['col_h5'],
-                    help="Clique para abrir o 🚀",
+                    help="Clique para abrir o índice h5 no Google Scholar",
                     display_text=r"#(.+)$",
                     alignment="center"
                 )
@@ -2241,7 +2365,7 @@ with tab_busca:
 
 # ==================== ABA 2: RECOMENDADOR POR IA (GEMINI 1.5 FLASH) ====================
 with tab_ia:
-    # Fun├º├úo auxiliar local para traduzir as Grandes ├üreas
+    # Função auxiliar local para traduzir as Grandes Áreas
     def traduzir_grande_area(area_original, t_dict):
         if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
             return "-"
@@ -2261,7 +2385,7 @@ with tab_ia:
                 return valor_traduzido
         return str(area_original).strip()
 
-    # Inicializa├º├úo segura dos estados na Session State
+    # Inicialização segura dos estados na Session State
     if "recomendacoes" not in st.session_state:
         st.session_state.recomendacoes = None
     if "erro_ia" not in st.session_state:
@@ -2271,7 +2395,7 @@ with tab_ia:
     if "modo_local" not in st.session_state:
         st.session_state.modo_local = False
     if "ia_cache" not in st.session_state:
-        # Cache de resultados: chave = hash(titulo+resumo+num_rec+area+indexador), valor = lista de recomenda├º├Áes
+        # Cache de resultados: chave = hash(titulo+resumo+num_rec+area+indexador), valor = lista de recomendações
         st.session_state.ia_cache = {}
     
     col_input, col_meta = st.columns([2, 1])
@@ -2281,17 +2405,17 @@ with tab_ia:
         st.markdown(f"*{t['ia_subtitulo']}*")
         st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
         
-        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: An🚀", key="ia_tit_input")
+        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: Análise Epidemiológica de Saúde Coletiva...", key="ia_tit_input")
         resumo_artigo = st.text_area(t['ia_campo_resumo'], placeholder="Paste or type abstract here...", height=250, key="ia_res_input")
         
-        # Bot├úo posicionado logo abaixo do resumo
+        # Botão posicionado logo abaixo do resumo
         disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
         
     with col_meta:
         # Credencial e Chave de API inseridas diretamente na aba de controle da IA
         st.markdown(f"#### {t['ia_credencial_tit']}")
         
-        # L├¬ chave do segredo do Streamlit Cloud se existir
+        # Lê chave do segredo do Streamlit Cloud se existir
         chave_secrets = ""
         try:
             if hasattr(st, "secrets") and st.secrets is not None:
@@ -2300,8 +2424,8 @@ with tab_ia:
             pass
             
         if chave_secrets:
-            placeholder_input = "­ƒöæ Chave global ativa (opcional pessoal)"
-            help_input = "Uma chave global j🚀"
+            placeholder_input = "🔑 Chave global ativa (opcional pessoal)"
+            help_input = "Uma chave global já está configurada pelo proprietário do app. Se desejar usar sua própria chave pessoal, digite-a aqui."
         else:
             placeholder_input = ""
             help_input = t['ia_chave_ajuda']
@@ -2313,18 +2437,18 @@ with tab_ia:
             help=help_input
         )
         
-        # Define a chave ativa final (prioriza input do usu├írio)
+        # Define a chave ativa final (prioriza input do usuário)
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_secrets.strip() if chave_secrets else "")
         
-        # Guia amig├ível para obter chave gratuita (expander recolhido por padr├úo)
+        # Guia amigável para obter chave gratuita (expander recolhido por padrão)
         if not api_key_ativa:
             with st.expander(t['ia_como_obter_titulo'], expanded=False):
                 st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
         
-        st.markdown(f"#### {t['ia_refinar_alvos']}")
+        st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
-        # Mapeia as grandes ├íreas originais para suas vers├Áes traduzidas
-        grandes_areas_originais = sorted(list(df_original["Grande Area"].dropna().unique()))
+        # Mapeia as grandes áreas originais para suas versões traduzidas
+        grandes_areas_originais = sorted(list(df_original["Grande Área"].dropna().unique()))
         area_ia_opcoes = {t['todas']: "Todas"}
         for area in grandes_areas_originais:
             area_traduzida = traduzir_grande_area(area, t)
@@ -2335,7 +2459,7 @@ with tab_ia:
         
         indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + list(df_original["Indexador"].dropna().unique()))
         
-        # Slider din├ómico integrado para selecionar entre 3 e 20 recomenda├º├Áes
+        # Slider dinâmico integrado para selecionar entre 3 e 20 recomendações
         num_recomendacoes = st.slider(
             t['ia_num_rec'], 
             min_value=3, 
@@ -2346,17 +2470,17 @@ with tab_ia:
         
     if disparar_busca:
         if not api_key_ativa:
-            st.error("ÔÜá´©Å Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
+            st.error("    Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
-            st.warning("ÔÜá´©Å Preencha o T🚀")
+            st.warning("    Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
         else:
-            # Gera chave de cache baseada nos par├ómetros da busca (sem depender da chave API)
+            # Gera chave de cache baseada nos parâmetros da busca (sem depender da chave API)
             cache_key = hashlib.md5(
                 f"{titulo_artigo.strip().lower()}|{resumo_artigo.strip().lower()}|{num_recomendacoes}|{area_ia}|{indexador_ia}".encode("utf-8")
             ).hexdigest()
             
             if cache_key in st.session_state.ia_cache:
-                # Resultado em cache ÔÇö reutiliza sem chamar a API
+                # Resultado em cache — reutiliza sem chamar a API
                 st.session_state.recomendacoes = st.session_state.ia_cache[cache_key]
                 st.session_state.erro_ia = None
                 st.session_state.aviso_filtro = False
@@ -2369,50 +2493,50 @@ with tab_ia:
                 st.session_state.modo_local = False
                 
                 # Utiliza um placeholder simples do Streamlit (st.empty) para o indicador de progresso,
-                # evitando qualquer conflito de anima├º├úo de Spinner no DOM virtual do React.
+                # evitando qualquer conflito de animação de Spinner no DOM virtual do React.
                 status_container = st.empty()
-                status_container.info(f"ÔÅ│ {t['ia_analisando']}")
+                status_container.info(f"  {t['ia_analisando']}")
                 
                 df_candidatos = df_original.copy()
                 if area_ia != "Todas":
-                    df_candidatos = df_candidatos[df_candidatos["Grande Area"] == area_ia]
+                    df_candidatos = df_candidatos[df_candidatos["Grande Área"] == area_ia]
                 if indexador_ia != "Todos":
                     df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
                 
-                # Valida├º├úo caso a base filtrada esteja vazia
+                # Validação caso a base filtrada esteja vazia
                 if df_candidatos.empty:
                     st.session_state.aviso_filtro = True
                 else:
-                    # Seleciona candidatos baseados em relev├óncia de palavras-chave do t├¡tulo e resumo
+                    # Seleciona candidatos baseados em relevância de palavras-chave do título e resumo
                     texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                    # Extrai termos do t├¡tulo/resumo para busca
-                    palavras = set(re.findall(r'\b[a-zA-Z├í-├║├ü-├Ü]{4,}\b', texto_busca))
+                    # Extrai termos do título/resumo para busca
+                    palavras = set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca))
                     # Remove stopwords comuns
                     stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
                     palavras_filtradas = palavras - stopwords
                     
-                    # Grupos de sin├┤nimos acad├¬micos em 3 idiomas (Portugu├¬s, Ingl├¬s e Espanhol) para busca bidirecional completa
+                    # Grupos de sinônimos acadêmicos em 3 idiomas (Português, Inglês e Espanhol) para busca bidirecional completa
                     sinonimos_academicos = [
-                        {"educa🚀", "education", "educaci🚀", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
-                        {"computa🚀", "computing", "computador", "computer", "tecnologia", "technology", "tecnolog🚀"},
-                        {"sa🚀", "health", "salud", "medicina", "medicine", "m🚀", "medical", "m🚀"},
-                        {"ci🚀", "science", "ciencia", "cient🚀", "scientific", "pesquisa", "research", "investigaci🚀"},
-                        {"desenvolvimento", "development", "desarrollo", "gest🚀", "management", "gesti🚀", "administra🚀", "administration", "administraci🚀"},
-                        {"economia", "economy", "econom🚀", "econ🚀", "economic", "econ🚀", "social"},
-                        {"cultura", "culture", "cultura", "hist🚀", "history", "historia", "geografia", "geography", "geograf🚀"},
-                        {"matem🚀", "mathematics", "f🚀", "physics", "fisica", "qu🚀", "chemistry", "quimica"},
-                        {"biologia", "biology", "biolog🚀", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
-                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingenier🚀", "ind🚀", "industry", "industria"},
-                        {"produ🚀", "production", "producci🚀", "sistemas", "systems", "sistemas", "informa🚀", "information", "informaci🚀"},
-                        {"comunica🚀", "communication", "comunicaci🚀", "linguagem", "language", "lenguaje", "literatura", "literature"},
-                        {"arte", "art", "m🚀", "music", "musica", "psicologia", "psychology", "psicolog🚀"},
-                        {"filosofia", "philosophy", "filosof🚀", "pol🚀", "politics", "pol🚀", "direito", "law", "derecho"},
-                        {"energia", "energy", "energ🚀", "materiais", "materials", "materiales", "agricultura", "agriculture"},
-                        {"florestal", "forestry", "forestal", "veterin🚀", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermer🚀"},
-                        {"odontologia", "dentistry", "odontolog🚀", "farm🚀", "pharmacy", "farmacia", "nutri🚀", "nutrition", "nutrici🚀"}
+                        {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                        {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
+                        {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
+                        {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
+                        {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
+                        {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
+                        {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
+                        {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
+                        {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
+                        {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
+                        {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                        {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
+                        {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
+                        {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                        {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
+                        {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
                     ]
                     
-                    # Adiciona sin├┤nimos em outros idiomas se encontrar qualquer termo correspondente
+                    # Adiciona sinônimos em outros idiomas se encontrar qualquer termo correspondente
                     novas_palavras = set()
                     for pal in palavras_filtradas:
                         for grupo in sinonimos_academicos:
@@ -2425,9 +2549,9 @@ with tab_ia:
                         def calcular_relevancia(row):
                             score = 0
                             nome = str(row.iloc[0]).lower()
-                            grande_area = str(row.get("Grande Area", "")).lower()
+                            grande_area = str(row.get("Grande Área", "")).lower()
                             area = str(row.get("Area do Conhecimento", "")).lower()
-                            subarea = str(row.get("Sub🚀", "")).lower()
+                            subarea = str(row.get("Subárea do Conhecimento", "")).lower()
                             
                             for pal in palavras_filtradas:
                                 if pal in nome:
@@ -2441,46 +2565,46 @@ with tab_ia:
                             return score
                         
                         df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
-                        # Ordena pelas mais relevantes tematicamente e depois pelo prest├¡gio (SJR)
+                        # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
                         df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
                     else:
                         df_candidatos["relevancia"] = 0
                         df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
                     
-                    # Seleciona at├® 40 candidatos mais relevantes ÔÇö reduz consumo de tokens da API
+                    # Seleciona até 40 candidatos mais relevantes — reduz consumo de tokens da API
                     if len(df_candidatos) > 40:
                         df_candidatos = df_candidatos.head(40)
                     
-                    # Payload enxuto: somente os campos essenciais para a IA tomar a decis├úo
+                    # Payload enxuto: somente os campos essenciais para a IA tomar a decisão
                     cols_envio = [df_original.columns[0]]
-                    for col in ["Grande Area", "Area do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
+                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
                         if col in df_candidatos.columns:
                             cols_envio.append(col)
                     lista_periodicos_envio = df_candidatos[cols_envio].to_dict(orient="records")
                     
-                    # Prompt estruturado para for├ºar o retorno estrito de um array JSON
+                    # Prompt estruturado para forçar o retorno estrito de um array JSON
                     prompt_ia = f"""
-                    Atue como especialista em publica├º├úo acad├¬mica de alto impacto. O pesquisador submeteu o seguinte artigo cient├¡fico:
-                    T├ìTULO DO ARTIGO: {titulo_artigo}
+                    Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
+                    T TULO DO ARTIGO: {titulo_artigo}
                     RESUMO DO ARTIGO: {resumo_artigo}
 
-                    Com base estritamente na lista de peri├│dicos abaixo estruturada em JSON, selecione at├® {num_recomendacoes} (dentre as dispon├¡veis) revistas cient├¡ficas que apresentem a maior ader├¬ncia tem├ítica, metodol├│gica e de escopo.
+                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
 
-                    IMPORTANTES DIRETRIZES DE SELE├ç├âO (ORDEM DE PRIORIDADE):
-                    1. PRIORIDADE M├üXIMA (Grau de Ader├¬ncia): O crit├®rio principal de escolha deve ser a ader├¬ncia tem├ítica, metodol├│gica e de escopo do artigo ao peri├│dico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
-                    2. SEGUNDA PRIORIDADE (Qualidade e Prest├¡gio): Dentre os peri├│dicos com alta ader├¬ncia e compatibilidade tem├ítica, priorize aqueles com maior prest├¡gio acad├¬mico e qualidade cient├¡fica (indicados por quartis JCR e ├¡ndice SJR elevados).
-                    3. N├úo limite as recomenda├º├Áes ao idioma do t├¡tulo/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
-                       - Se o artigo estiver em PORTUGU├èS: Recomende as melhores op├º├Áes de revistas brasileiras (em portugu├¬s) e tamb├®m as melhores revistas internacionais (em ingl├¬s ou espanhol) que cubram o tema.
-                       - Se o artigo estiver em INGL├èS: Traga os principais peri├│dicos internacionais (em ingl├¬s ou espanhol) e tamb├®m inclua as revistas brasileiras de alto padr├úo que cubram o tema.
-                       - Se o artigo estiver em ESPANHOL: Traga os principais peri├│dicos internacionais (em espanhol ou ingl├¬s) e tamb├®m inclua as revistas brasileiras de alto padr├úo que cubram o tema.
+                    IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
+                    1. PRIORIDADE M XIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
+                    2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
+                    3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
+                       - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
+                       - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                       - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
                     
-                    Lista de Peri├│dicos Candidatos:
+                    Lista de Periódicos Candidatos:
                     {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
-                    Sua resposta deve ser obrigatoriamente um array JSON v├ílido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
-                    - "revista_nome": Nome exato da revista como aparece no cat├ílogo enviado
-                    - "porcentagem_aderencia": Apenas um n├║mero inteiro de 0 a 100 estimando a ader├¬ncia
-                    - "justificativa": Uma justificativa de at├® 3 linhas explicando o porqu├¬ da recomenda├º├úo, escrita EXATAMENTE no mesmo idioma em que o resumo do usu├írio foi enviado.
+                    Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
+                    - "revista_nome": Nome exato da revista como aparece no catálogo enviado
+                    - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
                     """
                     
                     modelos_tentar = [
@@ -2525,19 +2649,19 @@ with tab_ia:
                                 sucesso_ia = True
                                 break
                             elif response.status_code == 429:
-                                # Cota esgotada ÔÇö ativa fallback local imediatamente sem espera
+                                # Cota esgotada — ativa fallback local imediatamente sem espera
                                 cota_esgotada = True
                                 break
                             else:
                                 ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
                         except Exception as ex:
-                            ultimo_erro_msg = f"Modelo {modelo} falhou com exce🚀"
+                            ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
                         
                         if cota_esgotada:
                             break
                     
                     if not sucesso_ia:
-                        # FALLBACK LOCAL AUTOM├üTICO: gera recomenda├º├Áes diretamente pelo algoritmo de pontua├º├úo
+                        # FALLBACK LOCAL AUTOM TICO: gera recomendações diretamente pelo algoritmo de pontuação
                         texto_detect = f"{titulo_artigo} {resumo_artigo}".lower()
                         pt_stops = {"o", "a", "e", "de", "do", "da", "em", "para", "um", "uma", "com", "por", "os", "as"}
                         en_stops = {"the", "and", "of", "in", "to", "a", "is", "that", "for", "it", "with", "on", "as"}
@@ -2549,28 +2673,28 @@ with tab_ia:
                         top_n = df_candidatos.head(num_recomendacoes)
                         recomendacoes_locais = []
                         
-                        # Obt├®m a pontua├º├úo m├íxima de relev├óncia para normaliza├º├úo
+                        # Obtém a pontuação máxima de relevância para normalização
                         max_rel = float(df_candidatos["relevancia"].max()) if "relevancia" in df_candidatos.columns else 0.0
                         
                         for idx, (_, row) in enumerate(top_n.iterrows()):
                             nome_rev = str(row[col_titulo])
-                            area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
-                            subarea_rev = str(row.get("Sub🚀", ""))
-                            gr_area_rev = str(row.get("Grande Area", ""))
+                            area_rev = str(row.get("Area do Conhecimento", row.get("Grande Área", "-")))
+                            subarea_rev = str(row.get("Subárea do Conhecimento", ""))
+                            gr_area_rev = str(row.get("Grande Área", ""))
                             indexador_rev = str(row.get("Indexador", "-"))
                             sjr_rev = row.get("SJR", None)
                             quartil_rev = str(row.get("Quartil JCR", "-"))
                             rel_score = float(row.get("relevancia", 0.0))
                             
-                            # Determina a porcentagem de ader├¬ncia de forma realista e decrescente por rank
+                            # Determina a porcentagem de aderência de forma realista e decrescente por rank
                             if max_rel > 0:
-                                # Mapeia proporcionalmente ao score de relev├óncia, variando de 82% a 96%
+                                # Mapeia proporcionalmente ao score de relevância, variando de 82% a 96%
                                 pct_rel = 82 + int((rel_score / max_rel) * 14)
-                                # Garante consist├¬ncia do ranking decrescente (ex: 1┬║=95%, 2┬║=92%, etc.)
+                                # Garante consistência do ranking decrescente (ex: 1º=95%, 2º=92%, etc.)
                                 pct_rank = 96 - (idx * 3)
                                 pct = min(96, max(pct_rel, pct_rank))
                             else:
-                                # Se n├úo houver matches de palavras-chave, ordena por SJR de 60% a 78%
+                                # Se não houver matches de palavras-chave, ordena por SJR de 60% a 78%
                                 pct = max(60, 78 - (idx * 4))
                             
                             # Encontra palavras-chave que de fato casaram com esta revista
@@ -2582,7 +2706,7 @@ with tab_ia:
                             
                             for p in palavras_filtradas:
                                 if p in nome_lower or p in area_lower or p in subarea_lower or p in gr_area_lower:
-                                    # Capitaliza a primeira letra do termo de busca para visualiza├º├úo premium
+                                    # Capitaliza a primeira letra do termo de busca para visualização premium
                                     matched_keywords.append(p.capitalize())
                             
                             # Justificativas inteligentes em 2 idiomas
@@ -2607,16 +2731,16 @@ with tab_ia:
                                 if detalhes:
                                     justificativa += f" The journal is {', '.join(detalhes)}."
                             else:
-                                # Portugu├¬s / Espanhol
+                                # Português / Espanhol
                                 if matched_keywords:
                                     kw_str = ", ".join(f"'{k}'" for k in list(matched_keywords)[:3])
-                                    justificativa = f"Apresenta forte alinhamento tem🚀"
+                                    justificativa = f"Apresenta forte alinhamento temático com conceitos-chave identificados no seu artigo, especialmente: {kw_str}."
                                 else:
-                                    justificativa = f"Recomendado com base no escopo editorial do peri🚀"
+                                    justificativa = f"Recomendado com base no escopo editorial do periódico na área de {area_rev}."
                                 
                                 detalhes = []
                                 if quartil_rev and quartil_rev not in ["-", "None", "nan"]:
-                                    detalhes.append(f"classifica🚀")
+                                    detalhes.append(f"classificação {quartil_rev}")
                                 if sjr_rev and str(sjr_rev) not in ["-", "None", "nan"]:
                                     try:
                                         detalhes.append(f"SJR de {float(sjr_rev):.3f}")
@@ -2626,7 +2750,7 @@ with tab_ia:
                                     detalhes.append(f"indexado em {indexador_rev}")
                                     
                                 if detalhes:
-                                    justificativa += f" O peri🚀"
+                                    justificativa += f" O periódico possui {', '.join(detalhes)}."
                             
                             recomendacoes_locais.append({
                                 "revista_nome": nome_rev,
@@ -2636,29 +2760,29 @@ with tab_ia:
                         
                         st.session_state.recomendacoes = recomendacoes_locais
                         st.session_state.ia_cache[cache_key] = recomendacoes_locais
-                        # Sinaliza que foi modo local para exibir aviso amig├ível
+                        # Sinaliza que foi modo local para exibir aviso amigável
                         st.session_state.modo_local = True
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
             
-            # Recarrega a p├ígina de forma limpa para exibir os resultados fora do fluxo do bot├úo
+            # Recarrega a página de forma limpa para exibir os resultados fora do fluxo do botão
             st.rerun()
 
-    # RENDERIZA├ç├âO EST├üVEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
+    # RENDERIZAÇÃO EST VEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
     if st.session_state.get("aviso_filtro"):
-        st.warning("ÔÜá´©Å Nenhum peri🚀")
+        st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
         erro_msg = st.session_state.erro_ia
-        if erro_msg.startswith("ÔÅ│"):
-            # Erro de cota ÔÇö exibe aviso amig├ível sem detalhes t├®cnicos
+        if erro_msg.startswith("➔"):
+            # Erro de cota — exibe aviso amigável sem detalhes técnicos
             st.warning(erro_msg)
         else:
             st.error(t['ia_erro'])
-            st.caption(f"Detalhes t🚀")
+            st.caption(f"Detalhes técnicos do erro: {erro_msg}")
     elif st.session_state.get("recomendacoes") is not None:
         if st.session_state.get("modo_local"):
-            st.info("Ôä╣´©Å Resultado gerado pelo algoritmo local de relev🚀")
+            st.info("ℹ  Resultado gerado pelo algoritmo local de relevância (a API do Gemini atingiu o limite de cota). A qualidade das recomendações é excelente — baseada em correspondência temática e métricas SJR/JCR.")
         st.success(t['ia_sucesso'])
         
         for rec in st.session_state.recomendacoes:
@@ -2682,18 +2806,18 @@ with tab_ia:
                 except Exception:
                     issn, indexador, quartil, sjr, homepage = "-", "-", "-", "-", ""
             
-                # 2. Renderiza├º├úo de card para cada recomenda├º├úo (at├® 10 din├ómicas)
+                # 2. Renderização de card para cada recomendação (até 10 dinâmicas)
                 with st.container(border=True):
                     col_info, col_link = st.columns([3, 1])
                     
                     with col_info:
                         st.markdown(f"### {rec['revista_nome']}")
                         st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
-                        st.markdown(f"­ƒÄ» **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-                        st.markdown(f"­ƒÆí **{t['ia_card_motivo']}** {rec['justificativa']}")
+                        st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                        st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
                         
                         # SE HOUVER UM st.dataframe() ESCONDIDO AQUI PARA MOSTRAR OS DADOS COMPLETOS:
-                        # Envolva-o SEMPRE em um validador de tamanho para n├úo quebrar o Arrow
+                        # Envolva-o SEMPRE em um validador de tamanho para não quebrar o Arrow
                         if len(registro_revista) > 0:
                             st.dataframe(registro_revista, hide_index=True, **kwargs_largura)
                     
@@ -2703,22 +2827,26 @@ with tab_ia:
                             st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
                         else:
                             st.info(t['ia_card_sem_site'])
+                        
+                        h5_link = str(registro_revista.iloc[0].get("Índice h5", "")) if "Índice h5" in registro_revista.columns else ""
+                        if h5_link and h5_link not in ["nan", "-", "None", ""]:
+                            st.link_button("🎯 Índice h5", h5_link, type="secondary", **kwargs_largura)
             else:
-                # Caso a IA recomende um nome de revista que sofreu uma varia├º├úo de string e n├úo casou no CSV
+                # Caso a IA recomende um nome de revista que sofreu uma variação de string e não casou no CSV
                 with st.container(border=True):
                     st.markdown(f"### {rec['revista_nome']}")
-                    st.caption("ÔÜá´©Å *Peri🚀")
-                    st.markdown(f"­ƒÄ» **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-                    st.markdown(f"­ƒÆí **{t['ia_card_motivo']}** {rec['justificativa']}")
+                    st.caption("    *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
+                    st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                    st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
 
-# ==================== ABA 3: ESTAT├ìSTICAS DE ACESSOS (S├ô PARA ADMIN) ====================
+# ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     with tab_admin:
-        st.subheader("­ƒôè Estat🚀")
+        st.subheader("📊 Estatísticas de Acessos dos Usuários")
         
-        # Fun├º├úo para carregar dados dos usu├írios
+        # Função para carregar dados dos usuários
         usuarios_list = []
-        # 1. Tenta carregar do Firebase se dispon├¡vel
+        # 1. Tenta carregar do Firebase se disponível
         if db is not None:
             try:
                 docs = db.collection("usuarios").stream()
@@ -2728,17 +2856,17 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
                     usuarios_list.append({
                         "Nome": d.get("nome", "-"),
                         "Email": d.get("email", "-"),
-                        "Pa🚀": d.get("pais", "-"),
+                        "País": d.get("pais", "-"),
                         "Telefone": d.get("telefone", "-"),
                         "Escolaridade": d.get("escolaridade", "-"),
-                        "Institui🚀": d.get("instituicao", "-"),
+                        "Instituição": d.get("instituicao", "-"),
                         "Acessos (Logins)": d.get("acessos", 1),
-                        "🚀": ultimo.strftime("%Y-%m-%d %H:%M:%S") if ultimo and hasattr(ultimo, 'strftime') else str(ultimo)
+                        "Último Acesso": ultimo.strftime("%Y-%m-%d %H:%M:%S") if ultimo and hasattr(ultimo, 'strftime') else str(ultimo)
                     })
             except Exception:
                 pass
                 
-        # 2. Se a lista estiver vazia (ou Firebase falhou/n├úo configurado), carrega do usuarios.csv local
+        # 2. Se a lista estiver vazia (ou Firebase falhou/não configurado), carrega do usuarios.csv local
         if not usuarios_list:
             caminho_csv = "usuarios.csv"
             if os.path.exists(caminho_csv):
@@ -2749,19 +2877,19 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
                         usuarios_list.append({
                             "Nome": row.get("Nome", "-"),
                             "Email": row.get("Email", "-"),
-                            "Pa🚀": row.get("Pa🚀", "-"),
+                            "País": row.get("País", "-"),
                             "Telefone": row.get("Telefone", "-"),
                             "Escolaridade": row.get("Escolaridade", "-"),
-                            "Institui🚀": row.get("Institui🚀", "-"),
+                            "Instituição": row.get("Instituição", "-"),
                             "Acessos (Logins)": int(acessos_val) if pd.notna(acessos_val) else 1,
-                            "🚀": row.get("Data/Hora", "-")
+                            "Último Acesso": row.get("Data/Hora", "-")
                         })
                 except Exception:
                     pass
                     
         df_stats = pd.DataFrame(usuarios_list)
         if not df_stats.empty:
-            # Ordena pelo maior n├║mero de acessos
+            # Ordena pelo maior número de acessos
             df_stats = df_stats.sort_values(by="Acessos (Logins)", ascending=False).reset_index(drop=True)
             
             # Exibe em uma tabela interativa do Streamlit
@@ -2777,12 +2905,11 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
             # Permite download em CSV
             csv_data = df_stats.to_csv(index=False, sep=";").encode('utf-8-sig')
             st.download_button(
-                label="­ƒôÑ Baixar Planilha de Acessos (CSV)",
+                label="📥 Baixar Planilha de Acessos (CSV)",
                 data=csv_data,
                 file_name="estatisticas_acessos.csv",
                 mime="text/csv",
                 key="admin_download_stats_btn"
             )
         else:
-            st.info("Nenhum usu🚀")
-
+            st.info("Nenhum usuário cadastrado encontrado na base.")
