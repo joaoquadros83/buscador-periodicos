@@ -3,35 +3,6 @@ faulthandler.enable()
 
 import streamlit as st
 
-import streamlit.components.v1 as components
-
-def inject_bmc_widget():
-    components.html(
-        '''
-        <script>
-            // Avoid duplicate injections on reruns
-            if (!window.parent.document.getElementById('bmc-wgt-script')) {
-                var script = window.parent.document.createElement('script');
-                script.id = 'bmc-wgt-script';
-                script.setAttribute('data-name', 'BMC-Widget');
-                script.setAttribute('data-cfasync', 'false');
-                script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-                script.setAttribute('data-id', 'scipubs');
-                script.setAttribute('data-description', 'Support me on Buy me a coffee!');
-                script.setAttribute('data-message', 'Thank you for help this idea!');
-                script.setAttribute('data-color', '#FF813F');
-                script.setAttribute('data-position', 'Right');
-                script.setAttribute('data-x_margin', '18');
-                script.setAttribute('data-y_margin', '18');
-                window.parent.document.head.appendChild(script);
-            }
-        </script>
-        ''',
-        height=0,
-        width=0,
-    )
-
-inject_bmc_widget()
 
 
 def get_texto_termos(lang):
@@ -298,35 +269,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import streamlit as st
 
-import streamlit.components.v1 as components
-
-def inject_bmc_widget():
-    components.html(
-        '''
-        <script>
-            // Avoid duplicate injections on reruns
-            if (!window.parent.document.getElementById('bmc-wgt-script')) {
-                var script = window.parent.document.createElement('script');
-                script.id = 'bmc-wgt-script';
-                script.setAttribute('data-name', 'BMC-Widget');
-                script.setAttribute('data-cfasync', 'false');
-                script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
-                script.setAttribute('data-id', 'scipubs');
-                script.setAttribute('data-description', 'Support me on Buy me a coffee!');
-                script.setAttribute('data-message', 'Thank you for help this idea!');
-                script.setAttribute('data-color', '#FF813F');
-                script.setAttribute('data-position', 'Right');
-                script.setAttribute('data-x_margin', '18');
-                script.setAttribute('data-y_margin', '18');
-                window.parent.document.head.appendChild(script);
-            }
-        </script>
-        ''',
-        height=0,
-        width=0,
-    )
-
-inject_bmc_widget()
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -2060,8 +2002,7 @@ if not st.session_state.registrado:
             lbl_cb2 = "Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)" if st.session_state.get('idioma', 'Português') == 'Português' else ("I agree to participate in future research and give my consent for the use of my data for academic and scientific purposes (Optional)" if st.session_state.get('idioma', 'Português') == 'English' else "Acepto participar en futuras investigaciones y doy mi consentimiento para el uso de mis datos con fines académicos y científicos (Opcional)")
             aceitou_pesquisa = st.checkbox(lbl_cb2)
             lbl_doacao = "❤️ Desejo apoiar o SciPubs (Doação)" if st.session_state.get('idioma', 'Português') == 'Português' else ("❤️ I want to support SciPubs (Donation)" if st.session_state.get('idioma', 'Português') == 'English' else "❤️ Deseo apoyar SciPubs (Donación)")
-            if st.button(lbl_doacao, type="secondary", use_container_width=True):
-                modal_doacao()
+            st.link_button(lbl_doacao, "https://buymeacoffee.com/scipubs", type="secondary", use_container_width=True)
             
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
