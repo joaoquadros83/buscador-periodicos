@@ -435,7 +435,7 @@ st.session_state.idioma = st.sidebar.selectbox(
 
 # --- BOTÃO DE CONTATO (GLOBAL) ---
 _lang = st.session_state.get('idioma', 'Português')
-_btn_contato_text = "✉️ Contato"
+_btn_contato_text = "✉️ Fale conosco"
 if _lang == 'English':
     _btn_contato_text = "✉️ Contact Us"
 elif _lang == 'Español':
