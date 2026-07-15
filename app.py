@@ -683,6 +683,9 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "reg_titulo_form": "  Create Academic Account",
         "reg_nome_sobrenome": "First and Last Name:",
         "reg_pais": "Country:",
+	"reg_idade": "Date of Birth",
+	"reg_sexo": "Sex",
+        "reg_raca": "Race/Ethnicity",
         "reg_telefone": "Phone:",
         "reg_senha": "Password:",
         "reg_confirmar_senha": "Confirm Password:",
@@ -1643,7 +1646,7 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
         "País": pais,
         "Escolaridade": escolaridade,
         "Instituição": instituicao,
-        "Idade": idade,
+        "Data de Nascimento": idade,
         "Sexo": sexo,
         "Raça/Etnia": raca,
         "Senha_Hash": hash_senha(senha),
@@ -1961,7 +1964,15 @@ if not st.session_state.registrado:
                 nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
                 email_cad = st.text_input(t['reg_email'], placeholder="")
                 pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "Não informar"])
+                lbl_sexo = "Sexo (Opcional):"
+            opcoes_sexo = ["", "Masculino", "Feminino", "Não informar"]
+            if st.session_state.get('idioma', 'Português') == 'English':
+                lbl_sexo = "Gender (Optional):"
+                opcoes_sexo = ["", "Male", "Female", "Prefer not to say"]
+            elif st.session_state.get('idioma', 'Português') == 'Español':
+                lbl_sexo = "Sexo (Opcional):"
+                opcoes_sexo = ["", "Masculino", "Femenino", "Prefiero no decirlo"]
+            sexo_cad = st.selectbox(lbl_sexo, opcoes_sexo)
                 
             with col_reg_2:
                 # Titulação
@@ -1978,8 +1989,22 @@ if not st.session_state.registrado:
                 # Vínculo Institucional
                 instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
                     
-                idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
-                raca_cad = st.selectbox("Raça/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Indígena", "Outra"])
+                lbl_nascimento = "Data de Nascimento (Opcional):"
+            if st.session_state.get('idioma', 'Português') == 'English':
+                lbl_nascimento = "Date of Birth (Optional):"
+            elif st.session_state.get('idioma', 'Português') == 'Español':
+                lbl_nascimento = "Fecha de Nacimiento (Opcional):"
+            import datetime
+            idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today())
+            lbl_raca = "Raça/Etnia (Opcional):"
+            opcoes_raca = ["", "Branca", "Parda", "Preta", "Indígena", "Outra"]
+            if st.session_state.get('idioma', 'Português') == 'English':
+                lbl_raca = "Race/Ethnicity (Optional):"
+                opcoes_raca = ["", "White", "Mixed-race", "Black", "Indigenous", "Other"]
+            elif st.session_state.get('idioma', 'Português') == 'Español':
+                lbl_raca = "Raza/Etnia (Opcional):"
+                opcoes_raca = ["", "Blanca", "Mestiza", "Negra", "Indígena", "Otra"]
+            raca_cad = st.selectbox(lbl_raca, opcoes_raca)
     
             # Senha e confirmação de senha
             st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
@@ -2024,7 +2049,7 @@ if not st.session_state.registrado:
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
             else:
-                idade_final = idade_cad if idade_cad > 0 else ""
+                idade_final = idade_cad.strftime('%d/%m/%Y') if idade_cad else ""
                 
                 # Grava no CSV
                 token_confirmacao = gerar_token()
