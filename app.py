@@ -1183,7 +1183,7 @@ if st.session_state.registrado:
     elif lang == 'Español':
         btn_sair_text = "🚪 Salir"
         btn_sair_help = "Cerrar sesión"
-        btn_conf_text = "⚙ Configuración"
+        btn_conf_text = "⚙ Config."
         btn_conf_help = "Configuración"
 
     # Colunas para exibir botões de Sair e Configurações lado a lado
