@@ -433,6 +433,38 @@ st.session_state.idioma = st.sidebar.selectbox(
     ["Português", "English", "Español"]
 )
 
+# --- BOTÃO DE CONTATO (GLOBAL) ---
+_lang = st.session_state.get('idioma', 'Português')
+_btn_contato_text = "✉️ Contato"
+if _lang == 'English':
+    _btn_contato_text = "✉️ Contact Us"
+elif _lang == 'Español':
+    _btn_contato_text = "✉️ Contáctenos"
+
+st.sidebar.markdown(
+    f"""
+    <a href="mailto:support@scipubs.com" style="text-decoration: none;">
+        <button style="
+            width: 100%;
+            background-color: #FF2B2B;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 15px;
+        " onmouseover="this.style.backgroundColor='#cc2222'" onmouseout="this.style.backgroundColor='#FF2B2B'">
+            {_btn_contato_text}
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
+
+
 dic = {
     "Português": {
         "titulo": "O Portal do Pesquisador",
@@ -1209,18 +1241,6 @@ if st.session_state.registrado:
         if st.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
             st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
             st.rerun()
-    # Botão de Contato
-    btn_contato_text = "✉️ Contato"
-    btn_contato_help = "Fale conosco"
-    if lang == 'English':
-        btn_contato_text = "✉️ Contact Us"
-        btn_contato_help = "Get in touch"
-    elif lang == 'Español':
-        btn_contato_text = "✉️ Contáctenos"
-        btn_contato_help = "Hable con nosotros"
-
-    st.sidebar.markdown(f'<a href="mailto:support@scipubs.com" style="text-decoration: none;"><button style="width: 100%; border-radius: 8px; border: 1px solid #D1D5DB; background-color: transparent; color: #0F172A; padding: 6px 12px; font-size: 14px; margin-top: 5px; cursor: pointer;" title="{btn_contato_help}">{btn_contato_text}</button></a>', unsafe_allow_html=True)
-
 
 st.sidebar.markdown(f"""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
