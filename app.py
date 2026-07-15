@@ -3,6 +3,37 @@ faulthandler.enable()
 
 import streamlit as st
 
+import streamlit.components.v1 as components
+
+def inject_bmc_widget():
+    components.html(
+        '''
+        <script>
+            // Avoid duplicate injections on reruns
+            if (!window.parent.document.getElementById('bmc-wgt-script')) {
+                var script = window.parent.document.createElement('script');
+                script.id = 'bmc-wgt-script';
+                script.setAttribute('data-name', 'BMC-Widget');
+                script.setAttribute('data-cfasync', 'false');
+                script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
+                script.setAttribute('data-id', 'scipubs');
+                script.setAttribute('data-description', 'Support me on Buy me a coffee!');
+                script.setAttribute('data-message', 'Thank you for help this idea!');
+                script.setAttribute('data-color', '#FF813F');
+                script.setAttribute('data-position', 'Right');
+                script.setAttribute('data-x_margin', '18');
+                script.setAttribute('data-y_margin', '18');
+                window.parent.document.head.appendChild(script);
+            }
+        </script>
+        ''',
+        height=0,
+        width=0,
+    )
+
+inject_bmc_widget()
+
+
 def get_texto_termos(lang):
     if lang == 'English':
         return '''### SciPubs Terms of Use and Privacy Policy
@@ -266,6 +297,37 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import streamlit as st
+
+import streamlit.components.v1 as components
+
+def inject_bmc_widget():
+    components.html(
+        '''
+        <script>
+            // Avoid duplicate injections on reruns
+            if (!window.parent.document.getElementById('bmc-wgt-script')) {
+                var script = window.parent.document.createElement('script');
+                script.id = 'bmc-wgt-script';
+                script.setAttribute('data-name', 'BMC-Widget');
+                script.setAttribute('data-cfasync', 'false');
+                script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js';
+                script.setAttribute('data-id', 'scipubs');
+                script.setAttribute('data-description', 'Support me on Buy me a coffee!');
+                script.setAttribute('data-message', 'Thank you for help this idea!');
+                script.setAttribute('data-color', '#FF813F');
+                script.setAttribute('data-position', 'Right');
+                script.setAttribute('data-x_margin', '18');
+                script.setAttribute('data-y_margin', '18');
+                window.parent.document.head.appendChild(script);
+            }
+        </script>
+        ''',
+        height=0,
+        width=0,
+    )
+
+inject_bmc_widget()
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 
