@@ -57,7 +57,7 @@ def salvar_historico_usuario(usuario_id, termo_busca):
         "ultimo_acesso": firestore.SERVER_TIMESTAMP
     }, merge=True) # merge=True impede que outros campos sejam apagados ao atualizar
     
-    st.success(f"Busca por '{termo_busca}' salva no hist├│rico!")
+    st.success(f"Busca por '{termo_busca}' salva no hist🚀")
 
 # 3. Ler dados do usu├írio
 def obter_dados_usuario(usuario_id):
@@ -165,75 +165,75 @@ if st.session_state.get("dark_mode", False):
 
 # --- 2. SISTEMA DE TRADU├ç├âO MULTIL├ìNGUE ---
 if 'idioma' not in st.session_state:
-    st.session_state.idioma = "Portugu├¬s"
+    st.session_state.idioma = "Portugu🚀"
 
 # Seletor de idioma fixado na barra lateral
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
     "­ƒîÉ Language / Idioma:",
-    ["Portugu├¬s", "English", "Espa├▒ol"]
+    ["Portugu🚀", "English", "Espa🚀"]
 )
 
 dic = {
-    "Portugu├¬s": {
+    "Portugu🚀": {
         "titulo": "Portal do Pesquisador",
-        "subtitulo": "Ci├¬ncia de dados aplicada ├á produ├º├úo cient├¡fica de alto impacto",
-        "filtros_tit": "#### ­ƒöì Buscador de Peri├│dicos",
-        "placeholder_busca": "Digite o t├¡tulo da revista, ISSN...",
-        "buscar_reg": "Buscar registro espec├¡fico:",
-        "aba_escopo": "­ƒôé Escopo Acad├¬mico & CNPq",
-        "aba_impacto": "­ƒôê M├®tricas de Performance & Quartis",
-        "subarea_lbl": "Sub├írea do Conhecimento (CNPq):",
+        "subtitulo": "Ci🚀",
+        "filtros_tit": "#### ­ƒöì Buscador de Peri🚀",
+        "placeholder_busca": "Digite o t🚀",
+        "buscar_reg": "Buscar registro espec🚀",
+        "aba_escopo": "­ƒôé Escopo Acad🚀",
+        "aba_impacto": "­ƒôê M🚀",
+        "subarea_lbl": "Sub🚀",
         "base_lbl": "Bases Detentoras:",
         "jcr_lbl": "Quartil JCR (Clarivate):",
         "sjr_lbl": "Quartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
         "m_selecionadas": "Revistas Selecionadas",
         "m_hindex": "H-Index Topo",
-        "m_jif": "Fator JIF M├íximo",
-        "m_sjr": "SJR Score ├üpice",
-        "cat_tit": "#### ­ƒôï Cat├ílogo de Peri├│dicos",
-        "exibir_pag": "Exibir por p├ígina:",
-        "pag_lbl": "P├ígina",
-        "exportar_btn": "­ƒôÑ Exportar apenas esta p├ígina",
-        "aviso_nada": "Nenhum peri├│dico atende aos crit├®rios aplicados.",
-        "nav_tit": "Painel de Navega├º├úo",
+        "m_jif": "Fator JIF M🚀",
+        "m_sjr": "SJR Score 🚀",
+        "cat_tit": "#### ­ƒôï Cat🚀",
+        "exibir_pag": "Exibir por p🚀",
+        "pag_lbl": "P🚀",
+        "exportar_btn": "­ƒôÑ Exportar apenas esta p🚀",
+        "aviso_nada": "Nenhum peri🚀",
+        "nav_tit": "Painel de Navega🚀",
         "todas": "Todas",
-        "col_h5": "├ìndice h5 (Scholar)",
+        "col_h5": "🚀",
         "meta_tit": "METADADOS",
         "meta_sistema": "Sistema",
-        "meta_versao": "Vers├úo Base",
-        "meta_padrao": "Padr├úo CNPq",
+        "meta_versao": "Vers🚀",
+        "meta_padrao": "Padr🚀",
         "meta_status": "Operacional",
         "meta_ativo": "Ativo",
         "direitos_tit": "Direitos Autorais & Propriedade",
         "direitos_autor": "Universidade Federal Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
         "visitas_lbl": "Visitas ao Portal",
         "gov_tit": "SITES GOVERNAMENTAIS",
-        "inst_tit": "INFORMA├ç├òES INSTITUCIONAIS",
+        "inst_tit": "INFORMA🚀",
         "pessoal_lbl": "­ƒæñ Site pessoal",
         "indexadores_tit": "INDEXADORES",
-        "repositorios_tit": "REPOSIT├ôRIOS",
-        "ia_tit": "IA ACAD├èMICA",
-        "btn_desktop": "­ƒÆ╗ Baixar Vers├úo para Windows",
-        "busca_cat": "­ƒöì Cat├ílogo de Peri├│dicos",
+        "repositorios_tit": "REPOSIT🚀",
+        "ia_tit": "IA ACAD🚀",
+        "btn_desktop": "­ƒÆ╗ Baixar Vers🚀",
+        "busca_cat": "­ƒöì Cat🚀",
         "busca_ia": "­ƒºá Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomenda├º├úo Tem├ítica com Intelig├¬ncia Artificial",
-        "ia_subtitulo": "Cole o t├¡tulo e o resumo (abstract) do seu artigo. A IA analisar├í o nosso cat├ílogo e indicar├í as op├º├Áes mais adequadas.",
-        "ia_campo_titulo": "T├¡tulo do Artigo",
-        "ia_campo_resumo": "Resumo / Abstract (Suporta Portugu├¬s, Ingl├¬s ou Espanhol)",
+        "ia_titulo": "Recomenda🚀",
+        "ia_subtitulo": "Cole o t🚀",
+        "ia_campo_titulo": "T🚀",
+        "ia_campo_resumo": "Resumo / Abstract (Suporta Portugu🚀",
         "ia_chave_api": "Chave API do Gemini (Google AI Studio)",
-        "ia_chave_ajuda": "Voc├¬ precisa de uma chave API gratuita obtida no Google AI Studio para rodar a recomenda├º├úo online.",
-        "ia_num_rec": "Quantidade de recomenda├º├Áes desejadas (m├íx. 20)",
+        "ia_chave_ajuda": "Voc🚀",
+        "ia_num_rec": "Quantidade de recomenda🚀",
         "ia_btn_buscar": "Analisar e Recomendar",
-        "ia_analisando": "A IA est├í processando o seu resumo e cruzando com o cat├ílogo...",
-        "ia_sucesso": "Recomenda├º├Áes geradas com sucesso!",
-        "ia_erro": "Erro ao processar com a IA. Verifique se a sua Chave API est├í correta.",
+        "ia_analisando": "A IA est🚀",
+        "ia_sucesso": "Recomenda🚀",
+        "ia_erro": "Erro ao processar com a IA. Verifique se a sua Chave API est🚀",
         "ia_card_motivo": "Por que publicar aqui:",
-        "ia_card_aderencia": "Grau de Ader├¬ncia:",
+        "ia_card_aderencia": "Grau de Ader🚀",
         "ia_card_site": "­ƒîÉ Visitar Homepage Oficial",
-        "ia_card_sem_site": "Site indispon├¡vel na base",
-        "filtro_area": "Grande ├ürea",
+        "ia_card_sem_site": "Site indispon🚀",
+        "filtro_area": "Grande 🚀",
         "filtro_indexador": "Indexador",
         "ia_credencial_tit": "­ƒöæ Credencial",
         "ia_como_obter_titulo": "Ôä╣´©Å Como obter uma chave gratuita?",
@@ -250,67 +250,67 @@ Esta ferramenta ├® gratuita. Para us├í-la, voc├¬ precisa de uma chave d
         "ia_refinar_alvos": "­ƒÄ» Refinar Alvos",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### Bem-vindo ao Portal do Pesquisador!",
-        "reg_apresentacao": "Esta ├® uma plataforma cient├¡fica de alta tecnologia projetada para simplificar a busca e a sele├º├úo de peri├│dicos de impacto para sua publica├º├úo. Una for├ºas com ci├¬ncia de dados e IA.",
+        "reg_apresentacao": "Esta 🚀",
         "reg_beneficios_tit": "Ô£¿ Por que usar o Portal?",
         "reg_beneficio_1_tit": "­ƒöì Busca Tradicional",
-        "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e m├®tricas consolidadas.",
-        "reg_beneficio_2_tit": "­ƒôè M├®tricas Unificadas",
+        "reg_beneficio_1_desc": "Filtros por CNPq, Indexadores (Scopus, Web of Science, SciELO, Educ@) e m🚀",
+        "reg_beneficio_2_tit": "­ƒôè M🚀",
         "reg_beneficio_2_desc": "Quartis JCR/SJR, H-Index e atalhos de impacto no Scholar ao seu alcance.",
         "reg_beneficio_3_tit": "­ƒºá Recomendador IA",
-        "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de peri├│dicos.",
-        "reg_formulario_tit": "­ƒôØ Registro de Acesso Acad├¬mico",
-        "reg_formulario_desc": "O acesso ao portal ├® gratuito e aberto a toda a comunidade cient├¡fica (de estudantes de gradua├º├úo a p├│s-doutores). Preencha o cadastro abaixo para liberar o acesso.",
+        "reg_beneficio_3_desc": "Recomendador generativo via Gemini 1.5 Flash cruzado com nossa base de peri🚀",
+        "reg_formulario_tit": "­ƒôØ Registro de Acesso Acad🚀",
+        "reg_formulario_desc": "O acesso ao portal 🚀",
         "reg_nome": "Nome Completo:",
-        "reg_email": "E-mail Acad├¬mico ou Pessoal:",
-        "reg_escolaridade": "Titula├º├úo:",
-        "reg_instituicao": "Institui├º├úo de V├¡nculo:",
-        "reg_inst_outra": "Especifique sua Institui├º├úo:",
-        "reg_area_interesse": "Grande ├ürea de Interesse (Predominante):",
+        "reg_email": "E-mail Acad🚀",
+        "reg_escolaridade": "Titula🚀",
+        "reg_instituicao": "Institui🚀",
+        "reg_inst_outra": "Especifique sua Institui🚀",
+        "reg_area_interesse": "Grande 🚀",
         "reg_btn_enviar": "Registrar e Acessar o Buscador 🚀",
-        "reg_sucesso": "­ƒÄë Registro conclu├¡do com sucesso! Bem-vindo ao Portal do Pesquisador.",
-        "reg_erro_campos": "ÔÜá´©Å Por favor, preencha todos os campos obrigat├│rios.",
+        "reg_sucesso": "­ƒÄë Registro conclu🚀",
+        "reg_erro_campos": "ÔÜá´©Å Por favor, preencha todos os campos obrigat🚀",
         "reg_lateral_status_bloqueado": "­ƒöÆ Cadastro pendente para liberar o buscador.",
         "reg_lateral_status_liberado": "­ƒöô Acesso Liberado",
         "reg_btn_sair": "Sair",
-        "log_email": "E-mail ou Usu├írio:",
+        "log_email": "E-mail ou Usu🚀",
         "log_senha": "Senha:",
         "log_btn_entrar": "Entrar 🚀",
         "log_esqueceu": "Esqueceu a senha ou o login? Recupere aqui",
         "rec_titulo": "­ƒöÆ Recuperar Acesso",
         "rec_email": "E-mail Cadastrado:",
         "rec_tel": "Telefone Cadastrado:",
-        "rec_btn_verificar": "Verificar Informa├º├Áes Ô×ö",
+        "rec_btn_verificar": "Verificar Informa🚀",
         "rec_btn_redefinir": "Redefinir Senha",
         "rec_nova_senha": "Nova Senha:",
         "rec_conf_senha": "Confirmar Nova Senha:",
-        "rec_sucesso": "­ƒÄë Senha redefinida com sucesso! Fa├ºa login.",
-        "rec_erro_nao_encontrado": "ÔÜá´©Å E-mail n├úo encontrado em nossos registros.",
+        "rec_sucesso": "­ƒÄë Senha redefinida com sucesso! Fa🚀",
+        "rec_erro_nao_encontrado": "ÔÜá´©Å E-mail n🚀",
         "rec_btn_voltar": "Voltar para o Login",
         "log_btn_google": "Conectar com o Google",
-        "log_cadastrar_link": "N├úo tem uma conta? Cadastre-se aqui!",
-        "log_entrar_link": "J├í tem uma conta? Fa├ºa login aqui!",
+        "log_cadastrar_link": "N🚀",
+        "log_entrar_link": "J🚀",
         "log_titulo": "­ƒöÆ Entrar no Portal",
-        "reg_titulo_form": "­ƒôØ Criar Conta Acad├¬mica",
+        "reg_titulo_form": "­ƒôØ Criar Conta Acad🚀",
         "reg_nome_sobrenome": "Nome e Sobrenome:",
-        "reg_pais": "Pa├¡s:",
+        "reg_pais": "Pa🚀",
         "reg_telefone": "Telefone:",
         "reg_senha": "Senha:",
         "reg_confirmar_senha": "Confirmar Senha:",
         "reg_btn_cadastrar": "Cadastrar 🚀",
-        "reg_erro_senha_diferente": "ÔÜá´©Å As senhas digitadas n├úo coincidem.",
-        "reg_erro_ja_existe": "ÔÜá´©Å Este e-mail j├í est├í cadastrado. Fa├ºa login.",
+        "reg_erro_senha_diferente": "ÔÜá´©Å As senhas digitadas n🚀",
+        "reg_erro_ja_existe": "ÔÜá´©Å Este e-mail j🚀",
         "log_erro_invalido": "ÔÜá´©Å E-mail ou senha incorretos.",
         "log_google_sucesso": "­ƒÜÇ Conectado com o Google! Redirecionando...",
         "areas_trad": {
             "Engenharias": "Engenharias",
-            "Lingu├¡stica, Letras e Artes": "Lingu├¡stica, Letras e Artes",
-            "Ci├¬ncias Biol├│gicas": "Ci├¬ncias Biol├│gicas",
-            "Ci├¬ncias Exatas e da Terra": "Ci├¬ncias Exatas e da Terra",
-            "Outras / N├úo Classificado": "Outras / N├úo Classificado",
-            "Ci├¬ncias da Sa├║de": "Ci├¬ncias da Sa├║de",
-            "Ci├¬ncias Sociais Aplicadas": "Ci├¬ncias Sociais Aplicadas",
-            "Ci├¬ncias Agr├írias": "Ci├¬ncias Agr├írias",
-            "Ci├¬ncias Humanas": "Ci├¬ncias Humanas"
+            "Lingu🚀": "Lingu🚀",
+            "Ci🚀": "Ci🚀",
+            "Ci🚀": "Ci🚀",
+            "Outras / N🚀": "Outras / N🚀",
+            "Ci🚀": "Ci🚀",
+            "Ci🚀": "Ci🚀",
+            "Ci🚀": "Ci🚀",
+            "Ci🚀": "Ci🚀"
         }
     },
     "English": {
@@ -441,78 +441,78 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
         "log_google_sucesso": "­ƒÜÇ Connected with Google! Redirecting...",
         "areas_trad": {
             "Engenharias": "Engineering",
-            "Lingu├¡stica, Letras e Artes": "Linguistics, Literature & Arts",
-            "Ci├¬ncias Biol├│gicas": "Biological Sciences",
-            "Ci├¬ncias Exatas e da Terra": "Exact & Earth Sciences",
-            "Outras / N├úo Classificado": "Others / Unclassified",
-            "Ci├¬ncias da Sa├║de": "Health Sciences",
-            "Ci├¬ncias Sociais Aplicadas": "Applied Social Sciences",
-            "Ci├¬ncias Agr├írias": "Agricultural Sciences",
-            "Ci├¬ncias Humanas": "Human Sciences"
+            "Lingu🚀": "Linguistics, Literature & Arts",
+            "Ci🚀": "Biological Sciences",
+            "Ci🚀": "Exact & Earth Sciences",
+            "Outras / N🚀": "Others / Unclassified",
+            "Ci🚀": "Health Sciences",
+            "Ci🚀": "Applied Social Sciences",
+            "Ci🚀": "Agricultural Sciences",
+            "Ci🚀": "Human Sciences"
         }
     },
-    "Espa├▒ol": {
+    "Espa🚀": {
         "titulo": "Portal del Investigador",
-        "subtitulo": "Ciencia de datos aplicada a la producci├│n cient├¡fica de m├ís alto nivel.",
+        "subtitulo": "Ciencia de datos aplicada a la producci🚀",
         "filtros_tit": "#### ­ƒöì Buscador de Revistas",
-        "placeholder_busca": "Ingrese el t├¡tulo de la revista, ISSN...",
-        "buscar_reg": "Buscar registro espec├¡fico:",
-        "aba_escopo": "­ƒôé Alcance Acad├®mico y CNPq",
-        "aba_impacto": "­ƒôê M├®tricas de Rendimiento y Cuartiles",
-        "subarea_lbl": "Sub├írea del Conocimiento (CNPq):",
+        "placeholder_busca": "Ingrese el t🚀",
+        "buscar_reg": "Buscar registro espec🚀",
+        "aba_escopo": "­ƒôé Alcance Acad🚀",
+        "aba_impacto": "­ƒôê M🚀",
+        "subarea_lbl": "Sub🚀",
         "base_lbl": "Bases de Datos Detentoras:",
         "jcr_lbl": "Cuartil JCR (Clarivate):",
         "sjr_lbl": "Cuartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
         "m_selecionadas": "Revistas Selecionadas",
-        "m_hindex": "H-Index M├íximo",
-        "m_jif": "Factor JIF M├íximo",
-        "m_sjr": "SJR Score ├üpice",
-        "cat_tit": "#### ­ƒôï Cat├ílogo de Revistas",
-        "exibir_pag": "Mostrar por p├ígina:",
-        "pag_lbl": "P├ígina",
-        "exportar_btn": "­ƒôÑ Exportar solo esta p├ígina",
+        "m_hindex": "H-Index M🚀",
+        "m_jif": "Factor JIF M🚀",
+        "m_sjr": "SJR Score 🚀",
+        "cat_tit": "#### ­ƒôï Cat🚀",
+        "exibir_pag": "Mostrar por p🚀",
+        "pag_lbl": "P🚀",
+        "exportar_btn": "­ƒôÑ Exportar solo esta p🚀",
         "aviso_nada": "Ninguna revista coincide con los criterios aplicados.",
-        "nav_tit": "Panel de Navegaci├│n",
+        "nav_tit": "Panel de Navegaci🚀",
         "todas": "Todas",
-        "col_h5": "├ìndice h5 (Scholar)",
+        "col_h5": "🚀",
         "meta_tit": "METADATOS",
         "meta_sistema": "Sistema",
-        "meta_versao": "Versi├│n Base",
-        "meta_padrao": "Patr├│n CNPq",
+        "meta_versao": "Versi🚀",
+        "meta_padrao": "Patr🚀",
         "meta_status": "Operacional",
         "meta_ativo": "Activo",
         "direitos_tit": "Derechos de Autor y Propiedad",
         "direitos_autor": "Universidad Federal de Ouro Preto<br>Minas Gerais, Brasil.<br><i>Todos os direitos reservados.</i>",
         "visitas_lbl": "Visitas al Portal",
         "gov_tit": "SITIOS DEL GOBIERNO",
-        "inst_tit": "INFORMACI├ôN INSTITUCIONAL",
+        "inst_tit": "INFORMACI🚀",
         "pessoal_lbl": "­ƒæñ Sitio personal",
         "indexadores_tit": "INDEXADORES",
         "repositorios_tit": "DIRECTORIOS",
-        "ia_tit": "IA ACAD├ëMICA",
-        "btn_desktop": "­ƒÆ╗ Descargar Versi├│n para Windows",
-        "busca_cat": "­ƒöì Cat├ílogo de Revistas",
+        "ia_tit": "IA ACAD🚀",
+        "btn_desktop": "­ƒÆ╗ Descargar Versi🚀",
+        "busca_cat": "­ƒöì Cat🚀",
         "busca_ia": "­ƒºá Recomendador Inteligente (IA)",
-        "ia_titulo": "Recomendaci├│n Tem├ítica con Inteligencia Artificial",
-        "ia_subtitulo": "Pegue el t├¡tulo y el resumen (abstract) de su art├¡culo. La IA analizar├í nuestro cat├ílogo de revistas e indicar├í las mejores opciones.",
-        "ia_campo_titulo": "T├¡tulo del Art├¡culo",
-        "ia_campo_resumo": "Resumen / Abstract (Soporta Portugu├®s, Ingl├®s o Espa├▒ol)",
+        "ia_titulo": "Recomendaci🚀",
+        "ia_subtitulo": "Pegue el t🚀",
+        "ia_campo_titulo": "T🚀",
+        "ia_campo_resumo": "Resumen / Abstract (Soporta Portugu🚀",
         "ia_chave_api": "Clave API de Gemini (Google AI Studio)",
-        "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendaci├│n en l├¡nea.",
-        "ia_num_rec": "Cantidad de recomendaciones deseadas (m├íx. 20)",
+        "ia_chave_ajuda": "Necesitas una clave API gratuita obtenida de Google AI Studio para ejecutar la recomendaci🚀",
+        "ia_num_rec": "Cantidad de recomendaciones deseadas (m🚀",
         "ia_btn_buscar": "Analar y Recomendar",
-        "ia_analisando": "La IA est├í procesando su resumo y cruz├índolo con el cat├ílogo...",
-        "ia_sucesso": "┬íRecomendaciones generadas con ├®xito!",
+        "ia_analisando": "La IA est🚀",
+        "ia_sucesso": "┬íRecomendaciones generadas con 🚀",
         "ia_erro": "Error al procesar con la IA. Verifique que su Clave API sea correcta.",
-        "ia_card_motivo": "Por qu├® publicar aqui:",
+        "ia_card_motivo": "Por qu🚀",
         "ia_card_aderencia": "Grado de Adherencia:",
         "ia_card_site": "­ƒîÉ Visitar Homepage Oficial",
         "ia_card_sem_site": "Sitio no disponible en la base",
-        "filtro_area": "Gran ├ürea",
+        "filtro_area": "Gran 🚀",
         "filtro_indexador": "Indexador",
         "ia_credencial_tit": "­ƒöæ Credenciales",
-        "ia_como_obter_titulo": "Ôä╣´©Å ┬┐C├│mo obtener una clave gratuita?",
+        "ia_como_obter_titulo": "Ôä╣´©Å ┬┐C🚀",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google Gemini, tambi├®n gratuita:<br><br>
@@ -526,73 +526,73 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "ia_refinar_alvos": "­ƒÄ» Refinar Objetivos",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### ┬íBienvenido al Portal del Investigador!",
-        "reg_apresentacao": "Esta es una plataforma cient├¡fica de alta tecnolog├¡a dise├▒ada para simplificar la b├║squeda y selecci├│n de revistas de impacto para su publicaci├│n. Una fuerzas con ciencia de datos e IA.",
-        "reg_beneficios_tit": "Ô£¿ ┬┐Por qu├® usar el Portal?",
-        "reg_beneficio_1_tit": "­ƒöì B├║squeda Tradicional",
-        "reg_beneficio_1_desc": "Filtros por sub├íreas del CNPq, indexadores (Scopus, Web of Science, SciELO, Educ@) y m├®tricas consolidadas.",
-        "reg_beneficio_2_tit": "­ƒôè M├®tricas Unificadas",
+        "reg_apresentacao": "Esta es una plataforma cient🚀",
+        "reg_beneficios_tit": "Ô£¿ ┬┐Por qu🚀",
+        "reg_beneficio_1_tit": "­ƒöì B🚀",
+        "reg_beneficio_1_desc": "Filtros por sub🚀",
+        "reg_beneficio_2_tit": "­ƒôè M🚀",
         "reg_beneficio_2_desc": "Cuartiles JCR/SJR, H-Index y accesos directos de impacto en Scholar a su alcance.",
         "reg_beneficio_3_tit": "­ƒºá Recomendador IA",
-        "reg_beneficio_3_desc": "Recomendaciones generativas a trav├®s de Gemini 1.5 Flash cruzadas con nuestra base de revistas.",
-        "reg_formulario_tit": "­ƒôØ Registro de Acceso Acad├®mico",
-        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad cient├¡fica (desde estudiantes hasta posdoctores). Complete el formulario a continuaci├│n para liberar el acceso.",
+        "reg_beneficio_3_desc": "Recomendaciones generativas a trav🚀",
+        "reg_formulario_tit": "­ƒôØ Registro de Acceso Acad🚀",
+        "reg_formulario_desc": "El acceso al portal es gratuito y abierto a toda la comunidad cient🚀",
         "reg_nome": "Nombre Completo:",
-        "reg_email": "Correo Electr├│nico Acad├®mico o Personal:",
-        "reg_escolaridade": "Titulaci├│n:",
-        "reg_instituicao": "Instituci├│n de V├¡nculo:",
-        "reg_inst_outra": "Especifique su Instituci├│n:",
-        "reg_area_interesse": "Gran ├ürea de Inter├®s Predominante:",
+        "reg_email": "Correo Electr🚀",
+        "reg_escolaridade": "Titulaci🚀",
+        "reg_instituicao": "Instituci🚀",
+        "reg_inst_outra": "Especifique su Instituci🚀",
+        "reg_area_interesse": "Gran 🚀",
         "reg_btn_enviar": "Registrar e Acessar o Buscador 🚀",
-        "reg_sucesso": "­ƒÄë ┬íRegistro completado con ├®xito! Bienvenido al Portal del Investigador.",
+        "reg_sucesso": "­ƒÄë ┬íRegistro completado con 🚀",
         "reg_erro_campos": "ÔÜá´©Å Por favor, complete todos los campos obligatorios.",
         "reg_lateral_status_bloqueado": "­ƒöÆ Registro pendiente para habilitar el buscador.",
         "reg_lateral_status_liberado": "­ƒöô Acceso Concedido",
         "reg_btn_sair": "Salir",
         "log_email": "Correo o Usuario:",
-        "log_senha": "Contrase├▒a:",
+        "log_senha": "Contrase🚀",
         "log_btn_entrar": "Entrar 🚀",
-        "log_esqueceu": "┬┐Olvid├│ su contrase├▒a o usuario? Recupere aqu├¡",
+        "log_esqueceu": "┬┐Olvid🚀",
         "rec_titulo": "­ƒöÆ Recuperar Acceso",
         "rec_email": "Correo Registrado:",
-        "rec_tel": "Tel├®fono Registrado:",
-        "rec_btn_verificar": "Verificar Informaci├│n Ô×ö",
-        "rec_btn_redefinir": "Restablecer Contrase├▒a",
-        "rec_nova_senha": "Nueva Contrase├▒a:",
-        "rec_conf_senha": "Confirmar Nueva Contrase├▒a:",
-        "rec_sucesso": "­ƒÄë ┬íContrase├▒a restablecida con ├®xito! Inicie sesi├│n.",
-        "rec_erro_nao_encontrado": "ÔÜá´©Å Correo electr├│nico no encontrado en nuestros registros.",
+        "rec_tel": "Tel🚀",
+        "rec_btn_verificar": "Verificar Informaci🚀",
+        "rec_btn_redefinir": "Restablecer Contrase🚀",
+        "rec_nova_senha": "Nueva Contrase🚀",
+        "rec_conf_senha": "Confirmar Nueva Contrase🚀",
+        "rec_sucesso": "­ƒÄë ┬íContrase🚀",
+        "rec_erro_nao_encontrado": "ÔÜá´©Å Correo electr🚀",
         "rec_btn_voltar": "Volver al Inicio",
         "log_btn_google": "Conectar con Google",
-        "log_cadastrar_link": "┬┐No tienes una cuenta? ┬íReg├¡strate aqu├¡!",
-        "log_entrar_link": "┬┐Ya tienes una cuenta? ┬íInicia sesi├│n aqu├¡!",
-        "log_titulo": "­ƒöÆ Iniciar Sesi├│n en el Portal",
-        "reg_titulo_form": "­ƒôØ Crear Cuenta Acad├®mica",
+        "log_cadastrar_link": "┬┐No tienes una cuenta? ┬íReg🚀",
+        "log_entrar_link": "┬┐Ya tienes una cuenta? ┬íInicia sesi🚀",
+        "log_titulo": "­ƒöÆ Iniciar Sesi🚀",
+        "reg_titulo_form": "­ƒôØ Crear Cuenta Acad🚀",
         "reg_nome_sobrenome": "Nombre y Apellido:",
-        "reg_pais": "Pa├¡s:",
-        "reg_telefone": "Tel├®fono:",
-        "reg_senha": "Contrase├▒a:",
-        "reg_confirmar_senha": "Confirmar Contrase├▒a:",
+        "reg_pais": "Pa🚀",
+        "reg_telefone": "Tel🚀",
+        "reg_senha": "Contrase🚀",
+        "reg_confirmar_senha": "Confirmar Contrase🚀",
         "reg_btn_cadastrar": "Cadastrar 🚀",
-        "reg_erro_senha_diferente": "ÔÜá´©Å Las contrase├▒as no coinciden.",
-        "reg_erro_ja_existe": "ÔÜá´©Å Este correo ya est├í registrado. Inicie sesi├│n.",
-        "log_erro_invalido": "ÔÜá´©Å Correo o contrase├▒a incorrectos.",
+        "reg_erro_senha_diferente": "ÔÜá´©Å Las contrase🚀",
+        "reg_erro_ja_existe": "ÔÜá´©Å Este correo ya est🚀",
+        "log_erro_invalido": "ÔÜá´©Å Correo o contrase🚀",
         "log_google_sucesso": "­ƒÜÇ ┬íConectado con Google! Redireccionando...",
         "areas_trad": {
-            "Engenharias": "Ingenier├¡as",
-            "Lingu├¡stica, Letras e Artes": "Ling├╝├¡stica, Letras y Artes",
-            "Ci├¬ncias Biol├│gicas": "Ciencias Biol├│gicas",
-            "Ci├¬ncias Exatas e da Terra": "Ciencias Exactas y de la Tierra",
-            "Outras / N├úo Classificado": "Otras / No Clasificado",
-            "Ci├¬ncias da Sa├║de": "Ciencias de la Salud",
-            "Ci├¬ncias Sociais Aplicadas": "Ciencias Sociales Aplicadas",
-            "Ci├¬ncias Agr├írias": "Ciencias Agrarias",
-            "Ci├¬ncias Humanas": "Ciencias Humanas"
+            "Engenharias": "Ingenier🚀",
+            "Lingu🚀": "Ling🚀",
+            "Ci🚀": "Ciencias Biol🚀",
+            "Ci🚀": "Ciencias Exactas y de la Tierra",
+            "Outras / N🚀": "Otras / No Clasificado",
+            "Ci🚀": "Ciencias de la Salud",
+            "Ci🚀": "Ciencias Sociales Aplicadas",
+            "Ci🚀": "Ciencias Agrarias",
+            "Ci🚀": "Ciencias Humanas"
         }
     }
 }
 # Corre├º├úo do seletor em ingl├¬s caso venha codificado
 if st.session_state.idioma not in dic:
-    st.session_state.idioma = "Portugu├¬s"
+    st.session_state.idioma = "Portugu🚀"
 t = dic[st.session_state.idioma]
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
@@ -763,7 +763,7 @@ def carregar_dados():
                     df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
                     df[col] = pd.to_numeric(df[col], errors='coerce')
                     
-            # Identifica colunas n├úo num├®ricas e substitui vazios por "-"
+            # Identifica colunas n🚀"-"
             for col in df.columns:
                 if col not in ['SJR', 'JIF', 'h-index', 'H index']:
                     df[col] = df[col].fillna("-").astype(str).str.strip()
@@ -834,7 +834,7 @@ def carregar_dados():
             st.error(f"ÔÜá´©Å Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
             st.stop()
     else:
-        st.error("ÔÜá´©Å Base de dados n├úo encontrada. O arquivo 'dados.csv' n├úo foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no reposit├│rio GitHub correspondente.")
+        st.error("ÔÜá´©Å Base de dados n🚀")
         st.stop()
 
 df_original, arquivo_usado = carregar_dados()
@@ -868,7 +868,7 @@ if "is_admin" not in st.session_state:
 
 # Exibe o status de acesso na barra lateral
 if st.session_state.registrado:
-    nome_usr_exibir = st.session_state.get("nome_usuario", "Usu├írio")
+    nome_usr_exibir = st.session_state.get("nome_usuario", "Usu🚀")
     email_usr_exibir = st.session_state.get("email_usuario", "")
     acessos_usr = st.session_state.get("acessos_usuario", 1)
     
@@ -897,7 +897,7 @@ if st.session_state.registrado:
     # Colunas para exibir bot├Áes de Sair e Configura├º├Áes lado a lado
     col_sair, col_config = st.sidebar.columns([1, 1])
     with col_sair:
-        if st.button("­ƒÜ¬ Sair", key="btn_sair_sidebar", help="Encerrar sess├úo", use_container_width=True):
+        if st.button("­ƒÜ¬ Sair", key="btn_sair_sidebar", help="Encerrar sess🚀", use_container_width=True):
             st.session_state.registrado = False
             st.session_state.email_usuario = ""
             st.session_state.nome_usuario = ""
@@ -908,7 +908,7 @@ if st.session_state.registrado:
             st.session_state.is_admin = False
             st.rerun()
     with col_config:
-        if st.button("ÔÜÖ´©Å Configs", key="btn_config_gear_sidebar", help="Configura├º├Áes", use_container_width=True):
+        if st.button("ÔÜÖ´©Å Configs", key="btn_config_gear_sidebar", help="Configura🚀", use_container_width=True):
             st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
             st.rerun()
 
@@ -1193,7 +1193,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- 8. BOT├âO DE DOWNLOAD DA VERS├âO DESKTOP ---
-texto_botao = t.get("btn_desktop", "­ƒÆ╗ Baixar Vers├úo para Windows")
+texto_botao = t.get("btn_desktop", "­ƒÆ╗ Baixar Vers🚀")
 
 st.sidebar.markdown(
     f"""
@@ -1223,7 +1223,7 @@ st.sidebar.markdown(
 nome_logo = "logo.png"
 if st.session_state.idioma == "English":
     nome_logo = "logo_en.png"
-elif st.session_state.idioma == "Espa├▒ol":
+elif st.session_state.idioma == "Espa🚀":
     nome_logo = "logo_es.png"
 
 imagem_base64 = obter_imagem_local_base64(nome_logo)
@@ -1375,12 +1375,12 @@ def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade
         "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
         "Nome": nome,
         "Email": email.lower().strip(),
-        "Pa├¡s": pais,
+        "Pa🚀": pais,
         "Escolaridade": escolaridade,
-        "Institui├º├úo": instituicao,
+        "Institui🚀": instituicao,
         "Idade": idade,
         "Sexo": sexo,
-        "Ra├ºa/Etnia": raca,
+        "Ra🚀": raca,
         "Senha_Hash": hash_senha(senha),
         "Acessos": 1,
         "Status_Confirmado": status_confirmado,
@@ -1427,7 +1427,7 @@ def verificar_recuperacao(email):
             doc = db.collection("usuarios").document(email_clean).get()
             if doc.exists:
                 d = doc.to_dict()
-                return True, d.get("nome", "Usu├írio")
+                return True, d.get("nome", "Usu🚀")
         except Exception:
             pass
     caminho = "usuarios.csv"
@@ -1478,7 +1478,7 @@ def verificar_login(email_ou_usuario, senha):
                 if doc.exists:
                     acessos_atuais = int(doc.to_dict().get("acessos", 0))
                 doc_ref.set({
-                    "nome": "Jo├úo F. Soares-Quadros Jr.",
+                    "nome": "Jo🚀",
                     "email": admin_email_conf,
                     "pais": "Brasil",
                     "telefone": "N/A",
@@ -1489,7 +1489,7 @@ def verificar_login(email_ou_usuario, senha):
                 }, merge=True)
             except Exception:
                 pass
-        st.session_state.nome_usuario = "Jo├úo"
+        st.session_state.nome_usuario = "Jo🚀"
         st.session_state.acessos_usuario = acessos_atuais + 1
         return True
 
@@ -1557,7 +1557,7 @@ if url_token:
         time.sleep(2)
         st.rerun()
     else:
-        st.error("ÔÜá´©Å Token inv├ílido ou j├í utilizado.")
+        st.error("ÔÜá´©Å Token inv🚀")
     st.query_params.clear()
 
 if not st.session_state.registrado:
@@ -1574,7 +1574,7 @@ if not st.session_state.registrado:
             # Se j├í verificou os dados, exibe a redefini├º├úo de senha
             if st.session_state.get("usuario_recuperado_email", ""):
                 email_confirmado = st.session_state.usuario_recuperado_email
-                st.info(f"Usu├írio identificado. Defina uma nova senha para a conta: **{email_confirmado}**")
+                st.info(f"Usu🚀")
                 
                 nova_senha = st.text_input(t['rec_nova_senha'], type="password", key="rec_nova_senha_input")
                 conf_senha = st.text_input(t['rec_conf_senha'], type="password", key="rec_conf_senha_input")
@@ -1608,15 +1608,15 @@ if not st.session_state.registrado:
                             enviado, erro = enviar_email_recuperacao(email_rec.lower().strip(), email_rec.lower().strip(), senha_temp)
                             
                             if enviado:
-                                st.success("­ƒÄë Uma senha tempor├íria foi enviada para o seu e-mail cadastrado! Acesse o portal e atualize-a nas configura├º├Áes.")
+                                st.success("­ƒÄë Uma senha tempor🚀")
                                 st.session_state.modo_recuperacao = False
                                 st.session_state.modo_login = True
                                 time.sleep(3.0)
                                 st.rerun()
                             else:
                                 # Fallback se SMTP n├úo estiver configurado
-                                st.warning("ÔÜá´©Å N├úo foi poss├¡vel enviar o e-mail no momento (Servidor SMTP n├úo configurado).")
-                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Tempor├íria:** `{senha_temp}`\n\nEm caso de d├║vidas, contate o suporte: **support@scipubs.com**")
+                                st.warning("ÔÜá´©Å N🚀")
+                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Tempor🚀")
                                 st.session_state.usuario_recuperado_email = email_rec.lower().strip()
                         else:
                             st.error(t['rec_erro_nao_encontrado'])
@@ -1664,7 +1664,7 @@ if not st.session_state.registrado:
                 else:
                     res_login = verificar_login(email_log, senha_log)
                     if res_login == "NOT_CONFIRMED":
-                        st.warning("ÔÜá´©Å Sua conta ainda n├úo foi confirmada. Verifique o link enviado para o seu e-mail.")
+                        st.warning("ÔÜá´©Å Sua conta ainda n🚀")
                     elif res_login:
                         st.session_state.registrado = True
                         st.session_state.login_via_google = False
@@ -1682,8 +1682,8 @@ if not st.session_state.registrado:
                         
             st.divider()
             st.markdown("### ­ƒöæ Confirmar Conta Manualmente")
-            st.write("N├úo conseguiu confirmar pelo link? Cole o token recebido no e-mail abaixo:")
-            token_manual = st.text_input("Token de Confirma├º├úo")
+            st.write("N🚀")
+            token_manual = st.text_input("Token de Confirma🚀")
             if st.button("Validar Token"):
                 sucesso_token, email_token, nome_token = confirmar_token(token_manual)
                 if sucesso_token:
@@ -1697,33 +1697,33 @@ if not st.session_state.registrado:
                     time.sleep(2)
                     st.rerun()
                 else:
-                    st.error("ÔÜá´©Å Token inv├ílido ou j├í utilizado.")
+                    st.error("ÔÜá´©Å Token inv🚀")
     else:
         with st.container():
             col_reg_1, col_reg_2 = st.columns(2)
             with col_reg_1:
-                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: Jo├úo Silva")
+                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: Jo🚀")
                 email_cad = st.text_input(t['reg_email'], placeholder="")
                 pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "N├úo informar"])
+                sexo_cad = st.selectbox("Sexo (Opcional):", ["", "Masculino", "Feminino", "N🚀"])
                 
             with col_reg_2:
                 # Titula├º├úo
                 opcoes_esc = []
-                if st.session_state.idioma == "Portugu├¬s":
-                    opcoes_esc = ["Gradua├º├úo", "Especializa├º├úo", "Mestrado", "Doutorado", "Outra"]
+                if st.session_state.idioma == "Portugu🚀":
+                    opcoes_esc = ["Gradua🚀", "Especializa🚀", "Mestrado", "Doutorado", "Outra"]
                 elif st.session_state.idioma == "English":
                     opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
                 else:
-                    opcoes_esc = ["Grado", "Especializaci├│n", "Maestr├¡a", "Doctorado", "Otra"]
+                    opcoes_esc = ["Grado", "Especializaci🚀", "Maestr🚀", "Doctorado", "Otra"]
                     
                 escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
                 
                 # V├¡nculo Institucional
-                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de S├úo Paulo (USP)")
+                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de S🚀")
                     
                 idade_cad = st.number_input("Idade (Opcional):", min_value=0, max_value=120, value=0, step=1)
-                raca_cad = st.selectbox("Ra├ºa/Etnia (Opcional):", ["", "Branca", "Parda", "Preta", "Ind├¡gena", "Outra"])
+                raca_cad = st.selectbox("Ra🚀", ["", "Branca", "Parda", "Preta", "Ind🚀", "Outra"])
     
             # Senha e confirma├º├úo de senha
             st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
@@ -1734,19 +1734,19 @@ if not st.session_state.registrado:
                 senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
+            btn_registrar = st.button(t['reg_btn_cadastrar'], type="primary", use_container_width=True)
             
         if btn_registrar:
             if not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
                 faltam = []
                 if not nome_cad.strip(): faltam.append("Nome")
                 if not email_cad.strip(): faltam.append("E-mail")
-                if not pais_cad.strip(): faltam.append("Pa├¡s")
-                if not instituicao_cad.strip(): faltam.append("Institui├º├úo de V├¡nculo")
+                if not pais_cad.strip(): faltam.append("Pa🚀")
+                if not instituicao_cad.strip(): faltam.append("Institui🚀")
                 if not senha_cad.strip(): faltam.append("Senha")
                 st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
             elif not senha_cad_conf.strip():
-                st.error(f"{t['reg_erro_campos']} (Faltando: Confirma├º├úo de Senha)")
+                st.error(f"{t['reg_erro_campos']} (Faltando: Confirma🚀")
             elif senha_cad != senha_cad_conf:
                 st.error(t['reg_erro_senha_diferente'])
             else:
@@ -1772,8 +1772,8 @@ if not st.session_state.registrado:
                     if enviado:
                         st.success("Ô£à Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
                     else:
-                        st.warning("ÔÜá´©Å Conta criada, mas n├úo foi poss├¡vel enviar o e-mail de confirma├º├úo.")
-                        st.info(f"Para testes, voc├¬ mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
+                        st.warning("ÔÜá´©Å Conta criada, mas n🚀")
+                        st.info(f"Para testes, voc🚀")
                     
                     st.session_state.modo_cadastro = False
                     st.session_state.modo_login = True
@@ -1794,7 +1794,7 @@ if not st.session_state.registrado:
 
 # --- TELA DE CONFIGURA├ç├òES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
-    st.markdown("## ÔÜÖ´©Å Configura├º├Áes & Ajustes do Portal")
+    st.markdown("## ÔÜÖ´©Å Configura🚀")
     
     # Bot├úo para fechar e retornar ao buscador
     if st.button("Ô¼à´©Å Voltar para o Buscador", key="btn_fechar_config"):
@@ -1804,10 +1804,10 @@ if st.session_state.get("abrir_configuracoes", False):
     st.markdown("<hr style='margin:10px 0;'>", unsafe_allow_html=True)
     
     opc_config = st.radio(
-        "Selecione uma op├º├úo de ajuste:",
+        "Selecione uma op🚀",
         [
-            "­ƒæñ Atualiza├º├úo de Cadastro",
-            "­ƒöæ Atualiza├º├úo de Senha",
+            "­ƒæñ Atualiza🚀",
+            "­ƒöæ Atualiza🚀",
             "­ƒÄ¿ Tema da Plataforma (Claro/Escuro)",
             "­ƒôó Compartilhar Portal com Outros"
         ],
@@ -1816,7 +1816,7 @@ if st.session_state.get("abrir_configuracoes", False):
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if "­ƒæñ Atualiza├º├úo de Cadastro" in opc_config:
+    if "­ƒæñ Atualiza🚀" in opc_config:
         st.subheader("­ƒæñ Atualizar Meus Dados de Cadastro")
         email_atual = st.session_state.email_usuario
         nome_atual = st.session_state.get("nome_usuario", "")
@@ -1854,16 +1854,16 @@ if st.session_state.get("abrir_configuracoes", False):
         nome_edit = st.text_input("Nome Completo:", value=nome_atual)
         tel_edit = st.text_input("Telefone:", value=telefone_atual)
         
-        opcoes_esc_edit = ["Estudante de Gradua├º├úo", "Especialista / P├│s-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "P├│s-Doutor", "Outro"]
+        opcoes_esc_edit = ["Estudante de Gradua🚀", "Especialista / P🚀", "Mestrando", "Mestre", "Doutorando", "Doutor", "P🚀", "Outro"]
         if escolaridade_atual not in opcoes_esc_edit:
             opcoes_esc_edit.append(escolaridade_atual)
         esc_edit = st.selectbox("Escolaridade:", opcoes_esc_edit, index=opcoes_esc_edit.index(escolaridade_atual))
         
-        inst_edit = st.text_input("Institui├º├úo de V├¡nculo:", value=inst_atual)
+        inst_edit = st.text_input("Institui🚀", value=inst_atual)
         
-        if st.button("Salvar Altera├º├Áes do Cadastro", type="primary"):
+        if st.button("Salvar Altera🚀", type="primary"):
             if not nome_edit.strip() or not tel_edit.strip() or not inst_edit.strip():
-                st.error("ÔÜá´©Å Preencha todos os campos obrigat├│rios.")
+                st.error("ÔÜá´©Å Preencha todos os campos obrigat🚀")
             else:
                 if os.path.exists(caminho_csv):
                     try:
@@ -1894,15 +1894,15 @@ if st.session_state.get("abrir_configuracoes", False):
                 time.sleep(1.2)
                 st.rerun()
 
-    elif "­ƒöæ Atualiza├º├úo de Senha" in opc_config:
+    elif "­ƒöæ Atualiza🚀" in opc_config:
         st.subheader("­ƒöæ Alterar Minha Senha de Acesso")
         nova_s = st.text_input("Nova Senha:", type="password", key="settings_nova_senha")
         conf_s = st.text_input("Confirmar Nova Senha:", type="password", key="settings_conf_senha")
         if st.button("Atualizar Senha", type="primary"):
             if not nova_s.strip():
-                st.error("ÔÜá´©Å A senha n├úo pode estar em branco.")
+                st.error("ÔÜá´©Å A senha n🚀")
             elif nova_s != conf_s:
-                st.error("ÔÜá´©Å As senhas digitadas s├úo diferentes.")
+                st.error("ÔÜá´©Å As senhas digitadas s🚀")
             else:
                 redefinir_senha_usuario(st.session_state.email_usuario, nova_s)
                 st.success("­ƒÄë Senha alterada com sucesso!")
@@ -1910,9 +1910,9 @@ if st.session_state.get("abrir_configuracoes", False):
                 st.rerun()
                 
     elif "­ƒÄ¿ Tema da Plataforma (Claro/Escuro)" in opc_config:
-        st.subheader("­ƒÄ¿ Estilo e Apar├¬ncia da Plataforma")
+        st.subheader("­ƒÄ¿ Estilo e Apar🚀")
         tema_atual = "Modo Noturno (Escuro)" if st.session_state.get("dark_mode", False) else "Modo Diurno (Claro)"
-        st.info(f"O tema ativo atualmente ├®: **{tema_atual}**")
+        st.info(f"O tema ativo atualmente 🚀")
         
         if st.session_state.get("dark_mode", False):
             if st.button("Ativar Modo Diurno (Claro)", type="primary"):
@@ -1941,21 +1941,21 @@ if st.session_state.get("abrir_configuracoes", False):
         with col_c3:
             if st.button("­ƒôï Copiar Link"):
                 st.info(f"Link: `{url_portal}`")
-                st.success("Link copiado para exibi├º├úo!")
+                st.success("Link copiado para exibi🚀")
 
 
             
     st.stop()
 
 # Textos informativos traduzidos
-if st.session_state.idioma == "Portugu├¬s":
+if st.session_state.idioma == "Portugu🚀":
     expander_titulo = "­ƒÆí Sobre o SciPubs & Como Utilizar"
     sobre_texto = """
 ### Bem-vindo ao SciPubs: o Portal do Pesquisador!
 Esta ├® uma ferramenta desenvolvida para otimizar a busca por peri├│dicos cient├¡ficos de alto impacto.
   
 #### ­ƒøá´©Å O que voc├¬ pode fazer aqui?
-1. **Busca Avan├ºada & Booleana:** Pesquise por termos exatos utilizando aspas (ex: `"educa├º├úo musical"`) ou combine m├║ltiplos crit├®rios usando os operadores l├│gicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
+1. **Busca Avan🚀"educa🚀"`) ou combine m├║ltiplos crit├®rios usando os operadores l├│gicos `AND`, `OR` e `NOT` (ex: `music AND education NOT medicine`).
 2. **Filtros por Sub├írea (CNPq):** Encontre peri├│dicos perfeitamente alinhados ├á sua sub├írea espec├¡fica de atua├º├úo e conhecimento.
 3. **M├®tricas de Impacto:** Analise o prest├¡gio internacional atrav├®s de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **├ìndice h5 (Google Scholar)**.
 4. **Recomenda├º├úo Inteligente (IA):** Use a intelig├¬ncia artificial do Google Gemini para colar o t├¡tulo e resumo do seu artigo e obter as recomenda├º├Áes de peri├│dicos ideais com justificativa e link direto.
@@ -1975,13 +1975,13 @@ This is a tool developed to optimize the search for high-impact scientific journ
 5. **Data Export:** Filter results according to your needs and download the customized table immediately.
 """
 else: # Espa├▒ol
-    expander_titulo = "­ƒôû Sobre el Portal del Investigador y C├│mo Utilizar"
+    expander_titulo = "­ƒôû Sobre el Portal del Investigador y C🚀"
     sobre_texto = """
 ### ┬íBienvenido al Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la b├║squeda de revistas cient├¡ficas de alto impacto.
  
 #### ­ƒøá´©Å ┬┐Qu├® puedes fazer aqu├¡?
-1. **B├║squeda Avanzada y Booleana:** Busque t├®rminos exactos usando comillas (por ejemplo: `"educaci├│n musical"`) o combine m├║ltiples criterios usando los operadores l├│gicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
+1. **B🚀"educaci🚀"`) o combine m├║ltiples criterios usando los operadores l├│gicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
 2. **Filtros por Sub├írea (CNPq):** Encuentre revistas perfectamente alineadas con su sub├írea espec├¡fica de conocimiento.
 3. **M├®tricas de Impacto:** Analise el prestigio internacional a trav├®s de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **├ìndice h5 (Google Scholar)**.
 4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias tem├íticas personalizadas basadas en el t├¡tulo y resumen de su art├¡culo.
@@ -1999,7 +1999,7 @@ st.markdown(t['filtros_tit'])
 # Define as abas com base na presen├ºa do par├ómetro ?admin=true ou ?visitas=true na URL ou se o usu├írio logado for Admin
 params_url = st.query_params
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
-    tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "­ƒôè Estat├¡sticas (Admin)"])
+    tab_busca, tab_ia, tab_admin = st.tabs([t['busca_cat'], t['busca_ia'], "­ƒôè Estat🚀"])
 else:
     tab_busca, tab_ia = st.tabs([t['busca_cat'], t['busca_ia']])
 
@@ -2012,7 +2012,7 @@ with tab_busca:
     with aba_escopo:
         col_f1, col_f2 = st.columns(2)
         with col_f1:
-            col_subarea = "Sub├írea do Conhecimento"
+            col_subarea = "Sub🚀"
             set_subareas = set()
             if col_subarea in df_original.columns:
                 for x in df_original[col_subarea].unique():
@@ -2048,9 +2048,9 @@ with tab_busca:
                 opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
             q_sjr_sel = st.multiselect(t['sjr_lbl'], opcoes_sjr)
         with col_f6:
-            opcoes_ordenacao = ["T├¡tulo"]
+            opcoes_ordenacao = ["T🚀"]
             if "SJR" in df_original.columns: 
-                opcoes_ordenacao.append("SJR (Prest├¡gio)")
+                opcoes_ordenacao.append("SJR (Prest🚀")
             if "JIF" in df_original.columns: 
                 opcoes_ordenacao.append("JIF (Fator de Impacto)")
             criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
@@ -2135,7 +2135,7 @@ with tab_busca:
     if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
 
-    mapa_ordem = {"SJR (Prest├¡gio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "T├¡tulo": (df_filtrado.columns[0], True)}
+    mapa_ordem = {"SJR (Prest🚀": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "T🚀": (df_filtrado.columns[0], True)}
     col_ordenar, ascendente = mapa_ordem[criterio_ordem]
     if col_ordenar in df_filtrado.columns: 
         df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
@@ -2175,12 +2175,12 @@ with tab_busca:
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
         # Remove as colunas de ├írea para simplificar a exibi├º├úo na tabela e evitar crashes de mapeamento do PyArrow
-        df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Sub├írea do Conhecimento"], errors="ignore")
+        df_exibir = df_da_pagina.drop(columns=["Grande Area", "Area do Conhecimento", "Sub🚀"], errors="ignore")
         
         # Limpa o index para evitar falhas de segmenta├º├úo em ├¡ndices n├úo cont├¡guos (bug do PyArrow p├│s-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
         
-        # Formata links com fragmentos hash para permitir exibi├º├úo seletiva (e tra├ºo "-" nas c├®lulas vazias)
+        # Formata links com fragmentos hash para permitir exibi🚀"-" nas c├®lulas vazias)
         if "Homepage" in df_exibir.columns:
             def format_homepage(val):
                 val_str = str(val).strip()
@@ -2188,13 +2188,13 @@ with tab_busca:
                     return val_str + "#­ƒöù Ver site"
                 return "-"
             df_exibir["Homepage"] = df_exibir["Homepage"].apply(format_homepage)
-        if "├ìndice h5" in df_exibir.columns:
+        if "🚀" in df_exibir.columns:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
                     return val_str + "#­ƒöù Abrir"
                 return "-"
-            df_exibir["├ìndice h5"] = df_exibir["├ìndice h5"].apply(format_h5)
+            df_exibir["🚀"] = df_exibir["🚀"].apply(format_h5)
         
         # Reconstru├º├úo ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
@@ -2224,9 +2224,9 @@ with tab_busca:
                 "H index": st.column_config.Column(
                     alignment="center"
                 ),
-                "├ìndice h5": st.column_config.LinkColumn(
+                "🚀": st.column_config.LinkColumn(
                     t['col_h5'],
-                    help="Clique para abrir o ├¡ndice h5 no Google Scholar",
+                    help="Clique para abrir o 🚀",
                     display_text=r"#(.+)$",
                     alignment="center"
                 )
@@ -2281,7 +2281,7 @@ with tab_ia:
         st.markdown(f"*{t['ia_subtitulo']}*")
         st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
         
-        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: An├ílise Epidemiol├│gica de Sa├║de Coletiva...", key="ia_tit_input")
+        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: An🚀", key="ia_tit_input")
         resumo_artigo = st.text_area(t['ia_campo_resumo'], placeholder="Paste or type abstract here...", height=250, key="ia_res_input")
         
         # Bot├úo posicionado logo abaixo do resumo
@@ -2301,7 +2301,7 @@ with tab_ia:
             
         if chave_secrets:
             placeholder_input = "­ƒöæ Chave global ativa (opcional pessoal)"
-            help_input = "Uma chave global j├í est├í configurada pelo propriet├írio do app. Se desejar usar sua pr├│pria chave pessoal, digite-a aqui."
+            help_input = "Uma chave global j🚀"
         else:
             placeholder_input = ""
             help_input = t['ia_chave_ajuda']
@@ -2348,7 +2348,7 @@ with tab_ia:
         if not api_key_ativa:
             st.error("ÔÜá´©Å Para utilizar esta ferramenta, insira sua chave da API do Gemini no painel de Credenciais acima.")
         elif not titulo_artigo or not resumo_artigo:
-            st.warning("ÔÜá´©Å Preencha o T├¡tulo e o Resumo do seu artigo cient├¡fico para rodar a recomenda├º├úo.")
+            st.warning("ÔÜá´©Å Preencha o T🚀")
         else:
             # Gera chave de cache baseada nos par├ómetros da busca (sem depender da chave API)
             cache_key = hashlib.md5(
@@ -2393,23 +2393,23 @@ with tab_ia:
                     
                     # Grupos de sin├┤nimos acad├¬micos em 3 idiomas (Portugu├¬s, Ingl├¬s e Espanhol) para busca bidirecional completa
                     sinonimos_academicos = [
-                        {"educa├º├úo", "education", "educaci├│n", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
-                        {"computa├º├úo", "computing", "computador", "computer", "tecnologia", "technology", "tecnolog├¡a"},
-                        {"sa├║de", "health", "salud", "medicina", "medicine", "m├®dico", "medical", "m├®dica"},
-                        {"ci├¬ncia", "science", "ciencia", "cient├¡fico", "scientific", "pesquisa", "research", "investigaci├│n"},
-                        {"desenvolvimento", "development", "desarrollo", "gest├úo", "management", "gesti├│n", "administra├º├úo", "administration", "administraci├│n"},
-                        {"economia", "economy", "econom├¡a", "econ├┤mico", "economic", "econ├│mico", "social"},
-                        {"cultura", "culture", "cultura", "hist├│ria", "history", "historia", "geografia", "geography", "geograf├¡a"},
-                        {"matem├ítica", "mathematics", "f├¡sica", "physics", "fisica", "qu├¡mica", "chemistry", "quimica"},
-                        {"biologia", "biology", "biolog├¡a", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
-                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingenier├¡a", "ind├║stria", "industry", "industria"},
-                        {"produ├º├úo", "production", "producci├│n", "sistemas", "systems", "sistemas", "informa├º├úo", "information", "informaci├│n"},
-                        {"comunica├º├úo", "communication", "comunicaci├│n", "linguagem", "language", "lenguaje", "literatura", "literature"},
-                        {"arte", "art", "m├║sica", "music", "musica", "psicologia", "psychology", "psicolog├¡a"},
-                        {"filosofia", "philosophy", "filosof├¡a", "pol├¡tica", "politics", "pol├¡tica", "direito", "law", "derecho"},
-                        {"energia", "energy", "energ├¡a", "materiais", "materials", "materiales", "agricultura", "agriculture"},
-                        {"florestal", "forestry", "forestal", "veterin├íria", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermer├¡a"},
-                        {"odontologia", "dentistry", "odontolog├¡a", "farm├ícia", "pharmacy", "farmacia", "nutri├º├úo", "nutrition", "nutrici├│n"}
+                        {"educa🚀", "education", "educaci🚀", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                        {"computa🚀", "computing", "computador", "computer", "tecnologia", "technology", "tecnolog🚀"},
+                        {"sa🚀", "health", "salud", "medicina", "medicine", "m🚀", "medical", "m🚀"},
+                        {"ci🚀", "science", "ciencia", "cient🚀", "scientific", "pesquisa", "research", "investigaci🚀"},
+                        {"desenvolvimento", "development", "desarrollo", "gest🚀", "management", "gesti🚀", "administra🚀", "administration", "administraci🚀"},
+                        {"economia", "economy", "econom🚀", "econ🚀", "economic", "econ🚀", "social"},
+                        {"cultura", "culture", "cultura", "hist🚀", "history", "historia", "geografia", "geography", "geograf🚀"},
+                        {"matem🚀", "mathematics", "f🚀", "physics", "fisica", "qu🚀", "chemistry", "quimica"},
+                        {"biologia", "biology", "biolog🚀", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingenier🚀", "ind🚀", "industry", "industria"},
+                        {"produ🚀", "production", "producci🚀", "sistemas", "systems", "sistemas", "informa🚀", "information", "informaci🚀"},
+                        {"comunica🚀", "communication", "comunicaci🚀", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                        {"arte", "art", "m🚀", "music", "musica", "psicologia", "psychology", "psicolog🚀"},
+                        {"filosofia", "philosophy", "filosof🚀", "pol🚀", "politics", "pol🚀", "direito", "law", "derecho"},
+                        {"energia", "energy", "energ🚀", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                        {"florestal", "forestry", "forestal", "veterin🚀", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermer🚀"},
+                        {"odontologia", "dentistry", "odontolog🚀", "farm🚀", "pharmacy", "farmacia", "nutri🚀", "nutrition", "nutrici🚀"}
                     ]
                     
                     # Adiciona sin├┤nimos em outros idiomas se encontrar qualquer termo correspondente
@@ -2427,7 +2427,7 @@ with tab_ia:
                             nome = str(row.iloc[0]).lower()
                             grande_area = str(row.get("Grande Area", "")).lower()
                             area = str(row.get("Area do Conhecimento", "")).lower()
-                            subarea = str(row.get("Sub├írea do Conhecimento", "")).lower()
+                            subarea = str(row.get("Sub🚀", "")).lower()
                             
                             for pal in palavras_filtradas:
                                 if pal in nome:
@@ -2531,7 +2531,7 @@ with tab_ia:
                             else:
                                 ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
                         except Exception as ex:
-                            ultimo_erro_msg = f"Modelo {modelo} falhou com exce├º├úo: {ex}"
+                            ultimo_erro_msg = f"Modelo {modelo} falhou com exce🚀"
                         
                         if cota_esgotada:
                             break
@@ -2555,7 +2555,7 @@ with tab_ia:
                         for idx, (_, row) in enumerate(top_n.iterrows()):
                             nome_rev = str(row[col_titulo])
                             area_rev = str(row.get("Area do Conhecimento", row.get("Grande Area", "-")))
-                            subarea_rev = str(row.get("Sub├írea do Conhecimento", ""))
+                            subarea_rev = str(row.get("Sub🚀", ""))
                             gr_area_rev = str(row.get("Grande Area", ""))
                             indexador_rev = str(row.get("Indexador", "-"))
                             sjr_rev = row.get("SJR", None)
@@ -2610,13 +2610,13 @@ with tab_ia:
                                 # Portugu├¬s / Espanhol
                                 if matched_keywords:
                                     kw_str = ", ".join(f"'{k}'" for k in list(matched_keywords)[:3])
-                                    justificativa = f"Apresenta forte alinhamento tem├ítico com conceitos-chave identificados no seu artigo, especialmente: {kw_str}."
+                                    justificativa = f"Apresenta forte alinhamento tem🚀"
                                 else:
-                                    justificativa = f"Recomendado com base no escopo editorial do peri├│dico na ├írea de {area_rev}."
+                                    justificativa = f"Recomendado com base no escopo editorial do peri🚀"
                                 
                                 detalhes = []
                                 if quartil_rev and quartil_rev not in ["-", "None", "nan"]:
-                                    detalhes.append(f"classifica├º├úo {quartil_rev}")
+                                    detalhes.append(f"classifica🚀")
                                 if sjr_rev and str(sjr_rev) not in ["-", "None", "nan"]:
                                     try:
                                         detalhes.append(f"SJR de {float(sjr_rev):.3f}")
@@ -2626,7 +2626,7 @@ with tab_ia:
                                     detalhes.append(f"indexado em {indexador_rev}")
                                     
                                 if detalhes:
-                                    justificativa += f" O peri├│dico possui {', '.join(detalhes)}."
+                                    justificativa += f" O peri🚀"
                             
                             recomendacoes_locais.append({
                                 "revista_nome": nome_rev,
@@ -2647,7 +2647,7 @@ with tab_ia:
 
     # RENDERIZA├ç├âO EST├üVEL DOS RESULTADOS (Lidos do st.session_state, fora do condicional do st.button)
     if st.session_state.get("aviso_filtro"):
-        st.warning("ÔÜá´©Å Nenhum peri├│dico no cat├ílogo atende aos filtros de Grande ├ürea e Indexador selecionados. Por favor, ajuste os filtros.")
+        st.warning("ÔÜá´©Å Nenhum peri🚀")
     elif st.session_state.get("erro_ia"):
         erro_msg = st.session_state.erro_ia
         if erro_msg.startswith("ÔÅ│"):
@@ -2655,10 +2655,10 @@ with tab_ia:
             st.warning(erro_msg)
         else:
             st.error(t['ia_erro'])
-            st.caption(f"Detalhes t├®cnicos do erro: {erro_msg}")
+            st.caption(f"Detalhes t🚀")
     elif st.session_state.get("recomendacoes") is not None:
         if st.session_state.get("modo_local"):
-            st.info("Ôä╣´©Å Resultado gerado pelo algoritmo local de relev├óncia (a API do Gemini atingiu o limite de cota). A qualidade das recomenda├º├Áes ├® excelente ÔÇö baseada em correspond├¬ncia tem├ítica e m├®tricas SJR/JCR.")
+            st.info("Ôä╣´©Å Resultado gerado pelo algoritmo local de relev🚀")
         st.success(t['ia_sucesso'])
         
         for rec in st.session_state.recomendacoes:
@@ -2707,14 +2707,14 @@ with tab_ia:
                 # Caso a IA recomende um nome de revista que sofreu uma varia├º├úo de string e n├úo casou no CSV
                 with st.container(border=True):
                     st.markdown(f"### {rec['revista_nome']}")
-                    st.caption("ÔÜá´©Å *Peri├│dico sugerido pela IA, mas metadados detalhados n├úo localizados na base local.*")
+                    st.caption("ÔÜá´©Å *Peri🚀")
                     st.markdown(f"­ƒÄ» **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
                     st.markdown(f"­ƒÆí **{t['ia_card_motivo']}** {rec['justificativa']}")
 
 # ==================== ABA 3: ESTAT├ìSTICAS DE ACESSOS (S├ô PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
     with tab_admin:
-        st.subheader("­ƒôè Estat├¡sticas de Acessos dos Usu├írios")
+        st.subheader("­ƒôè Estat🚀")
         
         # Fun├º├úo para carregar dados dos usu├írios
         usuarios_list = []
@@ -2728,12 +2728,12 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
                     usuarios_list.append({
                         "Nome": d.get("nome", "-"),
                         "Email": d.get("email", "-"),
-                        "Pa├¡s": d.get("pais", "-"),
+                        "Pa🚀": d.get("pais", "-"),
                         "Telefone": d.get("telefone", "-"),
                         "Escolaridade": d.get("escolaridade", "-"),
-                        "Institui├º├úo": d.get("instituicao", "-"),
+                        "Institui🚀": d.get("instituicao", "-"),
                         "Acessos (Logins)": d.get("acessos", 1),
-                        "├Ültimo Acesso": ultimo.strftime("%Y-%m-%d %H:%M:%S") if ultimo and hasattr(ultimo, 'strftime') else str(ultimo)
+                        "🚀": ultimo.strftime("%Y-%m-%d %H:%M:%S") if ultimo and hasattr(ultimo, 'strftime') else str(ultimo)
                     })
             except Exception:
                 pass
@@ -2749,12 +2749,12 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
                         usuarios_list.append({
                             "Nome": row.get("Nome", "-"),
                             "Email": row.get("Email", "-"),
-                            "Pa├¡s": row.get("Pa├¡s", "-"),
+                            "Pa🚀": row.get("Pa🚀", "-"),
                             "Telefone": row.get("Telefone", "-"),
                             "Escolaridade": row.get("Escolaridade", "-"),
-                            "Institui├º├úo": row.get("Institui├º├úo", "-"),
+                            "Institui🚀": row.get("Institui🚀", "-"),
                             "Acessos (Logins)": int(acessos_val) if pd.notna(acessos_val) else 1,
-                            "├Ültimo Acesso": row.get("Data/Hora", "-")
+                            "🚀": row.get("Data/Hora", "-")
                         })
                 except Exception:
                     pass
@@ -2784,5 +2784,5 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
                 key="admin_download_stats_btn"
             )
         else:
-            st.info("Nenhum usu├írio cadastrado encontrado na base.")
+            st.info("Nenhum usu🚀")
 
