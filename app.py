@@ -2105,39 +2105,151 @@ if not st.session_state.registrado:
 
 # --- TELA DE CONFIGURAÇÕES & AJUSTES ---
 if st.session_state.get("abrir_configuracoes", False):
-    st.markdown("## ⚙  Configurações & Ajustes do SciPubs")
-    
-    # Botão para fechar e retornar ao buscador
-    if st.button("⬅  Voltar para o Buscador", key="btn_fechar_config"):
+    lang = st.session_state.get('idioma', 'Português')
+
+    # Dicionário de traduções da página
+    ts = {
+        'titulo': "## ⚙ Configurações & Ajustes do SciPubs",
+        'btn_voltar': "⬅ Voltar para o Buscador",
+        'lbl_opcoes': "Selecione uma opção de ajuste:",
+        'opc_cad': "👤 Atualização de Cadastro",
+        'opc_senha': "🔑 Atualização de Senha",
+        'opc_tema': "🎨 Tema da Plataforma (Claro/Escuro)",
+        'opc_comp': "📢 Compartilhar o SciPubs",
+        
+        # Cadastro
+        'sub_cad': "👤 Atualizar Meus Dados de Cadastro",
+        'lbl_nome': "Nome Completo:",
+        'lbl_tel': "Telefone:",
+        'lbl_esc': "Escolaridade:",
+        'lbl_inst': "Instituição de Vínculo:",
+        'btn_salvar_cad': "Salvar Alterações do Cadastro",
+        'err_campos': "Preencha todos os campos obrigatórios.",
+        'suc_cad': "🎉 Dados do cadastro atualizados com sucesso!",
+        'esc_opts': ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"],
+        
+        # Senha
+        'sub_senha': "🔑 Alterar Minha Senha de Acesso",
+        'lbl_nova': "Nova Senha:",
+        'lbl_conf': "Confirmar Nova Senha:",
+        'btn_salvar_senha': "Atualizar Senha",
+        'err_senha_branca': "A senha não pode estar em branco.",
+        'err_senha_diff': "As senhas digitadas são diferentes.",
+        'suc_senha': "🎉 Senha alterada com sucesso!",
+        
+        # Tema
+        'sub_tema': "🎨 Estilo e Aparência da Plataforma",
+        'tema_escuro': "Modo Noturno (Escuro)",
+        'tema_claro': "Modo Diurno (Claro)",
+        'lbl_tema_ativo': "O tema ativo atualmente é: **{tema}**",
+        'btn_claro': "Ativar Modo Diurno (Claro)",
+        'btn_escuro': "Ativar Modo Noturno (Escuro)",
+        
+        # Compartilhar
+        'sub_comp': "📢 Compartilhar o SciPubs",
+        'txt_comp': "Confira o Buscador de Periódicos Científicos do PPGE UFOP: ",
+        'lbl_forma': "Escolha uma das formas abaixo para divulgar o portal:",
+        'btn_copiar': "📋 Copiar Link",
+        'suc_copiar': "Link copiado para exibição!"
+    }
+
+    if lang == 'English':
+        ts['titulo'] = "## ⚙ SciPubs Settings & Adjustments"
+        ts['btn_voltar'] = "⬅ Back to Search Engine"
+        ts['lbl_opcoes'] = "Select an adjustment option:"
+        ts['opc_cad'] = "👤 Update Profile"
+        ts['opc_senha'] = "🔑 Update Password"
+        ts['opc_tema'] = "🎨 Platform Theme (Light/Dark)"
+        ts['opc_comp'] = "📢 Share SciPubs"
+        ts['sub_cad'] = "👤 Update My Profile Data"
+        ts['lbl_nome'] = "Full Name:"
+        ts['lbl_tel'] = "Phone:"
+        ts['lbl_esc'] = "Education Level:"
+        ts['lbl_inst'] = "Institution:"
+        ts['btn_salvar_cad'] = "Save Profile Changes"
+        ts['err_campos'] = "Please fill in all required fields."
+        ts['suc_cad'] = "🎉 Profile updated successfully!"
+        ts['esc_opts'] = ["Undergraduate Student", "Specialist / Post-Graduate", "Master's Student", "Master", "PhD Student", "PhD", "Post-Doc", "Other"]
+        ts['sub_senha'] = "🔑 Change My Password"
+        ts['lbl_nova'] = "New Password:"
+        ts['lbl_conf'] = "Confirm New Password:"
+        ts['btn_salvar_senha'] = "Update Password"
+        ts['err_senha_branca'] = "Password cannot be blank."
+        ts['err_senha_diff'] = "Passwords do not match."
+        ts['suc_senha'] = "🎉 Password changed successfully!"
+        ts['sub_tema'] = "🎨 Platform Style and Appearance"
+        ts['tema_escuro'] = "Dark Mode"
+        ts['tema_claro'] = "Light Mode"
+        ts['lbl_tema_ativo'] = "Current active theme: **{tema}**"
+        ts['btn_claro'] = "Activate Light Mode"
+        ts['btn_escuro'] = "Activate Dark Mode"
+        ts['sub_comp'] = "📢 Share SciPubs"
+        ts['txt_comp'] = "Check out the Scientific Journals Search Engine of PPGE UFOP: "
+        ts['lbl_forma'] = "Choose one of the ways below to share the portal:"
+        ts['btn_copiar'] = "📋 Copy Link"
+        ts['suc_copiar'] = "Link copied to clipboard!"
+    elif lang == 'Español':
+        ts['titulo'] = "## ⚙ Configuración y Ajustes de SciPubs"
+        ts['btn_voltar'] = "⬅ Volver al Buscador"
+        ts['lbl_opcoes'] = "Seleccione una opción de ajuste:"
+        ts['opc_cad'] = "👤 Actualizar Perfil"
+        ts['opc_senha'] = "🔑 Actualizar Contraseña"
+        ts['opc_tema'] = "🎨 Tema de la Plataforma (Claro/Oscuro)"
+        ts['opc_comp'] = "📢 Compartir SciPubs"
+        ts['sub_cad'] = "👤 Actualizar Mis Datos de Perfil"
+        ts['lbl_nome'] = "Nombre Completo:"
+        ts['lbl_tel'] = "Teléfono:"
+        ts['lbl_esc'] = "Nivel de Educación:"
+        ts['lbl_inst'] = "Institución:"
+        ts['btn_salvar_cad'] = "Guardar Cambios del Perfil"
+        ts['err_campos'] = "Complete todos los campos obligatorios."
+        ts['suc_cad'] = "🎉 ¡Datos del perfil actualizados con éxito!"
+        ts['esc_opts'] = ["Estudiante de Grado", "Especialista / Postgrado", "Estudiante de Maestría", "Magíster", "Estudiante de Doctorado", "Doctor", "Post-Doctor", "Otro"]
+        ts['sub_senha'] = "🔑 Cambiar Mi Contraseña"
+        ts['lbl_nova'] = "Nueva Contraseña:"
+        ts['lbl_conf'] = "Confirmar Nueva Contraseña:"
+        ts['btn_salvar_senha'] = "Actualizar Contraseña"
+        ts['err_senha_branca'] = "La contraseña no puede estar en blanco."
+        ts['err_senha_diff'] = "Las contraseñas no coinciden."
+        ts['suc_senha'] = "🎉 ¡Contraseña cambiada con éxito!"
+        ts['sub_tema'] = "🎨 Estilo y Apariencia de la Plataforma"
+        ts['tema_escuro'] = "Modo Oscuro"
+        ts['tema_claro'] = "Modo Claro"
+        ts['lbl_tema_ativo'] = "El tema activo actualmente es: **{tema}**"
+        ts['btn_claro'] = "Activar Modo Claro"
+        ts['btn_escuro'] = "Activar Modo Oscuro"
+        ts['sub_comp'] = "📢 Compartir SciPubs"
+        ts['txt_comp'] = "Conoce el Buscador de Revistas Científicas de PPGE UFOP: "
+        ts['lbl_forma'] = "Elija una de las siguientes formas para compartir el portal:"
+        ts['btn_copiar'] = "📋 Copiar Enlace"
+        ts['suc_copiar'] = "¡Enlace copiado al portapapeles!"
+
+    st.markdown(ts['titulo'])
+
+    if st.button(ts['btn_voltar'], key="btn_fechar_config"):
         st.session_state.abrir_configuracoes = False
         st.rerun()
-        
+
     st.markdown("<hr style='margin:10px 0;'>", unsafe_allow_html=True)
-    
+
     opc_config = st.radio(
-        "Selecione uma opção de ajuste:",
-        [
-            "👤 Atualização de Cadastro",
-            "🔑 Atualização de Senha",
-            "🎨 Tema da Plataforma (Claro/Escuro)",
-            "📢 Compartilhe o SciPubs" 
-        ],
+        ts['lbl_opcoes'],
+        [ts['opc_cad'], ts['opc_senha'], ts['opc_tema'], ts['opc_comp']],
         key="radio_opc_config"
     )
-    
+
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    if "👤 Atualização de Cadastro" in opc_config:
-        st.subheader("👤 Atualizar Meus Dados de Cadastro")
+
+    if ts['opc_cad'] in opc_config:
+        st.subheader(ts['sub_cad'])
         email_atual = st.session_state.email_usuario
         nome_atual = st.session_state.get("nome_usuario", "")
-        
-        # Carrega dados atuais do usuário
+
         caminho_csv = "usuarios.csv"
         telefone_atual = ""
         escolaridade_atual = "Doutor"
         inst_atual = ""
-        
+
         if db is not None:
             try:
                 doc = db.collection("usuarios").document(email_atual).get()
@@ -2149,7 +2261,7 @@ if st.session_state.get("abrir_configuracoes", False):
                     inst_atual = d.get("instituicao", "")
             except Exception:
                 pass
-                
+
         if not telefone_atual and os.path.exists(caminho_csv):
             try:
                 df_u = pd.read_csv(caminho_csv, sep=";")
@@ -2161,20 +2273,20 @@ if st.session_state.get("abrir_configuracoes", False):
                     inst_atual = match.iloc[0]["Instituicao"]
             except Exception:
                 pass
-                
-        nome_edit = st.text_input("Nome Completo:", value=nome_atual)
-        tel_edit = st.text_input("Telefone:", value=telefone_atual)
-        
-        opcoes_esc_edit = ["Estudante de Graduação", "Especialista / Pós-Graduado", "Mestrando", "Mestre", "Doutorando", "Doutor", "Pós-Doutor", "Outro"]
+
+        nome_edit = st.text_input(ts['lbl_nome'], value=nome_atual)
+        tel_edit = st.text_input(ts['lbl_tel'], value=telefone_atual)
+
+        opcoes_esc_edit = ts['esc_opts']
         if escolaridade_atual not in opcoes_esc_edit:
             opcoes_esc_edit.append(escolaridade_atual)
-        esc_edit = st.selectbox("Escolaridade:", opcoes_esc_edit, index=opcoes_esc_edit.index(escolaridade_atual))
-        
-        inst_edit = st.text_input("Instituição de Vínculo:", value=inst_atual)
-        
-        if st.button("Salvar Alterações do Cadastro", type="primary"):
+        esc_edit = st.selectbox(ts['lbl_esc'], opcoes_esc_edit, index=opcoes_esc_edit.index(escolaridade_atual))
+
+        inst_edit = st.text_input(ts['lbl_inst'], value=inst_atual)
+
+        if st.button(ts['btn_salvar_cad'], type="primary"):
             if not nome_edit.strip() or not tel_edit.strip() or not inst_edit.strip():
-                st.error("    Preencha todos os campos obrigatórios.")
+                st.error("    " + ts['err_campos'])
             else:
                 if os.path.exists(caminho_csv):
                     try:
@@ -2188,7 +2300,7 @@ if st.session_state.get("abrir_configuracoes", False):
                             df_u.to_csv(caminho_csv, index=False, sep=";", encoding="utf-8-sig")
                     except Exception:
                         pass
-                
+
                 if db is not None:
                     try:
                         db.collection("usuarios").document(email_atual).set({
@@ -2199,63 +2311,61 @@ if st.session_state.get("abrir_configuracoes", False):
                         }, merge=True)
                     except Exception:
                         pass
-                        
+
                 st.session_state.nome_usuario = nome_edit.strip().split(" ")[0].capitalize()
-                st.success("🎉 Dados do cadastro atualizados com sucesso!")
+                st.success(ts['suc_cad'])
                 time.sleep(1.2)
                 st.rerun()
 
-    elif "🔑 Atualização de Senha" in opc_config:
-        st.subheader("🔑 Alterar Minha Senha de Acesso")
-        nova_s = st.text_input("Nova Senha:", type="password", key="settings_nova_senha")
-        conf_s = st.text_input("Confirmar Nova Senha:", type="password", key="settings_conf_senha")
-        if st.button("Atualizar Senha", type="primary"):
+    elif ts['opc_senha'] in opc_config:
+        st.subheader(ts['sub_senha'])
+        nova_s = st.text_input(ts['lbl_nova'], type="password", key="settings_nova_senha")
+        conf_s = st.text_input(ts['lbl_conf'], type="password", key="settings_conf_senha")
+        if st.button(ts['btn_salvar_senha'], type="primary"):
             if not nova_s.strip():
-                st.error("    A senha não pode estar em branco.")
+                st.error("    " + ts['err_senha_branca'])
             elif nova_s != conf_s:
-                st.error("    As senhas digitadas são diferentes.")
+                st.error("    " + ts['err_senha_diff'])
             else:
                 redefinir_senha_usuario(st.session_state.email_usuario, nova_s)
-                st.success("🎉 Senha alterada com sucesso!")
+                st.success(ts['suc_senha'])
                 time.sleep(1.2)
                 st.rerun()
-                
-    elif "🎨 Tema da Plataforma (Claro/Escuro)" in opc_config:
-        st.subheader("🎨 Estilo e Aparência da Plataforma")
-        tema_atual = "Modo Noturno (Escuro)" if st.session_state.get("dark_mode", False) else "Modo Diurno (Claro)"
-        st.info(f"O tema ativo atualmente é: **{tema_atual}**")
-        
+
+    elif ts['opc_tema'] in opc_config:
+        st.subheader(ts['sub_tema'])
+        tema_atual = ts['tema_escuro'] if st.session_state.get("dark_mode", False) else ts['tema_claro']
+        st.info(ts['lbl_tema_ativo'].format(tema=tema_atual))
+
         if st.session_state.get("dark_mode", False):
-            if st.button("Ativar Modo Diurno (Claro)", type="primary"):
+            if st.button(ts['btn_claro'], type="primary"):
                 st.session_state.dark_mode = False
                 st.rerun()
         else:
-            if st.button("Ativar Modo Noturno (Escuro)", type="primary"):
+            if st.button(ts['btn_escuro'], type="primary"):
                 st.session_state.dark_mode = True
                 st.rerun()
 
-    elif "📢 Compartilhar o SciPubs" in opc_config:
-        st.subheader("📢 Compartilhar o SciPubs")
+    elif ts['opc_comp'] in opc_config:
+        st.subheader(ts['sub_comp'])
         url_portal = "https://www.scipubs.com/"
-        texto_compartilhar = f"Confira o Buscador de Periodicos Cientificos do PPGE UFOP: {url_portal}"
-        
+        texto_compartilhar = f"{ts['txt_comp']}{url_portal}"
+
         msg_encoded = urllib.parse.quote(texto_compartilhar)
         link_wa = f"https://api.whatsapp.com/send?text={msg_encoded}"
-        link_mail = f"mailto:?subject=Portal%20do%20Pesquisador&body={msg_encoded}"
-        
-        st.write("Escolha uma das formas abaixo para divulgar o portal:")
+        link_mail = f"mailto:?subject=SciPubs&body={msg_encoded}"
+
+        st.write(ts['lbl_forma'])
         col_c1, col_c2, col_c3 = st.columns(3)
         with col_c1:
             st.markdown(f"[💬 WhatsApp]({link_wa})", unsafe_allow_html=True)
         with col_c2:
-            st.markdown(f"[✉  E-mail]({link_mail})", unsafe_allow_html=True)
+            st.markdown(f"[✉ E-mail]({link_mail})", unsafe_allow_html=True)
         with col_c3:
-            if st.button("📋 Copiar Link"):
+            if st.button(ts['btn_copiar']):
                 st.info(f"Link: `{url_portal}`")
-                st.success("Link copiado para exibição!")
+                st.success(ts['suc_copiar'])
 
-
-            
     st.stop()
 
 # Textos informativos traduzidos
