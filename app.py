@@ -3,78 +3,253 @@ faulthandler.enable()
 
 import streamlit as st
 
-@st.dialog("Termos de uso e política de privacidade", width="large")
-def modal_termos():
-    st.markdown("""
-### Termos de Uso e Política de Privacidade do SciPubs
+def get_texto_termos(lang):
+    if lang == 'English':
+        return '''### SciPubs Terms of Use and Privacy Policy
 
-TERMOS DE USO E POLÍTICA DE PRIVACIDADE
+**Last Updated:** July 13, 2026
 
-SciPubs: O Portal do Pesquisador
+**1. INTRODUCTION AND ACCEPTANCE**
 
-Data da Última Atualização: 13 de julho de 2026
+1.1. Welcome to SciPubs: The Researcher's Portal ("Platform"). This document ("Terms") governs your relationship with our Platform, establishing the conditions of use and personal data processing practices.
 
-1. INTRODUÇÃO E ACEITAÇÃO
-1.1. Bem-vindo ao SciPubs: O Portal do Pesquisador ("Plataforma"). Este documento ("Termos") rege a sua relação com a nossa Plataforma, estabelecendo as condições de uso e as práticas de tratamento de dados pessoais, em estrita conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - "LGPD").
-1.2. ACEITAÇÃO: Ao clicar no botão "Eu li e aceito os Termos de Uso e Política de Privacidade" e concluir o seu cadastro, você ("Titular") declara ter lido, compreendido e concordado integralmente com todas as disposições aqui contidas, manifestando seu consentimento livre, informado e inequívoco para o tratamento de seus dados pessoais para as finalidades aqui descritas. Caso não concorde com estes Termos, você não deverá utilizar a Plataforma.
+1.2. ACCEPTANCE: By clicking the "I have read and accept the Terms of Use" button and completing your registration, you ("Data Subject") declare to have read, understood, and fully agreed with all provisions contained herein, expressing your free, informed, and unambiguous consent for the processing of your personal data for the purposes described herein. If you do not agree with these Terms, you should not use the Platform.
 
-2. OBJETO E GRATUIDADE
+**2. PURPOSE AND GRATUITY**
+
+2.1. The Platform aims to assist researchers in the production and publication of scientific articles, offering a journal search tool, integrated with Artificial Intelligence (Google Gemini), and links to external academic resources.
+
+2.2. The access and use of all functionalities of the Platform are, as of the present date, entirely free. The Data Subject will be notified at least 30 (thirty) days in advance in the event of any changes to the business model.
+
+**3. VOLUNTARY DONATIONS**
+
+3.1. The Data Subject who wishes to support the maintenance and continuous development of the Platform may do so through voluntary donations, made in a specific section within the application.
+
+3.2. ABSENCE OF COUNTERPART: Donations are acts of mere liberality and do not grant the donating Data Subject any exclusive rights, benefits, features, products, or services in return. The access and resources of the Platform remain identical for all Data Subjects, whether donors or not.
+
+3.3. PAYMENT INTERMEDIARY: Donation transactions will be processed through third-party payment platforms (e.g., Buy Me a Coffee). By choosing to donate, the Data Subject will be directed to the intermediary's secure environment and will be subject to the Terms of Use and Privacy Policies of the respective payment platform.
+
+3.4. DISCLAIMER: SciPubs is not responsible for any failures, security breaches, or data collection carried out by the payment platform. The financial transaction and the data associated with it (such as credit card data) are the responsibility of the chosen intermediary.
+
+3.5. NON-REFUNDABLE: Due to their nature as voluntary acts without a counterpart, donations made are, as a rule, final and non-refundable.
+
+**4. DATA PROCESSING AGENTS AND DPO**
+
+4.1. SciPubs acts as the Controller of personal data. For the technical viability of the service, we use the infrastructure of Google LLC (Firebase), which acts as the Operator.
+
+4.2. DATA PROTECTION OFFICER (DPO): For any questions regarding these Terms or the exercise of your rights, the Data Subject may contact our Officer via email: support@scipubs.com.
+
+**5. PROCESSING OF PERSONAL DATA**
+
+5.1. LEGAL BASIS: The processing of all personal data collected by the Platform is based exclusively on the Data Subject's Consent, provided at the time of registration.
+
+5.2. DATA COLLECTED FOR PLATFORM OPERATION (MANDATORY): We collect the minimum data necessary for specific purposes, whose consent is provided at the time of main registration: Full Name and Email Address.
+
+5.3. DATA FOR USAGE RESEARCH PURPOSES (SECONDARY PURPOSE): With your specific consent, the data may be used for the elaboration of studies, articles, and scientific research. * ANONYMIZATION GUARANTEE: For this purpose, all data will be previously submitted to an anonymization process.
+
+5.4. DATA FOR DEMOGRAPHIC PROFILE RESEARCH (OPTIONAL AND SENSITIVE): The Platform offers the Data Subject the optional opportunity to contribute to research on diversity and inclusion. Participation is optional and uses an enhanced anonymization process.
+
+**6. DATA SUBJECT RIGHTS**
+
+6.1. The Data Subject has the right to, at any time: access their data, correct incomplete data, request deletion, or revoke consent.
+
+**7. SECURITY AND INTERNATIONAL TRANSFER**
+
+7.1. We employ technical and administrative measures to protect personal data from unauthorized access. Data is stored on secure cloud infrastructure (Google Firebase).
+
+7.2. INTERNATIONAL TRANSFER: By using Google's global infrastructure, personal data may be transferred and processed on servers located outside your country.
+
+**8. CHANGES AND FORUM**
+
+8.1. These Terms may be updated. The Data Subject will be notified of substantial changes.'''
+    elif lang == 'Español':
+        return '''### Términos de Uso y Política de Privacidad de SciPubs
+
+**Última Actualización:** 13 de julio de 2026
+
+**1. INTRODUCCIÓN Y ACEPTACIÓN**
+
+1.1. Bienvenido a SciPubs: El Portal del Investigador ("Plataforma"). Este documento ("Términos") rige su relación con nuestra Plataforma, estableciendo las condiciones de uso y las prácticas de tratamiento de datos personales.
+
+1.2. ACEPTACIÓN: Al hacer clic en el botón "He leído y acepto los Términos de Uso" y completar su registro, usted ("Titular") declara haber leído, comprendido y aceptado íntegramente todas las disposiciones aquí contenidas, manifestando su consentimiento libre e informado para el tratamiento de sus datos personales. Si no está de acuerdo con estos Términos, no debe utilizar la Plataforma.
+
+**2. OBJETO Y GRATUIDAD**
+
+2.1. La Plataforma tiene como objetivo ayudar a los investigadores en la producción y publicación de artículos científicos, ofreciendo una herramienta de búsqueda de revistas, integrada con Inteligencia Artificial (Google Gemini), y enlaces a recursos académicos externos.
+
+2.2. El acceso y uso de todas las funcionalidades de la Plataforma son, a la fecha actual, totalmente gratuitos. El Titular será notificado con al menos 30 (treinta) días de antelación en caso de cualquier cambio en el modelo de negocio.
+
+**3. DONACIONES VOLUNTARIAS**
+
+3.1. El Titular que desee apoyar el mantenimiento y el desarrollo continuo de la Plataforma podrá hacerlo a través de donaciones voluntarias, realizadas en una sección específica dentro de la aplicación.
+
+3.2. AUSENCIA DE CONTRAPARTIDA: Las donaciones son actos de mera liberalidad y no confieren al Titular donante ningún derecho, beneficio, característica, producto o servicio exclusivo a cambio. El acceso y los recursos de la Plataforma siguen siendo idénticos para todos los Titulares, sean donantes o no.
+
+3.3. INTERMEDIARIO DE PAGO: Las transacciones de donación se procesarán a través de plataformas de pago de terceros (ej. Buy Me a Coffee). Al optar por donar, el Titular será dirigido al entorno seguro del intermediario y estará sujeto a los Términos de Uso y Políticas de Privacidad de la respectiva plataforma de pago.
+
+3.4. EXENCIÓN DE RESPONSABILIDAD: SciPubs no se hace responsable de posibles fallos, brechas de seguridad o la recopilación de datos realizada por la plataforma de pago. La transacción financiera y los datos asociados a ella (como los datos de la tarjeta de crédito) son responsabilidad del intermediario elegido.
+
+3.5. NO REEMBOLSABLE: Debido a su naturaleza de acto voluntario sin contrapartida, las donaciones realizadas son, por regla general, finales y no reembolsables.
+
+**4. AGENTES DE TRATAMIENTO DE DATOS Y DPO**
+
+4.1. SciPubs actúa como Controlador de los datos personales. Para la viabilidad técnica del servicio, utilizamos la infraestructura de Google LLC (Firebase), que actúa como Operador.
+
+4.2. OFICIAL DE PROTECCIÓN DE DATOS (DPO): Para cualquier consulta sobre estos Términos, el Titular puede contactar a nuestro Oficial a través del correo electrónico: support@scipubs.com.
+
+**5. TRATAMIENTO DE DATOS PERSONALES**
+
+5.1. BASE LEGAL: El tratamiento de todos los datos personales recopilados por la Plataforma se basa exclusivamente en el Consentimiento del Titular, proporcionado en el momento del registro.
+
+5.2. DATOS RECOPILADOS PARA EL FUNCIONAMIENTO DE LA PLATAFORMA (OBLIGATORIO): Recopilamos los datos mínimos necesarios para fines específicos: Nombre Completo y Dirección de Correo Electrónico.
+
+5.3. DATOS PARA FINES DE INVESTIGACIÓN DE USO (PROPÓSITO SECUNDARIO): Con su consentimiento específico, los datos podrán ser utilizados para la elaboración de estudios e investigaciones científicas. * GARANTÍA DE ANONIMIZACIÓN: Todos los datos serán previamente sometidos a un proceso de anonimización.
+
+5.4. DATOS PARA INVESTIGACIÓN DE PERFIL DEMOGRÁFICO (OPCIONAL Y SENSIBLE): La Plataforma ofrece al Titular la oportunidad opcional de contribuir a la investigación sobre diversidad e inclusión. La participación es opcional y utiliza un proceso de anonimización mejorado.
+
+**6. DERECHOS DEL TITULAR**
+
+6.1. El Titular tiene el derecho de, en cualquier momento: acceder a sus datos, corregir datos incompletos, solicitar eliminación o revocar el consentimiento.
+
+**7. SEGURIDAD Y TRANSFERENCIA INTERNACIONAL**
+
+7.1. Empleamos medidas técnicas y administrativas para proteger los datos personales. Los datos se almacenan en infraestructura de nube segura (Google Firebase).
+
+7.2. TRANSFERENCIA INTERNACIONAL: Al utilizar la infraestructura global de Google, los datos personales pueden ser transferidos y procesados en servidores ubicados fuera de su país.
+
+**8. CAMBIOS Y FORO**
+
+8.1. Estos Términos pueden ser actualizados. El Titular será notificado de cambios sustanciales.'''
+    else:
+        return '''### Termos de Uso e Política de Privacidade do SciPubs
+
+**Data da Última Atualização:** 13 de julho de 2026
+
+**1. INTRODUÇÃO E ACEITAÇÃO**
+
+1.1. Bem-vindo ao SciPubs: O Portal do Pesquisador ("Plataforma"). Este documento ("Termos") rege a sua relação com a nossa Plataforma, estabelecendo as condições de uso e as práticas de tratamento de dados pessoais.
+
+1.2. ACEITAÇÃO: Ao clicar no botão "Eu li e aceito os Termos de Uso e Política de Privacidade" e concluir o seu cadastro, você ("Titular") declara ter lido, compreendido e concordado integralmente com todas as disposições aqui contidas, manifestando seu consentimento livre, informado e inequívoco para o tratamento de seus dados pessoais. Caso não concorde com estes Termos, você não deverá utilizar a Plataforma.
+
+**2. OBJETO E GRATUIDADE**
+
 2.1. A Plataforma tem como objetivo auxiliar pesquisadores na produção e publicação de artigos científicos, oferecendo uma ferramenta de busca em periódicos, integrada com Inteligência Artificial (Google Gemini), e links para recursos acadêmicos externos.
+
 2.2. O acesso e uso de todas as funcionalidades da Plataforma são, na presente data, inteiramente gratuitos. O Titular será notificado com antecedência mínima de 30 (trinta) dias caso haja qualquer alteração no modelo de negócio.
 
-3. DOAÇÕES VOLUNTÁRIAS
+**3. DOAÇÕES VOLUNTÁRIAS**
+
 3.1. O Titular que desejar apoiar a manutenção e o desenvolvimento contínuo da Plataforma poderá fazê-lo através de doações voluntárias, realizadas em seção específica dentro do aplicativo.
+
 3.2. AUSÊNCIA DE CONTRAPARTIDA: As doações são atos de mera liberalidade e não conferem ao Titular doador quaisquer direitos, benefícios, funcionalidades exclusivas, produtos ou serviços em contrapartida. O acesso e os recursos da Plataforma permanecem idênticos para todos os Titulares, doadores ou não.
-3.3. INTERMEDIADOR DE PAGAMENTO: As transações de doação serão processadas por meio de plataformas de pagamento de terceiros (ex: PayPal, Stripe, PagSeguro). Ao optar por doar, o Titular será direcionado ao ambiente seguro do intermediador e estará sujeito aos Termos de Uso e Políticas de Privacidade da respectiva plataforma de pagamento.
+
+3.3. INTERMEDIADOR DE PAGAMENTO: As transações de doação serão processadas por meio de plataformas de pagamento de terceiros (ex: Buy Me a Coffee). Ao optar por doar, o Titular será direcionado ao ambiente seguro do intermediador e estará sujeito aos Termos de Uso e Políticas de Privacidade da respectiva plataforma de pagamento.
+
 3.4. ISENÇÃO DE RESPONSABILIDADE: O SciPubs não se responsabiliza por eventuais falhas, violações de segurança ou pela coleta de dados realizada pela plataforma de pagamento. A transação financeira e os dados a ela associados (como dados de cartão de crédito) são de responsabilidade do intermediador escolhido.
+
 3.5. NÃO REEMBOLSO: Por sua natureza de ato voluntário e sem contrapartida, as doações realizadas são, em regra, finais e não reembolsáveis.
 
-4. AGENTES DE TRATAMENTO E ENCARREGADO (DPO)
+**4. AGENTES DE TRATAMIENTO E ENCARREGADO (DPO)**
+
 4.1. Para os fins da LGPD, o SciPubs atua como Controlador dos dados pessoais. Para a viabilização técnica do serviço, utilizamos a infraestrutura da Google LLC (Firebase), que atua como Operadora.
-4.2. ENCARREGADO PELO TRATAMENTO DE DADOS (DPO): Para qualquer questão relativa a estes Termos ou ao exercício de seus direitos, o Titular poderá contatar nosso Encarregado através do e-mail: support@scipubs.com.
 
-5. TRATAMENTO DE DADOS PESSOAIS
-5.1. BASE LEGAL: O tratamento de todos os dados pessoais coletados pela Plataforma fundamenta-se exclusivamente no Consentimento do Titular (Art. 7º, I, da LGPD), fornecido no ato do cadastro ou em seções específicas da Plataforma.
-5.2. DADOS COLETADOS PARA FUNCIONAMENTO DA PLATAFORMA (OBRIGATÓRIO): Coletamos o mínimo de dados necessários para as seguintes finalidades específicas, cujo consentimento é fornecido no ato do cadastro principal: * Nome Completo e Endereço de E-mail: Para identificação, criação e gerenciamento da sua conta, controle de acesso e envio de comunicações transacionais indispensáveis ao uso da Plataforma. * Vínculo Institucional e Nível de Escolaridade: Para personalizar e otimizar a relevância dos resultados de busca oferecidos pela ferramenta.
-5.3. DADOS PARA FINS DE PESQUISA DE USO (FINALIDADE SECUNDÁRIA): Com o seu consentimento específico (fornecido através de caixa de seleção própria no momento do cadastro), os dados listados no item 5.2, somados a dados de uso da plataforma, poderão ser utilizados para a elaboração de estudos, artigos e pesquisas científicas. * GARANTIA DE ANONIMIZAÇÃO: Para esta finalidade, todos os dados serão previamente submetidos a um processo de anonimização, que desvincula permanentemente as informações da sua identidade, impossibilitando a sua identificação por terceiros, em conformidade com o Art. 12 da LGPD.
-5.4. DADOS PARA PESQUISA DE PERFIL DEMOGRÁFICO (OPCIONAL E SENSÍVEL): * a) Voluntariedade: A Plataforma oferece ao Titular a oportunidade opcional de contribuir com pesquisas sobre diversidade e inclusão no meio científico. A não participação não gera qualquer prejuízo ou limitação no uso das funcionalidades da Plataforma. * b) Dados Coletados Opcionalmente: Em seção própria e identificada, o Titular poderá, se assim desejar, fornecer dados pessoais como idade, país, gênero e raça/etnia. O dado referente à raça/etnia é classificado pela LGPD como dado pessoal sensível. * c) Consentimento Específico e Destacado: A coleta destes dados está condicionada a um novo consentimento, específico, informado e destacado, que será solicitado ao Titular dentro da seção opcional, antes de qualquer preenchimento, em conformidade com o Art. 11 da LGPD. * d) Finalidade: Os dados coletados nesta seção voluntária serão utilizados exclusivamente para a elaboração de estudos e relatórios estatísticos sobre o perfil demográfico de pesquisadores, visando fomentar o debate sobre políticas de acesso e diversidade. * e) Anonimização Reforçada: Para qualquer publicação ou divulgação externa, os dados e conclusões serão apresentados de forma agregada e rigorosamente anonimizada, sendo impossível a identificação de qualquer Titular.
-5.5. DADOS NÃO COLETADOS DE FORMA OBRIGATÓRIA: O SciPubs não coleta, como condição para o uso da plataforma, dados sensíveis (como origem racial ou étnica, convicção religiosa, opinião política, dados de saúde ou genéticos) nem dados como número de telefone, por não serem estritamente necessários às finalidades essenciais da Plataforma (Princípio da Necessidade, Art. 6º, III, da LGPD).
+4.2. ENCARREGADO PELO TRATAMENTO DE DADOS (DPO): Para qualquer questão relativa a estes Termos, o Titular poderá contatar nosso Encarregado através do e-mail: support@scipubs.com.
 
-6. DIREITOS DO TITULAR
-6.1. Em conformidade com o Art. 18 da LGPD, o Titular tem o direito de, a qualquer momento e mediante requisição ao nosso Encarregado (DPO): a) Confirmar a existência de tratamento de seus dados; b) Acessar seus dados; c) Corrigir dados incompletos, inexatos ou desatualizados; d) Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD; e) Solicitar a portabilidade dos dados a outro fornecedor de serviço; f) Solicitar a eliminação dos dados pessoais tratados com o seu consentimento; g) Obter informação sobre as entidades com as quais o Controlador realizou uso compartilhado de dados; h) Revogar o consentimento a qualquer tempo.
-6.2. A revogação do consentimento para o tratamento de dados indispensáveis (item 5.2) implicará na impossibilidade de uso da Plataforma e na eliminação da conta.
+**5. TRATAMENTO DE DADOS PESSOAIS**
 
-7. SEGURANÇA E TRANSFERÊNCIA INTERNACIONAL
-7.1. Empregamos medidas técnicas e administrativas aptas a proteger os dados pessoais de acessos não autorizados e de situações de destruição, perda ou alteração. Os dados são armazenados em infraestrutura de nuvem segura (Google Firebase), que adota padrões de criptografia e segurança reconhecidos internacionalmente.
-7.2. TRANSFERÊNCIA INTERNACIONAL: Ao utilizar a infraestrutura global da Google, os dados pessoais do Titular podem ser transferidos e processados em servidores localizados fora do Brasil. Essa transferência é realizada em conformidade com a LGPD, assegurando que o país de destino ou o operador ofereçam o grau de proteção de dados exigido pela legislação brasileira.
-8. ALTERAÇÕES E FORO
-8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado por e-mail ou por aviso em destaque na Plataforma, sendo convidado a anuir com as novas condições.
-8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do SciPubs, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
+5.1. BASE LEGAL: O tratamento de todos os dados pessoais coletados pela Plataforma fundamenta-se exclusivamente no Consentimento do Titular, fornecido no ato do cadastro.
 
-    """)
-    if st.button("Fechar", type="primary"):
+5.2. DADOS COLETADOS PARA FUNCIONAMENTO DA PLATAFORMA (OBRIGATÓRIO): Coletamos o mínimo de dados necessários para as seguintes finalidades específicas: Nome Completo e Endereço de E-mail.
+
+5.3. DADOS PARA FINS DE PESQUISA DE USO (FINALIDADE SECUNDÁRIA): Com o seu consentimento específico, os dados poderão ser utilizados para a elaboração de estudos, artigos e pesquisas científicas. * GARANTIA DE ANONIMIZAÇÃO: Para esta finalidade, todos os dados serão previamente submetidos a um processo de anonimização.
+
+5.4. DADOS PARA PESQUISA DE PERFIL DEMOGRÁFICO (OPCIONAL E SENSÍVEL): A Plataforma oferece ao Titular a oportunidade opcional de contribuir com pesquisas sobre diversidade e inclusão. A participação é opcional e utiliza anonimização reforçada.
+
+**6. DIREITOS DO TITULAR**
+
+6.1. O Titular tem o direito de, a qualquer momento: acessar seus dados, corrigir dados incompletos, solicitar a eliminação ou revogar o consentimento.
+
+**7. SEGURANÇA E TRANSFERENCIA INTERNACIONAL**
+
+7.1. Empregamos medidas técnicas e administrativas aptas a proteger os dados pessoais. Os dados são armazenados em infraestrutura de nuvem segura (Google Firebase).
+
+7.2. TRANSFERÊNCIA INTERNACIONAL: Ao utilizar a infraestrutura global da Google, os dados pessoais do Titular podem ser transferidos e processados em servidores localizados fora do Brasil.
+
+**8. ALTERAÇÕES E FORO**
+
+8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado.
+'''
+
+@st.dialog("📄 Termos de Uso e Política de Privacidade / Terms of Use / Términos de Uso", width="large")
+def modal_termos():
+    lang = st.session_state.get('idioma', 'Português')
+    texto_termos = get_texto_termos(lang)
+    st.markdown(texto_termos)
+    
+    fechar_btn = "Fechar"
+    if lang == 'English': fechar_btn = "Close"
+    elif lang == 'Español': fechar_btn = "Cerrar"
+        
+    if st.button(fechar_btn, type="primary"):
         st.rerun()
 
-@st.dialog("❤️ Muito obrigado por apoiar o SciPubs!", width="large")
+@st.dialog("❤️ Apoie o SciPubs! / Support SciPubs!", width="large")
 def modal_doacao():
-    st.markdown("""
-    A sua doação voluntária é fundamental para mantermos os nossos servidores ativos e continuarmos desenvolvendo novas ferramentas tecnológicas para a comunidade acadêmica e científica.
+    lang = st.session_state.get('idioma', 'Português')
     
-    **Importante:** A sua doação é totalmente espontânea e não exige nenhuma contrapartida de serviços da nossa plataforma.
-    
-    **Doações Nacionais (PIX):**
-    - **Chave PIX:** `seu-email-ou-telefone@aqui.com`
-    - **Titular:** Seu Nome Completo
-    - **Banco:** Seu Banco
-    
-    **Doações Internacionais:**
-    Para pesquisadores de fora do Brasil, aceitamos contribuições via PayPal ou BuyMeACoffee:
-    - [Apoiar via PayPal](https://paypal.com/)
-    - [Buy Me a Coffee](https://buymeacoffee.com/)
-    """)
-    if st.button("Finalizar Cadastro e Fechar", type="primary"):
-        st.session_state.modo_cadastro = False
-        st.session_state.modo_login = True
+    if lang == 'English':
+        st.markdown('''
+        ### Thank you for supporting Science!
+        Your voluntary donation is essential for us to keep our servers active and continue developing new technological tools for the academic and scientific community.
+        
+        **How to donate:**
+        We use **Buy Me a Coffee**, a secure international platform. It's very simple:
+        1. Click the link below to go to our official page.
+        2. Choose the number of "coffees" you want to donate (each coffee represents a small symbolic amount).
+        3. Complete the payment securely using a credit card or other available local methods.
+        
+        👉 **[Click here to donate via Buy Me a Coffee](https://buymeacoffee.com/scipubs)**
+        
+        *Important: Your donation is completely voluntary and does not require any service counterpart from our platform.*
+        ''')
+        btn_close = "Close"
+    elif lang == 'Español':
+        st.markdown('''
+        ### ¡Gracias por apoyar la Ciencia!
+        Su donación voluntaria es fundamental para mantener nuestros servidores activos y continuar desarrollando nuevas herramientas tecnológicas para la comunidad académica y científica.
+        
+        **Cómo donar:**
+        Utilizamos **Buy Me a Coffee**, una plataforma internacional segura. Es muy sencillo:
+        1. Haga clic en el enlace de abajo para ir a nuestra página oficial.
+        2. Elija la cantidad de "cafés" que desea donar (cada café representa una pequeña cantidad simbólica).
+        3. Complete el pago de forma segura utilizando una tarjeta de crédito u otros métodos locales disponibles.
+        
+        👉 **[Haga clic aquí para donar a través de Buy Me a Coffee](https://buymeacoffee.com/scipubs)**
+        
+        *Importante: Su donación es completamente voluntaria y no exige ninguna contrapartida de servicios de nuestra plataforma.*
+        ''')
+        btn_close = "Cerrar"
+    else:
+        st.markdown('''
+        ### Obrigado por apoiar a Ciência!
+        A sua doação voluntária é fundamental para mantermos os nossos servidores ativos e continuarmos desenvolvendo novas ferramentas tecnológicas para a comunidade acadêmica e científica.
+        
+        **Como realizar a sua doação:**
+        Nós utilizamos o **Buy Me a Coffee**, uma plataforma internacional segura. É muito simples:
+        1. Clique no link abaixo para acessar a nossa página oficial.
+        2. Escolha a quantidade de "cafés" que deseja doar (cada café representa um pequeno valor simbólico, geralmente $5).
+        3. Conclua o pagamento de forma segura utilizando seu cartão de crédito, Apple Pay, Google Pay ou outros métodos disponíveis.
+        
+        👉 **[Clique aqui para doar pelo Buy Me a Coffee](https://buymeacoffee.com/scipubs)**
+        
+        *Importante: A sua doação é totalmente espontânea e não exige nenhuma contrapartida de serviços da nossa plataforma.*
+        ''')
+        btn_close = "Fechar"
+        
+    if st.button(btn_close, type="primary"):
+        if st.session_state.get('modo_cadastro', False):
+            st.session_state.modo_cadastro = False
+            st.session_state.modo_login = True
         st.rerun()
 import pandas as pd
 import urllib.parse
@@ -1774,10 +1949,9 @@ if not st.session_state.registrado:
                         
 
     else:
-        if st.button("📄 Abrir Pop-up de Termos de Uso e Política de Privacidade"):
-            modal_termos()
+        
 
-        with st.form("form_cadastro_usuario", clear_on_submit=False):
+        with st.container():
             col_reg_1, col_reg_2 = st.columns(2)
             with col_reg_1:
                 nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
@@ -1812,59 +1986,24 @@ if not st.session_state.registrado:
                 senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
             
             st.markdown("<hr style='border-top:1px solid #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
-            st.markdown("### Termos e Consentimentos")
+            lbl_t_c = "### Termos e Consentimentos" if st.session_state.get('idioma', 'Português') == 'Português' else ("### Terms and Consents" if st.session_state.get('idioma', 'Português') == 'English' else "### Términos y Consentimientos")
+            st.markdown(lbl_t_c)
             # Como st.button não é permitido dentro de st.form, usamos um expander que age como um pop-up embutido
-            with st.expander("📄 Ler Termos de uso e política de privacidade"):
-                st.info("Para ler os termos em uma janela flutuante maior, use o botão disponível acima do formulário de cadastro.")
-                st.markdown("""**TERMOS DE USO E POLÍTICA DE PRIVACIDADE
-
-SciPubs: O Portal do Pesquisador
-
-Data da Última Atualização: 13 de julho de 2026
-
-1. INTRODUÇÃO E ACEITAÇÃO
-1.1. Bem-vindo ao SciPubs: O Portal do Pesquisador ("Plataforma"). Este documento ("Termos") rege a sua relação com a nossa Plataforma, estabelecendo as condições de uso e as práticas de tratamento de dados pessoais, em estrita conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 - "LGPD").
-1.2. ACEITAÇÃO: Ao clicar no botão "Eu li e aceito os Termos de Uso e Política de Privacidade" e concluir o seu cadastro, você ("Titular") declara ter lido, compreendido e concordado integralmente com todas as disposições aqui contidas, manifestando seu consentimento livre, informado e inequívoco para o tratamento de seus dados pessoais para as finalidades aqui descritas. Caso não concorde com estes Termos, você não deverá utilizar a Plataforma.
-
-2. OBJETO E GRATUIDADE
-2.1. A Plataforma tem como objetivo auxiliar pesquisadores na produção e publicação de artigos científicos, oferecendo uma ferramenta de busca em periódicos, integrada com Inteligência Artificial (Google Gemini), e links para recursos acadêmicos externos.
-2.2. O acesso e uso de todas as funcionalidades da Plataforma são, na presente data, inteiramente gratuitos. O Titular será notificado com antecedência mínima de 30 (trinta) dias caso haja qualquer alteração no modelo de negócio.
-
-3. DOAÇÕES VOLUNTÁRIAS
-3.1. O Titular que desejar apoiar a manutenção e o desenvolvimento contínuo da Plataforma poderá fazê-lo através de doações voluntárias, realizadas em seção específica dentro do aplicativo.
-3.2. AUSÊNCIA DE CONTRAPARTIDA: As doações são atos de mera liberalidade e não conferem ao Titular doador quaisquer direitos, benefícios, funcionalidades exclusivas, produtos ou serviços em contrapartida. O acesso e os recursos da Plataforma permanecem idênticos para todos os Titulares, doadores ou não.
-3.3. INTERMEDIADOR DE PAGAMENTO: As transações de doação serão processadas por meio de plataformas de pagamento de terceiros (ex: PayPal, Stripe, PagSeguro). Ao optar por doar, o Titular será direcionado ao ambiente seguro do intermediador e estará sujeito aos Termos de Uso e Políticas de Privacidade da respectiva plataforma de pagamento.
-3.4. ISENÇÃO DE RESPONSABILIDADE: O SciPubs não se responsabiliza por eventuais falhas, violações de segurança ou pela coleta de dados realizada pela plataforma de pagamento. A transação financeira e os dados a ela associados (como dados de cartão de crédito) são de responsabilidade do intermediador escolhido.
-3.5. NÃO REEMBOLSO: Por sua natureza de ato voluntário e sem contrapartida, as doações realizadas são, em regra, finais e não reembolsáveis.
-
-4. AGENTES DE TRATAMENTO E ENCARREGADO (DPO)
-4.1. Para os fins da LGPD, o SciPubs atua como Controlador dos dados pessoais. Para a viabilização técnica do serviço, utilizamos a infraestrutura da Google LLC (Firebase), que atua como Operadora.
-4.2. ENCARREGADO PELO TRATAMENTO DE DADOS (DPO): Para qualquer questão relativa a estes Termos ou ao exercício de seus direitos, o Titular poderá contatar nosso Encarregado através do e-mail: support@scipubs.com.
-
-5. TRATAMENTO DE DADOS PESSOAIS
-5.1. BASE LEGAL: O tratamento de todos os dados pessoais coletados pela Plataforma fundamenta-se exclusivamente no Consentimento do Titular (Art. 7º, I, da LGPD), fornecido no ato do cadastro ou em seções específicas da Plataforma.
-5.2. DADOS COLETADOS PARA FUNCIONAMENTO DA PLATAFORMA (OBRIGATÓRIO): Coletamos o mínimo de dados necessários para as seguintes finalidades específicas, cujo consentimento é fornecido no ato do cadastro principal: * Nome Completo e Endereço de E-mail: Para identificação, criação e gerenciamento da sua conta, controle de acesso e envio de comunicações transacionais indispensáveis ao uso da Plataforma. * Vínculo Institucional e Nível de Escolaridade: Para personalizar e otimizar a relevância dos resultados de busca oferecidos pela ferramenta.
-5.3. DADOS PARA FINS DE PESQUISA DE USO (FINALIDADE SECUNDÁRIA): Com o seu consentimento específico (fornecido através de caixa de seleção própria no momento do cadastro), os dados listados no item 5.2, somados a dados de uso da plataforma, poderão ser utilizados para a elaboração de estudos, artigos e pesquisas científicas. * GARANTIA DE ANONIMIZAÇÃO: Para esta finalidade, todos os dados serão previamente submetidos a um processo de anonimização, que desvincula permanentemente as informações da sua identidade, impossibilitando a sua identificação por terceiros, em conformidade com o Art. 12 da LGPD.
-5.4. DADOS PARA PESQUISA DE PERFIL DEMOGRÁFICO (OPCIONAL E SENSÍVEL): * a) Voluntariedade: A Plataforma oferece ao Titular a oportunidade opcional de contribuir com pesquisas sobre diversidade e inclusão no meio científico. A não participação não gera qualquer prejuízo ou limitação no uso das funcionalidades da Plataforma. * b) Dados Coletados Opcionalmente: Em seção própria e identificada, o Titular poderá, se assim desejar, fornecer dados pessoais como idade, país, gênero e raça/etnia. O dado referente à raça/etnia é classificado pela LGPD como dado pessoal sensível. * c) Consentimento Específico e Destacado: A coleta destes dados está condicionada a um novo consentimento, específico, informado e destacado, que será solicitado ao Titular dentro da seção opcional, antes de qualquer preenchimento, em conformidade com o Art. 11 da LGPD. * d) Finalidade: Os dados coletados nesta seção voluntária serão utilizados exclusivamente para a elaboração de estudos e relatórios estatísticos sobre o perfil demográfico de pesquisadores, visando fomentar o debate sobre políticas de acesso e diversidade. * e) Anonimização Reforçada: Para qualquer publicação ou divulgação externa, os dados e conclusões serão apresentados de forma agregada e rigorosamente anonimizada, sendo impossível a identificação de qualquer Titular.
-5.5. DADOS NÃO COLETADOS DE FORMA OBRIGATÓRIA: O SciPubs não coleta, como condição para o uso da plataforma, dados sensíveis (como origem racial ou étnica, convicção religiosa, opinião política, dados de saúde ou genéticos) nem dados como número de telefone, por não serem estritamente necessários às finalidades essenciais da Plataforma (Princípio da Necessidade, Art. 6º, III, da LGPD).
-
-6. DIREITOS DO TITULAR
-6.1. Em conformidade com o Art. 18 da LGPD, o Titular tem o direito de, a qualquer momento e mediante requisição ao nosso Encarregado (DPO): a) Confirmar a existência de tratamento de seus dados; b) Acessar seus dados; c) Corrigir dados incompletos, inexatos ou desatualizados; d) Solicitar a anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a LGPD; e) Solicitar a portabilidade dos dados a outro fornecedor de serviço; f) Solicitar a eliminação dos dados pessoais tratados com o seu consentimento; g) Obter informação sobre as entidades com as quais o Controlador realizou uso compartilhado de dados; h) Revogar o consentimento a qualquer tempo.
-6.2. A revogação do consentimento para o tratamento de dados indispensáveis (item 5.2) implicará na impossibilidade de uso da Plataforma e na eliminação da conta.
-
-7. SEGURANÇA E TRANSFERÊNCIA INTERNACIONAL
-7.1. Empregamos medidas técnicas e administrativas aptas a proteger os dados pessoais de acessos não autorizados e de situações de destruição, perda ou alteração. Os dados são armazenados em infraestrutura de nuvem segura (Google Firebase), que adota padrões de criptografia e segurança reconhecidos internacionalmente.
-7.2. TRANSFERÊNCIA INTERNACIONAL: Ao utilizar a infraestrutura global da Google, os dados pessoais do Titular podem ser transferidos e processados em servidores localizados fora do Brasil. Essa transferência é realizada em conformidade com a LGPD, assegurando que o país de destino ou o operador ofereçam o grau de proteção de dados exigido pela legislação brasileira.
-8. ALTERAÇÕES E FORO
-8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado por e-mail ou por aviso em destaque na Plataforma, sendo convidado a anuir com as novas condições.
-8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do SciPubs, com renúncia expressa a qualquer outro, por mais privilegiado que seja.""")
+            lbl_termos = "📄 Ler Termos de uso e política de privacidade" if st.session_state.get('idioma', 'Português') == 'Português' else ("📄 Read Terms of Use and Privacy Policy" if st.session_state.get('idioma', 'Português') == 'English' else "📄 Leer Términos de Uso y Política de Privacidad")
+            with st.expander(lbl_termos):
+                st.markdown(get_texto_termos(st.session_state.get('idioma', 'Português')))
                 
-            aceitou_termos = st.checkbox("Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)")
-            aceitou_pesquisa = st.checkbox("Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)")
-            deseja_doar = st.checkbox("Desejo realizar uma doação ao SciPubs (Opcional)")
+            lbl_cb1 = "Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)" if st.session_state.get('idioma', 'Português') == 'Português' else ("By clicking Agree and continue, you accept the SciPubs Terms of Use and Privacy Policy (Mandatory)" if st.session_state.get('idioma', 'Português') == 'English' else "Al hacer clic en Aceptar y continuar, aceptas los Términos de uso y la política de privacidad de SciPubs (Obligatorio)")
+            aceitou_termos = st.checkbox(lbl_cb1)
+            lbl_cb2 = "Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)" if st.session_state.get('idioma', 'Português') == 'Português' else ("I agree to participate in future research and give my consent for the use of my data for academic and scientific purposes (Optional)" if st.session_state.get('idioma', 'Português') == 'English' else "Acepto participar en futuras investigaciones y doy mi consentimiento para el uso de mis datos con fines académicos y científicos (Opcional)")
+            aceitou_pesquisa = st.checkbox(lbl_cb2)
+            lbl_doacao = "❤️ Desejo apoiar o SciPubs (Doação)" if st.session_state.get('idioma', 'Português') == 'Português' else ("❤️ I want to support SciPubs (Donation)" if st.session_state.get('idioma', 'Português') == 'English' else "❤️ Deseo apoyar SciPubs (Donación)")
+            if st.button(lbl_doacao, type="secondary", use_container_width=True):
+                modal_doacao()
+            
     
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
+            btn_registrar = st.button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
             
         if btn_registrar:
             if not aceitou_termos:
@@ -1900,7 +2039,7 @@ Data da Última Atualização: 13 de julho de 2026
                     status_confirmado=False,
                     aceitou_termos=aceitou_termos,
                     aceitou_pesquisa=aceitou_pesquisa,
-                    deseja_doar=deseja_doar
+                    deseja_doar=False
                 )
                 if sucesso_cadastro:
                     enviado, erro = enviar_email_confirmacao(email_cad.strip(), token_confirmacao)
@@ -1910,12 +2049,9 @@ Data da Última Atualização: 13 de julho de 2026
                         st.warning("    Conta criada, mas não foi possível enviar o e-mail de confirmação.")
                         st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
                     
-                    if deseja_doar:
-                        modal_doacao()
-                    else:
-                        st.session_state.modo_cadastro = False
-                        st.session_state.modo_login = True
-                        st.rerun()
+                    st.session_state.modo_cadastro = False
+                    st.session_state.modo_login = True
+                    st.rerun()
                     time.sleep(4)
                     st.rerun()
                 else:
