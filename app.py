@@ -61,9 +61,11 @@ def get_texto_termos(lang):
 
 7.2. INTERNATIONAL TRANSFER: By using Google's global infrastructure, personal data may be transferred and processed on servers located outside your country.
 
-**8. CHANGES AND FORUM**
+**8. CHANGES AND JURISDICTION**
 
-8.1. These Terms may be updated. The Data Subject will be notified of substantial changes.'''
+8.1. These Terms may be updated. The Data Subject will be notified of substantial changes.
+
+8.2. JURISDICTION: The courts of the judicial district where the *Portal do Pesquisador* is headquartered are designated to resolve any disputes arising from these Terms, with the express waiver of any other jurisdiction, however privileged it may be.'''
     elif lang == 'Español':
         return '''### Términos de Uso y Política de Privacidad de SciPubs
 
@@ -119,9 +121,11 @@ def get_texto_termos(lang):
 
 7.2. TRANSFERENCIA INTERNACIONAL: Al utilizar la infraestructura global de Google, los datos personales pueden ser transferidos y procesados en servidores ubicados fuera de su país.
 
-**8. CAMBIOS Y FORO**
+**8. CAMBIOS Y JURISDICCIÓN**
 
-8.1. Estos Términos pueden ser actualizados. El Titular será notificado de cambios sustanciales.'''
+8.1. Estos Términos pueden ser actualizados. El Titular será notificado de cambios sustanciales.
+
+8.2. JURISDICCIÓN: Para resolver cualquier disputa que surja de estos Términos, se elegirá la jurisdicción del tribunal donde se encuentra la sede del Portal do Pesquisador, renunciando expresamente a cualquier otra, por muy privilegiada que sea.'''
     else:
         return '''### Termos de Uso e Política de Privacidade do SciPubs
 
@@ -180,6 +184,8 @@ def get_texto_termos(lang):
 **8. ALTERAÇÕES E FORO**
 
 8.1. Estes Termos poderão ser atualizados. Ocorrendo alterações substanciais, o Titular será notificado.
+
+8.2. FORO: Para dirimir quaisquer controvérsias oriundas destes Termos, fica eleito o foro da Comarca da sede do Portal do Pesquisador, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
 '''
 
 @st.dialog("📄 Termos de Uso e Política de Privacidade / Terms of Use / Términos de Uso", width="large")
