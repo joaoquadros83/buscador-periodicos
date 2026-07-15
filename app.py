@@ -795,7 +795,10 @@ Esta herramienta es gratuita. Para usarla, necesita una clave de API de Google G
         "reg_escolaridade": "Titulación:",
         "reg_instituicao": "Institución de Vínculo:",
         "reg_inst_outra": "Especifique su Institución:",
-        "reg_area_interesse": "Gran  rea de Interés Predominante:",
+	"reg_idade": "Fecha de Nacimiento",
+	"reg_sexo": "Sexo",
+        "reg_raca": "Raza/Etnía",
+        "reg_area_interesse": "Gran Area de Interés Predominante:",
         "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
         "reg_sucesso": "🎉 ¡Registro completado con éxito! Bienvenido a SciPubs: El Portal del Investigador.",
         "reg_erro_campos": "    Por favor, complete todos los campos obligatorios.",
@@ -1014,13 +1017,13 @@ def carregar_dados():
             # Renomeia as colunas do CSV para garantir a acentuação correta utilizada no código
             df = df.rename(columns={
                 "Grande Area": "Grande Área",
-                "Grande  rea": "Grande Área",
+                "Grande Area": "Grande Área",
                 "Area do Conhecimento": "Área do Conhecimento",
-                " rea do Conhecimento": "Área do Conhecimento",
-                "Subrea do Conhecimento": "Subárea do Conhecimento",
-                "Sub rea do Conhecimento": "Subárea do Conhecimento",
-                "Ttulo da Revista": "Título da Revista",
-                "T tulo da Revista": "Título da Revista",
+                "Area do Conhecimento": "Área do Conhecimento",
+                "Subarea do Conhecimento": "Subárea do Conhecimento",
+                "Subarea do Conhecimento": "Subárea do Conhecimento",
+                "Título da Revista": "Título da Revista",
+                "Título da Revista": "Título da Revista",
                 "Índice h5": "Índice h5"
             })
 
