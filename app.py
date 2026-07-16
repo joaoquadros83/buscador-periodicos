@@ -2318,9 +2318,9 @@ with tab_ia:
                 status_container.info(f"  {t['ia_analisando']}")
                 
                 df_candidatos = df_original.copy()
-                if area_ia != "Todas":
+                if area_ia != "Todas" and area_ia != t.get("ia_todas", "Todas"):
                     df_candidatos = df_candidatos[df_candidatos["Grande Área"] == area_ia]
-                if indexador_ia != "Todos":
+                if indexador_ia != "Todos" and indexador_ia != t.get("ia_todos", "Todos"):
                     df_candidatos = df_candidatos[df_candidatos["Indexador"].astype(str).str.contains(re.escape(indexador_ia), case=False, na=False)]
                 
                 # Validação caso a base filtrada esteja vazia
