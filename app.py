@@ -1883,9 +1883,9 @@ _lang = st.session_state.get('idioma', 'English')
 
 _btn_donate = "☕ Donate"
 if _lang == 'Português':
-    _btn_sub = "✉️ Doação"
+    _btn_sub = "☕ Doação"
 elif _lang == 'Español':
-    _btn_sub = "✉️ Donaciones"
+    _btn_sub = "☕ Donaciones"
 
 _btn_sub = "✉️ Subscribe"
 if _lang == 'Português':
