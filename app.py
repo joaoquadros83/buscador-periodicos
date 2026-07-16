@@ -2359,10 +2359,16 @@ with tab_ia:
                             
                             if response.status_code == 200:
                                 texto_res = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                                texto_res = re.sub(r'^```(?:json)?\n|```$', '', texto_res, flags=re.MULTILINE).strip()
-                                match = re.search(r'\[\s*".*"\s*\]', texto_res, re.DOTALL)
+                                texto_res = re.sub(r'^```(?:json)?\n?|```$', '', texto_res, flags=re.MULTILINE).strip()
+                                # Regex robusto: captura qualquer array JSON (não apenas de strings)
+                                match = re.search(r'\[.*?\]', texto_res, re.DOTALL)
                                 if match:
-                                    palavras_multilingue = json.loads(match.group(0))
+                                    try:
+                                        parsed = json.loads(match.group(0))
+                                        # Garante que todos os itens são strings
+                                        palavras_multilingue = [str(t).lower().strip() for t in parsed if str(t).strip()]
+                                    except json.JSONDecodeError:
+                                        pass
                                 break
                             elif response.status_code == 429:
                                 cota_esgotada = True
@@ -2372,10 +2378,11 @@ with tab_ia:
                         if cota_esgotada:
                             break
                             
-                    # Fallback local simples se a IA falhar na tradução
+                    # Fallback local robusto se a IA falhar na tradução
                     if not palavras_multilingue:
                         texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                        palavras_multilingue = list(set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca)))
+                        # Regex corrigido: sem espaço no range de caracteres especiais
+                        palavras_multilingue = list(set(re.findall(r'\b[a-zA-Zà-ü]{4,}\b', texto_busca)))
                         
                     # ==================== ESTÁGIO 2: CÁLCULO DE RELEVÂNCIA LOCAL (TOP 300) ====================
                     palavras_set = {p.lower() for p in palavras_multilingue}
