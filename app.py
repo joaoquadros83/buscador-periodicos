@@ -430,7 +430,7 @@ if 'idioma' not in st.session_state:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
     "  Language / Idioma:",
-    ["Português", "English", "Español"], index=1
+    ["English", "Español", "Português"], index=0
 )
 
 # --- BOTÃO DE CONTATO (GLOBAL) ---
