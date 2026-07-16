@@ -1592,23 +1592,17 @@ if st.session_state.idioma == "English":
 elif st.session_state.idioma == "Español":
     nome_logo = "logo_es.png"
 
-imagem_base64 = obter_imagem_local_base64(nome_logo)
-# Fallback caso a versão traduzida específica não exista
-if not imagem_base64:
-    imagem_base64 = obter_imagem_local_base64("logo.png")
 
-if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 250px; width: auto; object-fit: contain; margin-right: -32px;">'
+banner_b64 = obter_imagem_local_base64("banner_oficial.png")
+if banner_b64:
+    st.markdown(f'''
+    <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 20px;">
+        <img src="data:image/png;base64,{banner_b64}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+    </div>
+    ''', unsafe_allow_html=True)
 else:
-    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 3px;">📚</span>'
+    st.markdown("## " + t['titulo'])
 
-st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 8px; padding: 15px 20px;">
-{tag_imagem}
-<div class="premium-text-block">
-<h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
-<p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
-</div>
-</div>""", unsafe_allow_html=True)
 
 # Textos informativos traduzidos
 
