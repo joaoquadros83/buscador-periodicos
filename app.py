@@ -902,16 +902,101 @@ st.markdown("""
     document.body.setAttribute('translate', 'no');
 </script>
 <style>
-    /* Esconde a logo apenas em telas de celulares (menores que 768px) */
+
+    /* =========================================
+       📱 DESIGN MOBILE (UX/UI PREMIUM RESPONSIVO)
+       ========================================= */
     @media (max-width: 768px) {
-        .premium-hero img {
-            display: none !important;
-        }
+        /* 1. Header (Hero) Redesenhado para Celular */
         .premium-hero {
-            text-align: center;
-            justify-content: center;
+            text-align: center !important;
+            padding: 20px 15px !important;
+            margin-bottom: 15px !important;
+            border-left: none !important;
+            border-top: 5px solid #FF2B2B !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 15px !important;
+        }
+        
+        .premium-hero img {
+            display: block !important;
+            max-width: 130px !important; /* Logo em tamanho harmônico */
+            margin: 0 auto !important;
+            margin-bottom: 10px !important;
+        }
+        
+        .premium-title {
+            font-size: 2.1rem !important; /* Texto cabendo em telas finas */
+            line-height: 1.1 !important;
+            margin-bottom: 8px !important;
+            text-align: center !important;
+        }
+        
+        .premium-subtitle {
+            font-size: 1.15rem !important;
+            line-height: 1.4 !important;
+            text-align: center !important;
+        }
+        
+        .premium-text-block {
+            align-items: center !important;
+        }
+
+        /* 2. Redução de Espaços e Margens Brancas do Streamlit */
+        .block-container {
+            padding-top: 2rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        
+        /* 3. Cards de Métricas em Coluna */
+        div[data-testid="stMetric"] {
+            padding: 18px 15px !important;
+            margin-bottom: 5px !important;
+            text-align: center !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+        }
+        
+        div[data-testid="stMetricValue"] {
+            font-size: 1.8rem !important;
+        }
+
+        /* 4. Tabelas Inteligentes (Rolagem horizontal confinada) */
+        div[data-testid="stDataFrame"] {
+            overflow-x: auto !important;
+            width: 100% !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        }
+        
+        /* 5. Inputs Touch-Friendly (Gordos) */
+        .stTextInput input, .stSelectbox div[data-baseweb="select"] {
+            height: 50px !important;
+            font-size: 16px !important; /* 16px evita o zoom automático no iOS */
+        }
+        
+        /* 6. Botões Arredondados e Full Width no Sidebar e Menu */
+        .btn-custom-menu {
+            justify-content: center !important;
+            padding: 14px !important;
+            border-radius: 25px !important; /* Estilo pílula */
+            font-size: 1.05rem !important;
+        }
+        
+        button[data-baseweb="tab"] {
+            padding: 10px 12px !important;
+            font-size: 0.85rem !important;
         }
     }
+    
+    /* Telas Muito Pequenas (iPhone SE) */
+    @media (max-width: 480px) {
+        .premium-title { font-size: 1.8rem !important; }
+        .premium-subtitle { font-size: 1rem !important; }
+    }
+
     /* Força o fundo do menu lateral com a cor definida */
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
