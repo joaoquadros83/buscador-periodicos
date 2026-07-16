@@ -2396,13 +2396,13 @@ with tab_ia:
                         
                     df_estagio_2 = df_candidatos.copy()
                     df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia_local, axis=1)
-                    df_estagio_2 = df_estagio_2.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                    df_estagio_2 = df_estagio_2.sort_values(by="relevancia", ascending=False)
                     
                     if len(df_estagio_2) > 300:
                         df_estagio_2 = df_estagio_2.head(300)
                         
                     cols_desejadas = [df_original.columns[0]]
-                    for col in ["Grande Área", "Área do Conhecimento", "JIF", "SJR", "H index"]:
+                    for col in ["Grande Área", "Indexador"]:
                         if col in df_estagio_2.columns:
                             cols_desejadas.append(col)
                             
@@ -2418,19 +2418,18 @@ You are a highly experienced scientometrics expert, academic journal editor, and
 - Article Abstract: {resumo_artigo}
 
 # CONTEXT (Pre-filtered Candidate Journals from RAG)
-Below is the list of pre-filtered candidate journals retrieved from our database ("dados.csv"). This list includes metadata such as JIF, SJR, H-index, and Grande Área:
+Below is the list of pre-filtered candidate journals retrieved from our database ("dados.csv"). This list includes metadata such as Grande Área (Broad Area) and Indexador (Indexers):
 {csv_compacto}
 
 # EVALUATION CRITERIA
 For each candidate journal, you must calculate two distinct metrics (from 0% to 100%):
 
 1. **Adherence Score (Thematic Fit):**
-   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus (inferred from its name, indexers, and metadata).
-   - Does this paper solve a problem that fits this journal's typical audience?
+   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus (inferred from its name and knowledge area).
+   - Does this paper solve a problem that fits this journal's typical audience and scope?
 
 2. **Publication Probability:**
-   - Estimate this based on the journal's metrics (JIF, SJR, H-index) relative to the scientific depth implied in the abstract. 
-   - Note: Extremely high-impact journals (high JIF/SJR) have lower baseline acceptance rates. Adjust the probability realistically.
+   - Estimate this based on the feasibility of acceptance. Assess the methodology, clarity, and thematic suitability implied in the abstract compared to the typical publishing standards of the journal.
 
 # OUTPUT GUIDELINES
 - Rank the results strictly from 1st to 20th place.
@@ -2448,8 +2447,7 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
     "issn": "XXXX-XXXX",
     "adherence_score": "XX%",
     "publication_probability": "XX%",
-    "metrics_summary": "JIF: X.X | SJR: X.X | H-index: X",
-    "justification": "A concise explanation (1-2 paragraphs) detailing exactly why this paper aligns with the journal's domain and why its metrics make it a realistic target. Write it in the same language as the user's abstract input."
+    "justification": "A concise explanation (1-2 paragraphs) detailing exactly why this paper aligns with the journal's domain and why it is a realistic target for publication. Write it in the same language as the user's abstract input."
   }}
 ]
 ```"""
@@ -2636,10 +2634,14 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
                                 "justificativa": justificativa
                             })
                         
-                        # Ordenação final dos resultados locais: probabilidade de publicação, depois aderência
+                        # Ordenação final dos resultados locais: probabilidade de publicação, depois aderência, depois indexadores count (tie-breaker)
                         recomendacoes_locais = sorted(
                             recomendacoes_locais,
-                            key=lambda x: (int(x.get("probabilidade_publicacao", 0)), int(x.get("revista_aderencia", 0))),
+                            key=lambda x: (
+                                int(x.get("probabilidade_publicacao", 0)),
+                                int(x.get("revista_aderencia", 0)),
+                                get_num_indexadores(x.get("revista_nome", ""))
+                            ),
                             reverse=True
                         )
                         st.session_state.recomendacoes = recomendacoes_locais
