@@ -430,7 +430,7 @@ if 'idioma' not in st.session_state:
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
     "  Language / Idioma:",
-    ["Português", "English", "Español"]
+    ["Português", "English", "Español"], index=1
 )
 
 # --- BOTÃO DE CONTATO (GLOBAL) ---
@@ -468,7 +468,7 @@ st.sidebar.markdown(
 dic = {
     "Português": {
         "titulo": "O Portal do Pesquisador",
-        "subtitulo": "Ciência de dados aplicada produção científica de alto impacto",
+        "subtitulo": "Open science matters. No asks. No fees. No ads. Just use.",
         "filtros_tit": "####   Buscador de Periódicos",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -606,7 +606,7 @@ Esta ferramenta é gratuita. Para usá-la, você precisa de uma chave da API do 
     },
     "English": {
         "titulo": "The Researcher's Portal",
-        "subtitulo": "Data science applied to high-impact scientific output.",
+        "subtitulo": "Open science matters. No asks. No fees. No ads. Just use.",
         "filtros_tit": "####   Journal Finder",
         "placeholder_busca": "Enter journal title, ISSN...",
         "buscar_reg": "Search specific record:",
@@ -746,7 +746,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
     },
     "Español": {
         "titulo": "El Portal del Investigador",
-        "subtitulo": "Ciencia de datos aplicada a la producción científica de más alto nivel.",
+        "subtitulo": "Open science matters. No asks. No fees. No ads. Just use.",
         "filtros_tit": "####   Buscador de Revistas",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -1176,32 +1176,20 @@ if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 
 # Exibe o status de acesso na barra lateral
-if st.session_state.registrado:
-    nome_usr_exibir = st.session_state.get("nome_usuario", "Usuário")
-    email_usr_exibir = st.session_state.get("email_usuario", "")
-    acessos_usr = st.session_state.get("acessos_usuario", 1)
-    
-    # Se for login via Google, exibe o e-mail do usuário na mensagem de boas-vindas
-    usr_identificador = email_usr_exibir if st.session_state.get("login_via_google", False) else nome_usr_exibir
-    
-    # Determina o texto de boas-vindas com base no número de acessos
-    lang = st.session_state.get('idioma', 'Português')
-    if acessos_usr <= 1:
-        if lang == 'English': status_texto = f"Welcome, {usr_identificador}"
-        elif lang == 'Español': status_texto = f"Bienvenido(a), {usr_identificador}"
-        else: status_texto = f"Seja bem-vindo(a), {usr_identificador}"
-    else:
-        if lang == 'English': status_texto = f"Welcome back, {usr_identificador}"
-        elif lang == 'Español': status_texto = f"Bienvenido(a) de vuelta, {usr_identificador}"
-        else: status_texto = f"Bem-vindo(a) de volta, {usr_identificador}"
-        
-    if st.session_state.get("is_admin", False):
-        status_texto = f"🔑 Admin: {status_texto}"
-        bg_cor = "#0F172A"
-    else:
-        bg_cor = "#10B981"
+    # Botão de Configurações
+    btn_conf_text = "⚙ Configs"
+    btn_conf_help = "Configurações"
+    if lang == 'English':
+        btn_conf_text = "⚙ Settings"
+        btn_conf_help = "Settings"
+    elif lang == 'Español':
+        btn_conf_text = "⚙ Config."
+        btn_conf_help = "Configuración"
 
-    # Caixa de boas-vindas
+    if st.sidebar.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
+        st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
+        st.rerun()
+
     st.sidebar.markdown(f"""
         <div style="background-color: {bg_cor}; color: white; padding: 10px 8px; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.82rem; line-height: 1.3; margin-bottom: 8px;">
             {status_texto}
@@ -1575,591 +1563,6 @@ st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: cen
 </div>
 </div>""", unsafe_allow_html=True)
 
-# --- 10. CONTROLE DE ACESSO COM REGISTRO ---
-# Funções auxiliares globais para banco de dados de credenciais
-def hash_senha(senha):
-    return hashlib.sha256(senha.encode()).hexdigest()
-
-def gerar_senha_temporaria():
-    caracteres = string.ascii_letters + string.digits
-    return "".join(random.choice(caracteres) for _ in range(8))
-
-def enviar_email_recuperacao(destinatario, login, senha_temporaria):
-    try:
-        smtp_secrets = st.secrets.get("smtp", {})
-        sender_email = smtp_secrets.get("email")
-        sender_password = smtp_secrets.get("password")
-        smtp_server = smtp_secrets.get("server", "smtp.gmail.com")
-        smtp_port = int(smtp_secrets.get("port", 587))
-        
-        if not sender_email or not sender_password:
-            return False, "SMTP_NOT_CONFIGURED"
-            
-        msg = MIMEMultipart()
-        msg["From"] = "SciPubs Support <support@scipubs.com>"
-        msg["To"] = destinatario
-        msg["Subject"] = "Recuperacao de Acesso - SciPubS"
-        
-        corpo = f"""Ola!
-
-Voce solicitou a recuperacao de acesso ao SciPubs.
-Aqui estao suas credenciais temporarias:
-
-• Login: {login}
-• Senha Temporaria: {senha_temporaria}
-
-Por favor, acesse o portal com estas credenciais e altere sua senha no menu de configuracoes (icone de engrenagem ⚙  na barra lateral).
-
-Atenciosamente,
-Equipe SciPubs"""
-        
-        msg.attach(MIMEText(corpo, "plain", "utf-8"))
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, destinatario, msg.as_string())
-        server.quit()
-        return True, ""
-    except Exception as e:
-        return False, str(e)
-
-import uuid
-
-def gerar_token():
-    return str(uuid.uuid4())
-
-def enviar_email_confirmacao(destinatario, token):
-    try:
-        smtp_secrets = st.secrets.get("smtp", {})
-        sender_email = smtp_secrets.get("email")
-        sender_password = smtp_secrets.get("password")
-        smtp_server = smtp_secrets.get("server", "smtp.gmail.com")
-        smtp_port = int(smtp_secrets.get("port", 587))
-        
-        if not sender_email or not sender_password:
-            return False, "SMTP_NOT_CONFIGURED"
-            
-        msg = MIMEMultipart()
-        msg["From"] = "SciPubs Support <support@scipubs.com>"
-        msg["To"] = destinatario
-        msg["Subject"] = "Confirme seu Cadastro - SciPubs"
-        
-        # URL Oficial
-        url_oficial = "https://buscador-periodicos.streamlit.app"
-        link_confirmacao = f"{url_oficial}/?token={token}"
-        
-        corpo = f"""Ola!
-
-Obrigado por se cadastrar no SciPubs! Para finalizar a criacao da sua conta e liberar seu acesso, por favor clique no link abaixo:
-
-{link_confirmacao}
-
-Se voce nao solicitou este cadastro, pode ignorar este e-mail.
-
-Atenciosamente,
-Equipe SciPubs"""
-        
-        msg.attach(MIMEText(corpo, "plain", "utf-8"))
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, destinatario, msg.as_string())
-        server.quit()
-        return True, ""
-    except Exception as e:
-        return False, str(e)
-
-def confirmar_token(token):
-    caminho = "usuarios.csv"
-    if os.path.exists(caminho):
-        try:
-            df = pd.read_csv(caminho, sep=";")
-            if "Token_Confirmacao" in df.columns:
-                # Transforma as colunas em string para evitar erro de tipo (float/NaN)
-                mask = df["Token_Confirmacao"].astype(str).str.strip() == str(token).strip()
-                if mask.any():
-                    idx = df[mask].index[0]
-                    email_encontrado = df.loc[idx, "Email"]
-                    nome_encontrado = df.loc[idx, "Nome"]
-                    df.loc[idx, "Status_Confirmado"] = True
-                    df.loc[idx, "Token_Confirmacao"] = ""
-                    df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                    
-                    # Atualiza também no firebase
-                    if db is not None:
-                        try:
-                            db.collection("usuarios").document(str(email_encontrado)).set({
-                                "status_confirmado": True,
-                                "token_confirmacao": ""
-                            }, merge=True)
-                        except: pass
-                        
-                    return True, email_encontrado, nome_encontrado
-        except Exception:
-            pass
-    return False, None, None
-
-def cadastrar_usuario(nome, email, pais, escolaridade, instituicao, senha, idade, sexo, raca, token_confirmacao, status_confirmado=False, aceitou_termos=False, aceitou_pesquisa=False, deseja_doar=False):
-    caminho = "usuarios.csv"
-    novo_usuario = pd.DataFrame([{
-        "Data/Hora": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "Nome": nome,
-        "Email": email.lower().strip(),
-        "País": pais,
-        "Escolaridade": escolaridade,
-        "Instituição": instituicao,
-        "Data de Nascimento": idade,
-        "Sexo": sexo,
-        "Raça/Etnia": raca,
-        "Senha_Hash": hash_senha(senha),
-        "Acessos": 1,
-        "Status_Confirmado": status_confirmado,
-        "Token_Confirmacao": token_confirmacao,
-        "Aceitou_Termos": aceitou_termos,
-        "Aceitou_Pesquisa": aceitou_pesquisa,
-        "Deseja_Doar": deseja_doar
-    }])
-    if os.path.exists(caminho):
-        try:
-            df_existente = pd.read_csv(caminho, sep=";")
-            emails_cadastrados = df_existente["Email"].astype(str).str.lower().str.strip().tolist()
-            if email.lower().strip() in emails_cadastrados:
-                return False
-            df_novo = pd.concat([df_existente, novo_usuario], ignore_index=True)
-            df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-        except Exception:
-            novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-    else:
-        novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-
-    if db is not None:
-        try:
-            db.collection("usuarios").document(email.lower().strip()).set({
-                "nome": nome,
-                "email": email.lower().strip(),
-                "pais": pais,
-                "escolaridade": escolaridade,
-                "instituicao": instituicao,
-                "idade": idade,
-                "sexo": sexo,
-                "raca": raca,
-                "acessos": 1,
-                "status_confirmado": status_confirmado,
-                "token_confirmacao": token_confirmacao,
-                "aceitou_termos": aceitou_termos,
-                "aceitou_pesquisa": aceitou_pesquisa,
-                "deseja_doar": deseja_doar,
-                "data_cadastro": firestore.SERVER_TIMESTAMP,
-                "ultimo_acesso": firestore.SERVER_TIMESTAMP
-            }, merge=True)
-        except Exception:
-            pass
-    return True
-
-def verificar_recuperacao(email):
-    email_clean = email.lower().strip()
-    if db is not None:
-        try:
-            doc = db.collection("usuarios").document(email_clean).get()
-            if doc.exists:
-                d = doc.to_dict()
-                return True, d.get("nome", "Usuário")
-        except Exception:
-            pass
-    caminho = "usuarios.csv"
-    if os.path.exists(caminho):
-        try:
-            df = pd.read_csv(caminho, sep=";")
-            match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean)]
-            if not match.empty:
-                return True, match.iloc[0]["Nome"]
-        except Exception:
-            pass
-    return False, ""
-
-def redefinir_senha_usuario(email, nova_senha):
-    email_clean = email.lower().strip()
-    senha_hash_nova = hash_senha(nova_senha)
-    if db is not None:
-        try:
-            db.collection("usuarios").document(email_clean).set({
-                "Senha_Hash": senha_hash_nova
-            }, merge=True)
-        except Exception:
-            pass
-    caminho = "usuarios.csv"
-    if os.path.exists(caminho):
-        try:
-            df = pd.read_csv(caminho, sep=";")
-            idx = df[df["Email"].astype(str).str.lower().str.strip() == email_clean].index
-            if not idx.empty:
-                df.loc[idx, "Senha_Hash"] = senha_hash_nova
-                df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-        except Exception:
-            pass
-    return True
-
-def verificar_login(email_ou_usuario, senha):
-    email_clean = email_ou_usuario.lower().strip()
-    senha_clean = senha.strip()
-    admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-    admin_pass_conf = st.secrets.get("ADMIN_PASSWORD", "Ufop@2026").strip()
-    
-    if email_clean == admin_email_conf and senha_clean == admin_pass_conf:
-        acessos_atuais = 0
-        if db is not None:
-            try:
-                doc_ref = db.collection("usuarios").document(admin_email_conf)
-                doc = doc_ref.get()
-                if doc.exists:
-                    acessos_atuais = int(doc.to_dict().get("acessos", 0))
-                doc_ref.set({
-                    "nome": "João F. Soares-Quadros Jr.",
-                    "email": admin_email_conf,
-                    "pais": "Brasil",
-                    "telefone": "N/A",
-                    "escolaridade": "Doutor",
-                    "instituicao": "Universidade Federal de Ouro Preto (UFOP)",
-                    "acessos": acessos_atuais + 1,
-                    "ultimo_acesso": firestore.SERVER_TIMESTAMP
-                }, merge=True)
-            except Exception:
-                pass
-        st.session_state.nome_usuario = "João"
-        st.session_state.acessos_usuario = acessos_atuais + 1
-        return True
-
-    caminho = "usuarios.csv"
-    if not os.path.exists(caminho):
-        return False
-    try:
-        df = pd.read_csv(caminho, sep=";")
-        senha_hash_calc = hash_senha(senha)
-        match = df[(df["Email"].astype(str).str.lower().str.strip() == email_clean) & (df["Senha_Hash"] == senha_hash_calc)]
-        if not match.empty:
-            idx = match.index[0]
-            
-            # Verifica se o e-mail foi confirmado (tratando contas antigas que não têm a coluna como confirmadas)
-            if "Status_Confirmado" in df.columns:
-                status = df.loc[idx, "Status_Confirmado"]
-                if pd.notna(status) and str(status).strip().lower() == "false":
-                    return "NOT_CONFIRMED"
-                    
-            if "Acessos" not in df.columns:
-                df["Acessos"] = 1
-            current_acessos = df.loc[idx, "Acessos"]
-            novo_acessos = int(current_acessos) + 1 if pd.notna(current_acessos) else 1
-            
-            # Seta as Session States do Usuário logado
-            st.session_state.nome_usuario = str(match.iloc[0]["Nome"]).split(" ")[0].capitalize()
-            st.session_state.acessos_usuario = novo_acessos
-            
-            try:
-                df.loc[idx, "Acessos"] = novo_acessos
-                df.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-            except Exception:
-                pass
-            if db is not None:
-                try:
-                    doc_ref = db.collection("usuarios").document(email_clean)
-                    doc = doc_ref.get()
-                    acessos_atuais = 0
-                    if doc.exists:
-                        acessos_atuais = int(doc.to_dict().get("acessos", 0))
-                    doc_ref.set({
-                        "acessos": acessos_atuais + 1,
-                        "ultimo_acesso": firestore.SERVER_TIMESTAMP
-                    }, merge=True)
-                except Exception:
-                    pass
-            return True
-        return False
-    except Exception:
-        return False
-
-# --- 10. CONTROLE DE ACESSO COM REGISTRO ---
-url_token = st.query_params.get("token")
-if url_token:
-    sucesso_token, email_token, nome_token = confirmar_token(url_token)
-    if sucesso_token:
-        st.session_state.registrado = True
-        st.session_state.login_via_google = False
-        st.session_state.email_usuario = email_token.lower().strip()
-        st.session_state.nome_usuario = str(nome_token).split(" ")[0].capitalize()
-        admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-        st.session_state.is_admin = (email_token.lower().strip() == admin_email_conf)
-        st.success("✅ Conta ativada e acesso liberado com sucesso!")
-        st.query_params.clear()
-        time.sleep(2)
-        st.rerun()
-    else:
-        st.error("    Token inválido ou já utilizado.")
-    st.query_params.clear()
-
-if not st.session_state.registrado:
-
-    # Escolha do Modo (Recuperação, Login ou Cadastro)
-    if st.session_state.get("modo_recuperacao", False):
-        col_rec_1, col_rec_2, col_rec_3 = st.columns([1, 1.5, 1])
-        with col_rec_2:
-            st.markdown(f"### {t['rec_titulo']}")
-            email_rec = st.text_input(t['rec_email'], placeholder="", key="email_rec_input")
-            
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            
-            # Se já verificou os dados, exibe a redefinição de senha
-            if st.session_state.get("usuario_recuperado_email", ""):
-                email_confirmado = st.session_state.usuario_recuperado_email
-                st.info(f"Usuário identificado. Defina uma nova senha para a conta: **{email_confirmado}**")
-                
-                nova_senha = st.text_input(t['rec_nova_senha'], type="password", key="rec_nova_senha_input")
-                conf_senha = st.text_input(t['rec_conf_senha'], type="password", key="rec_conf_senha_input")
-                
-                if st.button(t['rec_btn_redefinir'], type="primary", use_container_width=True):
-                    if not nova_senha.strip():
-                        st.error(t['reg_erro_campos'] + " (Faltando: Nova Senha)")
-                    elif nova_senha != conf_senha:
-                        st.error(t['reg_erro_senha_diferente'])
-                    else:
-                        redefinir_senha_usuario(email_confirmado, nova_senha)
-                        st.success(t['rec_sucesso'])
-                        st.session_state.usuario_recuperado_email = ""
-                        st.session_state.modo_recuperacao = False
-                        st.session_state.modo_login = True
-                        time.sleep(1.5)
-                        st.rerun()
-            else:
-                if st.button(t['rec_btn_verificar'], type="primary", use_container_width=True):
-                    if not email_rec.strip():
-                        st.error(t['reg_erro_campos'] + " (Faltando: E-mail)")
-                    else:
-                        sucesso, nome = verificar_recuperacao(email_rec)
-                        if sucesso:
-                            # Gera senha temporária alfanumérica
-                            senha_temp = gerar_senha_temporaria()
-                            # Atualiza a senha no banco de dados
-                            redefinir_senha_usuario(email_rec.lower().strip(), senha_temp)
-                            
-                            # Envia por e-mail
-                            enviado, erro = enviar_email_recuperacao(email_rec.lower().strip(), email_rec.lower().strip(), senha_temp)
-                            
-                            if enviado:
-                                st.success("🎉 Uma senha temporária foi enviada para o seu e-mail cadastrado! Acesse o portal e atualize-a nas configurações.")
-                                st.session_state.modo_recuperacao = False
-                                st.session_state.modo_login = True
-                                time.sleep(3.0)
-                                st.rerun()
-                            else:
-                                # Fallback se SMTP não estiver configurado
-                                st.warning("    Não foi possível enviar o e-mail no momento (Servidor SMTP não configurado).")
-                                st.info(f"Para continuar seu acesso agora, utilize as credenciais abaixo:\n\n**Login:** `{email_rec.lower().strip()}`\n\n**Senha Temporária:** `{senha_temp}`\n\nEm caso de dúvidas, contate o suporte: **support@scipubs.com**")
-                                st.session_state.usuario_recuperado_email = email_rec.lower().strip()
-                        else:
-                            st.error(t['rec_erro_nao_encontrado'])
-            
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            if st.button(t['rec_btn_voltar'], use_container_width=True):
-                st.session_state.usuario_recuperado_email = ""
-                st.session_state.modo_recuperacao = False
-                st.session_state.modo_login = True
-                st.rerun()
-
-    elif st.session_state.modo_login:
-        # T TULO E APRESENTAÇÃO MINIMALISTA
-        col_log_1, col_log_2, col_log_3 = st.columns([1, 1.5, 1])
-        with col_log_2:
-            # Formulário de Login
-            with st.form("form_login_usuario", clear_on_submit=False):
-                email_log = st.text_input(t['log_email'], placeholder="", key="email_login")
-                senha_log = st.text_input(t['log_senha'], type="password", placeholder="", key="senha_login")
-                
-                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-                
-                btn_entrar = st.form_submit_button(t['log_btn_entrar'], type="primary", use_container_width=True)
-            
-            st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-            
-            # Link para ir para a página de Cadastro colocado diretamente abaixo
-            if st.button(t['log_cadastrar_link'], key="btn_ir_cadastro", use_container_width=True):
-                st.session_state.modo_login = False
-                st.rerun()
-                
-            # Link para ir para a página de Recuperação
-            if st.button(f"🔑 {t['log_esqueceu']}", key="btn_ir_recuperacao", use_container_width=True):
-                st.session_state.modo_recuperacao = True
-                st.session_state.modo_login = False
-                st.session_state.usuario_recuperado_email = ""
-                st.rerun()
-                
-            if btn_entrar:
-                if not email_log.strip() or not senha_log.strip():
-                    faltam = []
-                    if not email_log.strip(): faltam.append("E-mail")
-                    if not senha_log.strip(): faltam.append("Senha")
-                    st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
-                else:
-                    res_login = verificar_login(email_log, senha_log)
-                    if res_login == "NOT_CONFIRMED":
-                        st.warning("    Sua conta ainda não foi confirmada. Verifique o link enviado para o seu e-mail.")
-                    elif res_login:
-                        st.session_state.registrado = True
-                        st.session_state.login_via_google = False
-                        
-                        email_clean = email_log.lower().strip()
-                        st.session_state.email_usuario = email_clean
-                        admin_email_conf = st.secrets.get("ADMIN_EMAIL", "joaoquadros@ufop.edu.br").lower().strip()
-                        st.session_state.is_admin = (email_clean == admin_email_conf)
-                        
-                        st.success(t['reg_sucesso'])
-                        time.sleep(1.2)
-                        st.rerun()
-                    else:
-                        st.error(t['log_erro_invalido'])
-                        
-
-    else:
-        
-
-        with st.form("form_cadastro_usuario", clear_on_submit=False):
-            col_reg_1, col_reg_2 = st.columns(2)
-            with col_reg_1:
-                nome_cad = st.text_input(t['reg_nome_sobrenome'], placeholder="Ex: João Silva")
-                email_cad = st.text_input(t['reg_email'], placeholder="")
-                pais_cad = st.text_input(t['reg_pais'], placeholder="Ex: Brasil")
-                lbl_sexo = "Sexo (Opcional):"
-                opcoes_sexo = ["", "Masculino", "Feminino", "Não informar"]
-                if st.session_state.get('idioma', 'Português') == 'English':
-                    lbl_sexo = "Gender (Optional):"
-                    opcoes_sexo = ["", "Male", "Female", "Prefer not to say"]
-                elif st.session_state.get('idioma', 'Português') == 'Español':
-                    lbl_sexo = "Sexo (Opcional):"
-                    opcoes_sexo = ["", "Masculino", "Femenino", "Prefiero no decirlo"]
-                sexo_cad = st.selectbox(lbl_sexo, opcoes_sexo)
-                
-            with col_reg_2:
-                # Titulação
-                opcoes_esc = []
-                if st.session_state.idioma == "Português":
-                    opcoes_esc = ["Graduação", "Especialização", "Mestrado", "Doutorado", "Outra"]
-                elif st.session_state.idioma == "English":
-                    opcoes_esc = ["Undergraduate", "Specialization", "Master's", "Doctorate", "Other"]
-                else:
-                    opcoes_esc = ["Grado", "Especialización", "Maestría", "Doctorado", "Otra"]
-                    
-                escolaridade_cad = st.selectbox(t['reg_escolaridade'], opcoes_esc)
-                
-                # Vínculo Institucional
-                instituicao_cad = st.text_input(t['reg_instituicao'], placeholder="Ex: Universidade de São Paulo (USP)")
-                    
-                lbl_nascimento = "Data de Nascimento (Opcional):"
-                if st.session_state.get('idioma', 'Português') == 'English':
-                    lbl_nascimento = "Date of Birth (Optional):"
-                elif st.session_state.get('idioma', 'Português') == 'Español':
-                    lbl_nascimento = "Fecha de Nacimiento (Opcional):"
-                import datetime
-                if st.session_state.get('idioma', 'Português') == 'English':
-                    date_format = "YYYY/MM/DD"
-                else:
-                    date_format = "DD/MM/YYYY"
-                idade_cad = st.date_input(lbl_nascimento, value=None, min_value=datetime.date(1900, 1, 1), max_value=datetime.date.today(), format=date_format)
-                
-                lbl_raca = "Raça/Etnia (Opcional):"
-                opcoes_raca = ["", "Branca", "Parda", "Preta", "Indígena", "Outra"]
-                if st.session_state.get('idioma', 'Português') == 'English':
-                    lbl_raca = "Race/Ethnicity (Optional):"
-                    opcoes_raca = ["", "White", "Mixed-race", "Black", "Indigenous", "Other"]
-                elif st.session_state.get('idioma', 'Português') == 'Español':
-                    lbl_raca = "Raza/Etnia (Opcional):"
-                    opcoes_raca = ["", "Blanca", "Mestiza", "Negra", "Indígena", "Otra"]
-                raca_cad = st.selectbox(lbl_raca, opcoes_raca)
-    
-            # Senha e confirmação de senha
-            st.markdown("<hr style='border-top:1px dashed #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
-            col_s1, col_s2 = st.columns(2)
-            with col_s1:
-                senha_cad = st.text_input(t['reg_senha'], type="password", placeholder="", key="senha_cad_reg")
-            with col_s2:
-                senha_cad_conf = st.text_input(t['reg_confirmar_senha'], type="password", placeholder="", key="senha_cad_conf_reg")
-            
-            st.markdown("<hr style='border-top:1px solid #CBD5E1; margin:15px 0;'>", unsafe_allow_html=True)
-            lbl_t_c = "### Termos e Consentimentos" if st.session_state.get('idioma', 'Português') == 'Português' else ("### Terms and Consents" if st.session_state.get('idioma', 'Português') == 'English' else "### Términos y Consentimientos")
-            st.markdown(lbl_t_c)
-            # Como st.button não é permitido dentro de st.form, usamos um expander que age como um pop-up embutido
-            lbl_termos = "📄 Ler Termos de uso e política de privacidade" if st.session_state.get('idioma', 'Português') == 'Português' else ("📄 Read Terms of Use and Privacy Policy" if st.session_state.get('idioma', 'Português') == 'English' else "📄 Leer Términos de Uso y Política de Privacidad")
-            with st.expander(lbl_termos):
-                st.markdown(get_texto_termos(st.session_state.get('idioma', 'Português')))
-                
-            lbl_cb1 = "Ao clicar em Concordar e continuar, você aceita os Termos de uso e política de privacidade do SciPubs (Obrigatório)" if st.session_state.get('idioma', 'Português') == 'Português' else ("By clicking Agree and continue, you accept the SciPubs Terms of Use and Privacy Policy (Mandatory)" if st.session_state.get('idioma', 'Português') == 'English' else "Al hacer clic en Aceptar y continuar, aceptas los Términos de uso y la política de privacidad de SciPubs (Obligatorio)")
-            aceitou_termos = st.checkbox(lbl_cb1)
-            lbl_cb2 = "Concordo em participar de pesquisas futuras e dou o meu consentimento para utilização dos meus dados para fins acadêmicos e científicos (Opcional)" if st.session_state.get('idioma', 'Português') == 'Português' else ("I agree to participate in future research and give my consent for the use of my data for academic and scientific purposes (Optional)" if st.session_state.get('idioma', 'Português') == 'English' else "Acepto participar en futuras investigaciones y doy mi consentimiento para el uso de mis datos con fines académicos y científicos (Opcional)")
-            aceitou_pesquisa = st.checkbox(lbl_cb2)
-            lbl_doacao = "❤️ Desejo apoiar o SciPubs (Doação)" if st.session_state.get('idioma', 'Português') == 'Português' else ("❤️ I want to support SciPubs (Donation)" if st.session_state.get('idioma', 'Português') == 'English' else "❤️ Deseo apoyar SciPubs (Donación)")
-            st.link_button(lbl_doacao, "https://buymeacoffee.com/scipubs", type="secondary", use_container_width=True)
-            
-    
-            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-            btn_registrar = st.form_submit_button(t['reg_btn_cadastrar'] + " (Concordar e continuar)", type="primary", use_container_width=True)
-            
-        if btn_registrar:
-            if not aceitou_termos:
-                st.error("    Você deve aceitar os Termos de Uso e Política de Privacidade para se cadastrar.")
-            elif not nome_cad.strip() or not email_cad.strip() or not pais_cad.strip() or not instituicao_cad.strip() or not senha_cad.strip():
-                faltam = []
-                if not nome_cad.strip(): faltam.append("Nome")
-                if not email_cad.strip(): faltam.append("E-mail")
-                if not pais_cad.strip(): faltam.append("País")
-                if not instituicao_cad.strip(): faltam.append("Instituição de Vínculo")
-                if not senha_cad.strip(): faltam.append("Senha")
-                st.error(f"{t['reg_erro_campos']} (Faltando: {', '.join(faltam)})")
-            elif not senha_cad_conf.strip():
-                st.error(f"{t['reg_erro_campos']} (Faltando: Confirmação de Senha)")
-            elif senha_cad != senha_cad_conf:
-                st.error(t['reg_erro_senha_diferente'])
-            else:
-                idade_final = idade_cad.strftime('%d/%m/%Y') if idade_cad else ""
-                
-                # Grava no CSV
-                token_confirmacao = gerar_token()
-                sucesso_cadastro = cadastrar_usuario(
-                    nome_cad.strip(),
-                    email_cad.strip(),
-                    pais_cad.strip(),
-                    escolaridade_cad,
-                    instituicao_cad.strip(),
-                    senha_cad.strip(),
-                    idade_final,
-                    sexo_cad,
-                    raca_cad,
-                    token_confirmacao,
-                    status_confirmado=False,
-                    aceitou_termos=aceitou_termos,
-                    aceitou_pesquisa=aceitou_pesquisa,
-                    deseja_doar=False
-                )
-                if sucesso_cadastro:
-                    enviado, erro = enviar_email_confirmacao(email_cad.strip(), token_confirmacao)
-                    if enviado:
-                        st.success("✅ Cadastro realizado! Verifique seu e-mail para confirmar a conta antes de fazer o login.")
-                    else:
-                        st.warning("    Conta criada, mas não foi possível enviar o e-mail de confirmação.")
-                        st.info(f"Para testes, você mesmo pode confirmar clicando aqui: https://buscador-periodicos.streamlit.app/?token={token_confirmacao}")
-                    
-                    st.session_state.modo_cadastro = False
-                    st.session_state.modo_login = True
-                    st.rerun()
-                    time.sleep(4)
-                    st.rerun()
-                else:
-                    st.error(t['reg_erro_ja_existe'])
-                    
-        st.markdown("<br>", unsafe_allow_html=True)
-        # Link para voltar ao Login
-        if st.button(t['log_entrar_link'], key="btn_ir_login", use_container_width=True):
-            st.session_state.modo_login = True
-            st.rerun()
-            
-    st.stop()
-
 # Textos informativos traduzidos
 
 # --- TELA DE CONFIGURAÇÕES & AJUSTES ---
@@ -2474,7 +1877,35 @@ with st.expander(expander_titulo, expanded=False):
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
-st.markdown(t['filtros_tit'])
+
+# --- HEADER BUTTONS ---
+_lang = st.session_state.get('idioma', 'English')
+
+_btn_donate = "☕ Buy Me a Coffee"
+_btn_sub = "✉️ Subscribe"
+if _lang == 'Português':
+    _btn_sub = "✉️ Inscrever-se"
+elif _lang == 'Español':
+    _btn_sub = "✉️ Suscribirse"
+
+col_title, col_btns = st.columns([1, 1])
+with col_title:
+    st.markdown(t['filtros_tit'])
+with col_btns:
+    bcol1, bcol2 = st.columns(2)
+    with bcol1:
+        st.markdown(
+            f"""<a href="https://buymeacoffee.com/scipubs" target="_blank" style="text-decoration: none;">
+                <button style="width: 100%; background-color: #FFDD00; color: #000000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.backgroundColor='#e6c700'" onmouseout="this.style.backgroundColor='#FFDD00'">
+                    {_btn_donate}
+                </button>
+            </a>""", unsafe_allow_html=True
+        )
+    with bcol2:
+        if st.button(_btn_sub, use_container_width=True, type="primary"):
+            st.session_state.show_sub = True
+            st.rerun()
+
 
 # Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL ou se o usuário logado for Admin
 params_url = st.query_params
@@ -3254,3 +2685,43 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
             )
         else:
             st.info("Nenhum usuário cadastrado encontrado na base.")
+
+
+# --- MODALS & BUTTONS ACTIONS ---
+@st.dialog("Subscribe / Inscrever-se")
+def show_subscribe_modal():
+    st.markdown("### Join our VIP Community! 🚀")
+    st.markdown("Leave your email to receive publication tips and platform updates. No spam, we promise.")
+    with st.form("subscribe_form"):
+        nome = st.text_input("Name:")
+        email = st.text_input("Email:")
+        if st.form_submit_button("Subscribe", type="primary", use_container_width=True):
+            if nome and email:
+                import pandas as pd
+                import os
+                import datetime
+                
+                caminho = "usuarios.csv"
+                novo_usuario = pd.DataFrame([{
+                    "Data/Hora": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Nome": nome,
+                    "Email": email.lower().strip(),
+                    "Assinante": True
+                }])
+                if os.path.exists(caminho):
+                    try:
+                        df_existente = pd.read_csv(caminho, sep=";")
+                        df_novo = pd.concat([df_existente, novo_usuario], ignore_index=True)
+                        df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    except:
+                        novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                else:
+                    novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    
+                st.success("Thank you for subscribing!")
+            else:
+                st.error("Please fill in both Name and Email.")
+
+if 'show_sub' in st.session_state and st.session_state.show_sub:
+    show_subscribe_modal()
+    st.session_state.show_sub = False
