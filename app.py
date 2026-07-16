@@ -1881,7 +1881,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # --- HEADER BUTTONS ---
 _lang = st.session_state.get('idioma', 'English')
 
-_btn_donate = "☕ Buy Me a Coffee"
+_btn_donate = "☕ Donate"
 _btn_sub = "✉️ Subscribe"
 if _lang == 'Português':
     _btn_sub = "✉️ Inscrever-se"
