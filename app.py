@@ -923,7 +923,7 @@ st.markdown("""
             display: block !important;
             max-width: 240px !important; /* Logo em tamanho harmônico */
             margin: 0 auto !important;
-            margin-bottom: 0px !important;
+            margin-bottom: -12px !important;
         }
         
         .premium-title {
@@ -1037,7 +1037,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
         font-size: 2.2rem !important;
         font-weight: 800 !important;
-        margin-bottom: 0px !important;
+        margin-bottom: -12px !important;
         letter-spacing: -0.5px;
         line-height: 1.15 !important;
     }
