@@ -1882,15 +1882,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 _lang = st.session_state.get('idioma', 'English')
 
 _btn_donate = "☕ Donate"
-if _lang == 'Português':
-    _btn_sub = "☕ Doação"
-elif _lang == 'Español':
-    _btn_sub = "☕ Donaciones"
-
 _btn_sub = "✉️ Subscribe"
 if _lang == 'Português':
+    _btn_donate = "☕ Doações"
     _btn_sub = "✉️ Inscrever-se"
 elif _lang == 'Español':
+    _btn_donate = "☕ Doacciones"
     _btn_sub = "✉️ Suscribirse"
 
 col_title, col_btns = st.columns([1, 1])
