@@ -910,7 +910,7 @@ st.markdown("""
         /* 1. Header (Hero) Redesenhado para Celular */
         .premium-hero {
             text-align: center !important;
-            padding: 20px 15px !important;
+            padding: 12px 10px !important;
             margin-bottom: 15px !important;
             border-left: none !important;
             border-top: 5px solid #FF2B2B !important;
@@ -921,23 +921,26 @@ st.markdown("""
         
         .premium-hero img {
             display: block !important;
-            max-width: 130px !important; /* Logo em tamanho harmônico */
+            max-width: 240px !important; /* Logo em tamanho harmônico */
             margin: 0 auto !important;
             margin-bottom: 10px !important;
         }
         
         .premium-title {
-            font-size: 2.1rem !important; /* Texto cabendo em telas finas */
+            font-size: 1.5rem !important; /* Texto cabendo em telas finas */
             line-height: 1.1 !important;
             margin-bottom: 8px !important;
             text-align: center !important;
         }
         
-        .premium-subtitle {
-            font-size: 1.15rem !important;
-            line-height: 1.4 !important;
-            text-align: center !important;
-        }
+            .premium-subtitle {
+        color: #FFD700 !important; /* Amarelo Dourado */
+        font-size: 0.95rem !important; /* Fonte pequena */
+        max-width: 280px; /* Força quebra em duas linhas */
+        margin: 0 auto !important; /* Centraliza */
+        line-height: 1.4;
+        margin-top: 5px !important;
+    }
         
         .premium-text-block {
             align-items: center !important;
@@ -1022,7 +1025,7 @@ st.markdown("""
     }
     .premium-hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-        padding: 35px;
+        padding: 20px;
         border-radius: 12px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         margin-bottom: 25px;
@@ -1031,7 +1034,7 @@ st.markdown("""
     .premium-title {
         color: #ffffff !important;
         font-family: 'Inter', sans-serif;
-        font-size: 3.4rem !important;
+        font-size: 2.2rem !important;
         font-weight: 800 !important;
         margin-bottom: 0px !important;
         letter-spacing: -0.5px;
