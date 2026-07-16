@@ -916,14 +916,14 @@ st.markdown("""
             border-top: 5px solid #FF2B2B !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 0px !important;
+            gap: 15px !important;
         }
         
         .premium-hero img {
             display: block !important;
-            max-width: 270px !important; /* Logo em tamanho harmônico */
+            max-width: 240px !important; /* Logo em tamanho harmônico */
             margin: 0 auto !important;
-            margin-bottom: -44px !important;
+            margin-bottom: 10px !important;
         }
         
         .premium-title {
@@ -1037,7 +1037,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
         font-size: 2.2rem !important;
         font-weight: 800 !important;
-        margin-bottom: -44px !important;
+        margin-bottom: 10px !important;
         letter-spacing: -0.5px;
         line-height: 1.15 !important;
     }
@@ -1593,15 +1593,20 @@ elif st.session_state.idioma == "Español":
     nome_logo = "logo_es.png"
 
 
-banner_b64 = obter_imagem_local_base64("banner_oficial.png")
-if banner_b64:
-    st.markdown(f'''
-    <div style="width: 100%; display: flex; justify-content: center; margin-bottom: 20px;">
-        <img src="data:image/png;base64,{banner_b64}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
-    </div>
-    ''', unsafe_allow_html=True)
+if imagem_base64:
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 220px; width: auto; object-fit: contain;">'
 else:
-    st.markdown("## " + t['titulo'])
+    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
+
+st.markdown(f'''<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 30px; padding: 25px 35px;">
+{tag_imagem}
+<div class="divider-line" style="width: 2px; height: 140px; background-color: rgba(255,255,255,0.15);"></div>
+<div class="premium-text-block">
+<h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
+<p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
+</div>
+</div>''', unsafe_allow_html=True)
+
 
 
 # Textos informativos traduzidos
