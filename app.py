@@ -940,7 +940,7 @@ st.markdown("""
         max-width: 280px; /* Força quebra em duas linhas */
         margin: 0 auto !important; /* Centraliza */
         line-height: 1.4;
-        margin-top: 2px !important;
+        margin-top: 5px !important;
     }
         
         .premium-text-block {
