@@ -6,7 +6,7 @@ import streamlit as st
 
 
 def get_texto_termos(lang):
-    if lang == 'English':
+    if st.session_state.get("idioma", "English") == "English":
         return '''### SciPubs Terms of Use and Privacy Policy
 
 **Last Updated:** July 13, 2026
@@ -66,7 +66,7 @@ def get_texto_termos(lang):
 8.1. These Terms may be updated. The Data Subject will be notified of substantial changes.
 
 8.2. JURISDICTION: The courts of the judicial district where the *SciPubs* is headquartered are designated to resolve any disputes arising from these Terms, with the express waiver of any other jurisdiction, however privileged it may be.'''
-    elif lang == 'Español':
+    elif st.session_state.get("idioma", "English") == "Español":
         return '''### Términos de Uso y Política de Privacidad de SciPubs
 
 **Última Actualización:** 13 de julio de 2026
@@ -195,8 +195,8 @@ def modal_termos():
     st.markdown(texto_termos)
     
     fechar_btn = "Fechar"
-    if lang == 'English': fechar_btn = "Close"
-    elif lang == 'Español': fechar_btn = "Cerrar"
+    if st.session_state.get("idioma", "English") == "English": fechar_btn = "Close"
+    elif st.session_state.get("idioma", "English") == "Español": fechar_btn = "Cerrar"
         
     if st.button(fechar_btn, type="primary"):
         st.rerun()
@@ -205,7 +205,7 @@ def modal_termos():
 def modal_doacao():
     lang = st.session_state.get('idioma', 'Português')
     
-    if lang == 'English':
+    if st.session_state.get("idioma", "English") == "English":
         st.markdown('''
         ### Thank you for supporting Science!
         Your voluntary donation is essential for us to keep our servers active and continue developing new technological tools for the academic and scientific community.
@@ -221,7 +221,7 @@ def modal_doacao():
         *Important: Your donation is completely voluntary and does not require any service counterpart from our platform.*
         ''')
         btn_close = "Close"
-    elif lang == 'Español':
+    elif st.session_state.get("idioma", "English") == "Español":
         st.markdown('''
         ### ¡Gracias por apoyar la Ciencia!
         Su donación voluntaria es fundamental para mantener nuestros servidores activos y continuar desarrollando nuevas herramientas tecnológicas para la comunidad académica y científica.
@@ -1179,10 +1179,10 @@ if "is_admin" not in st.session_state:
     # Botão de Configurações
     btn_conf_text = "⚙ Configs"
     btn_conf_help = "Configurações"
-    if lang == 'English':
+    if st.session_state.get("idioma", "English") == "English":
         btn_conf_text = "⚙ Settings"
         btn_conf_help = "Settings"
-    elif lang == 'Español':
+    elif st.session_state.get("idioma", "English") == "Español":
         btn_conf_text = "⚙ Config."
         btn_conf_help = "Configuración"
 
@@ -1201,12 +1201,12 @@ if "is_admin" not in st.session_state:
     btn_sair_help = "Encerrar sessão"
     btn_conf_text = "⚙ Configs"
     btn_conf_help = "Configurações"
-    if lang == 'English':
+    if st.session_state.get("idioma", "English") == "English":
         btn_sair_text = "🚪 Logout"
         btn_sair_help = "Log out"
         btn_conf_text = "⚙ Settings"
         btn_conf_help = "Settings"
-    elif lang == 'Español':
+    elif st.session_state.get("idioma", "English") == "Español":
         btn_sair_text = "🚪 Salir"
         btn_sair_help = "Cerrar sesión"
         btn_conf_text = "⚙ Config."
@@ -1615,7 +1615,7 @@ if st.session_state.get("abrir_configuracoes", False):
         'suc_copiar': "Link copiado para exibição!"
     }
 
-    if lang == 'English':
+    if st.session_state.get("idioma", "English") == "English":
         ts['titulo'] = "## ⚙ SciPubs Settings & Adjustments"
         ts['btn_voltar'] = "⬅ Back to Search Engine"
         ts['lbl_opcoes'] = "Select an adjustment option:"
@@ -1650,7 +1650,7 @@ if st.session_state.get("abrir_configuracoes", False):
         ts['lbl_forma'] = "Choose one of the ways below to share the portal:"
         ts['btn_copiar'] = "📋 Copy Link"
         ts['suc_copiar'] = "Link copied to clipboard!"
-    elif lang == 'Español':
+    elif st.session_state.get("idioma", "English") == "Español":
         ts['titulo'] = "## ⚙ Configuración y Ajustes de SciPubs"
         ts['btn_voltar'] = "⬅ Volver al Buscador"
         ts['lbl_opcoes'] = "Seleccione una opción de ajuste:"
