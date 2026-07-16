@@ -2410,35 +2410,49 @@ with tab_ia:
                     csv_compacto = df_mini.to_csv(index=False, sep='|')
                     
                     # ==================== ESTÁGIO 3: AVALIAÇÃO FINA E HIERARQUIA ESTRETA (IA) ====================
-                    prompt_ia = f"""
-                    Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
-                    TÍTULO DO ARTIGO: {titulo_artigo}
-                    RESUMO DO ARTIGO: {resumo_artigo}
+                    prompt_ia = f"""# PERSONA AND ROLE
+You are a highly experienced scientometrics expert, academic journal editor, and scholarly publishing consultant. Your task is to analyze the user's submitted manuscript title and abstract, cross-reference them with the provided candidate journals, and recommend the top 20 most suitable journals for submission based on thematic fit and publication probability.
 
-                    Abaixo, forneço uma lista de 300 periódicos candidatos altamente qualificados em formato CSV separado por pipe (|) contendo suas áreas e métricas (JIF, SJR, H-index).
-                    Você deve usar sua MEMÓRIA DE TREINAMENTO e CONHECIMENTO INTERNO DE MUNDO para lembrar o escopo editorial (Aims and Scope) verdadeiro de cada uma dessas revistas, pois o escopo não está descrito no CSV.
+# USER INPUTS
+- Article Title: {titulo_artigo}
+- Article Abstract: {resumo_artigo}
 
-                    Sua tarefa:
-                    1. Cruze o título/resumo do artigo com os escopos (do seu conhecimento de mundo) de cada uma das 300 revistas.
-                    2. Calcule o "Grau de Aderência do Artigo à Área de Conhecimento" da revista (0 a 100).
-                    3. Calcule o "Grau de Aderência do Artigo ao Escopo Específico" da revista (0 a 100).
-                    4. Calcule a "Probabilidade de Publicação" (0 a 100) balanceando a aderência contra a concorrência e impacto.
+# CONTEXT (Pre-filtered Candidate Journals from RAG)
+Below is the list of pre-filtered candidate journals retrieved from our database ("dados.csv"). This list includes metadata such as JIF, SJR, H-index, and Grande Área:
+{csv_compacto}
 
-                    Para escolher as 20 melhores revistas, você DEVE aplicar rigorosamente os seguintes critérios de corte hierárquicos:
-                    - 1º Critério: Maior Grau de Aderência à Área de Conhecimento.
-                    - 2º Critério: Maior Grau de Aderência ao Escopo da Revista.
-                    - 3º Critério: Maiores valores nas métricas de impacto (hierarquia estrita: JIF > SJR > H-index).
+# EVALUATION CRITERIA
+For each candidate journal, you must calculate two distinct metrics (from 0% to 100%):
 
-                    Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, contendo as 20 revistas escolhidas, possuindo exatamente estas chaves:
-                    - "revista_nome": Nome exato da revista (exatamente como está no CSV fornecido)
-                    - "area_conhecimento_aderencia": Número inteiro de 0 a 100
-                    - "revista_aderencia": Número inteiro de 0 a 100
-                    - "probabilidade_publicacao": Número inteiro de 0 a 100
-                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita no mesmo idioma em que o resumo do usuário foi enviado.
+1. **Adherence Score (Thematic Fit):**
+   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus (inferred from its name, indexers, and metadata).
+   - Does this paper solve a problem that fits this journal's typical audience?
 
-                    LISTA DE 300 PERIÓDICOS (CSV):
-                    {csv_compacto}
-                    """
+2. **Publication Probability:**
+   - Estimate this based on the journal's metrics (JIF, SJR, H-index) relative to the scientific depth implied in the abstract. 
+   - Note: Extremely high-impact journals (high JIF/SJR) have lower baseline acceptance rates. Adjust the probability realistically.
+
+# OUTPUT GUIDELINES
+- Rank the results strictly from 1st to 20th place.
+- Do not hallucinate or recommend journals not present in the provided context.
+- Keep explanations objective, professional, and highly tailored to the user's text.
+
+# RESPONSE FORMAT (Strict JSON)
+Return your response exclusively as a valid JSON array of objects. Do not include any conversational intro or outro prose. Use the following structure:
+
+```json
+[
+  {{
+    "rank": 1,
+    "journal_name": "Journal Name 1",
+    "issn": "XXXX-XXXX",
+    "adherence_score": "XX%",
+    "publication_probability": "XX%",
+    "metrics_summary": "JIF: X.X | SJR: X.X | H-index: X",
+    "justification": "A concise explanation (1-2 paragraphs) detailing exactly why this paper aligns with the journal's domain and why its metrics make it a realistic target. Write it in the same language as the user's abstract input."
+  }}
+]
+```"""
                     
                     sucesso_ia = False
                     ultimo_erro_msg = ""
@@ -2460,9 +2474,34 @@ with tab_ia:
                                 if match:
                                     texto_resposta = match.group(0)
                                 
-                                recomendadas = json.loads(texto_resposta)
+                                raw_list = json.loads(texto_resposta)
+                                recomendadas = []
+                                for item in raw_list:
+                                    jname = item.get("journal_name", item.get("revista_nome", ""))
+                                    
+                                    ad_score = item.get("adherence_score", item.get("revista_aderencia", 0))
+                                    if isinstance(ad_score, str):
+                                        ad_score = int(re.sub(r'\\D', '', ad_score)) if re.sub(r'\\D', '', ad_score) else 0
+                                    
+                                    pub_prob = item.get("publication_probability", item.get("probabilidade_publicacao", 0))
+                                    if isinstance(pub_prob, str):
+                                        pub_prob = int(re.sub(r'\\D', '', pub_prob)) if re.sub(r'\\D', '', pub_prob) else 0
+                                        
+                                    area_adh = item.get("area_conhecimento_aderencia", ad_score) # fallback to ad_score if not present
+                                    if isinstance(area_adh, str):
+                                        area_adh = int(re.sub(r'\\D', '', area_adh)) if re.sub(r'\\D', '', area_adh) else 0
+                                        
+                                    just = item.get("justification", item.get("justificativa", ""))
+                                    
+                                    recomendadas.append({
+                                        "revista_nome": jname,
+                                        "revista_aderencia": ad_score,
+                                        "area_conhecimento_aderencia": area_adh,
+                                        "probabilidade_publicacao": pub_prob,
+                                        "justificativa": just
+                                    })
                                 
-                                # Ordenação final dos resultados: probabilidade de publicação (desc), depois revista_aderencia (desc)
+                                # Sort by publication probability, then by journal adherence
                                 recomendadas = sorted(
                                     recomendadas,
                                     key=lambda x: (
