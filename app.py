@@ -1592,7 +1592,7 @@ if st.session_state.idioma == "English":
 elif st.session_state.idioma == "Español":
     nome_logo = "logo_es.png"
 
-
+imagem_base64 = obter_imagem_local_base64(nome_logo)
 if imagem_base64:
     tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 220px; width: auto; object-fit: contain;">'
 else:
