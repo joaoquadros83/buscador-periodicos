@@ -2232,6 +2232,12 @@ with tab_ia:
         disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
         
     with col_meta:
+        # Espaçador para alinhar verticalmente com o bloco título+subtítulo do col_input
+        # (compensa: h3 título + parágrafo itálico + margin-bottom 12px ≈ 88px)
+        st.markdown(
+            "<div style='margin-top: 88px;'></div>",
+            unsafe_allow_html=True
+        )
         # Credencial e Chave de API inseridas diretamente na aba de controle da IA
         st.markdown(f"#### {t['ia_credencial_tit']}")
         
