@@ -468,7 +468,7 @@ st.sidebar.markdown(
 dic = {
     "Português": {
         "titulo": "O Portal do Pesquisador",
-        "subtitulo": "Open science matters. No asks. No fees. No ads. Just use.",
+        "subtitulo": "A ciência aberta importa. Sem perguntas. Sem taxas. Sem anúncios. Apenas use.",
         "filtros_tit": "####   Buscador de Periódicos",
         "placeholder_busca": "Digite o título da revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -746,7 +746,7 @@ This tool is free. To use it, you need a Google Gemini API key, which is also fr
     },
     "Español": {
         "titulo": "El Portal del Investigador",
-        "subtitulo": "Open science matters. No asks. No fees. No ads. Just use.",
+        "subtitulo": "La ciencia abierta importa. Sin registros. Sin pagos. Sin anuncios. Solo úsala.",
         "filtros_tit": "####   Buscador de Revistas",
         "placeholder_busca": "Ingrese el título de la revista, ISSN...",
         "buscar_reg": "Buscar registro específico:",
@@ -1858,9 +1858,9 @@ This is a tool developed to optimize the search for high-impact scientific journ
 5. **Data Export:** Filter results according to your needs and download the customized table immediately.
 """
 else: # Español
-    expander_titulo = "📖 Sobre el Portal del Investigador y Cómo Utilizar"
+    expander_titulo = "📖 Sobre el SciPubs y Cómo Utilizar"
     sobre_texto = """
-### ¡Bienvenido al Portal del Investigador!
+### ¡Bienvenido al SciPubs: Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
 ####     ¿Qué puedes fazer aquí?
