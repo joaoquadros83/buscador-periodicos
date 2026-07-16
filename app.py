@@ -916,14 +916,14 @@ st.markdown("""
             border-top: 5px solid #FF2B2B !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 15px !important;
+            gap: 0px !important;
         }
         
         .premium-hero img {
             display: block !important;
             max-width: 240px !important; /* Logo em tamanho harmônico */
             margin: 0 auto !important;
-            margin-bottom: 10px !important;
+            margin-bottom: 0px !important;
         }
         
         .premium-title {
@@ -940,7 +940,7 @@ st.markdown("""
         max-width: 280px; /* Força quebra em duas linhas */
         margin: 0 auto !important; /* Centraliza */
         line-height: 1.4;
-        margin-top: 5px !important;
+        margin-top: 2px !important;
     }
         
         .premium-text-block {
@@ -1602,7 +1602,7 @@ if imagem_base64:
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
-st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 15px; padding: 15px 20px;">
+st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 8px; padding: 15px 20px;">
 {tag_imagem}
 <div class="premium-text-block">
 <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
