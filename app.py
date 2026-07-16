@@ -1860,7 +1860,7 @@ This is a tool developed to optimize the search for high-impact scientific journ
 else: # Español
     expander_titulo = "📖 Sobre el SciPubs y Cómo Utilizar"
     sobre_texto = """
-### ¡Bienvenido al SciPubs: Portal del Investigador!
+### ¡Bienvenido al SciPubs: El Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
 ####     ¿Qué puedes fazer aquí?
