@@ -2418,33 +2418,75 @@ with tab_ia:
                     df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia_local, axis=1)
                     df_estagio_2 = df_estagio_2.sort_values(by="relevancia", ascending=False)
                     
-                    # ── Pool multilingue garantido ──────────────────────────────────────────
-                    # PROBLEMA: quando o abstract é em português, as revistas internacionais
-                    # (inglês/espanhol) pontuam 0 localmente e são eliminadas antes da IA.
-                    # SOLUÇÃO: combinar top-relevancia + amostra estratificada por Grande Área
-                    # para garantir diversidade linguística no pool enviado ao Gemini.
+                    # ── Pool em 4 camadas: relevância + WoS + Scopus + áreas aderentes ──
+                    # CAMADA A) top 120 por pontuação local  (acerto temático por palavras)
+                    # CAMADA B) até 40 revistas Web of Science ainda fora do pool
+                    # CAMADA C) até 40 revistas Scopus ainda fora do pool
+                    # CAMADA D) TODAS as revistas de Grande Áreas com aderência local ≥ 70%
+                    #           Sem quota fixa — seleção dinâmica por qualidade temática.
+                    #           Aderência da área = score médio das revistas da área /
+                    #                               score médio da melhor área (normalizado).
                     
-                    TOP_SCORED = 150       # melhores por pontuação local
-                    STRAT_POR_AREA = 15    # extras por Grande Área (garante inglês/espanhol)
-                    POOL_MAX = 300         # limite final do pool
+                    import pandas as _pd_pool
 
+                    TOP_SCORED   = 120
+                    WOS_QUOTA    = 40
+                    SCOPUS_QUOTA = 40
+                    POOL_MAX     = 300
+                    ADERENCIA_MINIMA_AREA = 0.70   # 70% do score da melhor Grande Área
+
+                    # Camada A — top 120 por pontuação local
                     df_top = df_estagio_2.head(TOP_SCORED)
-                    ids_top = set(df_top.index)
-                    df_resto = df_estagio_2[~df_estagio_2.index.isin(ids_top)]
+                    ids_usados = set(df_top.index)
 
-                    amostras_extra = []
-                    if "Grande Área" in df_resto.columns:
-                        for _area_grp, _grp_df in df_resto.groupby("Grande Área", sort=False):
-                            amostras_extra.append(_grp_df.head(STRAT_POR_AREA))
+                    # Camada B — revistas Web of Science ainda não no pool
+                    col_idx = "Indexador" if "Indexador" in df_estagio_2.columns else None
+                    df_wos, df_scopus = _pd_pool.DataFrame(), _pd_pool.DataFrame()
+                    if col_idx:
+                        mask_wos = df_estagio_2[col_idx].astype(str).str.contains(
+                            r"Web of Science|WoS|WOS", case=False, na=False, regex=True
+                        )
+                        df_wos = df_estagio_2[mask_wos & ~df_estagio_2.index.isin(ids_usados)].head(WOS_QUOTA)
+                        ids_usados.update(df_wos.index)
 
-                    if amostras_extra:
-                        import pandas as _pd_strat
-                        df_pool = _pd_strat.concat([df_top] + amostras_extra)
-                    else:
-                        df_pool = df_top
+                        # Camada C — revistas Scopus ainda não no pool
+                        mask_scopus = df_estagio_2[col_idx].astype(str).str.contains(
+                            r"Scopus", case=False, na=False, regex=True
+                        )
+                        df_scopus = df_estagio_2[mask_scopus & ~df_estagio_2.index.isin(ids_usados)].head(SCOPUS_QUOTA)
+                        ids_usados.update(df_scopus.index)
 
-                    df_estagio_2 = df_pool[~df_pool.index.duplicated(keep="first")].head(POOL_MAX)
-                    # ───────────────────────────────────────────────────────────────────────
+                    # Camada D — TODAS as revistas de áreas com aderência local ≥ 70%
+                    # Aderência por área = (score médio das revistas da área) /
+                    #                      (score médio da melhor área), normalizado 0–1.
+                    # Sem quota fixa: inclui TUDO das áreas qualificadas.
+                    df_areas_aderencia = _pd_pool.DataFrame()
+                    if "Grande Área" in df_estagio_2.columns:
+                        area_scores = (
+                            df_estagio_2.groupby("Grande Área")["relevancia"]
+                            .mean()
+                            .reset_index()
+                            .rename(columns={"relevancia": "score_medio"})
+                        )
+                        max_score_area = area_scores["score_medio"].max()
+                        if max_score_area > 0:
+                            area_scores["aderencia_norm"] = area_scores["score_medio"] / max_score_area
+                            areas_qualificadas = set(
+                                area_scores.loc[
+                                    area_scores["aderencia_norm"] >= ADERENCIA_MINIMA_AREA,
+                                    "Grande Área"
+                                ]
+                            )
+                            # Inclui TODAS as revistas das áreas qualificadas fora do pool
+                            df_areas_aderencia = df_estagio_2[
+                                df_estagio_2["Grande Área"].isin(areas_qualificadas) &
+                                ~df_estagio_2.index.isin(ids_usados)
+                            ]
+
+                    partes = [df_top, df_wos, df_scopus, df_areas_aderencia]
+                    partes = [p for p in partes if not p.empty]
+                    df_estagio_2 = _pd_pool.concat(partes)[lambda d: ~d.index.duplicated(keep="first")].head(POOL_MAX)
+                    # ─────────────────────────────────────────────────────────────────────
                         
                     cols_desejadas = [df_original.columns[0]]
                     for col in ["Grande Área", "Indexador"]:
@@ -2470,18 +2512,22 @@ Below is the list of pre-filtered candidate journals from our database. Each ent
 For each candidate journal, calculate the following two metrics (0% to 100%).
 Do NOT use or consider impact metrics (JIF, SJR, H-index, Quartile) in your scoring.
 
-1. **Publication Probability (0-100%):**
-   - This is the PRIMARY ranking metric.
-   - Estimate the realistic probability that this manuscript would be accepted for publication in this journal.
-   - Use your internal knowledge of each journal's editorial scope, typical topics, thematic focus, and publishing standards.
-   - Cross-reference the methodology, themes, and contributions described in the abstract with what you know about the journal.
-   - Also use the Grande Área (Broad Area) and Indexador (Indexers) fields from the CSV as additional signals.
+1. **Publication Probability (0-100%) — PRIMARY metric:**
+   - Estimate the probability that this specific manuscript would be ACCEPTED if submitted to this journal.
+   - This score measures THEMATIC FIT for acceptance, NOT the journal's overall selectivity or global acceptance rate.
+   - A paper that is a PERFECT thematic match for a journal's scope MUST receive 85-100%, regardless of how selective the journal is overall.
+   - A paper with STRONG alignment should receive 70-84%.
+   - A paper with MODERATE alignment should receive 50-69%.
+   - A paper with WEAK or NO alignment should receive below 50%.
+   - Use your internal knowledge of each journal's editorial scope, typical topics, and publishing standards.
+   - Cross-reference methodology, themes, and contributions in the abstract with what you know about the journal.
+   - Journals indexed in Web of Science or Scopus that are a strong thematic fit should still receive high scores.
 
-2. **Adherence Score (Thematic Fit, 0-100%):**
-   - This is the SECONDARY ranking metric.
+2. **Adherence Score (Thematic Fit, 0-100%) — SECONDARY metric:**
    - Assess the semantic and conceptual alignment between the manuscript title/abstract and the journal's scope.
    - Use your internal knowledge of the journal's typical topics, research domains, and editorial focus.
    - Also consider the journal name and Grande Área (Broad Area) from the CSV.
+   - Apply the same 0-100% calibration: perfect fit = 85-100%, strong = 70-84%, moderate = 50-69%.
 
 # RANKING RULES (Apply in strict hierarchical order)
 1. **Primary:** Publication Probability (highest first)
@@ -2493,6 +2539,7 @@ Do NOT use or consider impact metrics (JIF, SJR, H-index, Quartile) in your scor
 - Do NOT recommend journals not present in the provided list.
 - Justifications must be objective, specific, and written in the same language as the user's abstract.
 - For each journal, explicitly mention which themes from the abstract align with the journal's known scope.
+- Be generous but accurate: do not artificially cap scores below what the thematic fit deserves.
 
 # RESPONSE FORMAT (Strict JSON)
 Return ONLY a valid JSON array. No intro or outro text. Use this structure:
