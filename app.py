@@ -2422,43 +2422,48 @@ with tab_ia:
                     df_mini = df_estagio_2[cols_desejadas].copy()
                     csv_compacto = df_mini.to_csv(index=False, sep='|')
                     
-                    # ==================== ESTÁGIO 3: AVALIAÇÃO FINA E HIERARQUIA ESTRETA (IA) ====================
+                    # ==================== ESTÁGIO 3: AVALIAÇÃO FINA E HIERARQUIA ESTRITA (IA) ====================
                     prompt_ia = f"""# PERSONA AND ROLE
-You are a highly experienced scientometrics expert, academic journal editor, and scholarly publishing consultant. Your task is to analyze the user's submitted manuscript title and abstract, cross-reference them with the provided candidate journals, and recommend the top 20 most suitable journals for submission based on thematic fit and publication probability.
+You are a highly experienced scientometrics expert, academic journal editor, and scholarly publishing consultant with deep knowledge of thousands of academic journals worldwide. Your task is to analyze the user's manuscript title and abstract, cross-reference them with the provided candidate journals, and recommend the top 20 most suitable journals for submission.
 
 # USER INPUTS
 - Article Title: {titulo_artigo}
 - Article Abstract: {resumo_artigo}
 
 # CONTEXT (Pre-filtered Candidate Journals from RAG)
-Below is the list of pre-filtered candidate journals retrieved from our database ("dados.csv"). This list includes metadata such as Grande Área (Broad Area) and Indexador (Indexers):
+Below is the list of pre-filtered candidate journals from our database. Each entry includes the journal name, Grande Área (Broad Area), and Indexador (Indexers list):
 {csv_compacto}
 
 # EVALUATION CRITERIA
-For each candidate journal, evaluate based ONLY on the following two metrics (from 0% to 100%).
-Do NOT use or consider any impact metrics (JIF, SJR, H-index, Quartile) in your scoring.
+For each candidate journal, calculate the following two metrics (0% to 100%).
+Do NOT use or consider impact metrics (JIF, SJR, H-index, Quartile) in your scoring.
 
-1. **Adherence Score (Thematic Fit):**
-   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus.
-   - Use ONLY the **Journal Name** and **Grande Área (Broad Area)** columns provided to infer the journal's scope.
-   - Does this paper address themes that fit the journal's audience and publishing domain?
+1. **Publication Probability (0-100%):**
+   - This is the PRIMARY ranking metric.
+   - Estimate the realistic probability that this manuscript would be accepted for publication in this journal.
+   - Use your internal knowledge of each journal's editorial scope, typical topics, thematic focus, and publishing standards.
+   - Cross-reference the methodology, themes, and contributions described in the abstract with what you know about the journal.
+   - Also use the Grande Área (Broad Area) and Indexador (Indexers) fields from the CSV as additional signals.
 
-2. **Publication Probability:**
-   - Estimate feasibility of acceptance based on thematic suitability and the clarity of methodology implied in the abstract.
-   - Base this on alignment with the journal's typical scope, as inferred from its name and broad area.
+2. **Adherence Score (Thematic Fit, 0-100%):**
+   - This is the SECONDARY ranking metric.
+   - Assess the semantic and conceptual alignment between the manuscript title/abstract and the journal's scope.
+   - Use your internal knowledge of the journal's typical topics, research domains, and editorial focus.
+   - Also consider the journal name and Grande Área (Broad Area) from the CSV.
 
 # RANKING RULES (Apply in strict hierarchical order)
-1. Primary: **Adherence Score** (highest first)
-2. Secondary: **Publication Probability** (highest first)
-3. Tie-breaker: **Number of Indexers** in the "Indexador" column (count of comma-separated entries, highest first)
+1. **Primary:** Publication Probability (highest first)
+2. **Secondary:** Adherence Score (highest first)
+3. **Tie-breaker:** Number of Indexers in the "Indexador" column (count of comma-separated entries, highest first)
 
 # OUTPUT GUIDELINES
-- Rank the results strictly from 1st to 20th place following the rules above.
-- Do not hallucinate or recommend journals not present in the provided context.
-- Keep explanations objective, professional, and highly tailored to the user's text.
+- Rank results strictly from 1st to 20th place following the rules above.
+- Do NOT recommend journals not present in the provided list.
+- Justifications must be objective, specific, and written in the same language as the user's abstract.
+- For each journal, explicitly mention which themes from the abstract align with the journal's known scope.
 
 # RESPONSE FORMAT (Strict JSON)
-Return your response exclusively as a valid JSON array of objects. Do not include any conversational intro or outro prose. Use the following structure:
+Return ONLY a valid JSON array. No intro or outro text. Use this structure:
 
 ```json
 [
@@ -2467,7 +2472,7 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
     "journal_name": "Journal Name 1",
     "adherence_score": "XX%",
     "publication_probability": "XX%",
-    "justification": "A concise explanation (1-2 paragraphs) detailing exactly why this paper aligns with the journal's domain and why it is a realistic target for publication. Write it in the same language as the user's abstract input."
+    "justification": "A concise explanation (1-2 paragraphs) explaining why the manuscript aligns with this journal's scope based on your knowledge of its editorial focus, and why acceptance is realistic. Write in the same language as the user's abstract."
   }}
 ]
 ```"""
@@ -2519,12 +2524,12 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
                                         "justificativa": just
                                     })
                                 
-                                # Sort: aderência (1°) > probabilidade (2°) > num. indexadores (desempate)
+                                # Sort: probabilidade (1°) > aderência (2°) > num. indexadores (desempate)
                                 recomendadas = sorted(
                                     recomendadas,
                                     key=lambda x: (
-                                        int(x.get("revista_aderencia", 0)),
                                         int(x.get("probabilidade_publicacao", 0)),
+                                        int(x.get("revista_aderencia", 0)),
                                         get_num_indexadores(x.get("revista_nome", ""))
                                     ),
                                     reverse=True
@@ -2655,12 +2660,12 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
                                 "justificativa": justificativa
                             })
                         
-                        # Ordenação final: aderência (1°) > probabilidade (2°) > num. indexadores (desempate)
+                        # Ordenação final: probabilidade (1°) > aderência (2°) > num. indexadores (desempate)
                         recomendacoes_locais = sorted(
                             recomendacoes_locais,
                             key=lambda x: (
-                                int(x.get("revista_aderencia", 0)),
                                 int(x.get("probabilidade_publicacao", 0)),
+                                int(x.get("revista_aderencia", 0)),
                                 get_num_indexadores(x.get("revista_nome", ""))
                             ),
                             reverse=True
