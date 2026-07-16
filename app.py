@@ -2327,47 +2327,118 @@ with tab_ia:
                 if df_candidatos.empty:
                     st.session_state.aviso_filtro = True
                 else:
-                    # ==================== VARREDURA GLOBAL (SINGLE-PASS) ====================
+                    # ==================== ESTÁGIO 1: EXTRAÇÃO MULTILÍNGUE (IA EXPRESS) ====================
                     import json
-                    # Prepara a base de dados em formato CSV ultra-compacto para envio (maximizando o limite de 1M tokens)
-                    cols_desejadas = [df_original.columns[0]]  # Nome da Revista
-                    for col in ["Grande Área", "JIF", "SJR", "H index"]:
-                        if col in df_candidatos.columns:
-                            cols_desejadas.append(col)
                     
-                    df_mini = df_candidatos[cols_desejadas].copy()
-                    # Formata o CSV usando pipe '|' para economizar caracteres e evitar problemas de vírgula em títulos
-                    csv_compacto = df_mini.to_csv(index=False, sep='|')
+                    prompt_traducoes = f"""
+                    Analise o seguinte título e resumo científico:
+                    TÍTULO: {titulo_artigo}
+                    RESUMO: {resumo_artigo}
                     
-                    prompt_ia = f"""
-                    Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
-                    TÍTULO DO ARTIGO: {titulo_artigo}
-                    RESUMO DO ARTIGO: {resumo_artigo}
-
-                    Abaixo, forneço um banco de dados mundial em formato CSV separado por pipe (|) contendo todos os periódicos disponíveis, suas áreas gerais e métricas de impacto (JIF, SJR, H-index).
-                    Você deve usar sua MEMÓRIA DE TREINAMENTO e CONHECIMENTO INTERNO DE MUNDO para lembrar o escopo editorial (Aims and Scope) verdadeiro de cada uma dessas revistas, pois o escopo não está descrito no CSV.
-
-                    Sua tarefa:
-                    1. Cruze o título/resumo do artigo com os escopos (do seu conhecimento interno) de milhares dessas revistas.
-                    2. Calcule internamente a "Probabilidade de Publicação" (0 a 100%) para as revistas, balanceando a aderência exata do escopo contra a concorrência e impacto da revista.
-                    3. SELECIONE AS 20 REVISTAS com as MAIORES probabilidades de publicação.
-                    4. Por fim, organize essa lista final de 20 revistas usando estritamente a Métrica de Impacto como critério de ordenação final (Do maior impacto para o menor, seguindo rigorosamente a ordem: JIF > SJR > H-index).
-
-                    Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, com exatamente 20 elementos, possuindo estas chaves exatas:
-                    - "revista_nome": Nome exato da revista (exatamente como está no CSV fornecido)
-                    - "area_conhecimento_aderencia": Número inteiro de 0 a 100 (aderência do artigo à área geral)
-                    - "revista_aderencia": Número inteiro de 0 a 100 (aderência do artigo ao escopo específico da revista)
-                    - "probabilidade_publicacao": Número inteiro de 0 a 100 (chances de publicação)
-                    - "justificativa": Uma justificativa concisa de até 3 linhas explicando o porquê da recomendação focando no escopo, escrita no mesmo idioma em que o resumo do usuário foi enviado.
-
-                    BANCO DE DADOS (CSV):
-                    {csv_compacto}
+                    Extraia os 15 termos acadêmicos e conceitos mais relevantes deste texto.
+                    Traduza e adapte estes termos para os 3 idiomas: Português, Inglês e Espanhol.
+                    
+                    Retorne OBRIGATORIAMENTE um array JSON contendo apenas strings simples de todos esses termos em minúsculo (totalizando até 45 termos).
+                    Exemplo de formato: ["termo1", "term2", "término3", ...]
                     """
                     
                     modelos_tentar = [
                         "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
                         "gemini-2.0-flash-001", "gemini-3.5-flash", "gemini-flash-latest"
                     ]
+                    
+                    palavras_multilingue = []
+                    cota_esgotada = False
+                    
+                    for modelo in modelos_tentar:
+                        try:
+                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                            payload = {"contents": [{"parts": [{"text": prompt_traducoes}]}]}
+                            headers = {"Content-Type": "application/json"}
+                            response = requests.post(url_api, json=payload, headers=headers, timeout=15)
+                            
+                            if response.status_code == 200:
+                                texto_res = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                texto_res = re.sub(r'^```(?:json)?\n|```$', '', texto_res, flags=re.MULTILINE).strip()
+                                match = re.search(r'\[\s*".*"\s*\]', texto_res, re.DOTALL)
+                                if match:
+                                    palavras_multilingue = json.loads(match.group(0))
+                                break
+                            elif response.status_code == 429:
+                                cota_esgotada = True
+                                break
+                        except:
+                            pass
+                        if cota_esgotada:
+                            break
+                            
+                    # Fallback local simples se a IA falhar na tradução
+                    if not palavras_multilingue:
+                        texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                        palavras_multilingue = list(set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca)))
+                        
+                    # ==================== ESTÁGIO 2: CÁLCULO DE RELEVÂNCIA LOCAL (TOP 300) ====================
+                    palavras_set = {p.lower() for p in palavras_multilingue}
+                    
+                    def calcular_relevancia_local(row):
+                        score = 0
+                        nome = str(row.iloc[0]).lower()
+                        grande_area = str(row.get("Grande Área", "")).lower()
+                        area = str(row.get("Área do Conhecimento", "")).lower()
+                        subarea = str(row.get("Subárea do Conhecimento", "")).lower()
+                        
+                        for p in palavras_set:
+                            if p in nome: score += 10
+                            if p in grande_area: score += 4
+                            if p in area: score += 4
+                            if p in subarea: score += 4
+                        return score
+                        
+                    df_estagio_2 = df_candidatos.copy()
+                    df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia_local, axis=1)
+                    df_estagio_2 = df_estagio_2.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                    
+                    if len(df_estagio_2) > 300:
+                        df_estagio_2 = df_estagio_2.head(300)
+                        
+                    cols_desejadas = [df_original.columns[0]]
+                    for col in ["Grande Área", "Área do Conhecimento", "JIF", "SJR", "H index"]:
+                        if col in df_estagio_2.columns:
+                            cols_desejadas.append(col)
+                            
+                    df_mini = df_estagio_2[cols_desejadas].copy()
+                    csv_compacto = df_mini.to_csv(index=False, sep='|')
+                    
+                    # ==================== ESTÁGIO 3: AVALIAÇÃO FINA E HIERARQUIA ESTRETA (IA) ====================
+                    prompt_ia = f"""
+                    Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
+                    TÍTULO DO ARTIGO: {titulo_artigo}
+                    RESUMO DO ARTIGO: {resumo_artigo}
+
+                    Abaixo, forneço uma lista de 300 periódicos candidatos altamente qualificados em formato CSV separado por pipe (|) contendo suas áreas e métricas (JIF, SJR, H-index).
+                    Você deve usar sua MEMÓRIA DE TREINAMENTO e CONHECIMENTO INTERNO DE MUNDO para lembrar o escopo editorial (Aims and Scope) verdadeiro de cada uma dessas revistas, pois o escopo não está descrito no CSV.
+
+                    Sua tarefa:
+                    1. Cruze o título/resumo do artigo com os escopos (do seu conhecimento de mundo) de cada uma das 300 revistas.
+                    2. Calcule o "Grau de Aderência do Artigo à Área de Conhecimento" da revista (0 a 100).
+                    3. Calcule o "Grau de Aderência do Artigo ao Escopo Específico" da revista (0 a 100).
+                    4. Calcule a "Probabilidade de Publicação" (0 a 100) balanceando a aderência contra a concorrência e impacto.
+
+                    Para escolher as 20 melhores revistas, você DEVE aplicar rigorosamente os seguintes critérios de corte hierárquicos:
+                    - 1º Critério: Maior Grau de Aderência à Área de Conhecimento.
+                    - 2º Critério: Maior Grau de Aderência ao Escopo da Revista.
+                    - 3º Critério: Maiores valores nas métricas de impacto (hierarquia estrita: JIF > SJR > H-index).
+
+                    Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, contendo as 20 revistas escolhidas, possuindo exatamente estas chaves:
+                    - "revista_nome": Nome exato da revista (exatamente como está no CSV fornecido)
+                    - "area_conhecimento_aderencia": Número inteiro de 0 a 100
+                    - "revista_aderencia": Número inteiro de 0 a 100
+                    - "probabilidade_publicacao": Número inteiro de 0 a 100
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita no mesmo idioma em que o resumo do usuário foi enviado.
+
+                    LISTA DE 300 PERIÓDICOS (CSV):
+                    {csv_compacto}
+                    """
                     
                     sucesso_ia = False
                     ultimo_erro_msg = ""
@@ -2378,8 +2449,7 @@ with tab_ia:
                             url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
                             payload = {"contents": [{"parts": [{"text": prompt_ia}]}]}
                             headers = {"Content-Type": "application/json"}
-                            # Aumento de timeout para acomodar envio massivo de tokens
-                            response = requests.post(url_api, json=payload, headers=headers, timeout=60)
+                            response = requests.post(url_api, json=payload, headers=headers, timeout=45)
                             
                             if response.status_code == 200:
                                 dados_resposta = response.json()
@@ -2389,7 +2459,20 @@ with tab_ia:
                                 match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
                                 if match:
                                     texto_resposta = match.group(0)
-                                st.session_state.recomendacoes = json.loads(texto_resposta)
+                                
+                                recomendadas = json.loads(texto_resposta)
+                                
+                                # Ordenação final dos resultados: probabilidade de publicação (desc), depois revista_aderencia (desc)
+                                recomendadas = sorted(
+                                    recomendadas,
+                                    key=lambda x: (
+                                        int(x.get("probabilidade_publicacao", 0)),
+                                        int(x.get("revista_aderencia", 0))
+                                    ),
+                                    reverse=True
+                                )
+                                
+                                st.session_state.recomendacoes = recomendadas
                                 st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
                                 sucesso_ia = True
                                 break
@@ -2426,11 +2509,11 @@ with tab_ia:
                         is_english = en_count > pt_count
 
                         col_titulo = df_original.columns[0]
-                        top_n = df_candidatos.head(num_recomendacoes)
+                        top_n = df_estagio_2.head(num_recomendacoes)
                         recomendacoes_locais = []
                         
                         # Obtém a pontuação máxima de relevância para normalização
-                        max_rel = float(df_candidatos["relevancia"].max()) if "relevancia" in df_candidatos.columns else 0.0
+                        max_rel = float(df_estagio_2["relevancia"].max()) if "relevancia" in df_estagio_2.columns else 0.0
                         
                         for idx, (_, row) in enumerate(top_n.iterrows()):
                             nome_rev = str(row[col_titulo])
@@ -2514,6 +2597,12 @@ with tab_ia:
                                 "justificativa": justificativa
                             })
                         
+                        # Ordenação final dos resultados locais: probabilidade de publicação, depois aderência
+                        recomendacoes_locais = sorted(
+                            recomendacoes_locais,
+                            key=lambda x: (int(x.get("probabilidade_publicacao", 0)), int(x.get("revista_aderencia", 0))),
+                            reverse=True
+                        )
                         st.session_state.recomendacoes = recomendacoes_locais
                         st.session_state.ia_cache[cache_key] = recomendacoes_locais
                         # Sinaliza que foi modo local para exibir aviso amigável
