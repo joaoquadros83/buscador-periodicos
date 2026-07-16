@@ -2325,188 +2325,188 @@ with tab_ia:
                 
                 # Validação caso a base filtrada esteja vazia
                 if df_candidatos.empty:
-                        st.session_state.aviso_filtro = True
-                    else:
-                        # ==================== ESTÁGIO 1: IA SELECIONA AS 2 MELHORES ÁREAS ====================
-                        import json
-                        areas_disponiveis = df_candidatos["Área do Conhecimento"].dropna().unique().tolist()
-                        prompt_areas = f"""
-                        Analise o seguinte artigo científico:
-                        TÍTULO: {titulo_artigo}
-                        RESUMO: {resumo_artigo}
-                        
-                        Dentre a lista de Áreas de Conhecimento abaixo, selecione estritamente as 2 (duas) áreas que apresentam a MAIOR aderência temática a este artigo.
-                        LISTA DE ÁREAS: {areas_disponiveis}
-                        
-                        Retorne OBRIGATORIAMENTE um array JSON válido contendo apenas duas strings exatas (exatamente como escritas na lista). Exemplo: ["Área 1", "Área 2"]
-                        """
-                        
-                        modelos_tentar = [
-                            "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
-                            "gemini-2.0-flash-001", "gemini-3.5-flash", "gemini-flash-latest"
-                        ]
-                        
-                        top_2_areas = []
-                        cota_esgotada = False
-                        
-                        for modelo in modelos_tentar:
-                            try:
-                                url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                                payload = {"contents": [{"parts": [{"text": prompt_areas}]}]}
-                                headers = {"Content-Type": "application/json"}
-                                response = requests.post(url_api, json=payload, headers=headers, timeout=20)
-                                
-                                if response.status_code == 200:
-                                    texto_res = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                                    texto_res = re.sub(r'^```(?:json)?\n|```$', '', texto_res, flags=re.MULTILINE).strip()
-                                    match = re.search(r'\[\s*".*"\s*\]', texto_res, re.DOTALL)
-                                    if match:
-                                        top_2_areas = json.loads(match.group(0))
-                                    break
-                                elif response.status_code == 429:
-                                    cota_esgotada = True
-                                    break
-                            except:
-                                pass
-                            if cota_esgotada:
-                                break
-                                
-                        # ==================== ESTÁGIO 2: FILTRAGEM LOCAL (TOP 100) ====================
-                        df_estagio_2 = df_candidatos.copy()
-                        if top_2_areas and isinstance(top_2_areas, list):
-                            df_filtrado = df_estagio_2[df_estagio_2["Área do Conhecimento"].isin(top_2_areas)]
-                            if not df_filtrado.empty:
-                                df_estagio_2 = df_filtrado
-                        
-                        texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                        palavras = set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca))
-                        stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
-                        palavras_filtradas = palavras - stopwords
-                        
-                        sinonimos_academicos = [
-                            {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
-                            {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
-                            {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
-                            {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
-                            {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
-                            {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
-                            {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
-                            {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
-                            {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
-                            {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
-                            {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
-                            {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
-                            {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
-                            {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
-                            {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
-                            {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
-                            {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
-                        ]
-                        
-                        novas_palavras = set()
-                        for pal in palavras_filtradas:
-                            for grupo in sinonimos_academicos:
-                                if pal in grupo:
-                                    novas_palavras.update(grupo)
-                                    break
-                        palavras_filtradas.update(novas_palavras)
-                        
-                        if palavras_filtradas:
-                            def calcular_relevancia(row):
-                                score = 0
-                                nome = str(row.iloc[0]).lower()
-                                grande_area = str(row.get("Grande Área", "")).lower()
-                                area = str(row.get("Área do Conhecimento", "")).lower()
-                                subarea = str(row.get("Subárea do Conhecimento", "")).lower()
-                                
-                                for pal in palavras_filtradas:
-                                    if pal in nome: score += 5
-                                    if pal in grande_area: score += 3
-                                    if pal in area: score += 3
-                                    if pal in subarea: score += 3
-                                return score
-                            df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia, axis=1)
-                            df_estagio_2 = df_estagio_2.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
-                        else:
-                            df_estagio_2["relevancia"] = 0
-                            df_estagio_2 = df_estagio_2.sort_values(by="SJR", ascending=False)
-                            
-                        # TOP 100
-                        if len(df_estagio_2) > 100:
-                            df_estagio_2 = df_estagio_2.head(100)
-                            
-                        cols_envio = [df_original.columns[0]]
-                        for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "JIF", "SJR", "H index"]:
-                            if col in df_estagio_2.columns:
-                                cols_envio.append(col)
-                        lista_periodicos_envio = df_estagio_2[cols_envio].to_dict(orient="records")
-                        
-                        # ==================== ESTÁGIO 3: ANÁLISE FINA (TOP 20 FINAL) ====================
-                        prompt_ia = f"""
-                        Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
-                        TÍTULO DO ARTIGO: {titulo_artigo}
-                        RESUMO DO ARTIGO: {resumo_artigo}
-
-                        Com base estritamente na lista de 100 periódicos abaixo estruturada em JSON, execute o seguinte algoritmo de filtragem e devolva AS 20 REVISTAS MAIS ADEQUADAS para a publicação deste artigo.
-                        Tanto a busca quanto os resultados suportam os idiomas Inglês, Espanhol e Português. 
-
-                        PASSO A PASSO (ALGORITMO DE AVALIAÇÃO INTERNA DA IA):
-                        1. Calcule o grau de aderência (0 a 100%) do artigo ao ESCOPO ESPECÍFICO de cada uma das 100 revistas enviadas.
-                        2. Calcule a PROBABILIDADE de chances do artigo ser publicado em cada revista (0 a 100%), balanceando a aderência total contra a concorrência e impacto da revista.
-                        3. A partir dessa análise, descarte as piores e SELECIONE APENAS AS 60 REVISTAS com as MAIORES PONTUAÇÕES combinadas.
-                        4. Por fim, dentre essas 60 revistas finalistas, organize os resultados selecionando APENAS AS 20 REVISTAS finais.
-
-                        CRITÉRIOS HIERÁRQUICOS DE ORDENAÇÃO FINAL DAS 20 REVISTAS:
-                        Sua resposta (ordenação do array) deve obedecer rigorosamente a esta hierarquia de desempate final:
-                        1º - Áreas de Conhecimento que apresentem o maior índice de grau de aderência em relação ao artigo.
-                        2º - Revistas que apresentem o maior índice de grau de aderência do escopo em relação ao artigo.
-                        3º - Revistas com maiores valores nas métricas de impacto (seguindo rigorosamente a ordem: JIF > SJR > H-index).
-                        
-                        Lista de 100 Periódicos Candidatos:
-                        {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
-
-                        Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, com no máximo 20 elementos, possuindo estas chaves exatas:
-                        - "revista_nome": Nome exato da revista
-                        - "area_conhecimento_aderencia": Número inteiro de 0 a 100 (aderência do artigo à área da revista)
-                        - "revista_aderencia": Número inteiro de 0 a 100 (aderência do artigo ao escopo da revista)
-                        - "probabilidade_publicacao": Número inteiro de 0 a 100 (chances de publicação)
-                        - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita no mesmo idioma em que o resumo do usuário foi enviado.
-                        """
-                        
-                        sucesso_ia = False
-                        ultimo_erro_msg = ""
-                        cota_esgotada = False
-
-                        for modelo in modelos_tentar:
-                            try:
-                                url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                                payload = {"contents": [{"parts": [{"text": prompt_ia}]}]}
-                                headers = {"Content-Type": "application/json"}
-                                response = requests.post(url_api, json=payload, headers=headers, timeout=45)
-                                
-                                if response.status_code == 200:
-                                    dados_resposta = response.json()
-                                    texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
-                                    if texto_resposta.startswith("```"):
-                                        texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
-                                    match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
-                                    if match:
-                                        texto_resposta = match.group(0)
-                                    st.session_state.recomendacoes = json.loads(texto_resposta)
-                                    st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
-                                    sucesso_ia = True
-                                    break
-                                elif response.status_code == 429:
-                                    cota_esgotada = True
-                                    break
-                                else:
-                                    ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
-                            except Exception as ex:
-                                ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
-                            if cota_esgotada:
-                                break
+                    st.session_state.aviso_filtro = True
+                else:
+                    # ==================== ESTÁGIO 1: IA SELECIONA AS 2 MELHORES ÁREAS ====================
+                    import json
+                    areas_disponiveis = df_candidatos["Área do Conhecimento"].dropna().unique().tolist()
+                    prompt_areas = f"""
+                    Analise o seguinte artigo científico:
+                    TÍTULO: {titulo_artigo}
+                    RESUMO: {resumo_artigo}
                     
-                    if not sucesso_ia:
+                    Dentre a lista de Áreas de Conhecimento abaixo, selecione estritamente as 2 (duas) áreas que apresentam a MAIOR aderência temática a este artigo.
+                    LISTA DE ÁREAS: {areas_disponiveis}
+                    
+                    Retorne OBRIGATORIAMENTE um array JSON válido contendo apenas duas strings exatas (exatamente como escritas na lista). Exemplo: ["Área 1", "Área 2"]
+                    """
+                    
+                    modelos_tentar = [
+                        "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
+                        "gemini-2.0-flash-001", "gemini-3.5-flash", "gemini-flash-latest"
+                    ]
+                    
+                    top_2_areas = []
+                    cota_esgotada = False
+                    
+                    for modelo in modelos_tentar:
+                        try:
+                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                            payload = {"contents": [{"parts": [{"text": prompt_areas}]}]}
+                            headers = {"Content-Type": "application/json"}
+                            response = requests.post(url_api, json=payload, headers=headers, timeout=20)
+                            
+                            if response.status_code == 200:
+                                texto_res = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                texto_res = re.sub(r'^```(?:json)?\n|```$', '', texto_res, flags=re.MULTILINE).strip()
+                                match = re.search(r'\[\s*".*"\s*\]', texto_res, re.DOTALL)
+                                if match:
+                                    top_2_areas = json.loads(match.group(0))
+                                break
+                            elif response.status_code == 429:
+                                cota_esgotada = True
+                                break
+                        except:
+                            pass
+                        if cota_esgotada:
+                            break
+                            
+                    # ==================== ESTÁGIO 2: FILTRAGEM LOCAL (TOP 100) ====================
+                    df_estagio_2 = df_candidatos.copy()
+                    if top_2_areas and isinstance(top_2_areas, list):
+                        df_filtrado = df_estagio_2[df_estagio_2["Área do Conhecimento"].isin(top_2_areas)]
+                        if not df_filtrado.empty:
+                            df_estagio_2 = df_filtrado
+                    
+                    texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                    palavras = set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca))
+                    stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
+                    palavras_filtradas = palavras - stopwords
+                    
+                    sinonimos_academicos = [
+                        {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                        {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
+                        {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
+                        {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
+                        {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
+                        {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
+                        {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
+                        {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
+                        {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
+                        {"produção", "production", "producción", "sistemas", "systems", "sistemas", "informação", "information", "información"},
+                        {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                        {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
+                        {"filosofia", "philosophy", "filosofía", "política", "politics", "política", "direito", "law", "derecho"},
+                        {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                        {"florestal", "forestry", "forestal", "veterinária", "veterinary", "veterinaria", "enfermagem", "nursing", "enfermería"},
+                        {"odontologia", "dentistry", "odontología", "farmácia", "pharmacy", "farmacia", "nutrição", "nutrition", "nutrición"}
+                    ]
+                    
+                    novas_palavras = set()
+                    for pal in palavras_filtradas:
+                        for grupo in sinonimos_academicos:
+                            if pal in grupo:
+                                novas_palavras.update(grupo)
+                                break
+                    palavras_filtradas.update(novas_palavras)
+                    
+                    if palavras_filtradas:
+                        def calcular_relevancia(row):
+                            score = 0
+                            nome = str(row.iloc[0]).lower()
+                            grande_area = str(row.get("Grande Área", "")).lower()
+                            area = str(row.get("Área do Conhecimento", "")).lower()
+                            subarea = str(row.get("Subárea do Conhecimento", "")).lower()
+                            
+                            for pal in palavras_filtradas:
+                                if pal in nome: score += 5
+                                if pal in grande_area: score += 3
+                                if pal in area: score += 3
+                                if pal in subarea: score += 3
+                            return score
+                        df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia, axis=1)
+                        df_estagio_2 = df_estagio_2.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                    else:
+                        df_estagio_2["relevancia"] = 0
+                        df_estagio_2 = df_estagio_2.sort_values(by="SJR", ascending=False)
+                        
+                    # TOP 100
+                    if len(df_estagio_2) > 100:
+                        df_estagio_2 = df_estagio_2.head(100)
+                        
+                    cols_envio = [df_original.columns[0]]
+                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "JIF", "SJR", "H index"]:
+                        if col in df_estagio_2.columns:
+                            cols_envio.append(col)
+                    lista_periodicos_envio = df_estagio_2[cols_envio].to_dict(orient="records")
+                    
+                    # ==================== ESTÁGIO 3: ANÁLISE FINA (TOP 20 FINAL) ====================
+                    prompt_ia = f"""
+                    Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
+                    TÍTULO DO ARTIGO: {titulo_artigo}
+                    RESUMO DO ARTIGO: {resumo_artigo}
+
+                    Com base estritamente na lista de 100 periódicos abaixo estruturada em JSON, execute o seguinte algoritmo de filtragem e devolva AS 20 REVISTAS MAIS ADEQUADAS para a publicação deste artigo.
+                    Tanto a busca quanto os resultados suportam os idiomas Inglês, Espanhol e Português. 
+
+                    PASSO A PASSO (ALGORITMO DE AVALIAÇÃO INTERNA DA IA):
+                    1. Calcule o grau de aderência (0 a 100%) do artigo ao ESCOPO ESPECÍFICO de cada uma das 100 revistas enviadas.
+                    2. Calcule a PROBABILIDADE de chances do artigo ser publicado em cada revista (0 a 100%), balanceando a aderência total contra a concorrência e impacto da revista.
+                    3. A partir dessa análise, descarte as piores e SELECIONE APENAS AS 60 REVISTAS com as MAIORES PONTUAÇÕES combinadas.
+                    4. Por fim, dentre essas 60 revistas finalistas, organize os resultados selecionando APENAS AS 20 REVISTAS finais.
+
+                    CRITÉRIOS HIERÁRQUICOS DE ORDENAÇÃO FINAL DAS 20 REVISTAS:
+                    Sua resposta (ordenação do array) deve obedecer rigorosamente a esta hierarquia de desempate final:
+                    1º - Áreas de Conhecimento que apresentem o maior índice de grau de aderência em relação ao artigo.
+                    2º - Revistas que apresentem o maior índice de grau de aderência do escopo em relação ao artigo.
+                    3º - Revistas com maiores valores nas métricas de impacto (seguindo rigorosamente a ordem: JIF > SJR > H-index).
+                    
+                    Lista de 100 Periódicos Candidatos:
+                    {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
+
+                    Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, com no máximo 20 elementos, possuindo estas chaves exatas:
+                    - "revista_nome": Nome exato da revista
+                    - "area_conhecimento_aderencia": Número inteiro de 0 a 100 (aderência do artigo à área da revista)
+                    - "revista_aderencia": Número inteiro de 0 a 100 (aderência do artigo ao escopo da revista)
+                    - "probabilidade_publicacao": Número inteiro de 0 a 100 (chances de publicação)
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita no mesmo idioma em que o resumo do usuário foi enviado.
+                    """
+                    
+                    sucesso_ia = False
+                    ultimo_erro_msg = ""
+                    cota_esgotada = False
+
+                    for modelo in modelos_tentar:
+                        try:
+                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
+                            payload = {"contents": [{"parts": [{"text": prompt_ia}]}]}
+                            headers = {"Content-Type": "application/json"}
+                            response = requests.post(url_api, json=payload, headers=headers, timeout=45)
+                            
+                            if response.status_code == 200:
+                                dados_resposta = response.json()
+                                texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                if texto_resposta.startswith("```"):
+                                    texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                                match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
+                                if match:
+                                    texto_resposta = match.group(0)
+                                st.session_state.recomendacoes = json.loads(texto_resposta)
+                                st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
+                                sucesso_ia = True
+                                break
+                            elif response.status_code == 429:
+                                cota_esgotada = True
+                                break
+                            else:
+                                ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
+                        except Exception as ex:
+                            ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                        if cota_esgotada:
+                            break
+                
+                if not sucesso_ia:
                         # FALLBACK LOCAL AUTOM TICO: gera recomendações diretamente pelo algoritmo de pontuação
                         texto_detect = f"{titulo_artigo} {resumo_artigo}".lower()
                         pt_stops = {"o", "a", "e", "de", "do", "da", "em", "para", "um", "uma", "com", "por", "os", "as"}
