@@ -2379,7 +2379,20 @@ with tab_ia:
                         
                     # ==================== ESTÁGIO 2: CÁLCULO DE RELEVÂNCIA LOCAL (TOP 300) ====================
                     palavras_set = {p.lower() for p in palavras_multilingue}
-                    
+
+                    # Helper: conta o número de indexadores de uma revista pelo nome
+                    def get_num_indexadores(nome_revista):
+                        try:
+                            matches = df_original[df_original[df_original.columns[0]] == nome_revista]
+                            if matches.empty:
+                                return 0
+                            idx_val = str(matches.iloc[0].get("Indexador", ""))
+                            if not idx_val or idx_val in ["-", "None", "nan"]:
+                                return 0
+                            return len([x for x in idx_val.split(",") if x.strip()])
+                        except:
+                            return 0
+
                     def calcular_relevancia_local(row):
                         score = 0
                         nome = str(row.iloc[0]).lower()
@@ -2422,17 +2435,25 @@ Below is the list of pre-filtered candidate journals retrieved from our database
 {csv_compacto}
 
 # EVALUATION CRITERIA
-For each candidate journal, you must calculate two distinct metrics (from 0% to 100%):
+For each candidate journal, evaluate based ONLY on the following two metrics (from 0% to 100%).
+Do NOT use or consider any impact metrics (JIF, SJR, H-index, Quartile) in your scoring.
 
 1. **Adherence Score (Thematic Fit):**
-   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus (inferred from its name and knowledge area).
-   - Does this paper solve a problem that fits this journal's typical audience and scope?
+   - Assess the semantic and conceptual alignment between the user's Title/Abstract and the journal's focus.
+   - Use ONLY the **Journal Name** and **Grande Área (Broad Area)** columns provided to infer the journal's scope.
+   - Does this paper address themes that fit the journal's audience and publishing domain?
 
 2. **Publication Probability:**
-   - Estimate this based on the feasibility of acceptance. Assess the methodology, clarity, and thematic suitability implied in the abstract compared to the typical publishing standards of the journal.
+   - Estimate feasibility of acceptance based on thematic suitability and the clarity of methodology implied in the abstract.
+   - Base this on alignment with the journal's typical scope, as inferred from its name and broad area.
+
+# RANKING RULES (Apply in strict hierarchical order)
+1. Primary: **Adherence Score** (highest first)
+2. Secondary: **Publication Probability** (highest first)
+3. Tie-breaker: **Number of Indexers** in the "Indexador" column (count of comma-separated entries, highest first)
 
 # OUTPUT GUIDELINES
-- Rank the results strictly from 1st to 20th place.
+- Rank the results strictly from 1st to 20th place following the rules above.
 - Do not hallucinate or recommend journals not present in the provided context.
 - Keep explanations objective, professional, and highly tailored to the user's text.
 
@@ -2444,7 +2465,6 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
   {{
     "rank": 1,
     "journal_name": "Journal Name 1",
-    "issn": "XXXX-XXXX",
     "adherence_score": "XX%",
     "publication_probability": "XX%",
     "justification": "A concise explanation (1-2 paragraphs) detailing exactly why this paper aligns with the journal's domain and why it is a realistic target for publication. Write it in the same language as the user's abstract input."
@@ -2499,12 +2519,13 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
                                         "justificativa": just
                                     })
                                 
-                                # Sort by publication probability, then by journal adherence
+                                # Sort: aderência (1°) > probabilidade (2°) > num. indexadores (desempate)
                                 recomendadas = sorted(
                                     recomendadas,
                                     key=lambda x: (
+                                        int(x.get("revista_aderencia", 0)),
                                         int(x.get("probabilidade_publicacao", 0)),
-                                        int(x.get("revista_aderencia", 0))
+                                        get_num_indexadores(x.get("revista_nome", ""))
                                     ),
                                     reverse=True
                                 )
@@ -2634,12 +2655,12 @@ Return your response exclusively as a valid JSON array of objects. Do not includ
                                 "justificativa": justificativa
                             })
                         
-                        # Ordenação final dos resultados locais: probabilidade de publicação, depois aderência, depois indexadores count (tie-breaker)
+                        # Ordenação final: aderência (1°) > probabilidade (2°) > num. indexadores (desempate)
                         recomendacoes_locais = sorted(
                             recomendacoes_locais,
                             key=lambda x: (
-                                int(x.get("probabilidade_publicacao", 0)),
                                 int(x.get("revista_aderencia", 0)),
+                                int(x.get("probabilidade_publicacao", 0)),
                                 get_num_indexadores(x.get("revista_nome", ""))
                             ),
                             reverse=True
