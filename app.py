@@ -935,7 +935,8 @@ st.markdown("""
         
             .premium-subtitle {
         color: #FFD700 !important; /* Amarelo Dourado */
-        font-size: 0.95rem !important; /* Fonte pequena */
+        font-size: 0.8rem !important; /* Fonte pequena */
+        text-shadow: 1px 1px 0px #b39700, 2px 2px 0px #806b00, 3px 3px 4px rgba(0,0,0,0.6) !important; /* Efeito 3D */
         max-width: 280px; /* Força quebra em duas linhas */
         margin: 0 auto !important; /* Centraliza */
         line-height: 1.4;
@@ -1601,7 +1602,7 @@ if imagem_base64:
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
-st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 30px; padding: 25px 35px;">
+st.markdown(f"""<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 15px; padding: 15px 20px;">
 {tag_imagem}
 <div class="premium-text-block">
 <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
