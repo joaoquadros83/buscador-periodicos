@@ -923,7 +923,7 @@ st.markdown("""
             display: block !important;
             max-width: 270px !important; /* Logo em tamanho harmônico */
             margin: 0 auto !important;
-            margin-bottom: -24px !important;
+            margin-bottom: -44px !important;
         }
         
         .premium-title {
@@ -1037,7 +1037,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
         font-size: 2.2rem !important;
         font-weight: 800 !important;
-        margin-bottom: -24px !important;
+        margin-bottom: -44px !important;
         letter-spacing: -0.5px;
         line-height: 1.15 !important;
     }
@@ -1598,7 +1598,7 @@ if not imagem_base64:
     imagem_base64 = obter_imagem_local_base64("logo.png")
 
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 250px; width: auto; object-fit: contain; margin-right: -12px;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 250px; width: auto; object-fit: contain; margin-right: -32px;">'
 else:
     tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 3px;">📚</span>'
 
