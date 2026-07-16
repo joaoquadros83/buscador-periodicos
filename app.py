@@ -2397,33 +2397,41 @@ with tab_ia:
                     
                     # Payload enxuto: somente os campos essenciais para a IA tomar a decisão
                     cols_envio = [df_original.columns[0]]
-                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
+                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "JIF", "SJR", "H index"]:
                         if col in df_candidatos.columns:
                             cols_envio.append(col)
                     lista_periodicos_envio = df_candidatos[cols_envio].to_dict(orient="records")
                     
                     # Prompt estruturado para forçar o retorno estrito de um array JSON
                     prompt_ia = f"""
-                    Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
+                    Atue como um Especialista Sênior em Publicação Acadêmica e Cienciometria. O pesquisador submeteu o seguinte artigo científico:
                     TÍTULO DO ARTIGO: {titulo_artigo}
                     RESUMO DO ARTIGO: {resumo_artigo}
 
-                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione AS 20 REVISTAS MAIS ADEQUADAS para a publicação deste artigo.
+                    Tanto a busca quanto os resultados suportam os idiomas Inglês, Espanhol e Português. 
 
-                    IMPORTANTES DIRETRIZES DE SELEÇÃO PARA ALTA PERFORMANCE:
-                    1. Avalie o título do texto e o resumo em comparação com o escopo de cada revista presente na base de dados enviada.
-                    2. Calcule internamente o grau de aderência (0 a 100%) do artigo a cada revista.
-                    3. Recomende as revistas cruzando duas variáveis principais: grau de aderência do artigo à revista e métricas de prestígio/impacto (SJR, Quartil JCR).
-                    4. Recomende um total máximo de 20 revistas.
-                    5. Não limite as recomendações ao idioma do título/resumo enviado. Se for um artigo em português, espanhol ou inglês, inclua as principais revistas internacionais e regionais de alto impacto daquela temática, desde que possuam grau de aderência alto.
+                    PASSO A PASSO (ALGORITMO DE AVALIAÇÃO):
+                    1. Calcule o grau de aderência (0 a 100%) do artigo ao ESCOPO ESPECÍFICO da revista.
+                    2. Calcule o grau de aderência (0 a 100%) do artigo a cada ÁREA DE CONHECIMENTO vinculada à revista.
+                    3. Considere as métricas de impacto na seguinte ordem hierárquica rigorosa: JIF, SJR, H-index.
+                    4. Calcule a PROBABILIDADE de chances do artigo ser publicado na revista (0 a 100%), balanceando a aderência total contra a concorrência/impacto da revista.
+
+                    CRITÉRIOS HIERÁRQUICOS DE ORDENAÇÃO FINAL DAS 20 REVISTAS:
+                    Sua resposta (ordenação do array) deve obedecer rigorosamente a esta hierarquia de desempate:
+                    1º - Revistas com Áreas de Conhecimento que apresentem o maior índice de grau de aderência em relação ao artigo.
+                    2º - Revistas que apresentem o maior índice de grau de aderência do escopo em relação ao artigo.
+                    3º - Revistas com maiores valores nas métricas de impacto (seguindo a hierarquia JIF > SJR > H-index).
                     
                     Lista de Periódicos Candidatos:
                     {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
-                    Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
-                    - "revista_nome": Nome exato da revista como aparece no catálogo enviado
-                    - "porcentagem_aderencia": Um número inteiro de 0 a 100 com o grau de aderência calculado
-                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação baseada no escopo e no impacto, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
+                    Sua resposta deve ser OBRIGATORIAMENTE um array JSON válido, com chaves exatas:
+                    - "revista_nome": Nome exato da revista
+                    - "area_conhecimento_aderencia": Número inteiro de 0 a 100
+                    - "revista_aderencia": Número inteiro de 0 a 100
+                    - "probabilidade_publicacao": Número inteiro de 0 a 100
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita no mesmo idioma em que o resumo do usuário foi enviado.
                     """
                     
                     modelos_tentar = [
@@ -2573,7 +2581,7 @@ with tab_ia:
                             
                             recomendacoes_locais.append({
                                 "revista_nome": nome_rev,
-                                "porcentagem_aderencia": pct,
+                                "revista_aderencia": pct, "area_conhecimento_aderencia": pct, "probabilidade_publicacao": max(10, pct - 20),
                                 "justificativa": justificativa
                             })
                         
@@ -2625,37 +2633,40 @@ with tab_ia:
                 except Exception:
                     issn, indexador, quartil, sjr, homepage = "-", "-", "-", "-", ""
             
-                # 2. Renderização de card para cada recomendação (até 10 dinâmicas)
+                # 2. Renderização de card para cada recomendação (dinâmicas)
                 with st.container(border=True):
-                    col_info, col_link = st.columns([3, 1])
+                    st.markdown(f"### {rec['revista_nome']}")
+                    st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
                     
-                    with col_info:
-                        st.markdown(f"### {rec['revista_nome']}")
-                        st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr}")
-                        st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
-                        st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
-                        
-                        # SE HOUVER UM st.dataframe() ESCONDIDO AQUI PARA MOSTRAR OS DADOS COMPLETOS:
-                        # Envolva-o SEMPRE em um validador de tamanho para não quebrar o Arrow
-                        if len(registro_revista) > 0:
-                            st.dataframe(registro_revista, hide_index=True, **kwargs_largura)
+                    # Adquire as porcentagens do JSON (suporta fallback caso modelo erre as chaves)
+                    ader_rev = rec.get("revista_aderencia", rec.get("porcentagem_aderencia", 0))
+                    ader_area = rec.get("area_conhecimento_aderencia", 0)
+                    prob_pub = rec.get("probabilidade_publicacao", 0)
                     
-                    with col_link:
-                        st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown(f"🎯 **Aderência à Revista:** `{ader_rev}%` | 📚 **Aderência à Área:** `{ader_area}%` | 🚀 **Probabilidade de Publicação:** `{prob_pub}%`")
+                    st.markdown(f"💡 **Justificativa:** {rec.get('justificativa', '')}")
+                    
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    col_site, col_h5 = st.columns([1, 1])
+                    with col_site:
                         if homepage and homepage not in ["nan", "-", "None", ""]:
-                            st.link_button(t['ia_card_site'], homepage, type="primary", **kwargs_largura)
+                            st.link_button(t['ia_card_site'] + " 🔗", homepage, type="primary", use_container_width=True)
                         else:
                             st.info(t['ia_card_sem_site'])
-                        
+                            
+                    with col_h5:
                         h5_link = str(registro_revista.iloc[0].get("Índice h5", "")) if "Índice h5" in registro_revista.columns else ""
                         if h5_link and h5_link not in ["nan", "-", "None", ""]:
-                            st.link_button("🎯 Índice h5", h5_link, type="secondary", **kwargs_largura)
+                            st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
             else:
                 # Caso a IA recomende um nome de revista que sofreu uma variação de string e não casou no CSV
                 with st.container(border=True):
                     st.markdown(f"### {rec['revista_nome']}")
                     st.caption("    *Periódico sugerido pela IA, mas metadados detalhados não localizados na base local.*")
-                    st.markdown(f"🎯 **{t['ia_card_aderencia']}** `{rec['porcentagem_aderencia']}%`")
+                    ader_rev = rec.get("revista_aderencia", rec.get("porcentagem_aderencia", 0))
+                    ader_area = rec.get("area_conhecimento_aderencia", 0)
+                    prob_pub = rec.get("probabilidade_publicacao", 0)
+                    st.markdown(f"🎯 **Aderência à Revista:** `{ader_rev}%` | 📚 **Aderência à Área:** `{ader_area}%` | 🚀 **Probabilidade de Publicação:** `{prob_pub}%`")
                     st.markdown(f"💡 **{t['ia_card_motivo']}** {rec['justificativa']}")
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
