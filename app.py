@@ -2404,6 +2404,19 @@ with tab_ia:
                             break
                 
                 if not sucesso_ia:
+                        st.error(f"Erro da API Gemini: {ultimo_erro_msg}")
+                        texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                        palavras = set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca))
+                        stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
+                        palavras_filtradas = palavras - stopwords
+                        
+                        sinonimos_academicos = [{"educação", "education", "ensino"}, {"saúde", "health", "medicina"}] # Simple fallback
+                        novas_palavras = set()
+                        for pal in palavras_filtradas:
+                            for grupo in sinonimos_academicos:
+                                if pal in grupo: novas_palavras.update(grupo)
+                        palavras_filtradas.update(novas_palavras)
+
                         # FALLBACK LOCAL AUTOM TICO: gera recomendações diretamente pelo algoritmo de pontuação
                         texto_detect = f"{titulo_artigo} {resumo_artigo}".lower()
                         pt_stops = {"o", "a", "e", "de", "do", "da", "em", "para", "um", "uma", "com", "por", "os", "as"}
