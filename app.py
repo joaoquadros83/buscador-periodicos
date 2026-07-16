@@ -2232,14 +2232,14 @@ with tab_ia:
         disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
         
     with col_meta:
-        # Espaçador para alinhar verticalmente com o bloco título+subtítulo do col_input
-        # (compensa: h3 título + parágrafo itálico + margin-bottom 12px ≈ 88px)
-        st.markdown(
-            "<div style='margin-top: 88px;'></div>",
-            unsafe_allow_html=True
-        )
-        # Credencial e Chave de API inseridas diretamente na aba de controle da IA
+        # ── Alinhamento visual com col_input ───────────────────────────────────
+        # Sem espaçador de topo: "#### Credentials" alinha com "### Thematic..."
+        # Após o heading h4, um gap de ~14px compensa a diferença h3 vs h4 e
+        # posiciona "Gemini API Key" no mesmo nível que o subtítulo itálico.
+        # O expander "How to get a free key?" fica naturalmente no nível de "Article Title".
+        # ───────────────────────────────────────────────────────────────────────
         st.markdown(f"#### {t['ia_credencial_tit']}")
+        st.markdown("<div style='margin-top: 14px;'></div>", unsafe_allow_html=True)
         
         # Lê chave do segredo do Streamlit Cloud se existir
         chave_secrets = ""
