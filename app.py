@@ -1274,9 +1274,9 @@ elif st.session_state.get("idioma", "English") == "Español":
     btn_conf_text = "⚙ Config."
     btn_conf_help = "Configuración"
 
-if st.sidebar.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
-    st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
-    st.rerun()
+# if st.sidebar.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
+#     st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
+#     st.rerun()
 
 st.sidebar.markdown(f"""
     <div style='display: flex; align-items: center; gap: 12px; margin-bottom: 20px;'>
