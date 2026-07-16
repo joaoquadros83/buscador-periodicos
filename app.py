@@ -2418,8 +2418,33 @@ with tab_ia:
                     df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia_local, axis=1)
                     df_estagio_2 = df_estagio_2.sort_values(by="relevancia", ascending=False)
                     
-                    if len(df_estagio_2) > 300:
-                        df_estagio_2 = df_estagio_2.head(300)
+                    # ── Pool multilingue garantido ──────────────────────────────────────────
+                    # PROBLEMA: quando o abstract é em português, as revistas internacionais
+                    # (inglês/espanhol) pontuam 0 localmente e são eliminadas antes da IA.
+                    # SOLUÇÃO: combinar top-relevancia + amostra estratificada por Grande Área
+                    # para garantir diversidade linguística no pool enviado ao Gemini.
+                    
+                    TOP_SCORED = 150       # melhores por pontuação local
+                    STRAT_POR_AREA = 15    # extras por Grande Área (garante inglês/espanhol)
+                    POOL_MAX = 300         # limite final do pool
+
+                    df_top = df_estagio_2.head(TOP_SCORED)
+                    ids_top = set(df_top.index)
+                    df_resto = df_estagio_2[~df_estagio_2.index.isin(ids_top)]
+
+                    amostras_extra = []
+                    if "Grande Área" in df_resto.columns:
+                        for _area_grp, _grp_df in df_resto.groupby("Grande Área", sort=False):
+                            amostras_extra.append(_grp_df.head(STRAT_POR_AREA))
+
+                    if amostras_extra:
+                        import pandas as _pd_strat
+                        df_pool = _pd_strat.concat([df_top] + amostras_extra)
+                    else:
+                        df_pool = df_top
+
+                    df_estagio_2 = df_pool[~df_pool.index.duplicated(keep="first")].head(POOL_MAX)
+                    # ───────────────────────────────────────────────────────────────────────
                         
                     cols_desejadas = [df_original.columns[0]]
                     for col in ["Grande Área", "Indexador"]:
