@@ -2405,26 +2405,25 @@ with tab_ia:
                     # Prompt estruturado para forçar o retorno estrito de um array JSON
                     prompt_ia = f"""
                     Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
-                    T TULO DO ARTIGO: {titulo_artigo}
+                    TÍTULO DO ARTIGO: {titulo_artigo}
                     RESUMO DO ARTIGO: {resumo_artigo}
 
                     Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
 
-                    IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
-                    1. PRIORIDADE M XIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
-                    2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
-                    3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
-                       - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
-                       - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
-                       - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                    IMPORTANTES DIRETRIZES DE SELEÇÃO PARA ALTA PERFORMANCE:
+                    1. Avalie o título do texto e o resumo em comparação com o escopo de cada revista presente na base de dados enviada.
+                    2. Calcule internamente o grau de aderência (0 a 100%) do artigo a cada revista.
+                    3. Recomende as revistas cruzando duas variáveis principais: grau de aderência do artigo à revista e métricas de prestígio/impacto (SJR, Quartil JCR).
+                    4. Recomende um total máximo de 20 revistas.
+                    5. Não limite as recomendações ao idioma do título/resumo enviado. Se for um artigo em português, espanhol ou inglês, inclua as principais revistas internacionais e regionais de alto impacto daquela temática, desde que possuam grau de aderência alto.
                     
                     Lista de Periódicos Candidatos:
                     {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
 
                     Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
                     - "revista_nome": Nome exato da revista como aparece no catálogo enviado
-                    - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
-                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
+                    - "porcentagem_aderencia": Um número inteiro de 0 a 100 com o grau de aderência calculado
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação baseada no escopo e no impacto, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
                     """
                     
                     modelos_tentar = [
