@@ -2333,234 +2333,116 @@ with tab_ia:
                 if df_candidatos.empty:
                     st.session_state.aviso_filtro = True
                 else:
-                    # ==================== ESTÁGIO 1: EXTRAÇÃO MULTILÍNGUE (IA EXPRESS) ====================
                     import json
+
+                    # Seleciona candidatos baseados em relevância de palavras-chave do título e resumo
+                    texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
+                    palavras = set(re.findall(r'\b[a-zA-Zà-ü]{4,}\b', texto_busca))
+                    # Remove stopwords comuns
+                    stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
+                    palavras_filtradas = palavras - stopwords
                     
-                    prompt_traducoes = f"""
-                    Analise o seguinte título e resumo científico:
-                    TÍTULO: {titulo_artigo}
-                    RESUMO: {resumo_artigo}
+                    # Grupos de sinônimos acadêmicos em 3 idiomas (Português, Inglês e Espanhol)
+                    sinonimos_academicos = [
+                        {"educação", "education", "educación", "ensino", "teaching", "aprendizado", "learning", "aprendizaje"},
+                        {"computação", "computing", "computador", "computer", "tecnologia", "technology", "tecnología"},
+                        {"saúde", "health", "salud", "medicina", "medicine", "médico", "medical", "médica"},
+                        {"ciência", "science", "ciencia", "científico", "scientific", "pesquisa", "research", "investigación"},
+                        {"desenvolvimento", "development", "desarrollo", "gestão", "management", "gestión", "administração", "administration", "administración"},
+                        {"economia", "economy", "economía", "econômico", "economic", "económico", "social"},
+                        {"cultura", "culture", "cultura", "história", "history", "historia", "geografia", "geography", "geografía"},
+                        {"matemática", "mathematics", "física", "physics", "fisica", "química", "chemistry", "quimica"},
+                        {"biologia", "biology", "biología", "meio ambiente", "environment", "medio ambiente", "ambiental", "environmental"},
+                        {"sustentabilidade", "sustainability", "sostenibilidad", "engenharia", "engineering", "ingeniería", "indústria", "industry", "industria"},
+                        {"produção", "production", "producción", "sistemas", "systems", "informação", "information", "información"},
+                        {"comunicação", "communication", "comunicación", "linguagem", "language", "lenguaje", "literatura", "literature"},
+                        {"arte", "art", "música", "music", "musica", "psicologia", "psychology", "psicología"},
+                        {"filosofia", "philosophy", "filosofía", "política", "politics", "direito", "law", "derecho"},
+                        {"energia", "energy", "energía", "materiais", "materials", "materiales", "agricultura", "agriculture"},
+                        {"florestal", "forestry", "forestal", "veterinária", "veterinary", "enfermagem", "nursing", "enfermería"},
+                        {"odontologia", "dentistry", "farmácia", "pharmacy", "nutrição", "nutrition", "nutrición"}
+                    ]
                     
-                    Extraia os 15 termos acadêmicos e conceitos mais relevantes deste texto.
-                    Traduza e adapte estes termos para os 3 idiomas: Português, Inglês e Espanhol.
+                    # Adiciona sinônimos em outros idiomas para busca bidirecional completa
+                    novas_palavras = set()
+                    for pal in palavras_filtradas:
+                        for grupo in sinonimos_academicos:
+                            if pal in grupo:
+                                novas_palavras.update(grupo)
+                                break
+                    palavras_filtradas.update(novas_palavras)
                     
-                    Retorne OBRIGATORIAMENTE um array JSON contendo apenas strings simples de todos esses termos em minúsculo (totalizando até 45 termos).
-                    Exemplo de formato: ["termo1", "term2", "término3", ...]
+                    if palavras_filtradas:
+                        def calcular_relevancia(row):
+                            score = 0
+                            nome = str(row.iloc[0]).lower()
+                            grande_area = str(row.get("Grande Área", "")).lower()
+                            area = str(row.get("Area do Conhecimento", "")).lower()
+                            subarea = str(row.get("Subárea do Conhecimento", "")).lower()
+                            for pal in palavras_filtradas:
+                                if pal in nome:
+                                    score += 5  # Maior peso para termos no nome da revista
+                                if pal in grande_area:
+                                    score += 3
+                                if pal in area:
+                                    score += 3
+                                if pal in subarea:
+                                    score += 3
+                            return score
+                        
+                        df_candidatos["relevancia"] = df_candidatos.apply(calcular_relevancia, axis=1)
+                        # Ordena pelas mais relevantes tematicamente e depois pelo prestígio (SJR)
+                        df_candidatos = df_candidatos.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
+                    else:
+                        df_candidatos["relevancia"] = 0
+                        df_candidatos = df_candidatos.sort_values(by="SJR", ascending=False)
+                    
+                    # Seleciona até 40 candidatos mais relevantes — reduz consumo de tokens da API
+                    if len(df_candidatos) > 40:
+                        df_candidatos = df_candidatos.head(40)
+                    
+                    # Payload enxuto: somente os campos essenciais para a IA tomar a decisão
+                    cols_envio = [df_original.columns[0]]
+                    for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
+                        if col in df_candidatos.columns:
+                            cols_envio.append(col)
+                    lista_periodicos_envio = df_candidatos[cols_envio].to_dict(orient="records")
+                    
+                    # Prompt estruturado — direto, multilíngue, focado em aderência temática
+                    prompt_ia = f"""
+                    Atue como especialista em publicação acadêmica de alto impacto. O pesquisador submeteu o seguinte artigo científico:
+                    TÍTULO DO ARTIGO: {titulo_artigo}
+                    RESUMO DO ARTIGO: {resumo_artigo}
+
+                    Com base estritamente na lista de periódicos abaixo estruturada em JSON, selecione até {num_recomendacoes} (dentre as disponíveis) revistas científicas que apresentem a maior aderência temática, metodológica e de escopo.
+
+                    IMPORTANTES DIRETRIZES DE SELEÇÃO (ORDEM DE PRIORIDADE):
+                    1. PRIORIDADE MÁXIMA (Grau de Aderência): O critério principal de escolha deve ser a aderência temática, metodológica e de escopo do artigo ao periódico. O assunto do artigo deve fazer total sentido com a linha editorial da revista.
+                    2. SEGUNDA PRIORIDADE (Qualidade e Prestígio): Dentre os periódicos com alta aderência e compatibilidade temática, priorize aqueles com maior prestígio acadêmico e qualidade científica (indicados por quartis JCR e índice SJR elevados).
+                    3. Não limite as recomendações ao idioma do título/resumo enviado. Siga estritamente as regras de cruzamento de idiomas abaixo:
+                       - Se o artigo estiver em PORTUGUÊS: Recomende as melhores opções de revistas brasileiras (em português) e também as melhores revistas internacionais (em inglês ou espanhol) que cubram o tema.
+                       - Se o artigo estiver em INGLÊS: Traga os principais periódicos internacionais (em inglês ou espanhol) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                       - Se o artigo estiver em ESPANHOL: Traga os principais periódicos internacionais (em espanhol ou inglês) e também inclua as revistas brasileiras de alto padrão que cubram o tema.
+                    
+                    Lista de Periódicos Candidatos:
+                    {json.dumps(lista_periodicos_envio, ensure_ascii=False)}
+
+                    Sua resposta deve ser obrigatoriamente um array JSON válido (sem tags markdown em volta como ```json, apenas a string crua do array), com chaves exatas:
+                    - "revista_nome": Nome exato da revista como aparece no catálogo enviado
+                    - "porcentagem_aderencia": Apenas um número inteiro de 0 a 100 estimando a aderência
+                    - "justificativa": Uma justificativa de até 3 linhas explicando o porquê da recomendação, escrita EXATAMENTE no mesmo idioma em que o resumo do usuário foi enviado.
                     """
                     
                     modelos_tentar = [
-                        "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
-                        "gemini-2.0-flash-001", "gemini-3.5-flash", "gemini-flash-latest"
+                        "gemini-2.5-flash",
+                        "gemini-2.5-pro",
+                        "gemini-2.0-flash",
+                        "gemini-2.0-flash-001",
+                        "gemini-3.5-flash",
+                        "gemini-flash-latest",
+                        "gemini-pro-latest",
+                        "gemini-2.0-flash-lite",
                     ]
-                    
-                    palavras_multilingue = []
-                    cota_esgotada = False
-                    
-                    for modelo in modelos_tentar:
-                        try:
-                            url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                            payload = {"contents": [{"parts": [{"text": prompt_traducoes}]}]}
-                            headers = {"Content-Type": "application/json"}
-                            response = requests.post(url_api, json=payload, headers=headers, timeout=15)
-                            
-                            if response.status_code == 200:
-                                texto_res = response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                                texto_res = re.sub(r'^```(?:json)?\n?|```$', '', texto_res, flags=re.MULTILINE).strip()
-                                # Regex robusto: captura qualquer array JSON (não apenas de strings)
-                                match = re.search(r'\[.*?\]', texto_res, re.DOTALL)
-                                if match:
-                                    try:
-                                        parsed = json.loads(match.group(0))
-                                        # Garante que todos os itens são strings
-                                        palavras_multilingue = [str(t).lower().strip() for t in parsed if str(t).strip()]
-                                    except json.JSONDecodeError:
-                                        pass
-                                break
-                            elif response.status_code == 429:
-                                cota_esgotada = True
-                                break
-                        except:
-                            pass
-                        if cota_esgotada:
-                            break
-                            
-                    # Fallback local robusto se a IA falhar na tradução
-                    if not palavras_multilingue:
-                        texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                        # Regex corrigido: sem espaço no range de caracteres especiais
-                        palavras_multilingue = list(set(re.findall(r'\b[a-zA-Zà-ü]{4,}\b', texto_busca)))
-                        
-                    # ==================== ESTÁGIO 2: CÁLCULO DE RELEVÂNCIA LOCAL (TOP 300) ====================
-                    palavras_set = {p.lower() for p in palavras_multilingue}
-
-                    # Helper: conta o número de indexadores de uma revista pelo nome
-                    def get_num_indexadores(nome_revista):
-                        try:
-                            matches = df_original[df_original[df_original.columns[0]] == nome_revista]
-                            if matches.empty:
-                                return 0
-                            idx_val = str(matches.iloc[0].get("Indexador", ""))
-                            if not idx_val or idx_val in ["-", "None", "nan"]:
-                                return 0
-                            return len([x for x in idx_val.split(",") if x.strip()])
-                        except:
-                            return 0
-
-                    def calcular_relevancia_local(row):
-                        score = 0
-                        nome = str(row.iloc[0]).lower()
-                        grande_area = str(row.get("Grande Área", "")).lower()
-                        area = str(row.get("Área do Conhecimento", "")).lower()
-                        subarea = str(row.get("Subárea do Conhecimento", "")).lower()
-                        
-                        for p in palavras_set:
-                            if p in nome: score += 10
-                            if p in grande_area: score += 4
-                            if p in area: score += 4
-                            if p in subarea: score += 4
-                        return score
-                        
-                    df_estagio_2 = df_candidatos.copy()
-                    df_estagio_2["relevancia"] = df_estagio_2.apply(calcular_relevancia_local, axis=1)
-                    df_estagio_2 = df_estagio_2.sort_values(by="relevancia", ascending=False)
-                    
-                    # ── Pool em 4 camadas: relevância + WoS + Scopus + áreas aderentes ──
-                    # CAMADA A) top 120 por pontuação local  (acerto temático por palavras)
-                    # CAMADA B) até 40 revistas Web of Science ainda fora do pool
-                    # CAMADA C) até 40 revistas Scopus ainda fora do pool
-                    # CAMADA D) TODAS as revistas de Grande Áreas com aderência local ≥ 70%
-                    #           Sem quota fixa — seleção dinâmica por qualidade temática.
-                    #           Aderência da área = score médio das revistas da área /
-                    #                               score médio da melhor área (normalizado).
-                    
-                    import pandas as _pd_pool
-
-                    TOP_SCORED   = 120
-                    WOS_QUOTA    = 40
-                    SCOPUS_QUOTA = 40
-                    POOL_MAX     = 300
-                    ADERENCIA_MINIMA_AREA = 0.70   # 70% do score da melhor Grande Área
-
-                    # Camada A — top 120 por pontuação local
-                    df_top = df_estagio_2.head(TOP_SCORED)
-                    ids_usados = set(df_top.index)
-
-                    # Camada B — revistas Web of Science ainda não no pool
-                    col_idx = "Indexador" if "Indexador" in df_estagio_2.columns else None
-                    df_wos, df_scopus = _pd_pool.DataFrame(), _pd_pool.DataFrame()
-                    if col_idx:
-                        mask_wos = df_estagio_2[col_idx].astype(str).str.contains(
-                            r"Web of Science|WoS|WOS", case=False, na=False, regex=True
-                        )
-                        df_wos = df_estagio_2[mask_wos & ~df_estagio_2.index.isin(ids_usados)].head(WOS_QUOTA)
-                        ids_usados.update(df_wos.index)
-
-                        # Camada C — revistas Scopus ainda não no pool
-                        mask_scopus = df_estagio_2[col_idx].astype(str).str.contains(
-                            r"Scopus", case=False, na=False, regex=True
-                        )
-                        df_scopus = df_estagio_2[mask_scopus & ~df_estagio_2.index.isin(ids_usados)].head(SCOPUS_QUOTA)
-                        ids_usados.update(df_scopus.index)
-
-                    # Camada D — TODAS as revistas de áreas com aderência local ≥ 70%
-                    # Aderência por área = (score médio das revistas da área) /
-                    #                      (score médio da melhor área), normalizado 0–1.
-                    # Sem quota fixa: inclui TUDO das áreas qualificadas.
-                    df_areas_aderencia = _pd_pool.DataFrame()
-                    if "Grande Área" in df_estagio_2.columns:
-                        area_scores = (
-                            df_estagio_2.groupby("Grande Área")["relevancia"]
-                            .mean()
-                            .reset_index()
-                            .rename(columns={"relevancia": "score_medio"})
-                        )
-                        max_score_area = area_scores["score_medio"].max()
-                        if max_score_area > 0:
-                            area_scores["aderencia_norm"] = area_scores["score_medio"] / max_score_area
-                            areas_qualificadas = set(
-                                area_scores.loc[
-                                    area_scores["aderencia_norm"] >= ADERENCIA_MINIMA_AREA,
-                                    "Grande Área"
-                                ]
-                            )
-                            # Inclui TODAS as revistas das áreas qualificadas fora do pool
-                            df_areas_aderencia = df_estagio_2[
-                                df_estagio_2["Grande Área"].isin(areas_qualificadas) &
-                                ~df_estagio_2.index.isin(ids_usados)
-                            ]
-
-                    partes = [df_top, df_wos, df_scopus, df_areas_aderencia]
-                    partes = [p for p in partes if not p.empty]
-                    df_estagio_2 = _pd_pool.concat(partes)[lambda d: ~d.index.duplicated(keep="first")].head(POOL_MAX)
-                    # ─────────────────────────────────────────────────────────────────────
-                        
-                    cols_desejadas = [df_original.columns[0]]
-                    for col in ["Grande Área", "Indexador"]:
-                        if col in df_estagio_2.columns:
-                            cols_desejadas.append(col)
-                            
-                    df_mini = df_estagio_2[cols_desejadas].copy()
-                    csv_compacto = df_mini.to_csv(index=False, sep='|')
-                    
-                    # ==================== ESTÁGIO 3: AVALIAÇÃO FINA E HIERARQUIA ESTRITA (IA) ====================
-                    prompt_ia = f"""# PERSONA AND ROLE
-You are a highly experienced scientometrics expert, academic journal editor, and scholarly publishing consultant with deep knowledge of thousands of academic journals worldwide. Your task is to analyze the user's manuscript title and abstract, cross-reference them with the provided candidate journals, and recommend the top 20 most suitable journals for submission.
-
-# USER INPUTS
-- Article Title: {titulo_artigo}
-- Article Abstract: {resumo_artigo}
-
-# CONTEXT (Pre-filtered Candidate Journals from RAG)
-Below is the list of pre-filtered candidate journals from our database. Each entry includes the journal name, Grande Área (Broad Area), and Indexador (Indexers list):
-{csv_compacto}
-
-# EVALUATION CRITERIA
-For each candidate journal, calculate the following two metrics (0% to 100%).
-Do NOT use or consider impact metrics (JIF, SJR, H-index, Quartile) in your scoring.
-
-1. **Publication Probability (0-100%) — PRIMARY metric:**
-   - Estimate the probability that this specific manuscript would be ACCEPTED if submitted to this journal.
-   - This score measures THEMATIC FIT for acceptance, NOT the journal's overall selectivity or global acceptance rate.
-   - A paper that is a PERFECT thematic match for a journal's scope MUST receive 85-100%, regardless of how selective the journal is overall.
-   - A paper with STRONG alignment should receive 70-84%.
-   - A paper with MODERATE alignment should receive 50-69%.
-   - A paper with WEAK or NO alignment should receive below 50%.
-   - Use your internal knowledge of each journal's editorial scope, typical topics, and publishing standards.
-   - Cross-reference methodology, themes, and contributions in the abstract with what you know about the journal.
-   - Journals indexed in Web of Science or Scopus that are a strong thematic fit should still receive high scores.
-
-2. **Adherence Score (Thematic Fit, 0-100%) — SECONDARY metric:**
-   - Assess the semantic and conceptual alignment between the manuscript title/abstract and the journal's scope.
-   - Use your internal knowledge of the journal's typical topics, research domains, and editorial focus.
-   - Also consider the journal name and Grande Área (Broad Area) from the CSV.
-   - Apply the same 0-100% calibration: perfect fit = 85-100%, strong = 70-84%, moderate = 50-69%.
-
-# RANKING RULES (Apply in strict hierarchical order)
-1. **Primary:** Publication Probability (highest first)
-2. **Secondary:** Adherence Score (highest first)
-3. **Tie-breaker:** Number of Indexers in the "Indexador" column (count of comma-separated entries, highest first)
-
-# OUTPUT GUIDELINES
-- Rank results strictly from 1st to 20th place following the rules above.
-- Do NOT recommend journals not present in the provided list.
-- Justifications must be objective, specific, and written in the same language as the user's abstract.
-- For each journal, explicitly mention which themes from the abstract align with the journal's known scope.
-- Be generous but accurate: do not artificially cap scores below what the thematic fit deserves.
-
-# RESPONSE FORMAT (Strict JSON)
-Return ONLY a valid JSON array. No intro or outro text. Use this structure:
-
-```json
-[
-  {{
-    "rank": 1,
-    "journal_name": "Journal Name 1",
-    "adherence_score": "XX%",
-    "publication_probability": "XX%",
-    "justification": "A concise explanation (1-2 paragraphs) explaining why the manuscript aligns with this journal's scope based on your knowledge of its editorial focus, and why acceptance is realistic. Write in the same language as the user's abstract."
-  }}
-]
-```"""
                     
                     sucesso_ia = False
                     ultimo_erro_msg = ""
@@ -2569,86 +2451,59 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                     for modelo in modelos_tentar:
                         try:
                             url_api = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key_ativa}"
-                            payload = {"contents": [{"parts": [{"text": prompt_ia}]}]}
+                            payload = {
+                                "contents": [{"parts": [{"text": prompt_ia}]}]
+                            }
                             headers = {"Content-Type": "application/json"}
+                            
                             response = requests.post(url_api, json=payload, headers=headers, timeout=45)
                             
                             if response.status_code == 200:
                                 dados_resposta = response.json()
                                 texto_resposta = dados_resposta["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                
                                 if texto_resposta.startswith("```"):
                                     texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                                
                                 match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
                                 if match:
                                     texto_resposta = match.group(0)
                                 
                                 raw_list = json.loads(texto_resposta)
+                                # Normaliza as chaves para o formato interno do app
                                 recomendadas = []
                                 for item in raw_list:
-                                    jname = item.get("journal_name", item.get("revista_nome", ""))
-                                    
-                                    ad_score = item.get("adherence_score", item.get("revista_aderencia", 0))
-                                    if isinstance(ad_score, str):
-                                        ad_score = int(re.sub(r'\\D', '', ad_score)) if re.sub(r'\\D', '', ad_score) else 0
-                                    
-                                    pub_prob = item.get("publication_probability", item.get("probabilidade_publicacao", 0))
-                                    if isinstance(pub_prob, str):
-                                        pub_prob = int(re.sub(r'\\D', '', pub_prob)) if re.sub(r'\\D', '', pub_prob) else 0
-                                        
-                                    area_adh = item.get("area_conhecimento_aderencia", ad_score) # fallback to ad_score if not present
-                                    if isinstance(area_adh, str):
-                                        area_adh = int(re.sub(r'\\D', '', area_adh)) if re.sub(r'\\D', '', area_adh) else 0
-                                        
-                                    just = item.get("justification", item.get("justificativa", ""))
-                                    
+                                    jname = item.get("revista_nome", item.get("journal_name", ""))
+                                    pct = item.get("porcentagem_aderencia", item.get("adherence_score", 0))
+                                    if isinstance(pct, str):
+                                        pct = int(re.sub(r'\D', '', pct)) if re.sub(r'\D', '', pct) else 0
+                                    just = item.get("justificativa", item.get("justification", ""))
                                     recomendadas.append({
                                         "revista_nome": jname,
-                                        "revista_aderencia": ad_score,
-                                        "area_conhecimento_aderencia": area_adh,
-                                        "probabilidade_publicacao": pub_prob,
+                                        "revista_aderencia": pct,
+                                        "area_conhecimento_aderencia": pct,
+                                        "probabilidade_publicacao": max(10, pct - 5),
                                         "justificativa": just
                                     })
-                                
-                                # Sort: probabilidade (1°) > aderência (2°) > num. indexadores (desempate)
-                                recomendadas = sorted(
-                                    recomendadas,
-                                    key=lambda x: (
-                                        int(x.get("probabilidade_publicacao", 0)),
-                                        int(x.get("revista_aderencia", 0)),
-                                        get_num_indexadores(x.get("revista_nome", ""))
-                                    ),
-                                    reverse=True
-                                )
                                 
                                 st.session_state.recomendacoes = recomendadas
                                 st.session_state.ia_cache[cache_key] = st.session_state.recomendacoes
                                 sucesso_ia = True
                                 break
                             elif response.status_code == 429:
+                                # Cota esgotada — ativa fallback local imediatamente sem espera
                                 cota_esgotada = True
                                 break
                             else:
                                 ultimo_erro_msg = f"Modelo {modelo} falhou (Status {response.status_code}): {response.text}"
                         except Exception as ex:
                             ultimo_erro_msg = f"Modelo {modelo} falhou com exceção: {ex}"
+                        
                         if cota_esgotada:
                             break
-                
-                if not sucesso_ia:
-                        st.error(f"Erro da API Gemini: {ultimo_erro_msg}")
-                        texto_busca = f"{titulo_artigo} {resumo_artigo}".lower()
-                        palavras = set(re.findall(r'\b[a-zA-Zá-ú -Ú]{4,}\b', texto_busca))
-                        stopwords = {"para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela", "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that", "article", "research", "study", "about"}
-                        palavras_filtradas = palavras - stopwords
-                        
-                        sinonimos_academicos = [{"educação", "education", "ensino"}, {"saúde", "health", "medicina"}] # Simple fallback
-                        novas_palavras = set()
-                        for pal in palavras_filtradas:
-                            for grupo in sinonimos_academicos:
-                                if pal in grupo: novas_palavras.update(grupo)
-                        palavras_filtradas.update(novas_palavras)
-
-                        # FALLBACK LOCAL AUTOM TICO: gera recomendações diretamente pelo algoritmo de pontuação
+                    
+                    if not sucesso_ia:
+                        # FALLBACK LOCAL AUTOMÁTICO: gera recomendações diretamente pelo algoritmo de pontuação
                         texto_detect = f"{titulo_artigo} {resumo_artigo}".lower()
                         pt_stops = {"o", "a", "e", "de", "do", "da", "em", "para", "um", "uma", "com", "por", "os", "as"}
                         en_stops = {"the", "and", "of", "in", "to", "a", "is", "that", "for", "it", "with", "on", "as"}
@@ -2657,11 +2512,11 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                         is_english = en_count > pt_count
 
                         col_titulo = df_original.columns[0]
-                        top_n = df_estagio_2.head(num_recomendacoes)
+                        top_n = df_candidatos.head(num_recomendacoes)
                         recomendacoes_locais = []
                         
                         # Obtém a pontuação máxima de relevância para normalização
-                        max_rel = float(df_estagio_2["relevancia"].max()) if "relevancia" in df_estagio_2.columns else 0.0
+                        max_rel = float(df_candidatos["relevancia"].max()) if "relevancia" in df_candidatos.columns else 0.0
                         
                         for idx, (_, row) in enumerate(top_n.iterrows()):
                             nome_rev = str(row[col_titulo])
@@ -2675,16 +2530,13 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                             
                             # Determina a porcentagem de aderência de forma realista e decrescente por rank
                             if max_rel > 0:
-                                # Mapeia proporcionalmente ao score de relevância, variando de 82% a 96%
                                 pct_rel = 82 + int((rel_score / max_rel) * 14)
-                                # Garante consistência do ranking decrescente (ex: 1º=95%, 2º=92%, etc.)
                                 pct_rank = 96 - (idx * 3)
                                 pct = min(96, max(pct_rel, pct_rank))
                             else:
-                                # Se não houver matches de palavras-chave, ordena por SJR de 60% a 78%
                                 pct = max(60, 78 - (idx * 4))
                             
-                            # Encontra palavras-chave que de fato casaram com esta revista
+                            # Encontra palavras-chave que casaram com esta revista
                             matched_keywords = []
                             nome_lower = nome_rev.lower()
                             area_lower = area_rev.lower()
@@ -2693,7 +2545,6 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                             
                             for p in palavras_filtradas:
                                 if p in nome_lower or p in area_lower or p in subarea_lower or p in gr_area_lower:
-                                    # Capitaliza a primeira letra do termo de busca para visualização premium
                                     matched_keywords.append(p.capitalize())
                             
                             # Justificativas inteligentes em 2 idiomas
@@ -2714,11 +2565,9 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                                         pass
                                 if indexador_rev and indexador_rev not in ["-", "None", "nan"]:
                                     detalhes.append(f"indexed in {indexador_rev}")
-                                    
                                 if detalhes:
                                     justificativa += f" The journal is {', '.join(detalhes)}."
                             else:
-                                # Português / Espanhol
                                 if matched_keywords:
                                     kw_str = ", ".join(f"'{k}'" for k in list(matched_keywords)[:3])
                                     justificativa = f"Apresenta forte alinhamento temático com conceitos-chave identificados no seu artigo, especialmente: {kw_str}."
@@ -2735,30 +2584,21 @@ Return ONLY a valid JSON array. No intro or outro text. Use this structure:
                                         pass
                                 if indexador_rev and indexador_rev not in ["-", "None", "nan"]:
                                     detalhes.append(f"indexado em {indexador_rev}")
-                                    
                                 if detalhes:
                                     justificativa += f" O periódico possui {', '.join(detalhes)}."
                             
                             recomendacoes_locais.append({
                                 "revista_nome": nome_rev,
-                                "revista_aderencia": pct, "area_conhecimento_aderencia": pct, "probabilidade_publicacao": max(10, pct - 20),
+                                "revista_aderencia": pct,
+                                "area_conhecimento_aderencia": pct,
+                                "probabilidade_publicacao": max(10, pct - 5),
                                 "justificativa": justificativa
                             })
                         
-                        # Ordenação final: probabilidade (1°) > aderência (2°) > num. indexadores (desempate)
-                        recomendacoes_locais = sorted(
-                            recomendacoes_locais,
-                            key=lambda x: (
-                                int(x.get("probabilidade_publicacao", 0)),
-                                int(x.get("revista_aderencia", 0)),
-                                get_num_indexadores(x.get("revista_nome", ""))
-                            ),
-                            reverse=True
-                        )
                         st.session_state.recomendacoes = recomendacoes_locais
                         st.session_state.ia_cache[cache_key] = recomendacoes_locais
-                        # Sinaliza que foi modo local para exibir aviso amigável
                         st.session_state.modo_local = True
+                    
             
             # Limpa o indicador de progresso do DOM virtual
             status_container.empty()
