@@ -2584,28 +2584,77 @@ with tab_ia:
                 
                 tempo_inicio = time.time()
                 
-                # 1. Tenta Discovery Recommender com Gemini (se chave fornecida)
-                # 2. Tenta Ollama (se disponível)
-                # 3. Fallback: algoritmo local de relevância
+                # 1. Tenta API Híbrida (FastAPI + pgvector) se configurada
+                # 2. Fallback: Discovery Recommender local (Gemini/Ollama/algoritmo)
                 journals = None
                 error = None
+                backend = "local"
                 
-                recommender = get_discovery_recommender(
-                    df_local=df_original,
-                    api_key_gemini=api_key_ativa if api_key_ativa else None
-                )
+                hybrid_api_url = os.getenv("HYBRID_API_URL")
+                if not hybrid_api_url:
+                    try:
+                        hybrid_api_url = st.secrets.get("HYBRID_API_URL", "")
+                    except Exception:
+                        hybrid_api_url = ""
                 
-                use_ollama = not api_key_ativa
-                journals, error = recommender.recommend(
-                    titulo=titulo_artigo,
-                    resumo=resumo_artigo,
-                    idioma=st.session_state.idioma,
-                    top_n=num_recomendacoes,
-                    use_ollama=use_ollama
-                )
+                if hybrid_api_url:
+                    try:
+                        api_response = call_hybrid_api(
+                            title=titulo_artigo,
+                            abstract=resumo_artigo,
+                            api_url=hybrid_api_url.rstrip("/"),
+                            top_n=num_recomendacoes,
+                            min_year=2021,
+                            max_apc_usd=None,
+                            max_decision_days=None,
+                            require_oa=False
+                        )
+                        api_results = api_response.get("results", [])
+                        journals = []
+                        for r in api_results:
+                            meta = r.get("metadata", {})
+                            journals.append({
+                                "nome": r["title"],
+                                "issn": r.get("issn", "-"),
+                                "homepage": meta.get("homepage", "-"),
+                                "grande_area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
+                                "area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
+                                "subarea": "-",
+                                "indexador": "-",
+                                "jif": meta.get("jif", "-"),
+                                "quartil_jcr": meta.get("quartil_jcr", "-"),
+                                "sjr": meta.get("sjr", "-"),
+                                "sjr_quartile": meta.get("sjr_quartile", "-"),
+                                "h_index": meta.get("h_index", "-"),
+                                "h5_link": meta.get("h5_link", "-"),
+                                "aderencia": round(r["match_score"] * 100, 1),
+                                "justificativa": r.get("justification") or f"Match score: {r['match_score']:.2f}",
+                                "probabilidade_aceitacao": round((r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4) * 100, 1),
+                                "fonte_dados": "hybrid_api"
+                            })
+                        backend = "hybrid_api"
+                        st.session_state.backend_usado = backend
+                    except Exception as e_api:
+                        st.warning(f"API híbrida indisponível ({e_api}). Usando motor local como fallback.")
+                        journals = None
                 
-                backend = recommender.get_backend_name()
-                st.session_state.backend_usado = backend
+                if not journals:
+                    recommender = get_discovery_recommender(
+                        df_local=df_original,
+                        api_key_gemini=api_key_ativa if api_key_ativa else None
+                    )
+                    
+                    use_ollama = not api_key_ativa
+                    journals, error = recommender.recommend(
+                        titulo=titulo_artigo,
+                        resumo=resumo_artigo,
+                        idioma=st.session_state.idioma,
+                        top_n=num_recomendacoes,
+                        use_ollama=use_ollama
+                    )
+                    
+                    backend = recommender.get_backend_name()
+                    st.session_state.backend_usado = backend
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
@@ -2685,6 +2734,7 @@ with tab_ia:
             h_index = rec.get("h_index", "-")
             h5_link = rec.get("h5_link", "-")
             aderencia = rec.get("aderencia", rec.get("revista_aderencia", 0))
+            probabilidade = rec.get("probabilidade_aceitacao", max(10, aderencia - 5))
             justificativa = rec.get("justificativa", "")
             
             # Se encontrou no df original, enriquece com dados locais
@@ -2710,9 +2760,7 @@ with tab_ia:
             
             # Obtém avaliação do artigo para esta revista
             aderencia_escopo = aderencia
-            probabilidade = max(10, aderencia - 5)
             justificativa_metricas = justificativa
-            artigos_similares_count = _contar_artigos_similares_por_revista(similar_articles, nome_rev)
             
             if nome_rev in avaliacoes:
                 ev = avaliacoes[nome_rev]
@@ -2736,7 +2784,7 @@ with tab_ia:
                 
                 st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index}")
                 
-                # Barras de progresso para métricas (sem aderência à área)
+                # Barras de progresso para métricas
                 col_m1, col_m2 = st.columns(2)
                 with col_m1:
                     st.markdown(f"**{t['ia_aderencia_escopo']}**")
