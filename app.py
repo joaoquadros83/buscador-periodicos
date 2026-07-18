@@ -2487,8 +2487,8 @@ with tab_ia:
             help="Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas. Sem chave, o app tenta usar o Ollama (Llama 3) instalado localmente; caso contrário, usa o algoritmo local de relevância."
         )
         
-        # Define chave ativa
-        api_key_ativa = user_gemini_key.strip() if user_gemini_key else (chave_global_gemini.strip() if chave_global_gemini else "")
+                # Define chave ativa
+        api_key_ativa = user_gemini_key.strip() if user_gemini_key else (str(chave_global_gemini).strip() if chave_global_gemini else "")
         
         # Status do sistema
         if api_key_ativa:

@@ -107,9 +107,9 @@ class DiscoveryRecommender:
         except Exception:
             return None
 
-    def _call_gemini(self, prompt: str, timeout: int = 10) -> Optional[str]:
-        """Chamada à API Gemini com timeout curto"""
-        modelos = ["gemini-2.0-flash", "gemini-1.5-flash"]
+    def _call_gemini(self, prompt: str, timeout: int = 15) -> Optional[str]:
+        """Chamada à API Gemini com timeout moderado"""
+        modelos = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
         for modelo in modelos:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={self.api_key_gemini}"
@@ -117,7 +117,10 @@ class DiscoveryRecommender:
                                          headers={"Content-Type": "application/json"}, timeout=timeout)
                 if response.status_code == 200:
                     return response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception:
+                else:
+                    logger.warning(f"Gemini {modelo} retornou {response.status_code}: {response.text[:200]}")
+            except Exception as e:
+                logger.warning(f"Erro ao chamar Gemini {modelo}: {e}")
                 continue
         return None
 
@@ -283,8 +286,35 @@ class DiscoveryRecommender:
             j["probabilidade_aceitacao"] = self._calcular_probabilidade_proxy(j, classificacao)
             j["classificacao_area"] = classificacao
 
-        # Etapa 5: Ordenar por viabilidade
-        candidates.sort(key=lambda x: x["probabilidade_aceitacao"], reverse=True)
+        # Etapa 5: Ordenar por: aderência desc, probabilidade desc, métricas de impacto desc
+        def _parse_num(val):
+            try:
+                v = float(val)
+                if pd.notna(v):
+                    return v
+            except (ValueError, TypeError):
+                pass
+            return 0.0
+
+        def _quartil_score(q):
+            q = str(q).upper().replace("Q", "").strip()
+            try:
+                n = int(q)
+                return 5 - n  # Q1=4, Q2=3, Q3=2, Q4=1
+            except (ValueError, TypeError):
+                return 0
+
+        def _score(j):
+            return (
+                j.get("aderencia", 0),
+                j.get("probabilidade_aceitacao", 0),
+                _parse_num(j.get("sjr", 0)),
+                _parse_num(j.get("jif", 0)),
+                _parse_num(j.get("h_index", 0)),
+                _quartil_score(j.get("quartil_jcr", "")),
+            )
+
+        candidates.sort(key=_score, reverse=True)
         top_journals = candidates[:top_n]
 
         # Etapa 6: Justificativa (não bloqueante)
