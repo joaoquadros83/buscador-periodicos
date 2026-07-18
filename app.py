@@ -290,8 +290,8 @@ from services.cache_manager import CacheManager
 from utils.logger import AnonymousLogger, get_anonymous_logger
 
 
-def get_discovery_recommender(df_local, api_key_gemini=None):
-    return DiscoveryRecommender(df_local=df_local, api_key_gemini=api_key_gemini)
+def get_discovery_recommender(df_local, api_key_gemini=None, h_index_author=5):
+    return DiscoveryRecommender(df_local=df_local, api_key_gemini=api_key_gemini, h_index_author=h_index_author)
 
 
 def get_similar_articles_finder(email_openalex=None):

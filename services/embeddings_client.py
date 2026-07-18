@@ -18,16 +18,18 @@ logger = logging.getLogger(__name__)
 class EmbeddingsClient:
     """Cliente para geração de embeddings de textos"""
 
-    def __init__(self, model: str = "nomic-embed-text", fallback_dim: int = 512):
+    def __init__(self, model: str = "nomic-embed-text", fallback_dim: int = 512, gemini_api_key: Optional[str] = None):
         """
         Inicializa o cliente de embeddings
 
         Args:
             model: Modelo Ollama para embeddings (default: nomic-embed-text)
             fallback_dim: Dimensão do vetor no fallback TF-IDF
+            gemini_api_key: Chave Gemini para embeddings via API Google
         """
         self.model = model
         self.fallback_dim = fallback_dim
+        self.gemini_api_key = gemini_api_key
         self._ollama_available = None
         self._vocab = None
         self._idf = None
@@ -53,6 +55,16 @@ class EmbeddingsClient:
         Returns:
             Array numpy com o vetor de embeddings
         """
+        # 1. Tenta Gemini embeddings se houver chave
+        if self.gemini_api_key:
+            try:
+                vector = self._embed_gemini(text)
+                if vector is not None:
+                    return vector
+            except Exception as e:
+                logger.warning(f"Erro ao gerar embedding via Gemini: {e}")
+
+        # 2. Tenta Ollama local
         if self._check_ollama():
             try:
                 import ollama
@@ -62,7 +74,26 @@ class EmbeddingsClient:
                     return np.array(vector, dtype=np.float32)
             except Exception as e:
                 logger.warning(f"Erro ao gerar embedding via Ollama: {e}. Usando fallback TF-IDF.")
+
+        # 3. Fallback TF-IDF
         return self._fallback_embed(text)
+
+    def _embed_gemini(self, text: str) -> Optional[np.ndarray]:
+        """Gera embedding usando API Gemini (embedding-001)"""
+        import requests
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent?key={self.gemini_api_key}"
+        payload = {
+            "content": {"parts": [{"text": text[:8000]}]},
+            "taskType": "RETRIEVAL_QUERY"
+        }
+        headers = {"Content-Type": "application/json"}
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        if response.status_code == 200:
+            data = response.json()
+            values = data.get("embedding", {}).get("values", [])
+            if values:
+                return np.array(values, dtype=np.float32)
+        return None
 
     def embed_batch(self, texts: List[str]) -> List[np.ndarray]:
         """
@@ -167,6 +198,6 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return float(np.dot(a, b) / (norm_a * norm_b))
 
 
-def get_embeddings_client(model: str = "nomic-embed-text") -> EmbeddingsClient:
+def get_embeddings_client(model: str = "nomic-embed-text", gemini_api_key: Optional[str] = None) -> EmbeddingsClient:
     """Retorna instância do cliente de embeddings"""
-    return EmbeddingsClient(model=model)
+    return EmbeddingsClient(model=model, gemini_api_key=gemini_api_key)
