@@ -2587,37 +2587,12 @@ with tab_ia:
                 backend = recommender.get_backend_name()
                 st.session_state.backend_usado = backend
                 
-                # Busca artigos similares via OpenAlex
+                # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
-                try:
-                    similar_finder = get_similar_articles_finder()
-                    similar_articles = similar_finder.find_similar_articles(
-                        abstract=resumo_artigo,
-                        per_page=5
-                    )
-                    st.session_state.artigos_similares = similar_articles
-                except Exception:
-                    st.session_state.artigos_similares = []
+                st.session_state.artigos_similares = []
                 
-                # Avalia o artigo para cada revista recomendada
+                # Avaliação do artigo desativada para agilidade; usa métricas do próprio recommender
                 avaliacoes = {}
-                if journals:
-                    try:
-                        evaluator = get_article_evaluator(df_local=df_original)
-                        for j in journals:
-                            try:
-                                eval_result = evaluator.evaluate_article_for_journal(
-                                    titulo=titulo_artigo,
-                                    resumo=resumo_artigo,
-                                    journal=j,
-                                    similar_articles_count=_contar_artigos_similares_por_revista(similar_articles, j.get("nome", "")),
-                                    idioma=st.session_state.idioma
-                                )
-                                avaliacoes[j.get("nome", "")] = eval_result
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
                 st.session_state.avaliacao_artigo = avaliacoes
                 
                 # Aplica filtros de área/indexador

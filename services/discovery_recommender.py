@@ -1,21 +1,23 @@
 """
-Discovery Recommender
+Discovery Recommender (Otimizado)
 Motor de recomendação baseado em:
   1. Classificação da área do artigo
-  2. Embeddings + busca vetorial por similaridade de cosseno
-  3. Probabilidade proxy de publicação (taxa histórica estimada, penalidade por incompatibilidade, h-index do autor)
-  4. LLM apenas para redigir justificativa qualitativa
+  2. Busca vetorial por similaridade de cosseno (com vetores pré-computados)
+  3. Probabilidade proxy de publicação
+  4. LLM apenas para justificativa (opcional, não bloqueante)
 """
 
 import re
 import requests
+import os
+import pickle
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Optional, Tuple
 import logging
 
 from prompts.discovery_prompt import get_justification_prompt
-from services.embeddings_client import get_embeddings_client, cosine_similarity
+from services.embeddings_client import EmbeddingsClient, cosine_similarity
 from services.area_classifier import classify_article_area
 from services.cache_manager import get_cache_manager
 
@@ -24,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class DiscoveryRecommender:
-    """Motor de recomendação por classificação de área + busca vetorial + probabilidade proxy + LLM"""
+    """Motor de recomendação rápido por classificação de área + busca vetorial + proxy"""
 
     def __init__(
         self,
@@ -34,52 +36,80 @@ class DiscoveryRecommender:
         embeddings_model: str = "nomic-embed-text",
         h_index_author: int = 5
     ):
-        """
-        Inicializa o motor de recomendação
-
-        Args:
-            df_local: DataFrame com base local de revistas
-            api_key_gemini: Chave API Gemini (opcional, para embeddings e justificativa)
-            ollama_model: Modelo Ollama para justificativa
-            embeddings_model: Modelo Ollama para embeddings
-            h_index_author: H-index estimado do autor (default: 5)
-        """
         self.df_local = df_local
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
-        self.embeddings_client = get_embeddings_client(model=embeddings_model, gemini_api_key=api_key_gemini)
+        self.embeddings_client = EmbeddingsClient(model=embeddings_model, gemini_api_key=api_key_gemini)
         self.cache_manager = get_cache_manager()
         self._backend_used = "unknown"
+        self.catalog_texts = []
+        self.catalog_vectors = []
+        self._load_vectors()
+
+    def _load_vectors(self):
+        """Carrega vetores pré-computados do catálogo, se disponíveis"""
+        cache_path = "data/journal_vectors.pkl"
+        if os.path.exists(cache_path):
+            try:
+                with open(cache_path, "rb") as f:
+                    data = pickle.load(f)
+                self.catalog_texts = data.get("texts", [])
+                self.catalog_vectors = data.get("vectors", [])
+                vocab = data.get("vocab")
+                idf = data.get("idf")
+                if vocab is not None and idf is not None:
+                    self.embeddings_client.load_pretrained_tfidf(vocab, idf)
+                logger.info(f"Vetores pré-computados carregados: {len(self.catalog_vectors)} revistas")
+                return
+            except Exception as e:
+                logger.warning(f"Erro ao carregar vetores pré-computados: {e}")
+
+        # Fallback: computa vetores em memória (sem salvar)
+        logger.info("Computando vetores do catálogo em memória...")
+        self._build_catalog_texts()
+        self.embeddings_client.fit_tfidf(self.catalog_texts)
+        self.catalog_vectors = self.embeddings_client.embed_batch(self.catalog_texts)
+
+    def _build_catalog_texts(self):
+        """Constrói textos representativos das revistas"""
+        col_titulo = self.df_local.columns[0]
+        texts = []
+        for _, row in self.df_local.iterrows():
+            partes = [str(row[col_titulo])]
+            for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador"]:
+                if col in row.index:
+                    val = str(row[col])
+                    if val and val not in ["-", "nan", "None", ""]:
+                        partes.append(val)
+            texts.append(" ".join(partes))
+        self.catalog_texts = texts
 
     def get_backend_name(self) -> str:
-        """Retorna qual backend foi usado na última recomendação"""
         return self._backend_used
 
-    def _call_llm(self, prompt: str, timeout: int = 30) -> Optional[str]:
-        """Chama LLM para justificativa (Gemini primário, Ollama fallback)"""
+    def _call_llm_fast(self, prompt: str) -> Optional[str]:
+        """Chamada rápida à LLM para justificativa"""
         if self.api_key_gemini:
             try:
-                return self._call_gemini(prompt, timeout)
-            except Exception as e:
-                logger.warning(f"Gemini falhou: {e}")
-
+                return self._call_gemini(prompt, timeout=10)
+            except Exception:
+                pass
         try:
             import ollama
             response = ollama.generate(
                 model=self.ollama_model,
                 prompt=prompt,
                 stream=False,
-                options={"num_predict": 400, "temperature": 0.7}
+                options={"num_predict": 250, "temperature": 0.7}
             )
             return response.get("response", "")
-        except Exception as e:
-            logger.warning(f"Ollama falhou: {e}")
+        except Exception:
             return None
 
-    def _call_gemini(self, prompt: str, timeout: int = 30) -> Optional[str]:
-        """Chamada à API Gemini"""
-        modelos = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+    def _call_gemini(self, prompt: str, timeout: int = 10) -> Optional[str]:
+        """Chamada à API Gemini com timeout curto"""
+        modelos = ["gemini-2.0-flash", "gemini-1.5-flash"]
         for modelo in modelos:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={self.api_key_gemini}"
@@ -92,56 +122,36 @@ class DiscoveryRecommender:
         return None
 
     def _classificar_artigo(self, titulo: str, resumo: str) -> Dict:
-        """Classifica o artigo na área do conhecimento"""
         return classify_article_area(titulo, resumo)
 
-    def _filtrar_por_area(self, df: pd.DataFrame, area_artigo: str) -> pd.DataFrame:
-        """Filtra revistas da mesma grande área do artigo"""
-        if not area_artigo or area_artigo == "Outras / Não Classificado":
-            return df
-
-        col_area = "Grande Área"
-        if col_area not in df.columns:
-            return df
-
-        df_filtrado = df[df[col_area].astype(str).str.contains(area_artigo, case=False, na=False)]
-
-        # Se filtrar demais, volta ao catálogo completo
-        if len(df_filtrado) < 20:
-            return df
-
-        return df_filtrado
-
     def _busca_vetorial(self, query_text: str, df_candidatos: pd.DataFrame, top_k: int = 40) -> List[Dict]:
-        """Busca as revistas mais similares por embeddings + cosseno"""
+        """Busca vetorial usando vetores pré-carregados"""
         col_titulo = df_candidatos.columns[0]
 
-        # Constrói textos das revistas
-        catalog_texts = []
-        for _, row in df_candidatos.iterrows():
-            partes = [str(row[col_titulo])]
-            for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador"]:
-                if col in row.index:
-                    val = str(row[col])
-                    if val and val not in ["-", "nan", "None", ""]:
-                        partes.append(val)
-            catalog_texts.append(" ".join(partes))
+        # Identifica índices do DataFrame filtrado no DataFrame original
+        indices = []
+        for idx in df_candidatos.index:
+            try:
+                pos = self.df_local.index.get_loc(idx)
+                if isinstance(pos, slice):
+                    pos = pos.start
+                indices.append((idx, int(pos)))
+            except Exception:
+                continue
 
-        # Gera embeddings
         query_vector = self.embeddings_client.embed(query_text)
-        catalog_vectors = self.embeddings_client.embed_batch(catalog_texts)
 
-        # Calcula similaridades
         similarities = []
-        for idx, vec in enumerate(catalog_vectors):
-            sim = cosine_similarity(query_vector, vec)
-            similarities.append((idx, sim))
+        for df_idx, vec_idx in indices:
+            if vec_idx < len(self.catalog_vectors):
+                sim = cosine_similarity(query_vector, self.catalog_vectors[vec_idx])
+                similarities.append((df_idx, sim))
 
         similarities.sort(key=lambda x: x[1], reverse=True)
 
         results = []
-        for idx, sim in similarities[:top_k]:
-            row = df_candidatos.iloc[idx]
+        for df_idx, sim in similarities[:top_k]:
+            row = self.df_local.loc[df_idx]
             results.append({
                 "nome": str(row[col_titulo]),
                 "issn": str(row.get("ISSN", "-")),
@@ -164,16 +174,9 @@ class DiscoveryRecommender:
         return results
 
     def _taxa_aceitacao_historica(self, journal: Dict) -> float:
-        """
-        Proxy para Taxa de Aceitação Histórica.
-        Revistas mais prestigiadas (Q1) tendem a ser mais seletivas.
-        """
         quartil = str(journal.get("quartil_jcr", "")).upper()
         sjr_q = str(journal.get("sjr_quartile", "")).upper()
-
-        # Base: 35% de aceitação média
         taxa = 35.0
-
         if quartil == "Q1" or sjr_q == "Q1":
             taxa = 18.0
         elif quartil == "Q2" or sjr_q == "Q2":
@@ -183,10 +186,8 @@ class DiscoveryRecommender:
         elif quartil == "Q4" or sjr_q == "Q4":
             taxa = 48.0
         elif quartil in ["-", "", "N/A"] and sjr_q in ["-", "", "N/A"]:
-            # Sem quartil: revista nacional ou emergente, taxa média-alta
             taxa = 42.0
 
-        # Ajuste por número de indexadores (mais indexadores = mais competitiva)
         indexador = str(journal.get("indexador", "")).lower()
         indexadores_list = [i.strip() for i in indexador.split(",") if i.strip()]
         reconhecidos = ["wos", "scopus", "scielo", "educ@", "doaj"]
@@ -199,20 +200,12 @@ class DiscoveryRecommender:
         return max(5.0, min(taxa, 80.0))
 
     def _penalidade_incompatibilidade(self, journal: Dict, classificacao: Dict) -> float:
-        """
-        Penalidade por incompatibilidade entre área do artigo e da revista.
-        Retorna fator entre 0 e 1 (1 = totalmente compatível).
-        """
         area_artigo = classificacao.get("grande_area", "").lower()
         area_revista = str(journal.get("grande_area", "")).lower()
 
-        if not area_artigo or not area_revista:
+        if not area_artigo or not area_revista or area_artigo == area_revista:
             return 1.0
 
-        if area_artigo == area_revista:
-            return 1.0
-
-        # Áreas próximas
         proximas = {
             "ciências humanas": ["linguística, letras e artes", "ciências sociais aplicadas"],
             "linguística, letras e artes": ["ciências humanas"],
@@ -230,7 +223,6 @@ class DiscoveryRecommender:
         return 0.45
 
     def _h_index_revista(self, journal: Dict) -> float:
-        """Extrai h-index numérico da revista"""
         h = journal.get("h_index", "-")
         try:
             return float(h) if h not in [None, "-", "N/A", "", "nan"] else 0.0
@@ -238,17 +230,11 @@ class DiscoveryRecommender:
             return 0.0
 
     def _calcular_probabilidade_proxy(self, journal: Dict, classificacao: Dict) -> float:
-        """
-        Probabilidade Proxy de Publicação:
-        Taxa de Aceitação Histórica x Penalidade por Incompatibilidade x Fator H-Index do Autor
-        """
         taxa = self._taxa_aceitacao_historica(journal)
         penalidade = self._penalidade_incompatibilidade(journal, classificacao)
 
-        # Fator H-Index do Autor: autor com h-index maior tem mais chance em revistas de maior prestígio
         h_revista = self._h_index_revista(journal)
         if h_revista > 0:
-            # Se h-index do autor for menor que 10% do h-index da revista, reduz chance
             ratio = self.h_index_author / max(h_revista * 0.1, 1.0)
             fator_h = min(1.2, max(0.6, ratio))
         else:
@@ -265,48 +251,54 @@ class DiscoveryRecommender:
         top_n: int = 20,
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
-        """
-        Gera recomendações por área + busca vetorial + proxy + justificativa
-        """
-        cache_key = f"rec_v2_{hash(titulo + resumo + str(top_n) + idioma)}"
+        """Gera recomendações rapidamente"""
+        cache_key = f"rec_v3_{hash(titulo + resumo + str(top_n) + idioma)}"
         cached = self.cache_manager.get(cache_key)
         if cached:
             return cached, None
 
         query_text = f"{titulo} {resumo}"
 
-        # Etapa 1: Classificar área do artigo
+        # Etapa 1: Classificar área
         classificacao = self._classificar_artigo(titulo, resumo)
+        area_artigo = classificacao.get("grande_area", "")
 
         # Etapa 2: Filtrar catálogo pela área
-        df_candidatos = self._filtrar_por_area(self.df_local, classificacao.get("grande_area", ""))
+        df_candidatos = self.df_local.copy()
+        if area_artigo and area_artigo != "Outras / Não Classificado":
+            col_area = "Grande Área"
+            if col_area in df_candidatos.columns:
+                mask = df_candidatos[col_area].astype(str).str.contains(area_artigo, case=False, na=False)
+                df_filtrado = df_candidatos[mask]
+                if len(df_filtrado) >= 20:
+                    df_candidatos = df_filtrado
 
-        # Etapa 3: Busca vetorial -> Top 40 por aderência ao escopo
+        # Etapa 3: Busca vetorial -> Top 40
         candidates = self._busca_vetorial(query_text, df_candidatos, top_k=40)
         if not candidates:
             return None, "Nenhuma revista encontrada no catálogo."
 
-        # Etapa 4: Probabilidade proxy de publicação
+        # Etapa 4: Probabilidade proxy
         for j in candidates:
             j["probabilidade_aceitacao"] = self._calcular_probabilidade_proxy(j, classificacao)
             j["classificacao_area"] = classificacao
 
-        # Etapa 5: Ordenar por viabilidade (probabilidade proxy)
+        # Etapa 5: Ordenar por viabilidade
         candidates.sort(key=lambda x: x["probabilidade_aceitacao"], reverse=True)
         top_journals = candidates[:top_n]
 
-        # Etapa 6: LLM apenas para justificativa das melhores opções
+        # Etapa 6: Justificativa (não bloqueante)
         self._backend_used = "vetorial"
         if self.api_key_gemini or self._ollama_available():
             self._backend_used = "gemini" if self.api_key_gemini else "ollama"
-            for j in top_journals[:10]:  # justificativa só para as 10 primeiras
+            for j in top_journals[:5]:
                 try:
                     prompt = get_justification_prompt(titulo, resumo, j, idioma)
-                    justificativa = self._call_llm(prompt)
+                    justificativa = self._call_llm_fast(prompt)
                     if justificativa:
                         j["justificativa"] = justificativa
-                except Exception as e:
-                    logger.warning(f"Erro ao gerar justificativa: {e}")
+                except Exception:
+                    pass
 
         for j in top_journals:
             if not j.get("justificativa"):
@@ -330,19 +322,7 @@ class DiscoveryRecommender:
         area = journal.get("grande_area", "")
 
         if idioma == "English":
-            return (
-                f"{nome} is a strong match for your article. Its editorial scope in {area} "
-                f"shows {aderencia}% thematic adherence, with an estimated publication probability of {probabilidade}% "
-                f"based on historical acceptance patterns and journal metrics."
-            )
+            return f"{nome} matches your article well. Its editorial scope in {area} shows {aderencia}% thematic adherence, with an estimated {probabilidade}% publication probability."
         elif idioma == "Español":
-            return (
-                f"{nome} es una buena opción para su artículo. Su alcance editorial en {area} "
-                f"muestra {aderencia}% de adherencia temática, con una probabilidad estimada de publicación del {probabilidade}% "
-                f"basada en patrones históricos de aceptación y métricas de la revista."
-            )
-        return (
-            f"{nome} é uma forte candidata para seu artigo. Seu escopo editorial em {area} "
-            f"apresenta {aderencia}% de aderência temática, com probabilidade estimada de publicação de {probabilidade}% "
-            f"com base em padrões históricos de aceitação e métricas da revista."
-        )
+            return f"{nome} se ajusta bien a su artículo. Su alcance editorial en {area} muestra {aderencia}% de adherencia temática, con probabilidad estimada de publicación del {probabilidade}%."
+        return f"{nome} combina bem com seu artigo. Seu escopo editorial em {area} apresenta {aderencia}% de aderência temática, com probabilidade estimada de publicação de {probabilidade}%."

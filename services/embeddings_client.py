@@ -131,7 +131,6 @@ class EmbeddingsClient:
             return np.zeros(self.fallback_dim, dtype=np.float32)
 
         if self._vocab is None:
-            # Inicializa vocabulário vazio; será preenchido no fit
             self._vocab = {}
             self._idf = np.ones(self.fallback_dim, dtype=np.float32)
 
@@ -140,15 +139,18 @@ class EmbeddingsClient:
             idx = self._get_token_index(token)
             vector[idx] += 1
 
-        # TF-IDF simples
         tf = vector / max(len(tokens), 1)
         vector = tf * self._idf[:self.fallback_dim]
 
-        # Normaliza
         norm = np.linalg.norm(vector)
         if norm > 0:
             vector = vector / norm
-        return vector
+        return vector.astype(np.float32)
+
+    def load_pretrained_tfidf(self, vocab: Dict, idf: np.ndarray):
+        """Carrega vocabulário e IDF pré-treinados"""
+        self._vocab = vocab
+        self._idf = idf
 
     def _get_token_index(self, token: str) -> int:
         """Retorna índice do token no vocabulário (cria se não existir)"""
@@ -185,7 +187,6 @@ class EmbeddingsClient:
             idx = self._get_token_index(token)
             self._idf[idx] = np.log((1 + doc_count) / (1 + count)) + 1
 
-        # Preenche índices não usados com 1
         self._idf[self._idf == 0] = 1.0
 
 
