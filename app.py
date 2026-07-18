@@ -2627,9 +2627,9 @@ with tab_ia:
                                 "sjr_quartile": meta.get("sjr_quartile", "-"),
                                 "h_index": meta.get("h_index", "-"),
                                 "h5_link": meta.get("h5_link", "-"),
-                                "aderencia": round(r["match_score"] * 100, 1),
-                                "justificativa": r.get("justification") or f"Match score: {r['match_score']:.2f}",
-                                "probabilidade_aceitacao": round((r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4) * 100, 1),
+                                "aderencia": round(r["match_score"], 1),
+                                "justificativa": r.get("justification") or f"Match score: {r['match_score']:.1f}",
+                                "probabilidade_aceitacao": round(r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4, 1),
                                 "fonte_dados": "hybrid_api"
                             })
                         backend = "hybrid_api"
