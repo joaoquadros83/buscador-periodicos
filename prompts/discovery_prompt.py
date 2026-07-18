@@ -3,6 +3,8 @@ Discovery-First Prompt
 Prompt otimizado para descoberta de revistas via IA generativa
 """
 
+from typing import Dict
+
 
 def get_discovery_prompt(
     titulo: str,
