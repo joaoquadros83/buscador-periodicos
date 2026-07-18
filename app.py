@@ -2485,8 +2485,8 @@ with tab_ia:
         user_gemini_key = st.text_input(
             "🔑 Chave Gemini (opcional)",
             type="password",
-            placeholder="Deixe em branco para modo local",
-            help="Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas. Sem chave, usamos o algoritmo local de relevância."
+            placeholder="Deixe em branco para usar Ollama local ou algoritmo local",
+            help="Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas. Sem chave, o app tenta usar o Ollama (Llama 3) instalado localmente; caso contrário, usa o algoritmo local de relevância."
         )
         
         # Define chave ativa
