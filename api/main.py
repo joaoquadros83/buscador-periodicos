@@ -169,6 +169,20 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/debug")
+def debug_info():
+    """Retorna informações de diagnóstico (não expõe segredos completos)."""
+    import os
+    return {
+        "database_url_configured": bool(os.getenv("DATABASE_URL")),
+        "database_url_host": os.getenv("DATABASE_URL", "").split("@")[-1].split("/")[0] if os.getenv("DATABASE_URL") else None,
+        "embedding_provider": os.getenv("EMBEDDING_PROVIDER", "not set"),
+        "llm_provider": os.getenv("LLM_PROVIDER", "not set"),
+        "groq_key_configured": bool(os.getenv("GROQ_API_KEY")),
+        "gemini_key_configured": bool(os.getenv("GEMINI_API_KEY")),
+    }
+
+
 @app.post("/recommend", response_model=RecommendResponse)
 def recommend(req: RecommendRequest):
     """
@@ -253,4 +267,7 @@ def recommend(req: RecommendRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        import traceback
+        error_detail = f"Erro interno: {str(e)}\n{traceback.format_exc()}"
+        print(error_detail)
+        raise HTTPException(status_code=500, detail=error_detail)
