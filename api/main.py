@@ -13,8 +13,36 @@ from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.db_client import get_db_client
-from services.hybrid_embeddings import get_embedding_service
+from services.db_client import get_db_client, PostgresClient
+from services.hybrid_embeddings import get_embedding_service, HybridEmbeddingService
+
+
+# Singletons carregados no startup (evita recarregar modelo a cada request)
+_db_client: PostgresClient = None
+_embedding_service: HybridEmbeddingService = None
+
+
+@app.on_event("startup")
+def startup_event():
+    global _db_client, _embedding_service
+    print("Inicializando conexão com banco e modelo de embeddings...")
+    _db_client = get_db_client()
+    _embedding_service = get_embedding_service(
+        provider=os.getenv("EMBEDDING_PROVIDER", "gemini"),
+        gemini_api_key=os.getenv("GEMINI_API_KEY")
+    )
+    # Pré-carrega o modelo sentence-transformers no startup
+    if _embedding_service.provider in ("huggingface", "sentence-transformers"):
+        print("Pré-carregando modelo sentence-transformers...")
+        _embedding_service.embed_text("warmup")
+    print("Startup concluído.")
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    global _db_client
+    if _db_client:
+        _db_client.close()
 
 
 app = FastAPI(
@@ -189,12 +217,9 @@ def recommend(req: RecommendRequest):
     Recomenda periódicos científicos usando Hybrid RAG.
     """
     try:
-        # 1. Serviços
-        db = get_db_client()
-        embedding_service = get_embedding_service(
-            provider=os.getenv("EMBEDDING_PROVIDER", "gemini"),
-            gemini_api_key=os.getenv("GEMINI_API_KEY")
-        )
+        # 1. Usa singletons inicializados no startup
+        db = _db_client
+        embedding_service = _embedding_service
 
         # 2. Gera embeddings da query (título 1.5x, abstract 1.0x)
         title_embedding = embedding_service.embed_text(req.title).tolist()
