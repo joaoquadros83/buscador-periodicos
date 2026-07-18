@@ -128,6 +128,74 @@ RESPONDA SOLO con JSON válido (sin markdown), exactamente en este formato:
 ]"""
 
 
+def get_justification_prompt(
+    titulo: str,
+    resumo: str,
+    revista: Dict,
+    idioma: str = "Português"
+) -> str:
+    """
+    Retorna prompt para LLM gerar justificativa qualitativa de um match.
+    A LLM não escolhe a revista; apenas redige a explicação.
+    """
+    nome = revista.get("nome", "")
+    aderencia = revista.get("aderencia", 0)
+    probabilidade = revista.get("probabilidade_aceitacao", 0)
+    quartil = revista.get("quartil_jcr", "-")
+    indexador = revista.get("indexador", "-")
+
+    if idioma == "Português":
+        return f"""Você é um consultor sênior de publicações científicas.
+
+TÍTULO DO ARTIGO:
+{titulo}
+
+RESUMO:
+{resumo}
+
+REVISTA RECOMENDADA: {nome}
+- Aderência ao escopo calculada: {aderencia}%
+- Probabilidade proxy de aceitação: {probabilidade}%
+- Quartil JCR: {quartil}
+- Indexadores: {indexador}
+
+ESCREVA APENAS uma justificativa de 2 a 3 linhas, em tom profissional e encorajador, explicando por que esta revista é adequada para o artigo. Não use listas, tabelas ou JSON. Texto corrido apenas."""
+
+    elif idioma == "English":
+        return f"""You are a senior scientific publication advisor.
+
+ARTICLE TITLE:
+{titulo}
+
+ABSTRACT:
+{resumo}
+
+RECOMMENDED JOURNAL: {nome}
+- Calculated scope adherence: {aderencia}%
+- Proxy acceptance probability: {probabilidade}%
+- JCR Quartile: {quartil}
+- Indexers: {indexador}
+
+WRITE ONLY a 2-3 sentence justification, in a professional and encouraging tone, explaining why this journal is suitable for the article. Do not use lists, tables, or JSON. Plain text only."""
+
+    else:  # Español
+        return f"""Usted es un asesor sénior en publicaciones científicas.
+
+TÍTULO DEL ARTÍCULO:
+{titulo}
+
+RESUMEN:
+{resumo}
+
+REVISTA RECOMENDADA: {nome}
+- Adecuación al alcance calculada: {aderencia}%
+- Probabilidad proxy de aceptación: {probabilidade}%
+- Cuartil JCR: {quartil}
+- Indexadores: {indexador}
+
+ESCRIBA SOLO una justificación de 2 a 3 líneas, en tono profesional y alentador, explicando por qué esta revista es adecuada para el artículo. No use listas, tablas ni JSON. Solo texto corrido."""
+
+
 def get_classification_prompt(titulo: str, resumo: str, idioma: str = "Português") -> str:
     """
     Retorna prompt para classificação CAPES do artigo

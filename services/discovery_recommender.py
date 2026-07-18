@@ -1,21 +1,25 @@
 """
 Discovery Recommender
-Motor de recomendação Discovery-First com suporte a Gemini API + Ollama + fallback local
-Arquitetura: Gemini (primário, nuvem) → Ollama (local, dev) → Algoritmo local (fallback)
+Motor de recomendação baseado em busca vetorial (embeddings) + probabilidade proxy + LLM apenas para justificativa.
+Arquitetura:
+  1. Embeddings do título+resumo do usuário
+  2. Busca vetorial por similaridade de cosseno no catálogo
+  3. Cálculo matemático da probabilidade proxy de aceitação
+  4. LLM (Gemini/Ollama) APENAS para redigir justificativa qualitativa
 """
 
 import json
 import re
 import requests
+import numpy as np
 import pandas as pd
 from typing import List, Dict, Optional, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 
-from prompts.discovery_prompt import get_discovery_prompt
-from utils.fuzzy_matcher import find_journal_in_dataframe, find_journal_by_issn
-from services.openalex_client import get_openalex_client
-from services.scielo_client import get_scielo_client
+from prompts.discovery_prompt import get_justification_prompt
+from services.embeddings_client import get_embeddings_client, cosine_similarity
+from services.vector_search import get_vector_search
+from services.article_evaluator import ArticleEvaluator
 from services.cache_manager import get_cache_manager
 
 logging.basicConfig(level=logging.INFO)
@@ -23,219 +27,128 @@ logger = logging.getLogger(__name__)
 
 
 class DiscoveryRecommender:
-    """Motor de recomendação Discovery-First com fallback automático"""
-    
+    """Motor de recomendação por busca vetorial + probabilidade proxy + LLM justificativa"""
+
     def __init__(
         self,
         df_local: pd.DataFrame,
         api_key_gemini: Optional[str] = None,
         ollama_model: str = "llama3",
-        email_openalex: Optional[str] = None
+        embeddings_model: str = "nomic-embed-text"
     ):
         """
         Inicializa o motor de recomendação
-        
+
         Args:
             df_local: DataFrame com base local de revistas
-            api_key_gemini: Chave API Gemini (opcional, para modo nuvem)
-            ollama_model: Modelo Ollama a usar (default: llama3)
-            email_openalex: Email para politeness OpenAlex
+            api_key_gemini: Chave API Gemini (opcional, para justificativa via nuvem)
+            ollama_model: Modelo Ollama para justificativa
+            embeddings_model: Modelo Ollama para embeddings
         """
         self.df_local = df_local
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
-        self.openalex_client = get_openalex_client(email_openalex)
-        self.scielo_client = get_scielo_client()
+        self.embeddings_client = get_embeddings_client(model=embeddings_model)
+        self.vector_search = get_vector_search(df_local=df_local, embeddings_client=self.embeddings_client)
         self.cache_manager = get_cache_manager()
+        self.article_evaluator = ArticleEvaluator(df_local=df_local, ollama_model=ollama_model)
         self._backend_used = "unknown"
-    
+
     def get_backend_name(self) -> str:
         """Retorna qual backend foi usado na última recomendação"""
         return self._backend_used
-    
-    def _call_gemini(self, prompt: str, timeout: int = 30) -> Optional[str]:
+
+    def _call_llm(self, prompt: str, timeout: int = 30) -> Optional[str]:
         """
-        Faz chamada à API Gemini (Google)
-        
+        Faz chamada à LLM para justificativa (Gemini primário, Ollama fallback)
+
         Args:
-            prompt: Prompt para enviar ao modelo
+            prompt: Prompt para a LLM
             timeout: Timeout em segundos
-            
+
         Returns:
-            Texto da resposta ou None em caso de erro
+            Texto da resposta ou None
         """
-        if not self.api_key_gemini:
-            return None
-            
-        modelos_tentar = [
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-001",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-        ]
-        
-        ultimo_erro = ""
-        for modelo in modelos_tentar:
+        # Tenta Gemini primeiro se tiver chave
+        if self.api_key_gemini:
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={self.api_key_gemini}"
-                payload = {
-                    "contents": [{"parts": [{"text": prompt}]}]
-                }
-                headers = {"Content-Type": "application/json"}
-                
-                response = requests.post(url, json=payload, headers=headers, timeout=timeout)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                elif response.status_code == 429:
-                    logger.warning(f"Gemini quota exceeded for model {modelo}")
-                    return None  # Quota exceeded, try fallback
-                else:
-                    ultimo_erro = f"Modelo {modelo} falhou (Status {response.status_code})"
-                    logger.warning(ultimo_erro)
-            except requests.exceptions.Timeout:
-                ultimo_erro = f"Timeout no modelo {modelo}"
-                logger.warning(ultimo_erro)
-            except Exception as ex:
-                ultimo_erro = f"Exceção no modelo {modelo}: {ex}"
-                logger.warning(ultimo_erro)
-        
-        logger.error(f"Todos os modelos Gemini falharam. Último erro: {ultimo_erro}")
-        return None
-    
-    def _call_ollama(self, prompt: str) -> Optional[str]:
-        """
-        Faz chamada ao Ollama local
-        
-        Args:
-            prompt: Prompt para enviar ao modelo
-            
-        Returns:
-            Texto da resposta ou None em caso de erro
-        """
+                return self._call_gemini(prompt, timeout)
+            except Exception as e:
+                logger.warning(f"Gemini falhou para justificativa: {e}")
+
+        # Fallback Ollama
         try:
             import ollama
             response = ollama.generate(
                 model=self.ollama_model,
                 prompt=prompt,
                 stream=False,
-                options={"num_predict": 2000, "temperature": 0.7}
+                options={"num_predict": 400, "temperature": 0.7}
             )
             return response.get("response", "")
-        except ImportError:
-            logger.warning("Ollama não instalado")
-            return None
         except Exception as e:
-            logger.warning(f"Erro ao chamar Ollama: {e}")
+            logger.warning(f"Ollama falhou para justificativa: {e}")
             return None
-    
-    def _parse_ai_response(self, texto: str) -> Optional[List[Dict]]:
-        """
-        Parseia a resposta JSON da IA
-        
-        Args:
-            texto: Texto bruto da resposta da IA
-            
-        Returns:
-            Lista de dicionários ou None se falhar
-        """
-        if not texto:
-            return None
-        
-        # Remove markdown code blocks se houver
-        if texto.startswith("```"):
-            texto = re.sub(r'^```(?:json)?\n?|```$', '', texto, flags=re.MULTILINE).strip()
-        
-        # Tenta encontrar array JSON
-        match = re.search(r'\[\s*\{.*\}\s*\]', texto, re.DOTALL)
-        if match:
-            texto = match.group(0)
-        
-        try:
-            raw_list = json.loads(texto)
-            if not isinstance(raw_list, list):
-                return None
-            
-            # Normaliza para formato interno
-            results = []
-            for item in raw_list:
-                jname = item.get("revista_nome", item.get("journal_name", item.get("nome", "")))
-                pct = item.get("porcentagem_aderencia", item.get("adherence_score", item.get("aderencia", 0)))
-                if isinstance(pct, str):
-                    pct = int(re.sub(r'\D', '', pct)) if re.sub(r'\D', '', pct) else 50
-                just = item.get("justificativa", item.get("justification", item.get("motivo", "")))
-                
-                results.append({
-                    "nome": jname,
-                    "aderencia": min(max(pct, 0), 100),
-                    "justificativa": just
-                })
-            
-            return results
-        
-        except json.JSONDecodeError as e:
-            logger.error(f"Erro ao parsear JSON da IA: {e}")
-            return None
-    
-    def _enriquecer_revistas(self, resultados: List[Dict]) -> List[Dict]:
-        """
-        Enriquece recomendações com dados da base local e OpenAlex
-        
-        Args:
-            resultados: Lista de dicionários com recomendações básicas
-            
-        Returns:
-            Lista enriquecida com dados completos
-        """
-        enriquecidas = []
-        
-        for item in resultados:
-            nome = item.get("nome", "")
-            if not nome:
+
+    def _call_gemini(self, prompt: str, timeout: int = 30) -> Optional[str]:
+        """Chamada à API Gemini para justificativa"""
+        modelos_tentar = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+
+        for modelo in modelos_tentar:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={self.api_key_gemini}"
+                payload = {"contents": [{"parts": [{"text": prompt}]}]}
+                headers = {"Content-Type": "application/json"}
+                response = requests.post(url, json=payload, headers=headers, timeout=timeout)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            except Exception:
                 continue
-            
-            # Busca na base local
-            match, _ = find_journal_in_dataframe(nome, self.df_local)
-            
-            enriched = {
-                "nome": nome,
-                "issn": item.get("issn", "-"),
-                "homepage": item.get("homepage", ""),
-                "grande_area": item.get("grande_area", "-"),
-                "area": item.get("area", "-"),
-                "subarea": item.get("subarea", "-"),
-                "indexador": item.get("indexador", "-"),
-                "jif": item.get("jif", "-"),
-                "quartil_jcr": item.get("quartil_jcr", "-"),
-                "sjr": item.get("sjr", "-"),
-                "sjr_quartile": item.get("sjr_quartile", "-"),
-                "h_index": item.get("h_index", "-"),
-                "h5_link": item.get("h5_link", "-"),
-                "aderencia": item.get("aderencia", 50),
-                "justificativa": item.get("justificativa", ""),
-                "fonte_dados": "ia",
-            }
-            
-            if match is not None:
-                row = match
-                enriched["issn"] = str(row.get("ISSN", enriched["issn"]))
-                enriched["homepage"] = str(row.get("Homepage", enriched["homepage"]))
-                enriched["grande_area"] = str(row.get("Grande Área", enriched["grande_area"]))
-                enriched["area"] = str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", enriched["area"])))
-                enriched["indexador"] = str(row.get("Indexador", enriched["indexador"]))
-                enriched["jif"] = row.get("JIF", enriched["jif"])
-                enriched["quartil_jcr"] = str(row.get("Quartil JCR", enriched["quartil_jcr"]))
-                enriched["sjr"] = row.get("SJR", enriched["sjr"])
-                enriched["sjr_quartile"] = str(row.get("SJR Best Quartile", enriched["sjr_quartile"]))
-                enriched["h_index"] = row.get("H index", row.get("h-index", enriched["h_index"]))
-                enriched["h5_link"] = str(row.get("Índice h5", enriched["h5_link"]))
-                enriched["fonte_dados"] = "local"
-            
-            enriquecidas.append(enriched)
-        
-        return enriquecidas
-    
+
+        return None
+
+    def _calcular_probabilidade_proxy(self, journal: Dict, similar_articles_count: int = 0) -> float:
+        """
+        Calcula probabilidade proxy de aceitação usando metadados reais.
+        Fórmula: aderência (35%) + artigos similares (25%) + métricas revista (25%) + idioma (15%)
+        """
+        aderencia = journal.get("aderencia", 0)
+
+        # 1. Aderência ao escopo (35%)
+        score = aderencia * 0.35
+
+        # 2. Artigos similares publicados (25%)
+        similar_score = min(similar_articles_count * 20, 100)
+        score += similar_score * 0.25
+
+        # 3. Métricas da revista (25%)
+        quartil = str(journal.get("quartil_jcr", ""))
+        prestige_score = 80.0
+        if quartil == "Q1":
+            prestige_score = 85.0
+        elif quartil == "Q2":
+            prestige_score = 88.0
+        elif quartil == "Q3":
+            prestige_score = 90.0
+        elif quartil == "Q4":
+            prestige_score = 92.0
+
+        indexador = str(journal.get("indexador", "")).lower()
+        indexadores_list = [i.strip() for i in indexador.split(",") if i.strip()]
+        reconhecidos = ["wos", "scopus", "scielo", "educ@", "doaj"]
+        count_reconhecidos = sum(1 for idx in indexadores_list if any(r in idx for r in reconhecidos))
+        if count_reconhecidos >= 2:
+            prestige_score = min(prestige_score + 5, 100)
+
+        score += prestige_score * 0.25
+
+        # 4. Idioma (15%) - assume compatível se não houver informação
+        score += 90.0 * 0.15
+
+        return round(min(score, 100.0), 1)
+
     def recommend(
         self,
         titulo: str,
@@ -245,219 +158,95 @@ class DiscoveryRecommender:
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
         """
-        Gera recomendações com fallback automático
-        
+        Gera recomendações por busca vetorial + proxy + justificativa LLM
+
         Args:
             titulo: Título do artigo
             resumo: Resumo do artigo
-            idioma: Idioma do artigo
+            idioma: Idioma do prompt
             top_n: Número de recomendações
-            use_ollama: Se True, tenta Ollama antes do Gemini
-            
+            use_ollama: Não utilizado diretamente (mantido para compatibilidade)
+
         Returns:
             (lista_de_recomendacoes, erro)
         """
-        from services.openalex_client import OpenAlexClient
-        
-        # Cache key
-        cache_key = f"rec_{hash(titulo + resumo + str(top_n) + idioma)}"
+        cache_key = f"vec_{hash(titulo + resumo + str(top_n) + idioma)}"
         cached = self.cache_manager.get(cache_key)
         if cached:
             logger.info("Resultado retornado do cache")
             return cached, None
-        
-        # 1. Prepara candidatos da base local (apenas da área do artigo, se possível)
-        logger.info("Preparando candidatos da base local...")
-        df_candidatos = self.df_local.copy()
-        
-        # Filtra por Grande Área usando palavras-chave do título/resumo
-        palavras_area = self._detectar_grande_area(f"{titulo} {resumo}")
-        if palavras_area:
-            mask = df_candidatos["Grande Área"].astype(str).str.lower().apply(
-                lambda area: any(p in area for p in palavras_area)
-            )
-            df_area = df_candidatos[mask]
-            if len(df_area) >= 10:
-                df_candidatos = df_area
-        
-        # Prioriza candidatos com palavras-chave no título ou área
-        def score_candidato(row):
-            texto_row = " ".join([
-                str(row.iloc[0]),
-                str(row.get("Grande Área", "")),
-                str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", ""))),
-                str(row.get("Subárea do Conhecimento", ""))
-            ]).lower()
-            score = 0
-            for p in palavras_area:
-                if p in texto_row:
-                    score += 3
-            return score
-        
-        if palavras_area:
-            df_candidatos["area_score"] = df_candidatos.apply(score_candidato, axis=1)
-            df_candidatos = df_candidatos.sort_values(by=["area_score", "SJR"], ascending=[False, False])
-        
-        if len(df_candidatos) > 40:
-            df_candidatos = df_candidatos.head(40)
-        
-        cols_envio = [self.df_local.columns[0]]
-        for col in ["Grande Área", "Área do Conhecimento", "Indexador", "Quartil JCR", "SJR"]:
-            if col in df_candidatos.columns:
-                cols_envio.append(col)
-        lista_periodicos = df_candidatos[cols_envio].to_dict(orient="records")
-        
-        # 2. Gera prompt Discovery-First
-        prompt = get_discovery_prompt(titulo, resumo, lista_periodicos, top_n, idioma)
-        
-        # 3. Tenta IA (Gemini ou Ollama)
-        resultados_ia = None
-        erro_ia = None
-        
-        if self.api_key_gemini:
-            logger.info("Tentando Gemini API...")
-            resposta = self._call_gemini(prompt)
-            if resposta:
-                resultados_ia = self._parse_ai_response(resposta)
-                if resultados_ia:
-                    self._backend_used = "gemini"
-                    logger.info("Recomendações geradas via Gemini")
-            else:
-                erro_ia = "Gemini API não respondeu (cota esgotada ou chave inválida)"
-        
-        if not resultados_ia and use_ollama:
-            logger.info("Tentando Ollama...")
-            resposta = self._call_ollama(prompt)
-            if resposta:
-                resultados_ia = self._parse_ai_response(resposta)
-                if resultados_ia:
-                    self._backend_used = "ollama"
-                    logger.info("Recomendações geradas via Ollama")
-        
-        # 4. Se IA falhou, usa algoritmo local
-        if not resultados_ia:
-            logger.info("Usando algoritmo local de relevância (fallback)")
-            from services.discovery_recommender import _gerar_recomendacoes_locais
-            resultados_ia = _gerar_recomendacoes_locais(
-                self.df_local, titulo, resumo, top_n
-            )
-            self._backend_used = "local"
-        
-        if not resultados_ia:
-            return None, "Nenhuma recomendação foi gerada"
-        
-        # 5. Enriquece com dados locais e OpenAlex
-        logger.info("Enriquecendo recomendações...")
-        enriquecidas = self._enriquecer_revistas(resultados_ia)
-        
-        # 6. Busca dados OpenAlex para revistas sem ISSN local
-        openalex = OpenAlexClient()
-        for rev in enriquecidas:
-            if rev.get("issn", "-") in ["-", "N/A"] or rev.get("h_index", "-") == "-":
+
+        query_text = f"{titulo} {resumo}"
+
+        # Etapa 1 e 2: embeddings + busca vetorial
+        logger.info("Buscando revistas por similaridade vetorial...")
+        candidates = self.vector_search.search(query_text, top_k=40)
+
+        if not candidates:
+            return None, "Nenhuma revista encontrada no catálogo."
+
+        # Etapa 3: calcular probabilidade proxy para as 40 revistas
+        logger.info("Calculando probabilidade proxy de aceitação...")
+        for j in candidates:
+            j["probabilidade_aceitacao"] = self._calcular_probabilidade_proxy(j)
+
+        # Ordena por probabilidade proxy decrescente
+        candidates.sort(key=lambda x: x["probabilidade_aceitacao"], reverse=True)
+
+        # Seleciona top 20
+        top_journals = candidates[:top_n]
+
+        # Etapa 4: LLM apenas para justificativa das 20 selecionadas
+        logger.info("Gerando justificativas qualitativas...")
+        self._backend_used = "vetorial"
+
+        if self.api_key_gemini or self._ollama_available():
+            self._backend_used = "gemini" if self.api_key_gemini else "ollama"
+            for j in top_journals:
                 try:
-                    dados = openalex.get_journal_by_name(rev["nome"])
-                    if dados:
-                        if rev["issn"] in ["-", "N/A"]:
-                            rev["issn"] = dados.get("issn", "-")
-                        if rev["h_index"] == "-":
-                            rev["h_index"] = dados.get("h_index", "-")
-                        if not rev.get("homepage") or rev["homepage"] in ["-", "", "nan"]:
-                            rev["homepage"] = dados.get("homepage", "")
-                except Exception:
-                    pass
-        
-        # 7. Ordena por aderência (decrescente)
-        enriquecidas = sorted(enriquecidas, key=lambda x: x.get("aderencia", 0), reverse=True)
-        
-        # 8. Limita ao top_n
-        enriquecidas = enriquecidas[:top_n]
-        
-        # 9. Salva em cache
-        self.cache_manager.set(cache_key, enriquecidas, ttl=86400)  # 24h
-        
-        return enriquecidas, erro_ia
+                    prompt = get_justification_prompt(titulo, resumo, j, idioma)
+                    justificativa = self._call_llm(prompt)
+                    if justificativa:
+                        j["justificativa"] = justificativa
+                except Exception as e:
+                    logger.warning(f"Erro ao gerar justificativa: {e}")
 
-    def _detectar_grande_area(self, texto: str) -> set:
-        """Detecta palavras indicadoras de grande área no texto do artigo."""
-        texto = texto.lower()
-        indicadores = {
-            "educação": ["educação", "educacion", "educação", "ensino", "pedagogia", "didática", "escola", "aluno", "professor", "aprendizagem", "currículo", "musical"],
-            "saúde": ["saúde", "salud", "health", "medicina", "enfermagem", "psicologia", "clínica", "paciente"],
-            "exatas": ["computação", "computing", "matemática", "física", "química", "estatística", "algoritmo", "inteligência artificial", "machine learning"],
-            "biológicas": ["biologia", "ecologia", "genética", "microbiologia", "zoologia", "botânica"],
-            "engenharias": ["engenharia", "engineering", "sistemas", "materiais", "construção"],
-            "humanas": ["filosofia", "história", "sociologia", "antropologia", "linguística", "literatura", "arte"],
-            "sociais": ["economia", "administração", "direito", "ciências sociais", "comunicação", "marketing"],
-            "agrárias": ["agronomia", "veterinária", "zootecnia", "floresta", "solo"]
-        }
-        encontradas = set()
-        for area, palavras in indicadores.items():
-            if any(p in texto for p in palavras):
-                encontradas.add(area)
-        return encontradas
+        # Se não gerou justificativa, usa texto padrão
+        for j in top_journals:
+            if not j.get("justificativa"):
+                j["justificativa"] = self._justificativa_padrao(j, idioma)
 
+        # Salva em cache
+        self.cache_manager.set(cache_key, top_journals, ttl=86400)
 
-def _gerar_recomendacoes_locais(df_base, titulo, resumo, num_recomendacoes):
-    """Algoritmo local de relevância temática (fallback universal)"""
-    texto_busca = f"{titulo} {resumo}".lower()
-    palavras = set(re.findall(r'\b[a-zA-Zà-ü]{4,}\b', texto_busca))
-    stopwords = {
-        "para", "como", "uma", "este", "esta", "com", "dos", "das", "pelo", "pela",
-        "artigo", "pesquisa", "estudo", "sobre", "with", "this", "from", "that",
-        "article", "research", "study", "about", "the", "and", "for", "are", "was"
-    }
-    palavras_filtradas = palavras - stopwords
-    
-    df = df_base.copy()
-    col_titulo = df.columns[0]
-    
-    if palavras_filtradas:
-        def calc_relevancia(row):
-            score = 0
-            nome = str(row.iloc[0]).lower()
-            grande_area = str(row.get("Grande Área", "")).lower()
-            area = str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", ""))).lower()
-            subarea = str(row.get("Subárea do Conhecimento", "")).lower()
-            for pal in palavras_filtradas:
-                if pal in nome: score += 5
-                if pal in grande_area: score += 3
-                if pal in area: score += 3
-                if pal in subarea: score += 3
-            return score
-        
-        df["relevancia"] = df.apply(calc_relevancia, axis=1)
-        df = df.sort_values(by=["relevancia", "SJR"], ascending=[False, False])
-    else:
-        df["relevancia"] = 0
-        df = df.sort_values(by="SJR", ascending=False)
-    
-    top_n = df.head(num_recomendacoes)
-    max_rel = float(df["relevancia"].max()) if "relevancia" in df.columns else 0.0
-    
-    journals = []
-    for idx, (_, row) in enumerate(top_n.iterrows()):
-        if max_rel > 0:
-            pct = min(96, max(82 + int((float(row.get("relevancia", 0)) / max_rel) * 14), 96 - (idx * 3)))
-        else:
-            pct = max(60, 78 - (idx * 4))
-        
-        journals.append({
-            "nome": str(row[col_titulo]),
-            "issn": str(row.get("ISSN", "-")),
-            "homepage": str(row.get("Homepage", "")),
-            "grande_area": str(row.get("Grande Área", "-")),
-            "area": str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", "-"))),
-            "subarea": str(row.get("Subárea do Conhecimento", "-")),
-            "indexador": str(row.get("Indexador", "-")),
-            "jif": row.get("JIF", "-"),
-            "quartil_jcr": str(row.get("Quartil JCR", "-")),
-            "sjr": row.get("SJR", "-"),
-            "sjr_quartile": str(row.get("SJR Best Quartile", "-")),
-            "h_index": row.get("H index", row.get("h-index", "-")),
-            "h5_link": str(row.get("Índice h5", "-")),
-            "aderencia": pct,
-            "justificativa": f"Recomendado por alinhamento temático com {palavras_filtradas}",
-            "fonte_dados": "local",
-        })
-    
-    return journals
+        return top_journals, None
+
+    def _ollama_available(self) -> bool:
+        """Verifica se Ollama está disponível"""
+        try:
+            import ollama
+            ollama.list()
+            return True
+        except Exception:
+            return False
+
+    def _justificativa_padrao(self, journal: Dict, idioma: str) -> str:
+        """Justificativa padrão quando LLM não está disponível"""
+        nome = journal.get("nome", "")
+        aderencia = journal.get("aderencia", 0)
+        probabilidade = journal.get("probabilidade_aceitacao", 0)
+
+        if idioma == "English":
+            return (
+                f"{nome} was selected because its editorial scope has a thematic adherence of "
+                f"{aderencia}% with your article, resulting in an estimated acceptance probability of {probabilidade}%."
+            )
+        elif idioma == "Español":
+            return (
+                f"{nome} fue seleccionada porque su alcance editorial tiene una adherencia temática de "
+                f"{aderencia}% con su artículo, lo que resulta en una probabilidad estimada de aceptación del {probabilidade}%."
+            )
+        return (
+            f"{nome} foi selecionada porque seu escopo editorial apresenta {aderencia}% de aderência temática "
+            f"com o seu artigo, resultando em probabilidade estimada de aceitação de {probabilidade}%."
+        )
