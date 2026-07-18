@@ -294,6 +294,26 @@ def get_discovery_recommender(df_local, api_key_gemini=None, h_index_author=5):
     return DiscoveryRecommender(df_local=df_local, api_key_gemini=api_key_gemini, h_index_author=h_index_author)
 
 
+def call_hybrid_api(title: str, abstract: str, api_url: str, top_n: int = 10,
+                    min_year: int = 2021, max_apc_usd: float = None,
+                    max_decision_days: int = None, require_oa: bool = False) -> dict:
+    """Chama a API FastAPI híbrida /recommend"""
+    import requests
+    payload = {
+        "title": title,
+        "abstract": abstract,
+        "top_n": top_n,
+        "min_year": min_year,
+        "max_apc_usd": max_apc_usd,
+        "max_decision_days": max_decision_days,
+        "require_oa": require_oa,
+        "generate_justifications": True
+    }
+    response = requests.post(f"{api_url}/recommend", json=payload, timeout=60)
+    response.raise_for_status()
+    return response.json()
+
+
 def get_similar_articles_finder(email_openalex=None):
     return SimilarArticlesFinder(email_openalex=email_openalex)
 
