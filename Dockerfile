@@ -17,9 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia o restante do projeto
 COPY . .
 
-# Pré-baixa o modelo sentence-transformers para evitar timeout na primeira requisição
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
-
 # Expõe a porta da API
 EXPOSE 8000
 
