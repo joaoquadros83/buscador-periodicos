@@ -305,7 +305,7 @@ class DiscoveryRecommender:
                 else:
                     erro_ia = "Gemini API não respondeu (cota esgotada ou chave inválida)"
             
-            if not resultados_ia:
+            elif use_ollama:
                 logger.info("Tentando Ollama como fallback...")
                 resposta = self._call_ollama(prompt)
                 if resposta:

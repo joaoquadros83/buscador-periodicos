@@ -125,15 +125,16 @@ class CacheManager:
         
         return None
     
-    def set(self, key: str, value: Any, ttl_seconds: int = 3600):
+    def set(self, key: str, value: Any, ttl: int = 3600):
         """
         Armazena valor no cache
         
         Args:
             key: Chave do cache
             value: Valor a armazenar
-            ttl_seconds: Tempo de vida em segundos (default: 1 hora)
+            ttl: Tempo de vida em segundos (default: 1 hora)
         """
+        ttl_seconds = ttl
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
