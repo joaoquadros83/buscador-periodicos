@@ -141,60 +141,102 @@ class ArticleEvaluator:
         similar_articles_count: int = 0
     ) -> Dict:
         """
-        Calcula probabilidade estimada de aceitação
-        
-        Args:
-            journal: Dados da revista enriquecidos
-            article_adherence: Aderência temática do artigo
-            similar_articles_count: Número de artigos similares encontrados
-            
-        Returns:
-            Dicionário com probabilidade e metadados
+        Calcula probabilidade proxy de aceitação baseada em múltiplos critérios.
+
+        Fórmula ponderada:
+        - Aderência ao escopo (35%): prioridade absoluta do alinhamento temático.
+        - Existência/quantidade de artigos similares (25%): histórico de publicações
+          similares indica que a revista já aceitou trabalhos na linha do usuário.
+        - Métricas da revista (25%): prestígio, quartil JCR/SJR, h-index e indexadores.
+        - Aderência linguística/formato (15%): compatibilidade entre idioma do artigo
+          e idioma predominante da revista.
         """
         score = 0.0
-        
-        # 1. Aderência temática (40%)
-        score += article_adherence * 0.4
-        
-        # 2. Nível de prestígio vs qualidade (30%)
-        quartil = journal.get("quartil_jcr", "")
-        if quartil == "Q1":
-            prestige_score = 60  # Mais difícil
-        elif quartil == "Q2":
-            prestige_score = 75
-        elif quartil == "Q3":
-            prestige_score = 85
-        elif quartil == "Q4":
-            prestige_score = 90  # Mais fácil
-        else:
-            # Se não tem quartil, usa h-index
-            h_index = journal.get("h_index")
-            if h_index:
-                if h_index >= 100:
-                    prestige_score = 65
-                elif h_index >= 50:
-                    prestige_score = 75
-                elif h_index >= 20:
-                    prestige_score = 80
-                else:
-                    prestige_score = 85
-            else:
-                prestige_score = 70  # Médio
-        
-        score += prestige_score * 0.3
-        
-        # 3. Open Access (10%) - OA tende a aceitar mais
-        if journal.get("is_oa") or journal.get("is_doaj"):
-            score += 10 * 0.1
-        
-        # 4. Artigos similares (20%)
+        detalhes = []
+
+        # 1. Aderência ao escopo (35%)
+        score += article_adherence * 0.35
+        detalhes.append(f"aderência ao escopo ({article_adherence:.0f}%)")
+
+        # 2. Artigos similares publicados (25%)
+        similar_score = min(similar_articles_count * 20, 100)
+        score += similar_score * 0.25
         if similar_articles_count > 0:
-            similar_score = min(similar_articles_count * 15, 100)
-            score += similar_score * 0.2
-        
+            detalhes.append(f"{similar_articles_count} artigo(s) similar(es) publicado(s) na revista")
+        else:
+            detalhes.append("nenhum artigo similar encontrado na revista")
+
+        # 3. Métricas da revista (25%)
+        quartil = journal.get("quartil_jcr", "")
+        sjr_quartile = journal.get("sjr_quartile", "")
+        h_index = journal.get("h_index")
+        indexador = str(journal.get("indexador", "")).lower()
+
+        # Converte h_index para float quando possível
+        try:
+            h_index_val = float(h_index) if h_index not in [None, "-", "N/A", "", "nan"] else 0
+        except (ValueError, TypeError):
+            h_index_val = 0
+
+        prestige_score = 70.0
+        if quartil == "Q1":
+            prestige_score = 65.0
+        elif quartil == "Q2":
+            prestige_score = 78.0
+        elif quartil == "Q3":
+            prestige_score = 88.0
+        elif quartil == "Q4":
+            prestige_score = 92.0
+        elif sjr_quartile == "Q1":
+            prestige_score = 68.0
+        elif sjr_quartile == "Q2":
+            prestige_score = 80.0
+        elif sjr_quartile == "Q3":
+            prestige_score = 88.0
+        elif sjr_quartile == "Q4":
+            prestige_score = 92.0
+        elif h_index_val > 0:
+            if h_index_val >= 100:
+                prestige_score = 70.0
+            elif h_index_val >= 50:
+                prestige_score = 80.0
+            elif h_index_val >= 20:
+                prestige_score = 88.0
+            else:
+                prestige_score = 92.0
+
+        # Bônus por múltiplos indexadores reconhecidos
+        indexadores_list = [i.strip() for i in indexador.split(",") if i.strip()]
+        reconhecidos = ["wos", "scopus", "scielo", "educ@", "doaj"]
+        count_reconhecidos = sum(1 for idx in indexadores_list if any(r in idx for r in reconhecidos))
+        if count_reconhecidos >= 2:
+            prestige_score = min(prestige_score + 5, 100)
+
+        score += prestige_score * 0.25
+        detalhes.append(f"prestígio editorial ({prestige_score:.0f}%)")
+
+        # 4. Aderência linguística (15%)
+        idioma_artigo = str(journal.get("idioma", "")).upper()
+        idioma_revista = str(journal.get("idioma", "")).upper()
+        if idioma_artigo and idioma_revista:
+            if idioma_artigo == idioma_revista:
+                lang_score = 100.0
+            elif idioma_artigo in ["PT", "ES"] and idioma_revista in ["PT", "ES"]:
+                lang_score = 85.0
+            elif idioma_artigo == "EN" and idioma_revista == "EN":
+                lang_score = 100.0
+            elif idioma_artigo in ["PT", "ES"] and idioma_revista == "EN":
+                lang_score = 75.0
+            else:
+                lang_score = 60.0
+        else:
+            lang_score = 80.0
+        score += lang_score * 0.15
+        detalhes.append(f"compatibilidade de idioma ({lang_score:.0f}%)")
+
         # Cap em 100
         probability = min(score, 100.0)
-        
+
         # Determina nível de confiança
         if probability >= 75:
             confianca = "Alta"
@@ -202,11 +244,12 @@ class ArticleEvaluator:
             confianca = "Média"
         else:
             confianca = "Baixa"
-        
+
         return {
             "probabilidade": round(probability, 1),
             "confianca": confianca,
-            "metodo": "Estimativa baseada em aderência temática, prestígio da revista e análise de artigos similares"
+            "metodo": "Estimativa baseada em aderência temática, artigos similares publicados, métricas da revista e compatibilidade de idioma",
+            "detalhes": detalhes
         }
     
     def evaluate_article_for_journal(
@@ -255,7 +298,12 @@ class ArticleEvaluator:
             aderencia_escopo,
             similar_articles_count
         )
-        
+
+        # 5. Gera justificativa dissertativa das métricas
+        justificativa_metricas = self._gerar_justificativa_metricas(
+            journal, aderencia_escopo, acceptance, similar_articles_count, idioma
+        )
+
         return {
             "aderencia_escopo": aderencia_escopo,
             "aderencia_area": round(aderencia_area, 1),
@@ -264,7 +312,8 @@ class ArticleEvaluator:
             "probabilidade_metodo": acceptance["metodo"],
             "artigo_area": article_area,
             "artigo_grande_area": article_grande_area,
-            "classificacao_confianca": classification_confidence
+            "classificacao_confianca": classification_confidence,
+            "justificativa_metricas": justificativa_metricas
         }
 
     def evaluate_journal_with_classification(
@@ -304,8 +353,78 @@ class ArticleEvaluator:
             "probabilidade_metodo": acceptance["metodo"],
             "artigo_area": article_area,
             "artigo_grande_area": article_grande_area,
-            "classificacao_confianca": classification_confidence
+            "classificacao_confianca": classification_confidence,
+            "justificativa_metricas": self._gerar_justificativa_metricas(
+                journal, aderencia_escopo, acceptance, similar_articles_count, "Português"
+            )
         }
+
+    def _gerar_justificativa_metricas(
+        self,
+        journal: Dict,
+        aderencia_escopo: float,
+        acceptance: Dict,
+        similar_articles_count: int,
+        idioma: str = "Português"
+    ) -> str:
+        """
+        Gera texto dissertativo (até 4 linhas) explicando as métricas da revista.
+        """
+        nome = journal.get("nome", "esta revista")
+        quartil = journal.get("quartil_jcr", "-")
+        sjr = journal.get("sjr", "-")
+        h_index = journal.get("h_index", "-")
+
+        if idioma == "English":
+            txt = (
+                f"**{nome}** was recommended because the title and abstract show a thematic fit of "
+                f"**{aderencia_escopo:.0f}%** with the journal's editorial scope. "
+            )
+            if similar_articles_count > 0:
+                txt += (
+                    f"The journal has already published **{similar_articles_count} similar article(s)**, "
+                    f"which reinforces the suitability of the submission. "
+                )
+            else:
+                txt += "No similar published articles were found in this journal, so fit relies primarily on semantic scope. "
+            txt += (
+                f"Considering the journal metrics (JCR quartile {quartil}, SJR {sjr}, h-index {h_index}) "
+                f"and the historical editorial profile, the estimated acceptance probability is **{acceptance['probabilidade']:.0f}%**."
+            )
+        elif idioma == "Español":
+            txt = (
+                f"**{nome}** fue recomendada porque el título y el resumen muestran una adecuación temática de "
+                f"**{aderencia_escopo:.0f}%** con el alcance editorial de la revista. "
+            )
+            if similar_articles_count > 0:
+                txt += (
+                    f"La revista ya ha publicado **{similar_articles_count} artículo(s) similar(es)**, "
+                    f"lo que refuerza la pertinencia de la propuesta. "
+                )
+            else:
+                txt += "No se encontraron artículos similares publicados en esta revista, por lo que la adecuación se basa principalmente en el alcance semántico. "
+            txt += (
+                f"Considerando las métricas de la revista (cuartil JCR {quartil}, SJR {sjr}, índice h {h_index}) "
+                f"y el perfil editorial histórico, la probabilidad estimada de aceptación es **{acceptance['probabilidade']:.0f}%**."
+            )
+        else:
+            txt = (
+                f"**{nome}** foi recomendada porque o título e o resumo apresentam **{aderencia_escopo:.0f}%** "
+                f"de aderência ao escopo editorial da revista. "
+            )
+            if similar_articles_count > 0:
+                txt += (
+                    f"A revista já publicou **{similar_articles_count} artigo(s) similar(es)**, "
+                    f"o que reforça a pertinência da proposta. "
+                )
+            else:
+                txt += "Não foram encontrados artigos similares publicados nesta revista, portanto a aderência se apoia principalmente no escopo semântico. "
+            txt += (
+                f"Considerando as métricas da revista (quartil JCR {quartil}, SJR {sjr}, h-index {h_index}) "
+                f"e o perfil editorial histórico, a probabilidade estimada de aceitação é **{acceptance['probabilidade']:.0f}%**."
+            )
+
+        return txt
 
 
 def get_article_evaluator(df_local: pd.DataFrame, ollama_model: str = "llama3") -> ArticleEvaluator:

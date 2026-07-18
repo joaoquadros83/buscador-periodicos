@@ -1,5 +1,3 @@
-import faulthandler
-faulthandler.enable()
 
 import streamlit as st
 import sys
@@ -554,9 +552,9 @@ dic = {
         "ia_artigos_similares": "Artigos semanticamente similares",
         "ia_artigos_similares_hint": "Referências publicadas com temática próxima ao seu resumo (OpenAlex).",
         "ia_aderencia_escopo": "Aderência ao Escopo",
-        "ia_aderencia_area": "Aderência à Área",
         "ia_probabilidade": "Probabilidade Estimada de Aceitação",
         "ia_probabilidade_nota": "Estimativa baseada em aderência temática, prestígio da revista e artigos similares publicados.",
+        "ia_justificativa_tit": "Por que esta revista foi recomendada",
         "ia_classificacao_area": "Classificação CAPES do artigo",
         "ia_card_motivo": "Por que publicar aqui:",
         "ia_card_aderencia": "Grau de Aderência:",
@@ -700,9 +698,9 @@ Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ol
         "ia_artigos_similares": "Semantically similar articles",
         "ia_artigos_similares_hint": "Published references with themes close to your abstract (OpenAlex).",
         "ia_aderencia_escopo": "Scope Adherence",
-        "ia_aderencia_area": "Field Adherence",
         "ia_probabilidade": "Estimated Acceptance Probability",
         "ia_probabilidade_nota": "Estimate based on thematic fit, journal prestige, and similar published articles.",
+        "ia_justificativa_tit": "Why this journal was recommended",
         "ia_classificacao_area": "CAPES classification of the article",
         "ia_card_motivo": "Why publish here:",
         "ia_card_aderencia": "Adherence Score:",
@@ -849,9 +847,9 @@ This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</
         "ia_artigos_similares": "Artículos semánticamente similares",
         "ia_artigos_similares_hint": "Referencias publicadas con temática próxima a su resumen (OpenAlex).",
         "ia_aderencia_escopo": "Adherencia al Alcance",
-        "ia_aderencia_area": "Adherencia al Área",
         "ia_probabilidade": "Probabilidad Estimada de Aceptación",
         "ia_probabilidade_nota": "Estimación basada en adherencia temática, prestigio de la revista y artículos similares publicados.",
+        "ia_justificativa_tit": "Por qué se recomendó esta revista",
         "ia_classificacao_area": "Clasificación CAPES del artículo",
         "ia_card_motivo": "Por qué publicar aqui:",
         "ia_card_aderencia": "Grado de Adherencia:",
@@ -2710,48 +2708,48 @@ with tab_ia:
             
             # Obtém avaliação do artigo para esta revista
             aderencia_escopo = aderencia
-            aderencia_area_val = aderencia
             probabilidade = max(10, aderencia - 5)
+            justificativa_metricas = justificativa
+            artigos_similares_count = _contar_artigos_similares_por_revista(similar_articles, nome_rev)
             
             if nome_rev in avaliacoes:
                 ev = avaliacoes[nome_rev]
                 aderencia_escopo = ev.get("aderencia_escopo", aderencia)
-                aderencia_area_val = ev.get("aderencia_area", aderencia)
                 probabilidade = ev.get("probabilidade_aceitacao", probabilidade)
+                justificativa_metricas = ev.get("justificativa_metricas", justificativa)
             
             with st.container(border=True):
-                st.markdown(f"### {nome_rev}")
+                # Título da revista + botões Homepage e h5 ao lado
+                col_titulo, col_btn_home, col_btn_h5 = st.columns([3, 1, 1])
+                with col_titulo:
+                    st.markdown(f"### {nome_rev}")
+                with col_btn_home:
+                    if homepage and homepage not in ["nan", "-", "None", ""]:
+                        st.link_button(t['ia_card_site'] + " 🔗", homepage, type="primary", use_container_width=True)
+                    else:
+                        st.info(t['ia_card_sem_site'])
+                with col_btn_h5:
+                    if h5_link and h5_link not in ["nan", "-", "None", ""]:
+                        st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
+                
                 st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index}")
                 
-                # Barras de progresso para métricas
-                col_m1, col_m2, col_m3 = st.columns(3)
+                # Barras de progresso para métricas (sem aderência à área)
+                col_m1, col_m2 = st.columns(2)
                 with col_m1:
                     st.markdown(f"**{t['ia_aderencia_escopo']}**")
                     st.progress(min(aderencia_escopo / 100, 1.0))
                     st.markdown(f"<p style='text-align: center; font-size: 1.2rem; font-weight: bold;'>{aderencia_escopo}%</p>", unsafe_allow_html=True)
                 with col_m2:
-                    st.markdown(f"**{t['ia_aderencia_area']}**")
-                    st.progress(min(aderencia_area_val / 100, 1.0))
-                    st.markdown(f"<p style='text-align: center; font-size: 1.2rem; font-weight: bold;'>{aderencia_area_val}%</p>", unsafe_allow_html=True)
-                with col_m3:
                     st.markdown(f"**{t['ia_probabilidade']}**")
                     st.progress(min(probabilidade / 100, 1.0))
                     st.markdown(f"<p style='text-align: center; font-size: 1.2rem; font-weight: bold;'>{probabilidade}%</p>", unsafe_allow_html=True)
                 
                 st.caption(f"*{t['ia_probabilidade_nota']}*")
                 
-                st.markdown(f"💡 **{t['ia_card_motivo']}** {justificativa}")
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                col_site, col_h5 = st.columns([1, 1])
-                with col_site:
-                    if homepage and homepage not in ["nan", "-", "None", ""]:
-                        st.link_button(t['ia_card_site'] + " 🔗", homepage, type="primary", use_container_width=True)
-                    else:
-                        st.info(t['ia_card_sem_site'])
-                with col_h5:
-                    if h5_link and h5_link not in ["nan", "-", "None", ""]:
-                        st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
+                # Justificativa dissertativa das métricas
+                with st.expander(f"📖 {t['ia_justificativa_tit']}", expanded=True):
+                    st.markdown(justificativa_metricas)
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
