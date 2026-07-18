@@ -279,7 +279,7 @@ class DiscoveryRecommender:
         lista_periodicos = df_candidatos[cols_envio].to_dict(orient="records")
         
         # 2. Gera prompt Discovery-First
-        prompt = get_discovery_prompt(titulo, resumo, lista_periodicos, top_n, idioma)
+        prompt = get_discovery_prompt(titulo, resumo, idioma)
         
         # 3. Tenta IA (Gemini ou Ollama)
         resultados_ia = None
