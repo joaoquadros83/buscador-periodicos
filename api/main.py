@@ -205,7 +205,7 @@ def recommend(req: RecommendRequest):
             title_embedding=title_embedding,
             abstract_embedding=abstract_embedding,
             query_text=f"{req.title} {req.abstract}",
-            limit=req.top_n,
+            limit=req.top_n * 3,  # Pega mais candidatos para normalização mais estável
             min_year=req.min_year,
             max_apc_usd=req.max_apc_usd,
             max_decision_days=req.max_decision_days,
@@ -214,6 +214,21 @@ def recommend(req: RecommendRequest):
 
         if not scored_journals:
             raise HTTPException(status_code=404, detail="Nenhuma revista encontrada para os critérios.")
+
+        # 3.1 Normaliza scores para escala 0-100 (melhor resultado = 100)
+        max_match = max(sj["match_score"] for sj in scored_journals) or 1.0
+        max_semantic = max(sj["semantic_score"] for sj in scored_journals) or 1.0
+        max_recency = max(sj["recency_score"] for sj in scored_journals) or 1.0
+        max_business = max(sj["business_score"] for sj in scored_journals) or 1.0
+
+        for sj in scored_journals:
+            sj["match_score"] = round(min((sj["match_score"] / max_match) * 100, 100.0), 1)
+            sj["semantic_score"] = round(min((sj["semantic_score"] / max_semantic) * 100, 100.0), 1)
+            sj["recency_score"] = round(min((sj["recency_score"] / max_recency) * 100, 100.0), 1)
+            sj["business_score"] = round(min((sj["business_score"] / max_business) * 100, 100.0), 1)
+
+        # Mantém apenas o top_n solicitado após normalização
+        scored_journals = scored_journals[:req.top_n]
 
         # 4. Enriquece com metadados completos e gera justificativas
         results = []
