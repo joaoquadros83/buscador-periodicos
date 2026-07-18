@@ -21,7 +21,7 @@ class HybridEmbeddingService:
     Peso do abstract: 1.0
     """
 
-    DEFAULT_HF_MODEL = "paraphrase-MiniLM-L3-v2"  # 384 dimensões, ~45MB, cabe no Render free
+    DEFAULT_HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"  # 384 dimensões, ONNX via fastembed, ~90MB
 
     def __init__(
         self,
@@ -38,7 +38,8 @@ class HybridEmbeddingService:
         self.ollama_model = ollama_model
         self.huggingface_model = huggingface_model
         self.embedding_dim = embedding_dim
-        self._hf_model = None
+        self._hf_model = None  # sentence-transformers fallback
+        self._fastembed_model = None  # fastembed (preferido)
 
     def _normalize(self, vector: np.ndarray) -> np.ndarray:
         """Normaliza vetor para norma 1"""
@@ -159,17 +160,29 @@ class HybridEmbeddingService:
         return np.array(values, dtype=np.float32)
 
     def _embed_huggingface(self, text: str) -> np.ndarray:
-        """Embedding via sentence-transformers local (gratuito, sem API)"""
+        """Embedding via fastembed ONNX (leve, gratuito, sem API). Fallback para sentence-transformers."""
         try:
-            from sentence_transformers import SentenceTransformer
-            if self._hf_model is None:
-                logger.info(f"Carregando modelo sentence-transformers: {self.huggingface_model}")
-                self._hf_model = SentenceTransformer(self.huggingface_model)
-            vector = self._hf_model.encode(text[:8000], normalize_embeddings=True)
+            from fastembed import TextEmbedding
+            if self._fastembed_model is None:
+                logger.info(f"Carregando modelo fastembed: {self.huggingface_model}")
+                self._fastembed_model = TextEmbedding(model_name=self.huggingface_model)
+            vector = list(self._fastembed_model.embed([text[:8000]]))[0]
             return np.array(vector, dtype=np.float32)
         except ImportError:
-            logger.error("sentence-transformers não instalado. Use: pip install sentence-transformers")
-            raise
+            logger.warning("fastembed não instalado. Usando sentence-transformers como fallback.")
+            return self._embed_sentence_transformers(text)
+        except Exception as e:
+            logger.warning(f"Erro no fastembed: {e}. Fallback para sentence-transformers.")
+            return self._embed_sentence_transformers(text)
+
+    def _embed_sentence_transformers(self, text: str) -> np.ndarray:
+        """Fallback usando sentence-transformers"""
+        from sentence_transformers import SentenceTransformer
+        if self._hf_model is None:
+            logger.info(f"Carregando modelo sentence-transformers: {self.huggingface_model}")
+            self._hf_model = SentenceTransformer(self.huggingface_model)
+        vector = self._hf_model.encode(text[:8000], normalize_embeddings=True)
+        return np.array(vector, dtype=np.float32)
 
     def _embed_ollama(self, text: str) -> np.ndarray:
         """Embedding via Ollama local"""
