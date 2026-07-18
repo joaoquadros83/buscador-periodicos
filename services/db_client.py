@@ -52,12 +52,15 @@ class PostgresClient:
 
     def close(self):
         """Fecha conexão persistente"""
-        if self._conn and not self._conn.closed:
+        if getattr(self, "_conn", None) and not self._conn.closed:
             self._conn.close()
             self._conn = None
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def init_schema(self, schema_path: str = "sql/pgvector_schema_v2.sql"):
         """Executa arquivo SQL de schema"""
