@@ -50,6 +50,18 @@ class PostgresClient:
             logger.error(f"Erro no execute: {e}")
             raise
 
+    def executemany(self, sql: str, params_list: List[tuple]) -> None:
+        """Executa query SQL em lote em uma única transação"""
+        conn = self._connect()
+        try:
+            with conn.cursor() as cur:
+                cur.executemany(sql, params_list)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            logger.error(f"Erro no executemany: {e}")
+            raise
+
     def close(self):
         """Fecha conexão persistente"""
         if getattr(self, "_conn", None) and not self._conn.closed:
@@ -172,8 +184,8 @@ class PostgresClient:
         """
         sql = """
         SELECT * FROM score_journals(
-            %s::vector(768),
-            %s::vector(768),
+            %s::vector(384),
+            %s::vector(384),
             %s,
             %s,
             %s,
@@ -211,8 +223,8 @@ class PostgresClient:
         """Busca artigos mais relevantes de uma revista para a query"""
         sql = """
         SELECT * FROM hybrid_article_search_rrf(
-            %s::vector(768),
-            %s::vector(768),
+            %s::vector(384),
+            %s::vector(384),
             %s,
             %s,
             NULL
