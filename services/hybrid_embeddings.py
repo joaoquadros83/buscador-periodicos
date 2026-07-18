@@ -21,7 +21,7 @@ class HybridEmbeddingService:
     Peso do abstract: 1.0
     """
 
-    DEFAULT_HF_MODEL = "all-MiniLM-L6-v2"  # 384 dimensões, rápido, gratuito
+    DEFAULT_HF_MODEL = "paraphrase-MiniLM-L3-v2"  # 384 dimensões, ~45MB, cabe no Render free
 
     def __init__(
         self,
