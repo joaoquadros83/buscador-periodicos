@@ -172,36 +172,37 @@ class ArticleEvaluator:
         h_index = journal.get("h_index")
         indexador = str(journal.get("indexador", "")).lower()
 
-        # Converte h_index para float quando possível
         try:
             h_index_val = float(h_index) if h_index not in [None, "-", "N/A", "", "nan"] else 0
         except (ValueError, TypeError):
             h_index_val = 0
 
-        prestige_score = 70.0
+        # Prestígio convertido em oportunidade: revistas com maior visibilidade
+        # aumentam a chance de encontrar leitores e revisores adequados.
+        prestige_score = 80.0
         if quartil == "Q1":
-            prestige_score = 65.0
+            prestige_score = 85.0
         elif quartil == "Q2":
-            prestige_score = 78.0
-        elif quartil == "Q3":
             prestige_score = 88.0
+        elif quartil == "Q3":
+            prestige_score = 90.0
         elif quartil == "Q4":
             prestige_score = 92.0
         elif sjr_quartile == "Q1":
-            prestige_score = 68.0
+            prestige_score = 86.0
         elif sjr_quartile == "Q2":
-            prestige_score = 80.0
-        elif sjr_quartile == "Q3":
             prestige_score = 88.0
+        elif sjr_quartile == "Q3":
+            prestige_score = 90.0
         elif sjr_quartile == "Q4":
             prestige_score = 92.0
         elif h_index_val > 0:
             if h_index_val >= 100:
-                prestige_score = 70.0
+                prestige_score = 86.0
             elif h_index_val >= 50:
-                prestige_score = 80.0
-            elif h_index_val >= 20:
                 prestige_score = 88.0
+            elif h_index_val >= 20:
+                prestige_score = 90.0
             else:
                 prestige_score = 92.0
 

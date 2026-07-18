@@ -1,4 +1,4 @@
-
+    
 import streamlit as st
 import sys
 import os
@@ -540,7 +540,7 @@ dic = {
         "ia_campo_titulo": "Título do Artigo",
         "ia_campo_resumo": "Resumo / Abstract (Suporta Português, Inglês ou Espanhol)",
         "ia_motor_tit": "Motor de IA",
-        "ia_motor_desc": "Recomendações via Ollama (Llama 3) — 100% gratuito, sem chave de API.",
+        "ia_motor_desc": "Recomendações via IA generativa — Gemini (nuvem) ou Ollama (local, 100% gratuito).",
         "ia_ollama_ok": "Ollama detectado e pronto para uso.",
         "ia_ollama_off": "Ollama não detectado. Será usado o algoritmo local de relevância temática.",
         "ia_num_rec": "Quantidade de recomendações desejadas (máx. 20)",
@@ -563,14 +563,16 @@ dic = {
         "filtro_area": "Grande Área",
         "filtro_indexador": "Indexador",
         "ia_credencial_tit": "🔑 IA Motor",
-        "ia_como_obter_titulo": "ℹ  Sobre o Ollama",
+        "ia_como_obter_titulo": "ℹ  Sobre os modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ollama (Llama 3)</b>:<br><br>
 1. A IA analisa semanticamente seu título e resumo<br>
 2. Cruza com o catálogo local e bases acadêmicas (OpenAlex)<br>
-3. Retorna recomendações com métricas enriquecidas<br><br>
-<i>Nenhuma chave de API necessária. Motor gratuito e ilimitado.</i>
+3. Retorna recomendações com métricas enriquecidas<br>
+4. Para obter resultados mais ágeis, você pode inserir uma chave API do Gemini AI; o passo a passo para a obtenção gratuita é explicado abaixo.<br>
+5. Caso não tenha ou não queira usar essa opção, você poderá realizar a busca deixando em branco essa janela e usando o Ollama (Llama 3) como IA.<br><br>
+<i>Nenhuma chave de API necessária para usar o Ollama. Motor gratuito e ilimitado.</i>
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refinar Pesquisa",
@@ -686,7 +688,7 @@ Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ol
         "ia_campo_titulo": "Article Title",
         "ia_campo_resumo": "Abstract (Supports Portuguese, English, or Spanish)",
         "ia_motor_tit": "AI Engine",
-        "ia_motor_desc": "Recommendations via Ollama (Llama 3) — 100% free, no API key required.",
+        "ia_motor_desc": "Recommendations via generative AI — Gemini (cloud) or Ollama (local, 100% free).",
         "ia_ollama_ok": "Ollama detected and ready.",
         "ia_ollama_off": "Ollama not detected. The local thematic relevance algorithm will be used.",
         "ia_num_rec": "Number of desired recommendations (max. 20)",
@@ -709,14 +711,16 @@ Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ol
         "filtro_area": "Broad Area",
         "filtro_indexador": "Indexer",
         "ia_credencial_tit": "🔑 AI Engine",
-        "ia_como_obter_titulo": "ℹ  About Ollama",
+        "ia_como_obter_titulo": "ℹ  About AI modes",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</b>:<br><br>
 1. AI semantically analyzes your title and abstract<br>
 2. Cross-references with local catalog and academic databases (OpenAlex)<br>
-3. Returns enriched recommendations with metrics<br><br>
-<i>No API key required. Free and unlimited engine.</i>
+3. Returns enriched recommendations with metrics<br>
+4. For faster results, you can insert a Gemini AI API key; the step-by-step guide to obtain it for free is explained below.<br>
+5. If you don't have or don't want to use this option, you can run the search leaving this field blank and using Ollama (Llama 3) as the AI.<br><br>
+<i>No API key is required to use Ollama. Free and unlimited engine.</i>
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refine Targets",
@@ -835,7 +839,7 @@ This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</
         "ia_campo_titulo": "Título del Artículo",
         "ia_campo_resumo": "Resumen / Abstract (Soporta Portugués, Inglés o Español)",
         "ia_motor_tit": "Motor de IA",
-        "ia_motor_desc": "Recomendaciones vía Ollama (Llama 3) — 100% gratuito, sin clave API.",
+        "ia_motor_desc": "Recomendaciones vía IA generativa — Gemini (nube) u Ollama (local, 100% gratuito).",
         "ia_ollama_ok": "Ollama detectado y listo para usar.",
         "ia_ollama_off": "Ollama no detectado. Se usará el algoritmo local de relevancia temática.",
         "ia_num_rec": "Cantidad de recomendaciones deseadas (máx. 20)",
@@ -858,14 +862,16 @@ This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</
         "filtro_area": "Gran  rea",
         "filtro_indexador": "Indexador",
         "ia_credencial_tit": "🔑 Motor IA",
-        "ia_como_obter_titulo": "ℹ  Sobre Ollama",
+        "ia_como_obter_titulo": "ℹ  Sobre los modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 Esta herramienta utiliza IA generativa 100% gratuita ejecutándose localmente via <b>Ollama (Llama 3)</b>:<br><br>
 1. La IA analiza semánticamente su título y resumen<br>
 2. Cruza con el catálogo local y bases académicas (OpenAlex)<br>
-3. Retorna recomendaciones con métricas enriquecidas<br><br>
-<i>Ninguna clave de API necesaria. Motor gratuito e ilimitado.</i>
+3. Retorna recomendaciones con métricas enriquecidas<br>
+4. Para obtener resultados más ágiles, puede insertar una clave API de Gemini AI; el paso a paso para obtenerla gratuitamente se explica a continuación.<br>
+5. Si no tiene o no desea usar esta opción, puede realizar la búsqueda dejando en blanco esta ventana y usando Ollama (Llama 3) como IA.<br><br>
+<i>No se necesita clave de API para usar Ollama. Motor gratuito e ilimitado.</i>
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refinar Búsqueda",

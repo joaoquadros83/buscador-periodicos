@@ -4,97 +4,126 @@ Prompt otimizado para descoberta de revistas via IA generativa
 """
 
 
-def get_discovery_prompt(titulo: str, resumo: str, idioma: str = "Português") -> str:
+def get_discovery_prompt(
+    titulo: str,
+    resumo: str,
+    lista_periodicos: list = None,
+    top_n: int = 20,
+    idioma: str = "Português"
+) -> str:
     """
     Retorna prompt Discovery-First otimizado
-    
+
     Args:
         titulo: Título do artigo
         resumo: Resumo do artigo
+        lista_periodicos: Lista de candidatos do catálogo local
+        top_n: Número de recomendações esperadas
         idioma: Idioma do prompt (Português, English, Español)
-        
+
     Returns:
         String com o prompt
     """
-    
+    base_periodicos = ""
+    if lista_periodicos:
+        # Limita o contexto para não exceder tokens
+        amostra = lista_periodicos[:40]
+        linhas = []
+        for p in amostra:
+            linha = f"- {p.get(list(p.keys())[0], '')}"
+            for k, v in p.items():
+                if k not in [list(p.keys())[0], "SJR"] and v and str(v) != "-":
+                    linha += f" | {k}: {v}"
+            linhas.append(linha)
+        base_periodicos = "\n".join(linhas)
+
     if idioma == "Português":
-        return f"""Analise este artigo científico e liste as 30 revistas mais adequadas para submissão:
+        return f"""Você é um consultor sênior de publicações científicas.
+Analise o artigo abaixo e recomende EXATAMENTE {top_n} revistas do catálogo fornecido que tenham o MAIOR alinhamento temático com o artigo.
 
-TÍTULO: {titulo}
-RESUMO: {resumo}
+TÍTULO DO ARTIGO:
+{titulo}
 
-CRITÉRIOS:
-1. Aderência temática é a PRIORIDADE #1 (não use fator de impacto como critério principal)
-2. Inclua revistas em PORTUGUÊS, INGLÊS e ESPANHOL
-3. Inclua revistas brasileiras (CAPES/SciELO) E internacionais (WoS, Scopus)
-4. Diversifique níveis de prestígio (não só Q1, nem só nacionais)
-5. Use seu conhecimento real sobre o escopo editorial de cada revista
+RESUMO:
+{resumo}
 
-Para cada revista, avalie:
-- Aderência ao tema (0-100): quão alinhado o artigo está com o escopo?
-- Justificativa: 2-3 frases explicando a adequação
+CATÁLOGO DE PERIÓDICOS DISPONÍVEIS (escolha apenas desta lista):
+{base_periodicos}
 
-RESPONDA apenas com JSON válido (sem markdown), exatamente neste formato:
+REGRAS OBRIGATÓRIAS:
+1. Aderência temática é a PRIORIDADE ABSOLUTA. Não recomende revistas fora da área do artigo.
+2. Escolha APENAS revistas que constam no catálogo acima.
+3. Diversifique níveis de prestígio (Q1, Q2, Q3, Q4, sem quartil).
+4. Considere idioma do artigo e da revista.
+5. Aderência de 0 a 100: use de forma realista, com base no escopo editorial.
+
+RESPONDA APENAS com JSON válido (sem markdown), exatamente neste formato:
 [
   {{
-    "revista_nome": "Nome exato e completo da revista",
+    "revista_nome": "Nome exato da revista conforme catálogo",
     "aderencia": 85,
     "idioma": "PT",
-    "justificativa": "Breve explicação da adequação temática"
+    "justificativa": "Breve explicação da adequação temática em 2-3 frases"
   }}
 ]"""
-    
+
     elif idioma == "English":
-        return f"""Analyze this scientific article and list the 30 most suitable journals for submission:
+        return f"""You are a senior scientific publication advisor.
+Analyze the article below and recommend EXACTLY {top_n} journals from the provided catalog that have the GREATEST thematic alignment with the article.
 
-TITLE: {titulo}
-ABSTRACT: {resumo}
+ARTICLE TITLE:
+{titulo}
 
-CRITERIA:
-1. Thematic adherence is PRIORITY #1 (do not use impact factor as main criterion)
-2. Include journals in PORTUGUESE, ENGLISH, and SPANISH
-3. Include Brazilian journals (CAPES/SciELO) AND international journals (WoS, Scopus)
-4. Diversify prestige levels (not only Q1, not only national)
-5. Use your real knowledge about each journal's editorial scope
+ABSTRACT:
+{resumo}
 
-For each journal, evaluate:
-- Thematic adherence (0-100): how aligned is the article with the scope?
-- Justification: 2-3 sentences explaining the thematic fit
+AVAILABLE JOURNAL CATALOG (choose only from this list):
+{base_periodicos}
 
-RESPOND only with valid JSON (no markdown), exactly in this format:
+MANDATORY RULES:
+1. Thematic adherence is the ABSOLUTE PRIORITY. Do not recommend journals outside the article's field.
+2. Choose ONLY journals listed in the catalog above.
+3. Diversify prestige levels (Q1, Q2, Q3, Q4, unranked).
+4. Consider article and journal language.
+5. Adherence 0-100: use realistically based on editorial scope.
+
+RESPOND ONLY with valid JSON (no markdown), exactly in this format:
 [
   {{
-    "journal_name": "Exact and complete journal name",
+    "journal_name": "Exact journal name as in catalog",
     "adherence": 85,
     "language": "EN",
-    "justification": "Brief explanation of thematic fit"
+    "justification": "Brief explanation of thematic fit in 2-3 sentences"
   }}
 ]"""
-    
+
     else:  # Español
-        return f"""Analice este artículo científico y liste las 30 revistas más adecuadas para envío:
+        return f"""Usted es un asesor sénior en publicaciones científicas.
+Analice el artículo a continuación y recomiende EXACTAMENTE {top_n} revistas del catálogo proporcionado que tengan el MAYOR alineamiento temático con el artículo.
 
-TÍTULO: {titulo}
-RESUMEN: {resumo}
+TÍTULO DEL ARTÍCULO:
+{titulo}
 
-CRITERIOS:
-1. La adhesión temática es PRIORIDAD #1 (no use factor de impacto como criterio principal)
-2. Incluya revistas en PORTUGUÉS, INGLÉS y ESPAÑOL
-3. Incluya revistas brasileñas (CAPES/SciELO) E internacionales (WoS, Scopus)
-4. Diversifique niveles de prestigio (no solo Q1, no solo nacionales)
-5. Use su conocimiento real sobre el alcance editorial de cada revista
+RESUMEN:
+{resumo}
 
-Para cada revista, evalúe:
-- Adhesión temática (0-100): qué tan alineado está el artículo con el alcance?
-- Justificación: 2-3 frases explicando la adecuación temática
+CATÁLOGO DE REVISTAS DISPONIBLES (elija solo de esta lista):
+{base_periodicos}
 
-RESPONDA solo con JSON válido (sin markdown), exactamente en este formato:
+REGLAS OBLIGATORIAS:
+1. La adhesión temática es la PRIORIDAD ABSOLUTA. No recomiende revistas fuera del área del artículo.
+2. Elija SOLO revistas que aparecen en el catálogo anterior.
+3. Diversifique niveles de prestigio (Q1, Q2, Q3, Q4, sin clasificar).
+4. Considere el idioma del artículo y de la revista.
+5. Adherencia de 0 a 100: use de forma realista según el alcance editorial.
+
+RESPONDA SOLO con JSON válido (sin markdown), exactamente en este formato:
 [
   {{
-    "revista_nombre": "Nombre exacto y completo de la revista",
+    "revista_nombre": "Nombre exacto de la revista según el catálogo",
     "adherencia": 85,
     "idioma": "ES",
-    "justificacion": "Breve explicación de la adecuación temática"
+    "justificacion": "Breve explicación de la adecuación temática en 2-3 frases"
   }}
 ]"""
 
@@ -102,16 +131,7 @@ RESPONDA solo con JSON válido (sin markdown), exactamente en este formato:
 def get_classification_prompt(titulo: str, resumo: str, idioma: str = "Português") -> str:
     """
     Retorna prompt para classificação CAPES do artigo
-    
-    Args:
-        titulo: Título do artigo
-        resumo: Resumo do artigo
-        idioma: Idioma do prompt
-        
-    Returns:
-        String com o prompt
     """
-    
     if idioma == "Português":
         return f"""Classifique este artigo nas áreas do CNPq/CAPES:
 
@@ -125,7 +145,7 @@ RESPONDA apenas com JSON válido:
     "subarea": "Ex: Sistemas de Computação",
     "confianca": 0.92
 }}"""
-    
+
     elif idioma == "English":
         return f"""Classify this article in CNPq/CAPES areas:
 
@@ -139,7 +159,7 @@ RESPOND only with valid JSON:
     "subarea": "Ex: Computer Systems",
     "confianca": 0.92
 }}"""
-    
+
     else:  # Español
         return f"""Clasifique este artículo en las áreas del CNPq/CAPES:
 
