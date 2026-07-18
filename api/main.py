@@ -47,9 +47,9 @@ def startup_event():
         provider=os.getenv("EMBEDDING_PROVIDER", "gemini"),
         gemini_api_key=os.getenv("GEMINI_API_KEY")
     )
-    # Pré-carrega o modelo sentence-transformers no startup
+    # Pré-carrega o modelo fastembed/sentence-transformers no startup
     if _embedding_service.provider in ("huggingface", "sentence-transformers"):
-        print("Pré-carregando modelo sentence-transformers...")
+        print("Pré-carregando modelo de embeddings local (fastembed)...")
         _embedding_service.embed_text("warmup")
     print("Startup concluído.")
 
