@@ -196,7 +196,7 @@ class DiscoveryRecommender:
                 continue
             
             # Busca na base local
-            match = find_journal_in_dataframe(self.df_local, nome)
+            match, _ = find_journal_in_dataframe(nome, self.df_local)
             
             enriched = {
                 "nome": nome,
