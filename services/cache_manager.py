@@ -6,6 +6,7 @@ Gerenciador de cache local para reduzir chamadas de API
 import sqlite3
 import json
 import time
+import os
 from typing import Any, Optional, Dict
 from datetime import datetime, timedelta
 import hashlib
@@ -26,6 +27,10 @@ class CacheManager:
             db_path: Caminho para o banco de dados SQLite
         """
         self.db_path = db_path
+        # Garante que o diretório do banco exista
+        db_dir = os.path.dirname(db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         self._init_db()
     
     def _init_db(self):
