@@ -2,6 +2,7 @@
 -- PRODUCTION-GRADE SCHEMA: Hybrid Scientific Journal Recommender
 -- Stack: PostgreSQL 15+ + pgvector (Supabase or Neon free tier)
 -- Architecture: Dense (cosine) + Sparse (BM25/FTS) + Recency + Business + LLM
+-- Embedding dim: 384 (sentence-transformers/all-MiniLM-L6-v2)
 -- =============================================================================
 
 -- Enable required extensions
@@ -113,10 +114,10 @@ CREATE TABLE IF NOT EXISTS journal_embeddings (
     journal_id      INTEGER NOT NULL REFERENCES journals(id) ON DELETE CASCADE,
 
     -- Separate dense embeddings for title and abstract/scope
-    title_embedding     vector(768),
-    abstract_embedding  vector(768),
+    title_embedding     vector(384),
+    abstract_embedding  vector(384),
 
-    model_name          VARCHAR(100) DEFAULT 'BAAI/bge-m3',
+    model_name          VARCHAR(100) DEFAULT 'all-MiniLM-L6-v2',
     generated_at        TIMESTAMP DEFAULT NOW(),
 
     CONSTRAINT uq_journal_embeddings_journal UNIQUE (journal_id)
@@ -144,8 +145,8 @@ CREATE TABLE IF NOT EXISTS journal_articles (
     citation_count  INTEGER DEFAULT 0,
 
     -- Separate dense embeddings
-    title_embedding     vector(768),
-    abstract_embedding  vector(768),
+    title_embedding     vector(384),
+    abstract_embedding  vector(384),
 
     -- Full-text search document
     article_text    TEXT,
@@ -187,10 +188,10 @@ EXECUTE FUNCTION update_article_tsv();
 -- NOTE: Weighting is now done in Python (HybridEmbeddingService.embed_query).
 -- This function simply returns the pre-combined abstract embedding.
 CREATE OR REPLACE FUNCTION compute_weighted_query_embedding(
-    p_title_embedding vector(768),
-    p_abstract_embedding vector(768)
+    p_title_embedding vector(384),
+    p_abstract_embedding vector(384)
 )
-RETURNS vector(768) AS $$
+RETURNS vector(384) AS $$
 BEGIN
     RETURN p_abstract_embedding;
 END;
@@ -198,7 +199,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Dense retrieval on JOURNALS directly (fallback when no articles)
 CREATE OR REPLACE FUNCTION dense_journal_search(
-    p_query_embedding vector(768),
+    p_query_embedding vector(384),
     p_limit INTEGER DEFAULT 100
 )
 RETURNS TABLE (
@@ -252,7 +253,7 @@ $$ LANGUAGE plpgsql;
 
 -- Reciprocal Rank Fusion (RRF) for journals directly (fallback)
 CREATE OR REPLACE FUNCTION hybrid_journal_search_rrf(
-    p_query_embedding vector(768),
+    p_query_embedding vector(384),
     p_query_text TEXT,
     p_limit INTEGER DEFAULT 100
 )
@@ -306,8 +307,8 @@ $$ LANGUAGE plpgsql;
 
 -- Dense retrieval: top-K articles by cosine similarity with weighted query
 CREATE OR REPLACE FUNCTION dense_article_search(
-    p_title_embedding vector(768),
-    p_abstract_embedding vector(768),
+    p_title_embedding vector(384),
+    p_abstract_embedding vector(384),
     p_limit INTEGER DEFAULT 100,
     p_min_year INTEGER DEFAULT NULL
 )
@@ -319,7 +320,7 @@ RETURNS TABLE (
     cosine_score    DOUBLE PRECISION
 ) AS $$
 DECLARE
-    v_query_vec vector(768);
+    v_query_vec vector(384);
 BEGIN
     v_query_vec := compute_weighted_query_embedding(p_title_embedding, p_abstract_embedding);
 
@@ -372,8 +373,8 @@ $$ LANGUAGE plpgsql;
 
 -- Reciprocal Rank Fusion (RRF) combining dense + sparse results
 CREATE OR REPLACE FUNCTION hybrid_article_search_rrf(
-    p_title_embedding vector(768),
-    p_abstract_embedding vector(768),
+    p_title_embedding vector(384),
+    p_abstract_embedding vector(384),
     p_query_text TEXT,
     p_limit INTEGER DEFAULT 100,
     p_min_year INTEGER DEFAULT NULL
@@ -451,8 +452,8 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 -- STAGE C: AGGREGATED JOURNAL MATCH SCORE
 -- =============================================================================
 CREATE OR REPLACE FUNCTION score_journals(
-    p_title_embedding vector(768),
-    p_abstract_embedding vector(768),
+    p_title_embedding vector(384),
+    p_abstract_embedding vector(384),
     p_query_text TEXT,
     p_limit INTEGER DEFAULT 20,
     p_min_year INTEGER DEFAULT NULL,
@@ -475,7 +476,7 @@ DECLARE
     v_sem_weight NUMERIC;
     v_rec_weight NUMERIC;
     v_biz_weight NUMERIC;
-    v_query_vec vector(768);
+    v_query_vec vector(384);
     v_article_count INTEGER;
 BEGIN
     SELECT value INTO v_sem_weight FROM matcher_config WHERE key = 'semantic_score_weight';

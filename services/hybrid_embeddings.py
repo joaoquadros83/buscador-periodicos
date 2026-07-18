@@ -21,14 +21,16 @@ class HybridEmbeddingService:
     Peso do abstract: 1.0
     """
 
+    DEFAULT_HF_MODEL = "all-MiniLM-L6-v2"  # 384 dimensões, rápido, gratuito
+
     def __init__(
         self,
-        provider: str = "gemini",  # 'gemini', 'huggingface', 'ollama'
+        provider: str = "gemini",  # 'gemini', 'huggingface', 'ollama', 'tfidf'
         model_name: str = "embedding-001",
         gemini_api_key: Optional[str] = None,
         ollama_model: str = "nomic-embed-text",
-        huggingface_model: str = "BAAI/bge-m3",
-        embedding_dim: int = 768
+        huggingface_model: str = DEFAULT_HF_MODEL,
+        embedding_dim: int = 384
     ):
         self.provider = provider
         self.model_name = model_name
@@ -36,6 +38,7 @@ class HybridEmbeddingService:
         self.ollama_model = ollama_model
         self.huggingface_model = huggingface_model
         self.embedding_dim = embedding_dim
+        self._hf_model = None
 
     def _normalize(self, vector: np.ndarray) -> np.ndarray:
         """Normaliza vetor para norma 1"""
@@ -57,6 +60,8 @@ class HybridEmbeddingService:
                 logger.warning(f"Erro ao usar Gemini embeddings: {e}. Usando fallback TF-IDF.")
                 return self._fallback_embed(text)
         elif self.provider == "huggingface":
+            return self._embed_huggingface(text)
+        elif self.provider == "sentence-transformers":
             return self._embed_huggingface(text)
         elif self.provider == "ollama":
             return self._embed_ollama(text)
@@ -154,11 +159,13 @@ class HybridEmbeddingService:
         return np.array(values, dtype=np.float32)
 
     def _embed_huggingface(self, text: str) -> np.ndarray:
-        """Embedding via Hugging Face Inference API ou sentence-transformers local"""
+        """Embedding via sentence-transformers local (gratuito, sem API)"""
         try:
             from sentence_transformers import SentenceTransformer
-            model = SentenceTransformer(self.huggingface_model)
-            vector = model.encode(text, normalize_embeddings=True)
+            if self._hf_model is None:
+                logger.info(f"Carregando modelo sentence-transformers: {self.huggingface_model}")
+                self._hf_model = SentenceTransformer(self.huggingface_model)
+            vector = self._hf_model.encode(text[:8000], normalize_embeddings=True)
             return np.array(vector, dtype=np.float32)
         except ImportError:
             logger.error("sentence-transformers não instalado. Use: pip install sentence-transformers")

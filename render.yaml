@@ -11,7 +11,7 @@ services:
       - key: DATABASE_URL
         sync: false  # Configure no dashboard do Render
       - key: EMBEDDING_PROVIDER
-        value: tfidf
+        value: huggingface
       - key: GEMINI_API_KEY
         sync: false  # Opcional (não usado se EMBEDDING_PROVIDER=tfidf)
       - key: LLM_PROVIDER
