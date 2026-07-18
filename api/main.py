@@ -22,6 +22,22 @@ _db_client: PostgresClient = None
 _embedding_service: HybridEmbeddingService = None
 
 
+app = FastAPI(
+    title="SciPubs Hybrid Journal Recommender",
+    description="Recomendador científico com Hybrid RAG (Dense + Sparse + Recency + Business)",
+    version="1.0.0"
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 @app.on_event("startup")
 def startup_event():
     global _db_client, _embedding_service
@@ -43,22 +59,6 @@ def shutdown_event():
     global _db_client
     if _db_client:
         _db_client.close()
-
-
-app = FastAPI(
-    title="SciPubs Hybrid Journal Recommender",
-    description="Recomendador científico com Hybrid RAG (Dense + Sparse + Recency + Business)",
-    version="1.0.0"
-)
-
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # =============================================================================
