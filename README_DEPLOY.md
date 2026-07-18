@@ -52,11 +52,13 @@ PostgreSQL + pgvector (Neon/Supabase)
 2. Edite `.env` e preencha:
    ```env
    DATABASE_URL=postgresql://usuario:senha@host-neon.supabase.co:5432/scipubs_db
-   EMBEDDING_PROVIDER=gemini
+   EMBEDDING_PROVIDER=tfidf
    GEMINI_API_KEY=sua_chave_aqui
-   LLM_PROVIDER=gemini
+   GROQ_API_KEY=sua_chave_groq
+   LLM_PROVIDER=groq
    OPENALEX_EMAIL=seu_email@example.com
    ```
+   > O provider `tfidf` é 100% gratuito e não requer chave de API. O Groq oferece um generoso free tier para as justificativas via LLM.
 3. No Windows PowerShell, carregue as variáveis:
    ```powershell
    Get-Content .env | ForEach-Object { if ($_ -match '^(.*?)=(.*)$') { [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process') } }
@@ -80,19 +82,19 @@ Se der certo, você verá: `Schema criado com sucesso.`
 
 Este passo pode demorar (cada revista gera embeddings e busca artigos no OpenAlex).
 
-### Teste com 50 revistas primeiro
+### Teste com 50 revistas primeiro (TF-IDF, sem custo)
 
 ```bash
-python scripts/ingest_journals.py --limit 50 --gemini-key SUA_CHAVE_GEMINI
+python scripts/ingest_journals.py --limit 50 --provider tfidf --skip-articles
 ```
 
 ### Ingestão completa (53.564 revistas)
 
 ```bash
-python scripts/ingest_journals.py --gemini-key SUA_CHAVE_GEMINI
+python scripts/ingest_journals.py --provider tfidf --skip-articles
 ```
 
-> **Dica de custo/tempo:** Com a chave gratuita do Gemini, você tem 1.500 requests/dia no tier gratuito. A ingestão completa pode levar vários dias. Considere ingerir em lotes ou usar `ollama` como provider local.
+> **Dica de custo/tempo:** Com TF-IDF a ingestão é 100% gratuita. A busca de artigos no OpenAlex pode ser feita depois removendo `--skip-articles`, mas é lenta. Para testes iniciais, `--skip-articles` é recomendado.
 
 ---
 
@@ -129,12 +131,13 @@ python scripts/ingest_journals.py --gemini-key SUA_CHAVE_GEMINI
    - **Root Directory:** `./`
    - O Render detectará automaticamente o `Dockerfile` e `render.yaml`
 5. Em **Environment Variables**, adicione:
-   ```
-   DATABASE_URL=postgresql://...
-   GEMINI_API_KEY=sua_chave
-   EMBEDDING_PROVIDER=gemini
-   LLM_PROVIDER=gemini
-   ```
+    ```
+    DATABASE_URL=postgresql://...
+    GROQ_API_KEY=sua_chave_groq
+    EMBEDDING_PROVIDER=tfidf
+    LLM_PROVIDER=groq
+    ```
+    > `GEMINI_API_KEY` é opcional. Se você preferir usar Gemini, altere `EMBEDDING_PROVIDER=gemini` e `LLM_PROVIDER=gemini`.
 6. Clique em **Create Web Service**
 7. Aguarde o deploy (pode levar alguns minutos)
 8. Anote a URL gerada (ex: `https://scipubs-api.onrender.com`)
@@ -186,9 +189,9 @@ Se a API estiver offline, o app mostrará um aviso e usará o motor local como f
 - No Neon: vá em **Project Settings → Allowed IPs** e habilite `Allow access from any cloud service`
 
 ### Ingestão lenta
-- Use `--limit 100` primeiro para testar
-- Considere usar Ollama local para embeddings: `--provider ollama`
-- O Gemini gratuito tem rate limit de 1.500 requests/dia
+- Use `--limit 100 --provider tfidf --skip-articles` primeiro para testar
+- A busca de artigos no OpenAlex é lenta; use `--skip-articles` para ingerir só revistas
+- O Gemini gratuito tem rate limit de 1.500 requests/dia (opcional)
 
 ---
 
