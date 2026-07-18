@@ -260,15 +260,44 @@ class DiscoveryRecommender:
         from services.openalex_client import OpenAlexClient
         
         # Cache key
-        cache_key = f"rec_{hash(titulo + resumo + str(top_n))}"
+        cache_key = f"rec_{hash(titulo + resumo + str(top_n) + idioma)}"
         cached = self.cache_manager.get(cache_key)
         if cached:
             logger.info("Resultado retornado do cache")
             return cached, None
         
-        # 1. Prepara candidatos da base local
+        # 1. Prepara candidatos da base local (apenas da área do artigo, se possível)
         logger.info("Preparando candidatos da base local...")
         df_candidatos = self.df_local.copy()
+        
+        # Filtra por Grande Área usando palavras-chave do título/resumo
+        palavras_area = self._detectar_grande_area(f"{titulo} {resumo}")
+        if palavras_area:
+            mask = df_candidatos["Grande Área"].astype(str).str.lower().apply(
+                lambda area: any(p in area for p in palavras_area)
+            )
+            df_area = df_candidatos[mask]
+            if len(df_area) >= 10:
+                df_candidatos = df_area
+        
+        # Prioriza candidatos com palavras-chave no título ou área
+        def score_candidato(row):
+            texto_row = " ".join([
+                str(row.iloc[0]),
+                str(row.get("Grande Área", "")),
+                str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", ""))),
+                str(row.get("Subárea do Conhecimento", ""))
+            ]).lower()
+            score = 0
+            for p in palavras_area:
+                if p in texto_row:
+                    score += 3
+            return score
+        
+        if palavras_area:
+            df_candidatos["area_score"] = df_candidatos.apply(score_candidato, axis=1)
+            df_candidatos = df_candidatos.sort_values(by=["area_score", "SJR"], ascending=[False, False])
+        
         if len(df_candidatos) > 40:
             df_candidatos = df_candidatos.head(40)
         
@@ -285,34 +314,25 @@ class DiscoveryRecommender:
         resultados_ia = None
         erro_ia = None
         
-        if use_ollama:
-            logger.info("Tentando Ollama local...")
+        if self.api_key_gemini:
+            logger.info("Tentando Gemini API...")
+            resposta = self._call_gemini(prompt)
+            if resposta:
+                resultados_ia = self._parse_ai_response(resposta)
+                if resultados_ia:
+                    self._backend_used = "gemini"
+                    logger.info("Recomendações geradas via Gemini")
+            else:
+                erro_ia = "Gemini API não respondeu (cota esgotada ou chave inválida)"
+        
+        if not resultados_ia and use_ollama:
+            logger.info("Tentando Ollama...")
             resposta = self._call_ollama(prompt)
             if resposta:
                 resultados_ia = self._parse_ai_response(resposta)
                 if resultados_ia:
                     self._backend_used = "ollama"
                     logger.info("Recomendações geradas via Ollama")
-        else:
-            if self.api_key_gemini:
-                logger.info("Tentando Gemini API...")
-                resposta = self._call_gemini(prompt)
-                if resposta:
-                    resultados_ia = self._parse_ai_response(resposta)
-                    if resultados_ia:
-                        self._backend_used = "gemini"
-                        logger.info("Recomendações geradas via Gemini")
-                else:
-                    erro_ia = "Gemini API não respondeu (cota esgotada ou chave inválida)"
-            
-            elif use_ollama:
-                logger.info("Tentando Ollama como fallback...")
-                resposta = self._call_ollama(prompt)
-                if resposta:
-                    resultados_ia = self._parse_ai_response(resposta)
-                    if resultados_ia:
-                        self._backend_used = "ollama"
-                        logger.info("Recomendações geradas via Ollama (fallback)")
         
         # 4. Se IA falhou, usa algoritmo local
         if not resultados_ia:
@@ -356,6 +376,25 @@ class DiscoveryRecommender:
         self.cache_manager.set(cache_key, enriquecidas, ttl=86400)  # 24h
         
         return enriquecidas, erro_ia
+
+    def _detectar_grande_area(self, texto: str) -> set:
+        """Detecta palavras indicadoras de grande área no texto do artigo."""
+        texto = texto.lower()
+        indicadores = {
+            "educação": ["educação", "educacion", "educação", "ensino", "pedagogia", "didática", "escola", "aluno", "professor", "aprendizagem", "currículo", "musical"],
+            "saúde": ["saúde", "salud", "health", "medicina", "enfermagem", "psicologia", "clínica", "paciente"],
+            "exatas": ["computação", "computing", "matemática", "física", "química", "estatística", "algoritmo", "inteligência artificial", "machine learning"],
+            "biológicas": ["biologia", "ecologia", "genética", "microbiologia", "zoologia", "botânica"],
+            "engenharias": ["engenharia", "engineering", "sistemas", "materiais", "construção"],
+            "humanas": ["filosofia", "história", "sociologia", "antropologia", "linguística", "literatura", "arte"],
+            "sociais": ["economia", "administração", "direito", "ciências sociais", "comunicação", "marketing"],
+            "agrárias": ["agronomia", "veterinária", "zootecnia", "floresta", "solo"]
+        }
+        encontradas = set()
+        for area, palavras in indicadores.items():
+            if any(p in texto for p in palavras):
+                encontradas.add(area)
+        return encontradas
 
 
 def _gerar_recomendacoes_locais(df_base, titulo, resumo, num_recomendacoes):

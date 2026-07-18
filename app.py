@@ -566,13 +566,11 @@ dic = {
         "ia_como_obter_titulo": "ℹ  Sobre os modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ollama (Llama 3)</b>:<br><br>
 1. A IA analisa semanticamente seu título e resumo<br>
 2. Cruza com o catálogo local e bases acadêmicas (OpenAlex)<br>
 3. Retorna recomendações com métricas enriquecidas<br>
 4. Para obter resultados mais ágeis, você pode inserir uma chave API do Gemini AI; o passo a passo para a obtenção gratuita é explicado abaixo.<br>
-5. Caso não tenha ou não queira usar essa opção, você poderá realizar a busca deixando em branco essa janela e usando o Ollama (Llama 3) como IA.<br><br>
-<i>Nenhuma chave de API necessária para usar o Ollama. Motor gratuito e ilimitado.</i>
+5. Caso não tenha ou não queira usar essa opção, você poderá realizar a busca deixando em branco essa janela e usando o Ollama (Llama 3) como IA.
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refinar Pesquisa",
@@ -714,13 +712,11 @@ Esta ferramenta utiliza IA generativa 100% gratuita rodando localmente via <b>Ol
         "ia_como_obter_titulo": "ℹ  About AI modes",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</b>:<br><br>
 1. AI semantically analyzes your title and abstract<br>
 2. Cross-references with local catalog and academic databases (OpenAlex)<br>
 3. Returns enriched recommendations with metrics<br>
 4. For faster results, you can insert a Gemini AI API key; the step-by-step guide to obtain it for free is explained below.<br>
-5. If you don't have or don't want to use this option, you can run the search leaving this field blank and using Ollama (Llama 3) as the AI.<br><br>
-<i>No API key is required to use Ollama. Free and unlimited engine.</i>
+5. If you don't have or don't want to use this option, you can run the search leaving this field blank and using Ollama (Llama 3) as the AI.
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refine Targets",
@@ -865,13 +861,11 @@ This tool uses 100% free generative AI running locally via <b>Ollama (Llama 3)</
         "ia_como_obter_titulo": "ℹ  Sobre los modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
-Esta herramienta utiliza IA generativa 100% gratuita ejecutándose localmente via <b>Ollama (Llama 3)</b>:<br><br>
 1. La IA analiza semánticamente su título y resumen<br>
 2. Cruza con el catálogo local y bases académicas (OpenAlex)<br>
 3. Retorna recomendaciones con métricas enriquecidas<br>
 4. Para obtener resultados más ágiles, puede insertar una clave API de Gemini AI; el paso a paso para obtenerla gratuitamente se explica a continuación.<br>
-5. Si no tiene o no desea usar esta opción, puede realizar la búsqueda dejando en blanco esta ventana y usando Ollama (Llama 3) como IA.<br><br>
-<i>No se necesita clave de API para usar Ollama. Motor gratuito e ilimitado.</i>
+5. Si no tiene o no desea usar esta opción, puede realizar la búsqueda dejando en blanco esta ventana y usando Ollama (Llama 3) como IA.
 </div>
         """,
         "ia_refinar_pesquisa": "🎯 Refinar Búsqueda",
@@ -2515,6 +2509,13 @@ with tab_ia:
                 st.info("⚙️ Modo local (algoritmo de relevância)")
             with st.expander("ℹ️ Sobre os modos de IA", expanded=False):
                 st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
+            with st.expander("🔑 Como obter chave Gemini gratuita?", expanded=False):
+                st.markdown("""
+                1. Acesse [aistudio.google.com](https://aistudio.google.com)
+                2. Faça login com sua conta Google
+                3. Clique em "Get API Key" → "Create API Key"
+                4. Copie a chave e cole no campo acima
+                """)
         
         st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
