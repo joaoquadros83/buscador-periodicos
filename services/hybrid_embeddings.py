@@ -51,11 +51,17 @@ class HybridEmbeddingService:
             return np.zeros(self.embedding_dim, dtype=np.float32)
 
         if self.provider == "gemini":
-            return self._embed_gemini(text)
+            try:
+                return self._embed_gemini(text)
+            except Exception as e:
+                logger.warning(f"Erro ao usar Gemini embeddings: {e}. Usando fallback TF-IDF.")
+                return self._fallback_embed(text)
         elif self.provider == "huggingface":
             return self._embed_huggingface(text)
         elif self.provider == "ollama":
             return self._embed_ollama(text)
+        elif self.provider == "tfidf":
+            return self._fallback_embed(text)
         else:
             raise ValueError(f"Provider desconhecido: {self.provider}")
 
@@ -163,6 +169,47 @@ class HybridEmbeddingService:
         import ollama
         response = ollama.embeddings(model=self.ollama_model, prompt=text[:8000])
         return np.array(response["embedding"], dtype=np.float32)
+
+    def _tokenize(self, text: str) -> List[str]:
+        """Tokeniza texto para fallback TF-IDF"""
+        text = text.lower()
+        text = re.sub(r"[^a-zà-ü0-9\s]", " ", text)
+        tokens = text.split()
+        stopwords = {
+            "o", "a", "os", "as", "um", "uma", "de", "do", "da", "dos", "das",
+            "e", "ou", "em", "para", "por", "com", "sem", "sobre", "entre",
+            "the", "and", "of", "in", "to", "a", "an", "for", "with", "on",
+            "is", "are", "was", "were", "be", "been", "being", "have", "has",
+            "had", "do", "does", "did", "will", "would", "could", "should"
+        }
+        return [t for t in tokens if len(t) > 2 and t not in stopwords]
+
+    def _get_token_index(self, token: str, vocab: Dict) -> int:
+        """Retorna índice do token no vocabulário"""
+        if token not in vocab:
+            if len(vocab) < self.embedding_dim:
+                vocab[token] = len(vocab)
+            else:
+                return hash(token) % self.embedding_dim
+        return vocab[token]
+
+    def _fallback_embed(self, text: str) -> np.ndarray:
+        """Fallback TF-IDF simples para gerar vetor denso"""
+        tokens = self._tokenize(text)
+        if not tokens:
+            return np.zeros(self.embedding_dim, dtype=np.float32)
+
+        vocab = {}
+        vector = np.zeros(self.embedding_dim, dtype=np.float32)
+        for token in tokens:
+            idx = self._get_token_index(token, vocab)
+            vector[idx] += 1
+
+        tf = vector / max(len(tokens), 1)
+        norm = np.linalg.norm(tf)
+        if norm > 0:
+            tf = tf / norm
+        return tf.astype(np.float32)
 
 
 def get_embedding_service(

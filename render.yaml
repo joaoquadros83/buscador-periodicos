@@ -11,13 +11,13 @@ services:
       - key: DATABASE_URL
         sync: false  # Configure no dashboard do Render
       - key: EMBEDDING_PROVIDER
-        value: gemini
+        value: tfidf
       - key: GEMINI_API_KEY
-        sync: false  # Configure no dashboard do Render
+        sync: false  # Opcional (não usado se EMBEDDING_PROVIDER=tfidf)
       - key: LLM_PROVIDER
-        value: gemini
+        value: groq
       - key: GROQ_API_KEY
-        sync: false  # Opcional
+        sync: false  # Configure no dashboard do Render
       - key: OPENALEX_EMAIL
         value: scipubs@example.com
     healthCheckPath: /health

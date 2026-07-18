@@ -28,10 +28,13 @@ class PostgresClient:
         self.dsn = dsn or os.getenv("DATABASE_URL")
         if not self.dsn:
             raise ValueError("DATABASE_URL não configurada")
+        self._conn = None
 
     def _connect(self):
         """Cria conexão com o banco"""
-        return psycopg2.connect(self.dsn)
+        if self._conn is None or self._conn.closed:
+            self._conn = psycopg2.connect(self.dsn, connect_timeout=10)
+        return self._conn
 
     def execute(self, sql: str, params: Optional[tuple] = None, fetch: bool = False) -> Optional[List[Dict]]:
         """Executa query SQL genérica"""
@@ -46,8 +49,15 @@ class PostgresClient:
             conn.rollback()
             logger.error(f"Erro no execute: {e}")
             raise
-        finally:
-            conn.close()
+
+    def close(self):
+        """Fecha conexão persistente"""
+        if self._conn and not self._conn.closed:
+            self._conn.close()
+            self._conn = None
+
+    def __del__(self):
+        self.close()
 
     def init_schema(self, schema_path: str = "sql/pgvector_schema_v2.sql"):
         """Executa arquivo SQL de schema"""

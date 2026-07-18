@@ -1,3 +1,7 @@
 .streamlit/secrets.toml
 __pycache__/
 *.pyc
+*.db
+logs/*.jsonl
+logs/*.log
+api_test_response.json

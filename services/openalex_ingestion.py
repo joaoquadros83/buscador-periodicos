@@ -28,7 +28,7 @@ class OpenAlexIngestionService:
         """Faz requisição GET para OpenAlex com politeness"""
         headers = {"User-Agent": f"mailto:{self.email}"}
         params["mailto"] = self.email
-        response = requests.get(self.BASE_URL, params=params, headers=headers, timeout=30)
+        response = requests.get(self.BASE_URL, params=params, headers=headers, timeout=8)
         response.raise_for_status()
         time.sleep(self.delay)
         return response.json()
@@ -72,8 +72,10 @@ class OpenAlexIngestionService:
         }
 
         try:
+            logger.info(f"Buscando artigos OpenAlex para: {journal_name[:50]}...")
             data = self._get(params)
             results = data.get("results", [])
+            logger.info(f"OpenAlex retornou {len(results)} resultados para {journal_name[:50]}...")
             return [self._normalize_article(r) for r in results]
         except Exception as e:
             logger.warning(f"Erro ao buscar artigos para {journal_name}: {e}")

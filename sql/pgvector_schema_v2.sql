@@ -184,36 +184,125 @@ EXECUTE FUNCTION update_article_tsv();
 -- =============================================================================
 
 -- Compute weighted query embedding: 1.5 * title + 1.0 * abstract, normalized
+-- NOTE: Weighting is now done in Python (HybridEmbeddingService.embed_query).
+-- This function simply returns the pre-combined abstract embedding.
 CREATE OR REPLACE FUNCTION compute_weighted_query_embedding(
     p_title_embedding vector(768),
     p_abstract_embedding vector(768)
 )
 RETURNS vector(768) AS $$
-DECLARE
-    v_title_weight NUMERIC;
-    v_abstract_weight NUMERIC;
-    v_title_vec vector(768);
-    v_abstract_vec vector(768);
-    v_combined vector(768);
-    v_norm DOUBLE PRECISION;
 BEGIN
-    SELECT value INTO v_title_weight FROM matcher_config WHERE key = 'title_weight';
-    SELECT value INTO v_abstract_weight FROM matcher_config WHERE key = 'abstract_weight';
-
-    -- Cast to array for scalar multiplication, then back to vector
-    v_title_vec := (p_title_embedding::real[] * v_title_weight::real)::vector(768);
-    v_abstract_vec := (p_abstract_embedding::real[] * v_abstract_weight::real)::vector(768);
-    v_combined := (v_title_vec::real[] + v_abstract_vec::real[])::vector(768);
-
-    -- Normalize
-    v_norm := sqrt(sum((v_combined::real[])[i] * (v_combined::real[])[i])) FROM generate_series(1, 768) AS i;
-    IF v_norm = 0 THEN
-        RETURN v_combined;
-    END IF;
-
-    RETURN (v_combined::real[] / v_norm::real)::vector(768);
+    RETURN p_abstract_embedding;
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
+
+-- Dense retrieval on JOURNALS directly (fallback when no articles)
+CREATE OR REPLACE FUNCTION dense_journal_search(
+    p_query_embedding vector(768),
+    p_limit INTEGER DEFAULT 100
+)
+RETURNS TABLE (
+    journal_id      INTEGER,
+    title           TEXT,
+    issn            VARCHAR(20),
+    cosine_score    DOUBLE PRECISION
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        j.id AS journal_id,
+        j.title,
+        j.issn,
+        (1 - (je.abstract_embedding <=> p_query_embedding))::DOUBLE PRECISION AS cosine_score
+    FROM journals j
+    JOIN journal_embeddings je ON je.journal_id = j.id
+    ORDER BY je.abstract_embedding <=> p_query_embedding
+    LIMIT p_limit;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Sparse retrieval on JOURNALS directly (fallback when no articles)
+CREATE OR REPLACE FUNCTION sparse_journal_search(
+    p_query_text TEXT,
+    p_limit INTEGER DEFAULT 100
+)
+RETURNS TABLE (
+    journal_id      INTEGER,
+    title           TEXT,
+    issn            VARCHAR(20),
+    bm25_score      DOUBLE PRECISION
+) AS $$
+DECLARE
+    v_query_tsquery TSQUERY;
+BEGIN
+    v_query_tsquery := plainto_tsquery('english', p_query_text);
+
+    RETURN QUERY
+    SELECT
+        j.id AS journal_id,
+        j.title,
+        j.issn,
+        ts_rank(j.scope_tsv, v_query_tsquery)::DOUBLE PRECISION AS bm25_score
+    FROM journals j
+    WHERE j.scope_tsv @@ v_query_tsquery
+    ORDER BY bm25_score DESC
+    LIMIT p_limit;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Reciprocal Rank Fusion (RRF) for journals directly (fallback)
+CREATE OR REPLACE FUNCTION hybrid_journal_search_rrf(
+    p_query_embedding vector(768),
+    p_query_text TEXT,
+    p_limit INTEGER DEFAULT 100
+)
+RETURNS TABLE (
+    journal_id      INTEGER,
+    title           TEXT,
+    issn            VARCHAR(20),
+    rrf_score       DOUBLE PRECISION,
+    dense_rank      INTEGER,
+    sparse_rank     INTEGER
+) AS $$
+DECLARE
+    v_rrf_k NUMERIC;
+BEGIN
+    SELECT value INTO v_rrf_k FROM matcher_config WHERE key = 'rrf_k';
+
+    RETURN QUERY
+    WITH dense_results AS (
+        SELECT d.journal_id, d.title, d.issn, d.cosine_score,
+               ROW_NUMBER() OVER (ORDER BY d.cosine_score DESC) AS rank_num
+        FROM dense_journal_search(p_query_embedding, p_limit * 3) d
+    ),
+    sparse_results AS (
+        SELECT s.journal_id, s.title, s.issn, s.bm25_score,
+               ROW_NUMBER() OVER (ORDER BY s.bm25_score DESC) AS rank_num
+        FROM sparse_journal_search(p_query_text, p_limit * 3) s
+    ),
+    fused AS (
+        SELECT
+            COALESCE(d.journal_id, s.journal_id) AS journal_id,
+            COALESCE(d.title, s.title) AS title,
+            COALESCE(d.issn, s.issn) AS issn,
+            (COALESCE(1.0 / (v_rrf_k + d.rank_num), 0.0) + COALESCE(1.0 / (v_rrf_k + s.rank_num), 0.0))::DOUBLE PRECISION AS rrf_score,
+            d.rank_num AS dense_rank,
+            s.rank_num AS sparse_rank
+        FROM dense_results d
+        FULL OUTER JOIN sparse_results s ON d.journal_id = s.journal_id
+    )
+    SELECT
+        fused.journal_id,
+        fused.title,
+        fused.issn,
+        fused.rrf_score,
+        fused.dense_rank::INTEGER,
+        fused.sparse_rank::INTEGER
+    FROM fused
+    ORDER BY rrf_score DESC
+    LIMIT p_limit;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Dense retrieval: top-K articles by cosine similarity with weighted query
 CREATE OR REPLACE FUNCTION dense_article_search(
@@ -320,13 +409,20 @@ BEGIN
             COALESCE(d.journal_id, s.journal_id) AS journal_id,
             COALESCE(d.title, s.title) AS title,
             COALESCE(d.pub_year, s.pub_year) AS pub_year,
-            COALESCE(1.0 / (v_rrf_k + d.rank_num), 0.0) + COALESCE(1.0 / (v_rrf_k + s.rank_num), 0.0) AS rrf_score,
+            (COALESCE(1.0 / (v_rrf_k + d.rank_num), 0.0) + COALESCE(1.0 / (v_rrf_k + s.rank_num), 0.0))::DOUBLE PRECISION AS rrf_score,
             d.rank_num AS dense_rank,
             s.rank_num AS sparse_rank
         FROM dense_results d
         FULL OUTER JOIN sparse_results s ON d.article_id = s.article_id
     )
-    SELECT *
+    SELECT
+        fused.article_id,
+        fused.journal_id,
+        fused.title,
+        fused.pub_year,
+        fused.rrf_score,
+        fused.dense_rank::INTEGER,
+        fused.sparse_rank::INTEGER
     FROM fused
     ORDER BY rrf_score DESC
     LIMIT p_limit;
@@ -379,10 +475,15 @@ DECLARE
     v_sem_weight NUMERIC;
     v_rec_weight NUMERIC;
     v_biz_weight NUMERIC;
+    v_query_vec vector(768);
+    v_article_count INTEGER;
 BEGIN
     SELECT value INTO v_sem_weight FROM matcher_config WHERE key = 'semantic_score_weight';
     SELECT value INTO v_rec_weight FROM matcher_config WHERE key = 'recency_score_weight';
     SELECT value INTO v_biz_weight FROM matcher_config WHERE key = 'business_score_weight';
+
+    v_query_vec := compute_weighted_query_embedding(p_title_embedding, p_abstract_embedding);
+    SELECT COUNT(*) INTO v_article_count FROM journal_articles;
 
     RETURN QUERY
     WITH hybrid_articles AS (
@@ -398,6 +499,22 @@ BEGIN
             ARRAY_AGG(ha.pub_year ORDER BY ha.rrf_score DESC) FILTER (WHERE ha.pub_year IS NOT NULL) AS top_article_years
         FROM hybrid_articles ha
         GROUP BY ha.journal_id
+    ),
+    journal_scores_fallback AS (
+        -- Fallback: rank journals directly by embeddings when no articles exist
+        SELECT
+            hj.journal_id,
+            hj.rrf_score AS semantic_score,
+            0.5::DOUBLE PRECISION AS recency_score,
+            ARRAY[]::TEXT[] AS top_article_titles,
+            ARRAY[]::INTEGER[] AS top_article_years
+        FROM hybrid_journal_search_rrf(v_query_vec, p_query_text, p_limit * 5) hj
+        WHERE v_article_count = 0
+    ),
+    combined_journal_scores AS (
+        SELECT * FROM journal_scores
+        UNION ALL
+        SELECT * FROM journal_scores_fallback
     ),
     business_scores AS (
         SELECT
@@ -420,28 +537,28 @@ BEGIN
             END * 0.25 AS business_score
         FROM journals j
     )
-    SELECT
+    SELECT DISTINCT ON (j.id)
         j.id,
         j.title,
         j.issn,
-        js.semantic_score::DOUBLE PRECISION,
-        js.recency_score::DOUBLE PRECISION,
+        cjs.semantic_score::DOUBLE PRECISION,
+        cjs.recency_score::DOUBLE PRECISION,
         bs.business_score::DOUBLE PRECISION,
         (
-            v_sem_weight * js.semantic_score +
-            v_rec_weight * js.recency_score +
+            v_sem_weight * cjs.semantic_score +
+            v_rec_weight * cjs.recency_score +
             v_biz_weight * bs.business_score
         )::DOUBLE PRECISION AS match_score,
-        js.top_article_titles[1:5],
-        js.top_article_years[1:5]
-    FROM journal_scores js
-    JOIN journals j ON j.id = js.journal_id
+        cjs.top_article_titles[1:5],
+        cjs.top_article_years[1:5]
+    FROM combined_journal_scores cjs
+    JOIN journals j ON j.id = cjs.journal_id
     JOIN business_scores bs ON bs.journal_id = j.id
     WHERE
         (p_max_apc_usd IS NULL OR j.apc_value_usd IS NULL OR j.apc_value_usd <= p_max_apc_usd)
         AND (p_max_decision_days IS NULL OR j.avg_days_to_first_decision IS NULL OR j.avg_days_to_first_decision <= p_max_decision_days)
         AND (NOT p_require_oa OR j.is_open_access = TRUE)
-    ORDER BY match_score DESC
+    ORDER BY j.id, match_score DESC
     LIMIT p_limit;
 END;
 $$ LANGUAGE plpgsql;

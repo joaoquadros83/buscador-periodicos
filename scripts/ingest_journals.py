@@ -18,11 +18,12 @@ from services.openalex_ingestion import get_openalex_ingestion_service
 def parse_args():
     parser = argparse.ArgumentParser(description="Ingest journals from CSV into pgvector")
     parser.add_argument("--csv", default="dados.csv", help="Caminho do CSV de revistas")
-    parser.add_argument("--provider", default="gemini", choices=["gemini", "huggingface", "ollama"])
+    parser.add_argument("--provider", default="gemini", choices=["gemini", "huggingface", "ollama", "tfidf"])
     parser.add_argument("--gemini-key", default=os.getenv("GEMINI_API_KEY"), help="Gemini API key")
     parser.add_argument("--max-articles", type=int, default=5, help="Artigos OpenAlex por revista")
     parser.add_argument("--limit", type=int, default=None, help="Limitar número de revistas")
     parser.add_argument("--init-schema", action="store_true", help="Inicializar schema antes")
+    parser.add_argument("--skip-articles", action="store_true", help="Pular busca de artigos no OpenAlex")
     return parser.parse_args()
 
 
@@ -118,23 +119,36 @@ def main():
     for idx, row in df.iterrows():
         journal = row_to_journal(row)
         if not journal["title"] or journal["title"] in ["-", "nan", "None"]:
+            print(f"[{idx+1}] Pulando título inválido: {journal['title']}")
             continue
+
+        print(f"[{idx+1}/{len(df)}] Processando: {journal['title'][:60]}...")
 
         try:
             # 1. Insere journal
+            print("  -> Inserindo journal...")
             journal_id = db.insert_journal(journal)
+            print(f"  -> Journal ID: {journal_id}")
 
             # 2. Gera embeddings do escopo
+            print("  -> Gerando embeddings...")
             title_emb = embedding_service.embed_text(journal["title"]).tolist()
             abstract_emb = embedding_service.embed_text(journal["scope_text"]).tolist()
+            print(f"  -> Embedding dims: title={len(title_emb)}, abstract={len(abstract_emb)}")
+            print("  -> Inserindo embeddings no banco...")
             db.insert_journal_embedding(journal_id, title_emb, abstract_emb, model_name=args.provider)
+            print("  -> Embeddings inseridos")
 
             # 3. Busca artigos no OpenAlex
-            articles = openalex.fetch_articles_for_journal(
-                journal_name=journal["title"],
-                issn=journal["issn"],
-                per_page=args.max_articles
-            )
+            articles = []
+            if not args.skip_articles:
+                print("  -> Buscando artigos no OpenAlex...")
+                articles = openalex.fetch_articles_for_journal(
+                    journal_name=journal["title"],
+                    issn=journal["issn"],
+                    per_page=args.max_articles
+                )
+                print(f"  -> {len(articles)} artigos encontrados")
 
             # 4. Insere artigos com embeddings
             for art in articles:
@@ -159,10 +173,12 @@ def main():
                 except Exception as e:
                     print(f"    Erro ao inserir artigo {art.get('doi')}: {e}")
 
-            print(f"[{idx+1}/{len(df)}] {journal['title']}: {len(articles)} artigos")
+            print(f"[{idx+1}/{len(df)}] OK - {journal['title'][:50]}: {len(articles)} artigos")
 
         except Exception as e:
-            print(f"    Erro ao processar {journal.get('title')}: {e}")
+            import traceback
+            print(f"    ERRO ao processar {journal.get('title')}: {e}")
+            traceback.print_exc()
 
     print("Ingestão concluída.")
 
