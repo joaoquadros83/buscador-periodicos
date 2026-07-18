@@ -6,7 +6,7 @@ Gerenciador de cache local para reduzir chamadas de API
 import sqlite3
 import json
 import time
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from datetime import datetime, timedelta
 import hashlib
 import logging
