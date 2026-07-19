@@ -1372,7 +1372,10 @@ def carregar_dados():
 df_original, arquivo_usado = carregar_dados()
 
 cache_manager = get_cache_manager()
-anonymous_logger = get_anonymous_logger()
+try:
+    anonymous_logger = get_anonymous_logger()
+except Exception:
+    anonymous_logger = None
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
 # Inicializa o estado de registro se não existir
