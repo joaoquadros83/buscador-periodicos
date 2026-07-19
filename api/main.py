@@ -358,7 +358,8 @@ def recommend_discovery(req: DiscoveryRequest):
 
         # 1. Carrega dados do banco para DataFrame
         journals = db.execute("""
-            SELECT j.*, je.model_name
+            SELECT j.id, j.title, j.issn, j.homepage, j.subjects, j.quartil_jcr, j.sjr,
+                   j.h_index, j.jif, j.is_oa, j.apc_value_usd, je.model_name
             FROM journals j
             JOIN journal_embeddings je ON je.journal_id = j.id
             WHERE je.model_name = 'sentence-transformers/all-MiniLM-L6-v2'
