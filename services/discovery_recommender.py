@@ -414,8 +414,3 @@ class DiscoveryRecommender:
             f"{impact_line} {index_line}"
         )
 
-</parameter>
-<task_progress>
-- [ ] Reportar resultado final ao usuário
-</task_progress>
-</write_to_file>
