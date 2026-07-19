@@ -4,7 +4,7 @@ Motor de recomendação baseado em:
   1. Classificação da área do artigo
   2. Busca textual simples no DataFrame (fallback)
   3. Probabilidade proxy de publicação
-  4. Justificativa estruturada baseada em métricas (até 3 linhas)
+  4. Justificativa dissertativa (até 3 linhas)
 """
 
 import re
@@ -50,7 +50,6 @@ class DiscoveryRecommender:
         self._load_vectors()
 
     def _load_vectors(self):
-        """Carrega vetores pré-computados ou constrói textos simples"""
         cache_path = "data/journal_vectors.pkl"
         self.catalog_vectors = []
         try:
@@ -234,21 +233,38 @@ class DiscoveryRecommender:
         def fmt_num(v):
             try:
                 f = float(v)
-                return str(round(f, 1)) if pd.notna(f) else "-"
+                return f"{f:.1f}" if pd.notna(f) else "-"
             except (ValueError, TypeError):
                 return "-"
 
-        if str(quartil).strip() != "-":
-            impact_line = f"Quartil: {quartil}."
-        elif str(sjr).strip() != "-":
-            impact_line = f"SJR: {fmt_num(sjr)}."
-        else:
-            impact_line = "Prestígio: não classificado."
+        def fmt_quartil(q):
+            q = str(q).strip()
+            return f"Quartil {q}" if q and q != "-" else ""
 
-        index_line = f"Indexação: {indexador}."
-
+        # Justificativa dissertativa em até 3 linhas
         if idioma == "English":
-            return f"{nome} aligns with the article scope in {area_journal}, with {aderencia}% thematic fit and estimated {probabilidade}% publication probability. {impact_line} {index_line}"
+            just = f"The journal {nome} is recommended because its editorial scope aligns with the research area {area_journal}. "
+            just += f"It shows {aderencia}% thematic alignment and an estimated {probabilidade}% probability of acceptance. "
+            if quartil and quartil != "-":
+                just += f"Recent publications indicate {fmt_quartil(quartil)} in JCR, reflecting its prestige in the field. "
+            elif sjr and sjr != "-":
+                just += f"Its SJR score is {fmt_num(sjr)}, indicating significant international visibility. "
+            just += f"Indexed in: {indexador}."
+            return just
         elif idioma == "Español":
-            return f"{nome} se alinea con el alcance del artículo en {area_journal}, con {aderencia}% de ajuste temático y probabilidad estimada de publicación del {probabilidade}%. {impact_line} {index_line}"
-        return f"{nome} alinha-se ao escopo do artigo em {area_journal}, com {aderencia}% de aderência temática e probabilidade estimada de {probabilidade}%. {impact_line} {index_line}"
+            just = f"La revista {nome} es recomendada porque su alcance editorial se alinea con el área de investigación {area_journal}. "
+            just += f"Muestra una alineación temática del {aderencia}% y una probabilidad estimada de aceptación del {probabilidade}%. "
+            if quartil and quartil != "-":
+                just += f"Publicaciones recientes indican {fmt_quartil(quartil)} en JCR, reflejando su prestigio en el campo. "
+            elif sjr and sjr != "-":
+                just += f"Su puntuación SJR es {fmt_num(sjr)}, indicando alta visibilidad internacional. "
+            just += f"Indexada en: {indexador}."
+            return just
+        just = f" A revista {nome} é recomendada porque seu escopo editorial se alinha com a área de pesquisa {area_journal}. "
+        just += f"Apresenta {aderencia}% de aderência temática e uma probabilidade estimada de {probabilidade}% de aceitação. "
+        if quartil and quartil != "-":
+            just += f"Publicações recentes indicam {fmt_quartil(quartil)} no JCR, refletindo seu prestígio na área. "
+        elif sjr and sjr != "-":
+            just += f"Sua pontuação SJR é {fmt_num(sjr)}, indicando alta visibilidade internacional. "
+        just += f"Indexada em: {indexador}."
+        return just
