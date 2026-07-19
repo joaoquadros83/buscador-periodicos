@@ -30,12 +30,50 @@ class DiscoveryRecommender:
         ollama_model: str = "llama3",
         h_index_author: int = 5
     ):
-        self.df_local = df_local.reset_index(drop=True)
+        # Normaliza nomes das colunas para ASCII (remover acentos)
+        self.df_local = self._normalize_columns(df_local)
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
         self._backend_used = "local_fallback"
         self._build_search_index()
+
+    def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Normaliza nomes das colunas para o padrão esperado"""
+        df = df.copy()
+        rename_map = {}
+        for col in df.columns:
+            col_str = str(col).strip()
+            col_lower = col_str.lower()
+            
+            # Mapeia nomes em ASCII para os nomes internos
+            if "titulo da revista" in col_lower or col_lower == "title":
+                rename_map[col] = "title"
+            elif "issn" in col_lower:
+                rename_map[col] = "ISSN"
+            elif "homepage" in col_lower:
+                rename_map[col] = "Homepage"
+            elif "grande area" in col_lower:
+                rename_map[col] = "Grande Área"
+            elif "area do conhecimento" in col_lower:
+                rename_map[col] = "Área do Conhecimento"
+            elif "subarea do conhecimento" in col_lower:
+                rename_map[col] = "Subárea do Conhecimento"
+            elif "indexador" in col_lower:
+                rename_map[col] = "Indexador"
+            elif "quartil jcr" in col_lower:
+                rename_map[col] = "Quartil JCR"
+            elif "sjr" in col_lower and "best" not in col_lower:
+                rename_map[col] = "SJR"
+            elif "jif" in col_lower or "impact" in col_lower:
+                rename_map[col] = "JIF"
+            elif "h index" in col_lower or "h-index" in col_lower:
+                rename_map[col] = "H index"
+            elif "indice h5" in col_lower or "índice h5" in col_lower:
+                rename_map[col] = "Índice h5"
+        
+        df.rename(columns=rename_map, inplace=True)
+        return df
 
     def _build_search_index(self):
         """Constrói índice de busca textual para fallback"""
@@ -49,8 +87,8 @@ class DiscoveryRecommender:
         query = f"{titulo} {resumo}".lower()
         scores = []
         
-        # Extrai palavras-chave importantes
-        keywords = [w for w in query.split() if len(w) > 3]
+        # Extrai palavras-chave importantes (4+ chars)
+        keywords = [w for w in re.findall(r'\b\w{4,}\b', query)]
         
         for idx, text in self.search_texts:
             score = sum(1 for kw in keywords if kw in text)
@@ -65,7 +103,7 @@ class DiscoveryRecommender:
             results.append({
                 "nome": str(row.get("title", "")),
                 "issn": str(row.get("ISSN", "")),
-                "aderencia": min(95, score * 15),  # Score baseado em matches
+                "aderencia": min(95, score * 20),
                 "area": str(row.get("Grande Área", "")),
                 "quartil": str(row.get("Quartil JCR", "")),
                 "sjr": str(row.get("SJR", "")),
@@ -124,14 +162,14 @@ class DiscoveryRecommender:
         return round(min(max(base, 15.0), 70.0), 1)
 
     def _justificativa_dissertativa(self, journal: Dict, idioma: str) -> str:
-        """Gera justificativa dissertativa completa"""
+        """Gera justificativa dissertativa completa (3 linhas)"""
         nome = journal.get("nome", "")
         aderencia = journal.get("aderencia", 75)
         probabilidade = journal.get("probabilidade_aceitacao", 45)
-        area = journal.get("area", "")
+        area = journal.get("area", journal.get("Grande Área", "-"))
         quartil = journal.get("quartil", "")
         sjr = journal.get("sjr", "")
-        indexador = journal.get("indexador", journal.get("Indexador", "-"))
+        indexador = journal.get("indexador", "-")
 
         if idioma == "English":
             just = f"The journal {nome} is recommended because its editorial scope aligns with the research area '{area}'. "
@@ -188,8 +226,6 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
                     timeout=30
                 )
                 if result.returncode == 0:
-                    # Parse JSON da resposta
-                    import re
                     match = re.search(r'\[.*\]', result.stdout, re.DOTALL)
                     if match:
                         journals = json.loads(match.group())
@@ -197,7 +233,7 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
             except Exception as e:
                 logger.warning(f"Ollama falhou: {e}")
 
-        # Fallback para Gemini API se disponível e sem sucesso
+        # Fallback para Gemini API se disponível
         if not journals and self.api_key_gemini:
             try:
                 import requests
@@ -231,7 +267,6 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
             if issn:
                 oa_data = self._enriquecer_openalex(issn)
                 j.update(oa_data)
-                # Prova social - artigos similares
                 artigos_similares = self._buscar_artigos_similares(resumo, issn)
                 if artigos_similares:
                     j["artigos_similares"] = artigos_similares
