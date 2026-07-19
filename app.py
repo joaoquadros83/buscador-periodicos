@@ -19,14 +19,6 @@ _cache_ok = _safe_import("services.cache_manager")
 _logger_ok = _safe_import("utils.logger")
 
     
-import streamlit as st
-import sys
-import os
-
-# Adiciona diretório atual ao path para imports locais
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-
 
 def get_texto_termos(lang):
     if st.session_state.get("idioma", "English") == "English":

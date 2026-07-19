@@ -1,0 +1,8 @@
+import streamlit as st
+import sys
+import os
+
+# Adiciona diretório atual ao path para imports locais
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
