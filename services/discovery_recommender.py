@@ -76,7 +76,7 @@ class DiscoveryRecommender:
         """Constrói textos representativos das revistas"""
         texts = []
         for idx, row in self.df_local.iterrows():
-            nome = str(row.get("title", row.get("title", idx)))
+            nome = str(row.get("title", idx))
             partes = [nome]
             for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador",
                         "ISSN", "Homepage"]:
@@ -264,12 +264,12 @@ class DiscoveryRecommender:
         h_revista = self._h_index_revista(journal)
         if h_revista > 0:
             ratio = self.h_index_author / max(h_revista * 0.1, 1.0)
-            fator_h = min(1.2, max(0.6, ratio))
+            fator_h = min(1.05, max(0.85, ratio))
         else:
             fator_h = 1.0
 
         probabilidade = taxa * penalidade * fator_h
-        return round(min(probabilidade, 95.0), 1)
+        return round(min(probabilidade, 70.0), 1)
 
     def recommend(
         self,
@@ -283,6 +283,8 @@ class DiscoveryRecommender:
         cache_key = f"rec_v3_{hash(titulo + resumo + str(top_n) + idioma)}"
         cached = self.cache_manager.get(cache_key)
         if cached:
+            # Garante ordenação estável no cache
+            cached.sort(key=lambda x: (x.get("aderencia", 0), x.get("probabilidade_aceitacao", 0)), reverse=True)
             return cached, None
 
         query_text = f"{titulo} {resumo}"
@@ -341,6 +343,27 @@ class DiscoveryRecommender:
 
         candidates.sort(key=_score, reverse=True)
         top_journals = candidates[:top_n]
+
+        # Etapa 5.1: Reajusta aderência para faixa 60-95 e probabilidade para 15-70
+        min_ad = 60
+        max_ad = 95
+        ad_range = max(1.0, max_ad - min_ad)
+        max_sim = max((j.get("similaridade", 0) for j in top_journals), default=1.0)
+        if max_sim > 0:
+            for j in top_journals:
+                sim = j.get("similaridade", 0)
+                ad_base = min_ad + (sim / max_sim) * ad_range
+                j["aderencia"] = round(min(ad_base, max_ad), 1)
+
+        max_prob = max((j.get("probabilidade_aceitacao", 0) for j in top_journals), default=1.0)
+        min_prob = 15.0
+        max_prob_cap = 70.0
+        prob_range = max(1.0, max_prob_cap - min_prob)
+        if max_prob > 0:
+            for j in top_journals:
+                prob = j.get("probabilidade_aceitacao", 0)
+                prob_norm = min_prob + (prob / max_prob) * prob_range
+                j["probabilidade_aceitacao"] = round(min(prob_norm, max_prob_cap), 1)
 
         # Etapa 6: Justificativa (não bloqueante)
         self._backend_used = "vetorial"

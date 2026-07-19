@@ -2685,7 +2685,7 @@ with tab_ia:
                         backend = "hybrid_api"
                         st.session_state.backend_usado = backend
                     except Exception as e_api:
-                        st.warning(f"API híbrida indisponível ({e_api}). Usando motor local como fallback.")
+                        st.warning(f"API híbrida indisponível ({e_api}). Usando motor Discovery-First como fallback.")
                         journals = None
                 
                 if not journals:
