@@ -74,10 +74,9 @@ class DiscoveryRecommender:
 
     def _build_catalog_texts(self):
         """Constrói textos representativos das revistas"""
-        col_titulo = self.df_local.columns[0]
         texts = []
         for idx, row in self.df_local.iterrows():
-            nome = str(row.iloc[0]) if len(row) > 0 else str(idx)
+            nome = str(row.get("title", row.get("title", idx)))
             partes = [nome]
             for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador",
                         "ISSN", "Homepage"]:
@@ -132,8 +131,6 @@ class DiscoveryRecommender:
 
     def _busca_vetorial(self, query_text: str, df_candidatos: pd.DataFrame, top_k: int = 40) -> List[Dict]:
         """Busca vetorial usando vetores pré-carregados"""
-        col_titulo = df_candidatos.columns[0]
-
         # Identifica índices do DataFrame filtrado no DataFrame original
         indices = []
         for idx in df_candidatos.index:
@@ -159,7 +156,7 @@ class DiscoveryRecommender:
         for df_idx, sim in similarities[:top_k]:
             try:
                 row = self.df_local.loc[df_idx]
-                nome = str(row.iloc[0]) if len(row) > 0 else str(df_idx)
+                nome = str(row.get("title", df_idx))
                 results.append({
                     "nome": nome,
                     "issn": str(row.get("ISSN", "-")) if len(row) > 0 else "-",
