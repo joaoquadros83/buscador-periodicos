@@ -11,6 +11,7 @@ FALLBACK: Busca textual local inteligente + métricas quando IA não disponível
 import re
 import os
 import json
+import requests
 from typing import List, Dict, Optional, Tuple
 import logging
 import pandas as pd
@@ -113,11 +114,11 @@ class DiscoveryRecommender:
     def _build_search_index(self):
         self.search_texts = []
         for idx, row in self.df_local.iterrows():
-            title = self._get_col(row, "title").lower()
-            grande_area = self._get_col(row, "Grande Área").lower()
-            area_conhecimento = self._get_col(row, "Área do Conhecimento").lower()
+            title = self._get_col(row, "title", "Título da Revista", "Título").lower()
+            grande_area = self._get_col(row, "Grande Área", "Grande Area").lower()
+            area_conhecimento = self._get_col(row, "Área do Conhecimento", "Area do Conhecimento").lower()
             indexador = self._get_col(row, "Indexador").lower()
-            aims_scope = self._get_col(row, "Aims e Escopo").lower()
+            aims_scope = self._get_col(row, "aims_scope", "description", "Aims e Escopo", "Aims e Escopo").lower()
             text = f"{title} {grande_area} {area_conhecimento} {indexador} {aims_scope}"
             self.search_texts.append((idx, text, grande_area, area_conhecimento))
 
