@@ -15,6 +15,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.db_client import get_db_client, PostgresClient
 from services.hybrid_embeddings import get_embedding_service, HybridEmbeddingService
+from services.openalex_client import get_openalex_client, OpenAlexClient
+from services.scielo_client import get_scielo_client, SciELOClient
 
 
 # Singletons carregados no startup (evita recarregar modelo a cada request)
@@ -208,7 +210,103 @@ def debug_info():
         "llm_provider": os.getenv("LLM_PROVIDER", "not set"),
         "groq_key_configured": bool(os.getenv("GROQ_API_KEY")),
         "gemini_key_configured": bool(os.getenv("GEMINI_API_KEY")),
+        "openalex_configured": True,
     }
+
+
+# =============================================================================
+# OPENALEX ENRICHMENT ENDPOINTS
+# =============================================================================
+
+class EnrichRequest(BaseModel):
+    issn: Optional[str] = None
+    journal_name: Optional[str] = None
+
+
+class EnrichResponse(BaseModel):
+    source: str
+    data: dict
+
+
+@app.post("/enrich/openalex", response_model=EnrichResponse)
+def enrich_via_openalex(req: EnrichRequest):
+    """
+    Enriquece dados de uma revista via OpenAlex (h-index, citações, OA status).
+    """
+    try:
+        client = get_openalex_client(email=os.getenv("OPENALEX_EMAIL", "scipubs@example.com"))
+
+        if req.issn:
+            result = client.get_journal_by_issn(req.issn)
+        elif req.journal_name:
+            result = client.get_journal_by_name(req.journal_name)
+        else:
+            raise HTTPException(status_code=400, detail="Informe issn ou journal_name")
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Revista não encontrada no OpenAlex")
+
+        return EnrichResponse(source="openalex", data=result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/enrich/scielo", response_model=EnrichResponse)
+def enrich_via_scielo(request: EnrichRequest):
+    """
+    Verifica se uma revista está na SciELO.
+    """
+    try:
+        if not request.issn:
+            raise HTTPException(status_code=400, detail="Informe o ISSN")
+
+        client = get_scielo_client()
+        result = client.get_journal_by_issn(request.issn)
+
+        if not result:
+            raise HTTPException(status_code=404, detail="Revista não encontrada na SciELO")
+
+        return EnrichResponse(source="scielo", data=result)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class BatchEnrichRequest(BaseModel):
+    issns: List[str]
+
+
+@app.post("/enrich/batch")
+def enrich_batch(req: BatchEnrichRequest):
+    """
+    Enriquece múltiplas revistas via OpenAlex em paralelo.
+    Retorna dicionário {issn: dados_enriquecidos}.
+    """
+    import concurrent.futures
+
+    client = get_openalex_client(email=os.getenv("OPENALEX_EMAIL", "scipubs@example.com"))
+    results = {}
+
+    def fetch(issn):
+        try:
+            data = client.get_journal_by_issn(issn)
+            return issn, data
+        except Exception as e:
+            return issn, {"error": str(e)}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(fetch, issn) for issn in req.issns]
+        for future in concurrent.futures.as_completed(futures):
+            issn, data = future.result()
+            if data:
+                results[issn] = data
+
+    return {"source": "openalex", "results": results}
 
 
 @app.post("/recommend", response_model=RecommendResponse)
