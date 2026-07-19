@@ -117,7 +117,8 @@ class DiscoveryRecommender:
             grande_area = self._get_col(row, "Grande Área").lower()
             area_conhecimento = self._get_col(row, "Área do Conhecimento").lower()
             indexador = self._get_col(row, "Indexador").lower()
-            text = f"{title} {grande_area} {area_conhecimento} {indexador}"
+            aims_scope = self._get_col(row, "Aims e Escopo").lower()
+            text = f"{title} {grande_area} {area_conhecimento} {indexador} {aims_scope}"
             self.search_texts.append((idx, text, grande_area, area_conhecimento))
 
     def _busca_textual_fallback(self, titulo: str, resumo: str, top_n: int = 40) -> List[Dict]:
@@ -258,72 +259,210 @@ class DiscoveryRecommender:
         top_n: int = 20,
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
-        journals = []
+        raw_recommendations = []
+        
+        # Etapa 1: Ingestão e Descoberta Semântica via IA (Gemini ou Ollama)
+        prompt_ia = f"""
+        Você é um especialista sênior em publicação científica com profundo conhecimento das linhas editoriais de revistas acadêmicas do mundo todo.
+        Analise o artigo científico abaixo e identifique as {top_n} revistas científicas com maior afinidade e aderência temática para submissão:
+
+        TÍTULO DO ARTIGO: {titulo}
+        RESUMO DO ARTIGO: {resumo}
+
+        DIRETRIZES OBRIGATÓRIAS DE SELEÇÃO:
+        1. Analise profundamente o tema, a metodologia e a abordagem teórica do artigo.
+        2. Recomende revistas brasileiras (em português) e também internacionais (em inglês ou espanhol) que cubram o tema.
+        3. Priorize a aderência temática e o escopo da revista — o artigo deve se alinhar perfeitamente com o que a revista publica.
+        4. Traga revistas reais, ativas e com os nomes escritos de forma correta e completa.
+
+        RESPONDA estritamente com um array JSON válido, sem comentários e sem tags markdown de código (como ```json ou ```). Use exatamente o formato:
+        [
+          {{
+            "revista_nome": "Nome exato e oficial da revista",
+            "aderencia": 95,
+            "justificativa": "Uma explicação concisa de 2-3 frases de por que este artigo se alinha com o escopo desta revista específica."
+          }}
+        ]
+        """
 
         if use_ollama:
             try:
                 import subprocess
-                prompt = f"""Retorne JSON com {top_n} revistas:
-TÍTULO: {titulo}
-RESUMO: {resumo}
-Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quartil": "..."}}]"""
                 result = subprocess.run(
                     ["ollama", "run", self.ollama_model],
-                    input=prompt,
+                    input=prompt_ia,
                     capture_output=True,
                     text=True,
-                    timeout=30
+                    timeout=45
                 )
                 if result.returncode == 0:
-                    match = re.search(r'\[.*\]', result.stdout, re.DOTALL)
+                    match = re.search(r'\[\s*\{.*\}\s*\]', result.stdout, re.DOTALL)
                     if match:
-                        journals = json.loads(match.group())
+                        raw_recommendations = json.loads(match.group(0))
                         self._backend_used = "ollama"
             except Exception as e:
-                logger.warning(f"Ollama falhou: {e}")
+                logger.warning(f"Ollama falhou no modo discovery: {e}")
 
-        if not journals and self.api_key_gemini:
+        if not raw_recommendations and self.api_key_gemini:
             try:
                 import requests
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.api_key_gemini}"
-                prompt = f"""Retorne JSON com {top_n} revistas:
-TÍTULO: {titulo}
-RESUMO: {resumo}
-Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quartil": "..."}}]"""
-                payload = {"contents": [{"parts": [{"text": prompt}]}]}
-                response = requests.post(url, json=payload, timeout=30)
+                # Usa gemini-2.5-flash como modelo padrão robusto
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.api_key_gemini}"
+                payload = {"contents": [{"parts": [{"text": prompt_ia}]}]}
+                response = requests.post(url, json=payload, timeout=40)
                 if response.ok:
-                    match = re.search(r'\[.*\]', response.text, re.DOTALL)
+                    res_json = response.json()
+                    texto_resposta = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if texto_resposta.startswith("```"):
+                        texto_resposta = re.sub(r'^```(?:json)?\n|```$', '', texto_resposta, flags=re.MULTILINE).strip()
+                    
+                    match = re.search(r'\[\s*\{.*\}\s*\]', texto_resposta, re.DOTALL)
                     if match:
-                        journals = json.loads(match.group())
+                        raw_recommendations = json.loads(match.group(0))
                         self._backend_used = "gemini"
             except Exception as e:
-                logger.warning(f"Gemini falhou: {e}")
+                logger.warning(f"Gemini falhou no modo discovery: {e}")
 
-        if not journals:
-            logger.info("Usando fallback de busca textual local")
-            journals = self._busca_textual_fallback(titulo, resumo, top_n)
+        # Fallback local se a IA falhar na sugestão de nomes
+        if not raw_recommendations:
+            logger.info("Usando busca textual local como fallback de descoberta")
+            candidates = self._busca_textual_fallback(titulo, resumo, top_n)
             self._backend_used = "local_fallback"
+            for j in candidates:
+                raw_recommendations.append({
+                    "revista_nome": j["nome"],
+                    "aderencia": j["aderencia"],
+                    "justificativa": j["justificativa"]
+                })
 
-        if not journals:
-            return None, "Nenhuma revista encontrada no catálogo."
+        # Etapa 2: Validação no Catálogo e Enriquecimento Semântico (Fuzzy Matching + OpenAlex)
+        def normalizar(nome):
+            import unicodedata
+            nome = str(nome).lower().strip()
+            nome = ''.join(c for c in unicodedata.normalize('NFD', nome) if unicodedata.category(c) != 'Mn')
+            nome = re.sub(r'[^a-z0-9\s]', '', nome)
+            return ' '.join(nome.split())
 
-        for j in journals:
-            issn = j.get("issn", "")
-            if issn:
-                oa_data = self._enriquecer_openalex(issn)
-                j.update(oa_data)
+        def encontrar_na_base(nome_ia, df_base, threshold=0.82):
+            nome_norm = normalizar(nome_ia)
+            melhor_score = 0
+            melhor_row = None
+            
+            # Primeira coluna representa o nome da revista
+            col_titulo = df_base.columns[0]
+            for _, row in df_base.iterrows():
+                nome_base = str(row[col_titulo])
+                nome_base_norm = normalizar(nome_base)
+                score = SequenceMatcher(None, nome_norm, nome_base_norm).ratio()
+                if score > melhor_score:
+                    melhor_score = score
+                    melhor_row = row
+            
+            if melhor_score >= threshold:
+                return melhor_row, melhor_score
+            return None, 0
+
+        final_journals = []
+        for rec in raw_recommendations:
+            nome_ia = rec.get("revista_nome", "")
+            aderencia = rec.get("aderencia", 75)
+            justificativa_ia = rec.get("justificativa", "")
+            
+            # Tenta encontrar no catálogo local
+            row_local, score_match = encontrar_na_base(nome_ia, self.df_raw)
+            
+            if row_local is not None:
+                # Revista encontrada no catálogo
+                col_titulo = self.df_raw.columns[0]
+                nome_final = str(row_local[col_titulo])
+                issn = str(row_local.get("ISSN", "-"))
+                homepage = str(row_local.get("Homepage", "-"))
+                grande_area = str(row_local.get("Grande Área", "-"))
+                area = str(row_local.get("Área do Conhecimento", row_local.get("Area do Conhecimento", "-")))
+                subarea = str(row_local.get("Subárea do Conhecimento", "-"))
+                indexador = str(row_local.get("Indexador", "-"))
+                jif = str(row_local.get("JIF", "-"))
+                quartil = str(row_local.get("Quartil JCR", "-"))
+                sjr = str(row_local.get("SJR", "-"))
+                sjr_q = str(row_local.get("SJR Best Quartile", "-"))
+                h_index = str(row_local.get("H index", row_local.get("h-index", "-")))
+                h5_link = str(row_local.get("Índice h5", "-"))
+                fonte = "local"
+            else:
+                # Revista externa ao catálogo: tenta buscar na OpenAlex pelo nome
+                nome_final = nome_ia
+                issn = "-"
+                homepage = "-"
+                grande_area = "-"
+                area = "-"
+                subarea = "-"
+                indexador = "Não Catalogado"
+                jif = "-"
+                quartil = "-"
+                sjr = "-"
+                sjr_q = "-"
+                h_index = "-"
+                h5_link = f"https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq={requests.utils.quote(nome_ia)}&btnG="
+                fonte = "externo"
+                
+                # Tenta OpenAlex API para enriquecimento
+                try:
+                    from services.openalex_client import get_openalex_client
+                    client = get_openalex_client()
+                    oa_journal = client.get_journal_by_name(nome_ia)
+                    if oa_journal:
+                        nome_final = oa_journal.get("nome", nome_ia)
+                        issn = oa_journal.get("issn", "-")
+                        homepage = oa_journal.get("homepage_url", "-")
+                        h_index = str(oa_journal.get("h_index", "-"))
+                        
+                        idx_list = []
+                        if oa_journal.get("is_in_doaj"):
+                            idx_list.append("DOAJ")
+                        if "scopus" in str(oa_journal.get("concepts", [])).lower():
+                            idx_list.append("Scopus")
+                        indexador = ", ".join(idx_list) if idx_list else "Open Access"
+                except Exception as e:
+                    logger.warning(f"Falha ao enriquecer revista externa {nome_ia} via OpenAlex: {e}")
+            
+            # Formata Dicionário da Revista
+            j_dict = {
+                "nome": nome_final,
+                "issn": issn,
+                "homepage": homepage,
+                "grande_area": grande_area,
+                "area": area,
+                "subarea": subarea,
+                "indexador": indexador,
+                "jif": jif,
+                "quartil_jcr": quartil,
+                "sjr": sjr,
+                "sjr_quartile": sjr_q,
+                "h_index": h_index,
+                "h5_link": h5_link,
+                "aderencia": aderencia,
+                "justificativa": justificativa_ia,
+                "fonte_dados": fonte
+            }
+            
+            # Etapa 3: Prova Social (Artigos similares específicos por periódico)
+            if issn and issn != "-":
                 artigos_similares = self._buscar_artigos_similares(resumo, issn)
                 if artigos_similares:
-                    j["artigos_similares"] = artigos_similares
-            j["probabilidade_aceitacao"] = self._taxa_aceitacao_proxy(j)
+                    j_dict["artigos_similares"] = artigos_similares
+            
+            # Calcula probabilidade proxy de publicação
+            j_dict["probabilidade_aceitacao"] = self._taxa_aceitacao_proxy(j_dict)
+            
+            # Se a justificativa do Gemini estiver vazia, gera uma estruturada padrão
+            if not j_dict["justificativa"]:
+                j_dict["justificativa"] = self._justificativa_dissertativa(j_dict, idioma)
+                
+            final_journals.append(j_dict)
 
-        for j in journals:
-            j["justificativa"] = self._justificativa_dissertativa(j, idioma)
-
-        journals.sort(key=lambda x: (-x.get("aderencia", 0), -x.get("probabilidade_aceitacao", 0)))
-
-        return journals[:top_n], None
+        # Ordenação final: Aderência (1º) > Probabilidade (2º)
+        final_journals.sort(key=lambda x: (-x.get("aderencia", 0), -x.get("probabilidade_aceitacao", 0)))
+        return final_journals[:top_n], None
 
     def get_backend_name(self) -> str:
         return self._backend_used
