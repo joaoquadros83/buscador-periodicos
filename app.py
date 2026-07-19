@@ -2255,7 +2255,7 @@ with tab_busca:
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
         # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
-        df_exibir = df_da_pagina.drop(columns=["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
+        df_exibir = df_da_pagina.drop(columns=["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Aims e Escopo"], errors="ignore")
         
         # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
@@ -2534,23 +2534,16 @@ with tab_ia:
     if "gemini_key_validada" not in st.session_state:
         st.session_state.gemini_key_validada = False
     
-    col_input, col_meta = st.columns([2, 1])
-    
-    with col_input:
+    col1_1, col1_2 = st.columns([2, 1])
+    with col1_1:
         st.markdown(f"### {t['ia_titulo']}")
+    with col1_2:
+        st.markdown(f"### {t['ia_credencial_tit']}")
+        
+    col2_1, col2_2 = st.columns([2, 1])
+    with col2_1:
         st.markdown(f"*{t['ia_subtitulo']}*")
-        st.markdown("<div style='margin-bottom: 12px;'></div>", unsafe_allow_html=True)
-        
-        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: Análise Epidemiológica de Saúde Coletiva...", key="ia_tit_input")
-        resumo_artigo = st.text_area(t['ia_campo_resumo'], placeholder="Paste or type abstract here...", height=250, key="ia_res_input")
-        
-        disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
-        
-    with col_meta:
-        st.markdown(f"#### {t['ia_credencial_tit']}")
-        st.markdown(f"*{t['ia_motor_desc']}*")
-        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
-        
+    with col2_2:
         # Lê chave global do Streamlit Secrets (se existir)
         chave_global_gemini = ""
         try:
@@ -2558,45 +2551,41 @@ with tab_ia:
                 chave_global_gemini = st.secrets.get("GEMINI_API_KEY", "")
         except Exception:
             pass
-        
-        # Campo para chave Gemini do usuário (opcional)
         user_gemini_key = st.text_input(
-            "🔑 Chave Gemini (opcional)",
+            "🔑 Gemini API Key (Google AI Studio)",
             type="password",
-            placeholder="Deixe em branco para usar Ollama local ou algoritmo local",
-            help="Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas. Sem chave, o app tenta usar o Ollama (Llama 3) instalado localmente; caso contrário, usa o algoritmo local de relevância."
+            placeholder="Deixe em branco para usar modo local",
+            label_visibility="collapsed",
+            key="ia_user_key"
         )
-        
-                # Define chave ativa
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (str(chave_global_gemini).strip() if chave_global_gemini else "")
-        
-        # Status do sistema
+
+    col3_1, col3_2 = st.columns([2, 1])
+    with col3_1:
+        titulo_artigo = st.text_input(t['ia_campo_titulo'], placeholder="Ex: Análise Epidemiológica de Saúde Coletiva...", key="ia_tit_input")
+    with col3_2:
+        with st.expander("🔑 How to get a free API key?", expanded=False):
+            st.markdown("""
+            1. Acesse [aistudio.google.com](https://aistudio.google.com)
+            2. Faça login com sua conta Google
+            3. Clique em "Get API Key" → "Create API Key"
+            4. Copie a chave e cole acima
+            """)
+
+    col4_1, col4_2 = st.columns([2, 1])
+    with col4_1:
+        resumo_artigo = st.text_area(t['ia_campo_resumo'], placeholder="Paste or type abstract here...", height=250, key="ia_res_input")
+        disparar_busca = st.button(t['ia_btn_buscar'], type="primary", key="btn_ia_disparar")
+    with col4_2:
         if api_key_ativa:
-            st.success("🔑 Chave Gemini configurada")
-            # Instrução para obter chave (recolhida)
-            with st.expander("ℹ️ Como obter chave gratuita?", expanded=False):
-                st.markdown("""
-                1. Acesse [aistudio.google.com](https://aistudio.google.com)
-                2. Faça login com sua conta Google
-                3. Clique em "Get API Key" → "Create API Key"
-                4. Copie a chave e cole acima
-                """)
+            st.success("🔑 Chave Gemini ativa")
         else:
             ollama_ok, _ = check_ollama()
             if ollama_ok:
-                st.success(f"✅ Ollama local detectado")
+                st.success("✅ Ollama local ativo")
             else:
-                st.info("⚙️ Modo local (algoritmo de relevância)")
-            with st.expander("ℹ️ Sobre os modos de IA", expanded=False):
-                st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
-            with st.expander("🔑 Como obter chave Gemini gratuita?", expanded=False):
-                st.markdown("""
-                1. Acesse [aistudio.google.com](https://aistudio.google.com)
-                2. Faça login com sua conta Google
-                3. Clique em "Get API Key" → "Create API Key"
-                4. Copie a chave e cole no campo acima
-                """)
-        
+                st.info("⚙️ Modo local (relevância)")
+                
         st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
         grandes_areas_originais = sorted(list(df_original["Grande Área"].dropna().unique()))
@@ -2832,7 +2821,11 @@ with tab_ia:
                 # Título da revista + botões Homepage e h5 ao lado
                 col_titulo, col_btn_home, col_btn_h5 = st.columns([3, 1, 1])
                 with col_titulo:
-                    st.markdown(f"### {nome_rev}")
+                    fonte = rec.get("fonte_dados", "local")
+                    if fonte == "externo":
+                        st.markdown(f"### {nome_rev} <span style='font-size: 0.8rem; color: #f39c12; border: 1px solid #f39c12; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 10px;'>External / Fora do Catálogo</span>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"### {nome_rev}")
                 with col_btn_home:
                     if homepage and homepage not in ["nan", "-", "None", ""]:
                         st.link_button(t['ia_card_site'] + " 🔗", homepage, type="primary", use_container_width=True)
@@ -2860,6 +2853,22 @@ with tab_ia:
                 # Justificativa dissertativa das métricas
                 with st.expander(f"📖 {t['ia_justificativa_tit']}", expanded=True):
                     st.markdown(justificativa_metricas)
+                    
+                    # Exibe artigos similares desta revista específica
+                    artigos_sim = rec.get("artigos_similares", [])
+                    if artigos_sim:
+                        st.markdown("---")
+                        st.markdown(f"**📄 Artigos semelhantes publicados recentemente por esta revista:**")
+                        for art in artigos_sim[:3]:
+                            title_art = art.get("titulo", "")
+                            ano_art = art.get("ano", "")
+                            cit_art = art.get("citacao_count", 0)
+                            doi_art = art.get("doi", "")
+                            link_txt = f" ({ano_art}) — {cit_art} citações"
+                            if doi_art:
+                                st.markdown(f"- [{title_art}]({doi_art}){link_txt}")
+                            else:
+                                st.markdown(f"- **{title_art}**{link_txt}")
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
