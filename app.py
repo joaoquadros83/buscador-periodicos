@@ -314,6 +314,24 @@ def call_hybrid_api(title: str, abstract: str, api_url: str, top_n: int = 10,
     return response.json()
 
 
+def call_discovery_api(title: str, abstract: str, api_url: str, top_n: int = 20,
+                       idioma: str = "Português") -> dict:
+    """
+    Chama a API Discovery-First /recommend/discovery.
+    Usa classificação de área + busca vetorial + proxy de aceitação.
+    """
+    import requests
+    payload = {
+        "title": title,
+        "abstract": abstract,
+        "top_n": top_n,
+        "idioma": idioma
+    }
+    response = requests.post(f"{api_url}/recommend/discovery", json=payload, timeout=120)
+    response.raise_for_status()
+    return response.json()
+
+
 def get_similar_articles_finder(email_openalex=None):
     return SimilarArticlesFinder(email_openalex=email_openalex)
 
@@ -324,6 +342,38 @@ def get_article_evaluator(df_local, ollama_model="llama3"):
 
 def get_cache_manager():
     return CacheManager()
+
+
+class RecommendationCache:
+    """Cache simples em memória com TTL para recomendações Discovery-First."""
+
+    def __init__(self, ttl_seconds: int = 86400):
+        self._store: dict = {}
+        self._ttl = ttl_seconds
+
+    def _key(self, title: str, abstract: str, top_n: int, idioma: str) -> str:
+        return f"discovery:{hash(title + abstract + str(top_n) + idioma)}"
+
+    def get(self, title: str, abstract: str, top_n: int, idioma: str):
+        k = self._key(title, abstract, top_n, idioma)
+        entry = self._store.get(k)
+        if not entry:
+            return None
+        timestamp, value = entry
+        if time.time() - timestamp > self._ttl:
+            self._store.pop(k, None)
+            return None
+        return value
+
+    def set(self, title: str, abstract: str, top_n: int, idioma: str, value):
+        k = self._key(title, abstract, top_n, idioma)
+        self._store[k] = (time.time(), value)
+
+    def clear(self):
+        self._store.clear()
+
+
+recommendation_cache = RecommendationCache(ttl_seconds=86400)
 
 # 1. Função para inicializar o Firebase com segurança e cache
 @st.cache_resource

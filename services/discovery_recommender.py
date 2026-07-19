@@ -20,6 +20,7 @@ from prompts.discovery_prompt import get_justification_prompt
 from services.embeddings_client import EmbeddingsClient, cosine_similarity
 from services.area_classifier import classify_article_area
 from services.cache_manager import get_cache_manager
+from utils.fuzzy_matcher import calculate_similarity
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -75,9 +76,11 @@ class DiscoveryRecommender:
         """Constrói textos representativos das revistas"""
         col_titulo = self.df_local.columns[0]
         texts = []
-        for _, row in self.df_local.iterrows():
-            partes = [str(row[col_titulo])]
-            for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador"]:
+        for idx, row in self.df_local.iterrows():
+            nome = str(row.iloc[0]) if len(row) > 0 else str(idx)
+            partes = [nome]
+            for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador",
+                        "ISSN", "Homepage"]:
                 if col in row.index:
                     val = str(row[col])
                     if val and val not in ["-", "nan", "None", ""]:
@@ -154,23 +157,48 @@ class DiscoveryRecommender:
 
         results = []
         for df_idx, sim in similarities[:top_k]:
-            row = self.df_local.loc[df_idx]
+            try:
+                row = self.df_local.loc[df_idx]
+                nome = str(row.iloc[0]) if len(row) > 0 else str(df_idx)
+                results.append({
+                    "nome": nome,
+                    "issn": str(row.get("ISSN", "-")) if len(row) > 0 else "-",
+                    "homepage": str(row.get("Homepage", "-")) if len(row) > 0 else "-",
+                    "grande_area": str(row.get("Grande Área", "-")) if len(row) > 0 else "-",
+                    "area": str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", "-"))) if len(row) > 0 else "-",
+                    "subarea": str(row.get("Subárea do Conhecimento", "-")) if len(row) > 0 else "-",
+                    "indexador": str(row.get("Indexador", "-")) if len(row) > 0 else "-",
+                    "jif": row.get("JIF", "-") if len(row) > 0 else "-",
+                    "quartil_jcr": str(row.get("Quartil JCR", "-")) if len(row) > 0 else "-",
+                    "sjr": str(row.get("SJR", "-")) if len(row) > 0 else "-",
+                    "sjr_quartile": str(row.get("SJR Best Quartile", "-")) if len(row) > 0 else "-",
+                    "h_index": row.get("H index", row.get("h-index", "-")) if len(row) > 0 else "-",
+                    "h5_link": str(row.get("Índice h5", "-")) if len(row) > 0 else "-",
+                    "similaridade": sim,
+                    "aderencia": round(sim * 100, 1),
+                    "fonte_dados": "local",
+                })
+            except Exception as e:
+                logger.warning(f"Erro ao processar revista {df_idx}: {e}")
+                continue
+
+        if not results and similarities:
             results.append({
-                "nome": str(row[col_titulo]),
-                "issn": str(row.get("ISSN", "-")),
-                "homepage": str(row.get("Homepage", "-")),
-                "grande_area": str(row.get("Grande Área", "-")),
-                "area": str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", "-"))),
-                "subarea": str(row.get("Subárea do Conhecimento", "-")),
-                "indexador": str(row.get("Indexador", "-")),
-                "jif": row.get("JIF", "-"),
-                "quartil_jcr": str(row.get("Quartil JCR", "-")),
-                "sjr": row.get("SJR", "-"),
-                "sjr_quartile": str(row.get("SJR Best Quartile", "-")),
-                "h_index": row.get("H index", row.get("h-index", "-")),
-                "h5_link": str(row.get("Índice h5", "-")),
-                "similaridade": sim,
-                "aderencia": round(sim * 100, 1),
+                "nome": str(similarities[0][0]),
+                "issn": "-",
+                "homepage": "-",
+                "grande_area": "-",
+                "area": "-",
+                "subarea": "-",
+                "indexador": "-",
+                "jif": "-",
+                "quartil_jcr": "-",
+                "sjr": "-",
+                "sjr_quartile": "-",
+                "h_index": "-",
+                "h5_link": "-",
+                "similaridade": similarities[0][1],
+                "aderencia": round(similarities[0][1] * 100, 1),
                 "fonte_dados": "local",
             })
 
@@ -280,6 +308,21 @@ class DiscoveryRecommender:
         candidates = self._busca_vetorial(query_text, df_candidatos, top_k=40)
         if not candidates:
             return None, "Nenhuma revista encontrada no catálogo."
+
+        # Etapa 3.1: Fuzzy matching para melhorar qualidade dos nomes
+        for j in candidates:
+            nome_candidato = j.get("nome", "")
+            if nome_candidato:
+                melhor_nome = nome_candidato
+                melhor_score = 0.0
+                for _, row in self.df_local.iterrows():
+                    nome_linha = str(row.iloc[0]) if len(row) > 0 else ""
+                    score = calculate_similarity(nome_candidato, nome_linha)
+                    if score > melhor_score:
+                        melhor_score = score
+                        melhor_nome = nome_linha
+                if melhor_score >= 0.82 and melhor_nome != nome_candidato:
+                    j["nome"] = melhor_nome
 
         # Etapa 4: Probabilidade proxy
         for j in candidates:
