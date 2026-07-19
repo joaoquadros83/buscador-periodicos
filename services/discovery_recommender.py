@@ -5,7 +5,7 @@ Arquitetura em 3 fases:
   2. KNOWLEDGE GRAPH & ENRIQUECIMENTO - Fuzzy matching + dados OpenAlex
   3. PROVA SOCIAL - Artigos similares por ISSN via OpenAlex
 
-FALLBACK: Busca textual local + métricas quando IA não disponível
+FALLBACK: Busca textual local inteligente + métricas quando IA não disponível
 """
 
 import re
@@ -23,6 +23,28 @@ logger = logging.getLogger(__name__)
 class DiscoveryRecommender:
     """Motor de recomendação baseado em descoberta semântica via IA + fallback local"""
 
+    # Mapeamento semântico: palavras-chave -> áreas relevantes
+    KEYWORD_AREA_MAP = {
+        # Educação & Psicometria
+        "educação": "Ciências Sociais",
+        "ensino": "Ciências Sociais", 
+        "aprendizagem": "Ciências Sociais",
+        "psicometria": "Ciências Sociais",
+        "instrumento": "Ciências Sociais",
+        "avaliação": "Ciências Sociais",
+        "reaproximação": "Ciências Sociais",
+        "permanência": "Ciências Sociais",
+        "evasão": "Ciências Sociais",
+        "freire": "Ciências Sociais",
+        "humanização": "Ciências Sociais",
+        "music": "Artes",
+        "música": "Artes",
+        "artistic": "Artes",
+        "arte": "Artes",
+        # Interdisciplinar
+        "interdisciplinar": "Interdisciplinar",
+    }
+
     def __init__(
         self,
         df_local: pd.DataFrame,
@@ -30,9 +52,8 @@ class DiscoveryRecommender:
         ollama_model: str = "llama3",
         h_index_author: int = 5
     ):
-        # Normaliza nomes das colunas automaticamente
         self.df_local = self._normalize_columns(df_local)
-        self.df_raw = df_local  # Mantém cópia original para referência direta
+        self.df_raw = df_local
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
@@ -40,7 +61,6 @@ class DiscoveryRecommender:
         self._build_search_index()
 
     def _get_col(self, row: pd.Series, *candidates: str) -> str:
-        """Obtém valor de coluna tentando múltiplos nomes possíveis"""
         for col in candidates:
             if col in row.index:
                 val = row.get(col, "")
@@ -49,14 +69,11 @@ class DiscoveryRecommender:
         return ""
 
     def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Normaliza nomes das colunas para o padrão esperado"""
         df = df.copy()
         rename_map = {}
         for col in df.columns:
             col_str = str(col).strip()
             col_lower = col_str.lower()
-            
-            # Mapeia diversos formatos para o nome interno
             if any(x in col_lower for x in ["titulo da revista", "título da revista", "title"]):
                 rename_map[col] = "title"
             elif "issn" in col_lower:
@@ -81,52 +98,79 @@ class DiscoveryRecommender:
                 rename_map[col] = "H index"
             elif any(x in col_lower for x in ["indice h5", "índice h5"]):
                 rename_map[col] = "Índice h5"
-        
         df.rename(columns=rename_map, inplace=True)
         return df
 
+    def _infer_area_from_text(self, titulo: str, resumo: str) -> List[str]:
+        """Infere áreas relevantes baseado em palavras-chave do texto"""
+        text = f"{titulo} {resumo}".lower()
+        areas_found = set()
+        for keyword, area in self.KEYWORD_AREA_MAP.items():
+            if keyword in text:
+                areas_found.add(area)
+        return list(areas_found) if areas_found else ["Interdisciplinar"]
+
     def _build_search_index(self):
-        """Constrói índice de busca textual para fallback"""
         self.search_texts = []
         for idx, row in self.df_local.iterrows():
-            text = f"{self._get_col(row, 'title')} {self._get_col(row, 'Grande Área')} {self._get_col(row, 'Área do Conhecimento')} {self._get_col(row, 'Indexador', 'indexador')}".lower()
-            self.search_texts.append((idx, text))
+            title = self._get_col(row, "title").lower()
+            grande_area = self._get_col(row, "Grande Área").lower()
+            area_conhecimento = self._get_col(row, "Área do Conhecimento").lower()
+            indexador = self._get_col(row, "Indexador").lower()
+            text = f"{title} {grande_area} {area_conhecimento} {indexador}"
+            self.search_texts.append((idx, text, grande_area, area_conhecimento))
 
     def _busca_textual_fallback(self, titulo: str, resumo: str, top_n: int = 40) -> List[Dict]:
-        """Busca textual inteligente no catálogo local (fallback sem IA)"""
+        """Busca textual inteligente com priorização semântica"""
         query = f"{titulo} {resumo}".lower()
-        scores = []
         
-        # Extrai palavras-chave importantes (4+ chars)
+        # Detecta áreas relevantes do artigo
+        areas_relevantes = self._infer_area_from_text(titulo, resumo)
+        
+        # Palavras-chave do artigo
         keywords = [w for w in re.findall(r'\b\w{4,}\b', query)]
         
-        for idx, text in self.search_texts:
-            score = sum(1 for kw in keywords if kw in text)
-            if score > 0:
-                scores.append((idx, score, text))
-        
-        scores.sort(key=lambda x: x[1], reverse=True)
-        
         results = []
-        for idx, score, text in scores[:top_n]:
-            row = self.df_local.iloc[idx]
-            results.append({
-                "nome": self._get_col(row, "title"),
-                "issn": self._get_col(row, "ISSN"),
-                "aderencia": min(95, score * 20),
-                "area": self._get_col(row, "Grande Área"),
-                "quartil": self._get_col(row, "Quartil JCR"),
-                "sjr": self._get_col(row, "SJR"),
-                "indexador": self._get_col(row, "Indexador"),
-                "h5_link": self._get_col(row, "Índice h5"),
-                "homepage": self._get_col(row, "Homepage"),
-                "fonte_dados": "local"
-            })
+        for idx, text, grande_area, area_conhecimento in self.search_texts:
+            # Score baseado em matches de palavras-chave
+            score_keywords = sum(1 for kw in keywords if kw in text)
+            
+            # Bonus por área alinhada
+            score_area = 0
+            for area in areas_relevantes:
+                if area.lower() in grande_area or area.lower() in area_conhecimento:
+                    score_area += 10
+            
+            # Bonus para revistas de educação
+            if "educação" in text or "education" in text or "ensino" in text:
+                score_area += 15
+            if "psicometria" in text or "psychometric" in text or "instrumento" in text:
+                score_area += 20
+            if "música" in text or "music" in text:
+                score_area += 5
+            
+            total_score = score_keywords + score_area
+            
+            if total_score > 0:
+                row = self.df_local.iloc[idx]
+                results.append({
+                    "nome": self._get_col(row, "title"),
+                    "issn": self._get_col(row, "ISSN"),
+                    "aderencia": min(95, max(60, total_score * 5)),
+                    "area": self._get_col(row, "Grande Área"),
+                    "quartil": self._get_col(row, "Quartil JCR"),
+                    "sjr": self._get_col(row, "SJR"),
+                    "indexador": self._get_col(row, "Indexador"),
+                    "h5_link": self._get_col(row, "Índice h5"),
+                    "homepage": self._get_col(row, "Homepage"),
+                    "fonte_dados": "local"
+                })
         
-        return results
+        # Ordena por score
+        results.sort(key=lambda x: -x["aderencia"])
+        return results[:top_n]
 
     def _enriquecer_openalex(self, issn: str) -> Dict:
-        """Enriquece dados via OpenAlex API"""
         try:
             from services.openalex_client import get_openalex_client
             client = get_openalex_client()
@@ -141,7 +185,6 @@ class DiscoveryRecommender:
         return {}
 
     def _buscar_artigos_similares(self, resumo: str, issn: str) -> List[Dict]:
-        """Prova social - artigos similares publicados na revista"""
         try:
             from services.openalex_client import get_openalex_client
             client = get_openalex_client()
@@ -151,7 +194,6 @@ class DiscoveryRecommender:
         return []
 
     def _taxa_aceitacao_proxy(self, journal: Dict) -> float:
-        """Calcula probabilidade proxy baseado em métricas da revista"""
         quartil = str(journal.get("quartil", "")).upper()
         try:
             sjr = float(str(journal.get("sjr", "0")).replace(",", "."))
@@ -172,7 +214,6 @@ class DiscoveryRecommender:
         return round(min(max(base, 15.0), 70.0), 1)
 
     def _justificativa_dissertativa(self, journal: Dict, idioma: str) -> str:
-        """Gera justificativa dissertativa completa (3 linhas)"""
         nome = journal.get("nome", "")
         aderencia = journal.get("aderencia", 75)
         probabilidade = journal.get("probabilidade_aceitacao", 45)
@@ -219,15 +260,13 @@ class DiscoveryRecommender:
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
         journals = []
 
-        # Tenta IA primeiro (Ollama ou Gemini)
         if use_ollama:
             try:
                 import subprocess
-                prompt = f"""Retorne JSON com {top_n} revistas para:
+                prompt = f"""Retorne JSON com {top_n} revistas:
 TÍTULO: {titulo}
 RESUMO: {resumo}
 Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quartil": "..."}}]"""
-                
                 result = subprocess.run(
                     ["ollama", "run", self.ollama_model],
                     input=prompt,
@@ -243,12 +282,11 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
             except Exception as e:
                 logger.warning(f"Ollama falhou: {e}")
 
-        # Fallback para Gemini API se disponível
         if not journals and self.api_key_gemini:
             try:
                 import requests
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={self.api_key_gemini}"
-                prompt = f"""Retorne JSON com {top_n} revistas para:
+                prompt = f"""Retorne JSON com {top_n} revistas:
 TÍTULO: {titulo}
 RESUMO: {resumo}
 Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quartil": "..."}}]"""
@@ -262,7 +300,6 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
             except Exception as e:
                 logger.warning(f"Gemini falhou: {e}")
 
-        # FALLBACK LOCAL (sempre funciona)
         if not journals:
             logger.info("Usando fallback de busca textual local")
             journals = self._busca_textual_fallback(titulo, resumo, top_n)
@@ -271,7 +308,6 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
         if not journals:
             return None, "Nenhuma revista encontrada no catálogo."
 
-        # Enriquecimento com OpenAlex
         for j in journals:
             issn = j.get("issn", "")
             if issn:
@@ -282,11 +318,9 @@ Formato: [{{"nome": "...", "issn": "...", "aderencia": 85, "area": "...", "quart
                     j["artigos_similares"] = artigos_similares
             j["probabilidade_aceitacao"] = self._taxa_aceitacao_proxy(j)
 
-        # Gera justificativas
         for j in journals:
             j["justificativa"] = self._justificativa_dissertativa(j, idioma)
 
-        # Ordena por aderência + probabilidade
         journals.sort(key=lambda x: (-x.get("aderencia", 0), -x.get("probabilidade_aceitacao", 0)))
 
         return journals[:top_n], None
