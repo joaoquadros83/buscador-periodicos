@@ -306,21 +306,6 @@ class DiscoveryRecommender:
         if not candidates:
             return None, "Nenhuma revista encontrada no catálogo."
 
-        # Etapa 3.1: Fuzzy matching para melhorar qualidade dos nomes
-        for j in candidates:
-            nome_candidato = j.get("nome", "")
-            if nome_candidato:
-                melhor_nome = nome_candidato
-                melhor_score = 0.0
-                for _, row in self.df_local.iterrows():
-                    nome_linha = str(row.iloc[0]) if len(row) > 0 else ""
-                    score = calculate_similarity(nome_candidato, nome_linha)
-                    if score > melhor_score:
-                        melhor_score = score
-                        melhor_nome = nome_linha
-                if melhor_score >= 0.82 and melhor_nome != nome_candidato:
-                    j["nome"] = melhor_nome
-
         # Etapa 4: Probabilidade proxy
         for j in candidates:
             j["probabilidade_aceitacao"] = self._calcular_probabilidade_proxy(j, classificacao)
