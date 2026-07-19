@@ -351,8 +351,12 @@ def get_article_evaluator(df_local, ollama_model="llama3"):
 
 
 def get_cache_manager():
+    try:
+        from services.cache_manager import CacheManager
+        return CacheManager()
+    except Exception:
+        return None
     from services.cache_manager import CacheManager
-    return CacheManager()
 
 
 class RecommendationCache:
