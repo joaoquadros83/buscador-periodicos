@@ -438,9 +438,11 @@ def recommend_discovery(req: DiscoveryRequest):
 
     except HTTPException:
         raise
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
-        error_detail = f"Erro no Discovery-First: {str(e)}\n{traceback.format_exc()}"
+        error_detail = f"Erro no Discovery-First: {str(e)}"
         print(error_detail)
         raise HTTPException(status_code=500, detail=error_detail)
 
@@ -540,8 +542,10 @@ def recommend(req: RecommendRequest):
 
     except HTTPException:
         raise
+    except HTTPException:
+        raise
     except Exception as e:
         import traceback
-        error_detail = f"Erro interno: {str(e)}\n{traceback.format_exc()}"
+        error_detail = f"Erro interno: {str(e)}"
         print(error_detail)
         raise HTTPException(status_code=500, detail=error_detail)

@@ -200,13 +200,23 @@ ESCRIBA SOLO una justificación de 2 a 3 líneas, en tono profesional y alentado
 
 def get_classification_prompt(titulo: str, resumo: str, idioma: str = "Português") -> str:
     """
-    Retorna prompt para classificação CAPES do artigo
+    Retorna prompt para classificação CAPES/CNPq do artigo, com foco em máxima precisão temática.
     """
     if idioma == "Português":
-        return f"""Classifique este artigo nas áreas do CNPq/CAPES:
+        return f"""Você é um classificado científico especializado nas áreas CNPq/CAPES.
 
 TÍTULO: {titulo}
 RESUMO: {resumo}
+
+TAREFA:
+1. Identifique a GRANDE ÁREA e a ÁREA/SUBÁREA mais específica do artigo, usando a terminologia oficial do CNPq/CAPES.
+2. Priorize a área que melhor representa o foco metodológico e o objeto de estudo do artigo.
+3. Se houver dúvida entre duas áreas, escolha a mais específica possível e indique confiança menor.
+
+REGRAS:
+- Use APENAS termos oficiais das áreas CNPq/CAPES.
+- Não invente áreas novas.
+- Se o artigo for claramente interdisciplinar, escolha a área predominante.
 
 RESPONDA apenas com JSON válido:
 {{
@@ -217,10 +227,20 @@ RESPONDA apenas com JSON válido:
 }}"""
 
     elif idioma == "English":
-        return f"""Classify this article in CNPq/CAPES areas:
+        return f"""You are a scientific classifier specialized in CNPq/CAPES areas.
 
 TITLE: {titulo}
 ABSTRACT: {resumo}
+
+TASK:
+1. Identify the BROAD AREA and the most specific AREA/SUBAREA of the article, using official CNPq/CAPES terminology.
+2. Prioritize the area that best represents the methodological focus and research object of the article.
+3. If unsure between two areas, choose the most specific one and indicate lower confidence.
+
+RULES:
+- Use ONLY official CNPq/CAPES area names.
+- Do not invent new areas.
+- If the article is clearly interdisciplinary, choose the predominant area.
 
 RESPOND only with valid JSON:
 {{
@@ -231,10 +251,20 @@ RESPOND only with valid JSON:
 }}"""
 
     else:  # Español
-        return f"""Clasifique este artículo en las áreas del CNPq/CAPES:
+        return f"""Usted es un clasificador científico especializado en áreas CNPq/CAPES.
 
 TÍTULO: {titulo}
 RESUMEN: {resumo}
+
+TAREA:
+1. Identifique el ÁREA GRANDE y el ÁREA/SUBÁREA más específica del artículo, usando la terminología oficial de CNPq/CAPES.
+2. Priorice el área que mejor represente el enfoque metodológico y el objeto de investigación del artículo.
+3. Si tiene duda entre dos áreas, elija la más específica e indique confianza menor.
+
+REGLAS:
+- Use SOLO nombres oficiales de áreas CNPq/CAPES.
+- No invente áreas nuevas.
+- Si el artículo es claramente interdisciplinar, elija el área predominante.
 
 RESPONDA solo con JSON válido:
 {{
