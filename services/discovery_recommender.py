@@ -413,4 +413,3 @@ class DiscoveryRecommender:
             f"e probabilidade estimada de {probabilidade}%. "
             f"{impact_line} {index_line}"
         )
-
