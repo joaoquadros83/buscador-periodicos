@@ -4,6 +4,7 @@ Atualiza embeddings no banco usando fastembed (ONNX leve).
 
 import os
 import sys
+import argparse
 
 # Evita symlinks no Windows (causa travamento sem permissão de admin)
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
@@ -15,27 +16,38 @@ from services.db_client import get_db_client
 from fastembed import TextEmbedding
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 
 
-def fetch_batch(db, offset: int, limit: int):
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max-batches", type=int, default=None, help="Número máximo de lotes a processar")
+    return parser.parse_args()
+
+
+def fetch_batch(db, last_id: int, limit: int):
     return db.execute("""
         SELECT j.id, j.title, j.scope_text
         FROM journals j
         JOIN journal_embeddings je ON je.journal_id = j.id
+        WHERE j.id > %s AND je.model_name IS DISTINCT FROM %s
         ORDER BY j.id
-        LIMIT %s OFFSET %s
-    """, (limit, offset), fetch=True)
+        LIMIT %s
+    """, (last_id, MODEL, limit), fetch=True)
 
 
 def main():
+    args = parse_args()
     print(f"[1/3] Carregando modelo fastembed: {MODEL}")
     embedder = TextEmbedding(model_name=MODEL)
     print("[2/3] Conectando ao banco...")
     db = get_db_client()
 
-    total = db.execute("SELECT COUNT(*) FROM journal_embeddings", fetch=True)[0]["count"]
-    print(f"[3/3] Total de embeddings para atualizar: {total}")
+    total = db.execute(
+        "SELECT COUNT(*) FROM journal_embeddings WHERE model_name IS DISTINCT FROM %s",
+        (MODEL,), fetch=True
+    )[0]["count"]
+    print(f"[3/3] Total de embeddings pendentes: {total}")
 
     sql = """
         INSERT INTO journal_embeddings (journal_id, title_embedding, abstract_embedding, model_name)
@@ -47,11 +59,17 @@ def main():
             generated_at = NOW()
     """
 
-    offset = 0
+    last_id = 0
     updated = 0
+    batches = 0
     while True:
-        journals = fetch_batch(db, offset, BATCH_SIZE)
+        if args.max_batches is not None and batches >= args.max_batches:
+            print(f"Limite de {args.max_batches} lotes atingido. Reinicie para continuar.")
+            break
+
+        journals = fetch_batch(db, last_id, BATCH_SIZE)
         if not journals:
+            print("Atualização concluída.")
             break
 
         titles = [j["title"] for j in journals]
@@ -72,10 +90,9 @@ def main():
 
         db.executemany(sql, params_list)
         updated += len(journals)
-        print(f"  Atualizados: {updated}/{total}")
-        offset += BATCH_SIZE
-
-    print("Atualização concluída.")
+        batches += 1
+        last_id = journals[-1]["id"]
+        print(f"  Atualizados: {updated}/{total} (last_id={last_id})")
 
 
 if __name__ == "__main__":
