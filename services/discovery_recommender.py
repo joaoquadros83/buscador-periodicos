@@ -30,13 +30,23 @@ class DiscoveryRecommender:
         ollama_model: str = "llama3",
         h_index_author: int = 5
     ):
-        # Normaliza nomes das colunas para ASCII (remover acentos)
+        # Normaliza nomes das colunas automaticamente
         self.df_local = self._normalize_columns(df_local)
+        self.df_raw = df_local  # Mantém cópia original para referência direta
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
         self._backend_used = "local_fallback"
         self._build_search_index()
+
+    def _get_col(self, row: pd.Series, *candidates: str) -> str:
+        """Obtém valor de coluna tentando múltiplos nomes possíveis"""
+        for col in candidates:
+            if col in row.index:
+                val = row.get(col, "")
+                if pd.notna(val):
+                    return str(val)
+        return ""
 
     def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         """Normaliza nomes das colunas para o padrão esperado"""
@@ -46,18 +56,18 @@ class DiscoveryRecommender:
             col_str = str(col).strip()
             col_lower = col_str.lower()
             
-            # Mapeia nomes em ASCII para os nomes internos
-            if "titulo da revista" in col_lower or col_lower == "title":
+            # Mapeia diversos formatos para o nome interno
+            if any(x in col_lower for x in ["titulo da revista", "título da revista", "title"]):
                 rename_map[col] = "title"
             elif "issn" in col_lower:
                 rename_map[col] = "ISSN"
             elif "homepage" in col_lower:
                 rename_map[col] = "Homepage"
-            elif "grande area" in col_lower:
+            elif any(x in col_lower for x in ["grande area", "grande área"]):
                 rename_map[col] = "Grande Área"
-            elif "area do conhecimento" in col_lower:
+            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento"]):
                 rename_map[col] = "Área do Conhecimento"
-            elif "subarea do conhecimento" in col_lower:
+            elif any(x in col_lower for x in ["subárea", "subarea"]):
                 rename_map[col] = "Subárea do Conhecimento"
             elif "indexador" in col_lower:
                 rename_map[col] = "Indexador"
@@ -69,7 +79,7 @@ class DiscoveryRecommender:
                 rename_map[col] = "JIF"
             elif "h index" in col_lower or "h-index" in col_lower:
                 rename_map[col] = "H index"
-            elif "indice h5" in col_lower or "índice h5" in col_lower:
+            elif any(x in col_lower for x in ["indice h5", "índice h5"]):
                 rename_map[col] = "Índice h5"
         
         df.rename(columns=rename_map, inplace=True)
@@ -79,7 +89,7 @@ class DiscoveryRecommender:
         """Constrói índice de busca textual para fallback"""
         self.search_texts = []
         for idx, row in self.df_local.iterrows():
-            text = f"{row.get('title', '')} {row.get('Grande Área', '')} {row.get('Área do Conhecimento', '')} {row.get('Subárea do Conhecimento', '')} {row.get('Indexador', '')}".lower()
+            text = f"{self._get_col(row, 'title')} {self._get_col(row, 'Grande Área')} {self._get_col(row, 'Área do Conhecimento')} {self._get_col(row, 'Indexador', 'indexador')}".lower()
             self.search_texts.append((idx, text))
 
     def _busca_textual_fallback(self, titulo: str, resumo: str, top_n: int = 40) -> List[Dict]:
@@ -101,15 +111,15 @@ class DiscoveryRecommender:
         for idx, score, text in scores[:top_n]:
             row = self.df_local.iloc[idx]
             results.append({
-                "nome": str(row.get("title", "")),
-                "issn": str(row.get("ISSN", "")),
+                "nome": self._get_col(row, "title"),
+                "issn": self._get_col(row, "ISSN"),
                 "aderencia": min(95, score * 20),
-                "area": str(row.get("Grande Área", "")),
-                "quartil": str(row.get("Quartil JCR", "")),
-                "sjr": str(row.get("SJR", "")),
-                "indexador": str(row.get("Indexador", "")),
-                "h5_link": str(row.get("Índice h5", "-")),
-                "homepage": str(row.get("Homepage", "-")),
+                "area": self._get_col(row, "Grande Área"),
+                "quartil": self._get_col(row, "Quartil JCR"),
+                "sjr": self._get_col(row, "SJR"),
+                "indexador": self._get_col(row, "Indexador"),
+                "h5_link": self._get_col(row, "Índice h5"),
+                "homepage": self._get_col(row, "Homepage"),
                 "fonte_dados": "local"
             })
         
