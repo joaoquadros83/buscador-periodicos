@@ -5,11 +5,13 @@ Match Journal V2 - Recomendacao Inteligente de Periodicos
 
 Pipeline:
 1. Knowledge Area via LLM (Ollama)
-2. Filtro por Knowledge Area + Adherence Score
-3. Top 300 por score
-4. Estimated Acceptance Probability (Top 40)
-5. Ordenamento por probability (default)
-6. Output Top 20 com probability > 60% + justificativa textual
+2. Filtro por Knowledge Area
+3. Adherence Score com Aims & Scope (prioridade) ou fallback
+4. Top 300 por adherence_score
+5. Estimated Acceptance Probability
+6. Top 40
+7. Ordenar por adherence_score (desc)
+8. Output Top 20 com adherence_score > 60% + justificativa textual
 """
 
 import logging
