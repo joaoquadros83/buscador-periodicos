@@ -101,7 +101,8 @@ class MatchJournalV2:
         return ""
 
     def recommend(self, titulo: str, resumo: str,
-                  order_by: str = "probability", top_n: int = 20) -> List[Dict]:
+                  order_by: str = "probability", top_n: int = 20,
+                  only_with_aims: bool = False) -> List[Dict]:
         """
         Pipeline completo:
 
@@ -153,6 +154,12 @@ class MatchJournalV2:
             scores.append(score)
 
         df_filtered["adherence_score"] = scores
+
+        # --- Filtro Opcional: Apenas revistas com Aims & Scope ---
+        if only_with_aims:
+            mask_aims = df_filtered["Aims and Scope"].astype(str).str.len().gt(20)
+            df_filtered = df_filtered[mask_aims].copy()
+            logger.info(f"Apenas revistas com Aims: {len(df_filtered)}")
 
         # --- CAMADA 4: Top 300 ---
         df_filtered = df_filtered.sort_values("adherence_score", ascending=False)
