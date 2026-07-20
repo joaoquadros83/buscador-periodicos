@@ -2644,22 +2644,22 @@ with tab_ia:
                 
                 tempo_inicio = time.time()
                 
-                # 1. Usa MatchJournal (local, sem scraping, 100% gratuito)
+                # 1. Usa MatchJournalV2 (Semantic Kernel Style)
                 journals = None
                 error = None
-                backend = "match_journal"
+                backend = "match_journal_v2"
                 
-                match = get_match_journal(df_original)
+                match = get_match_journal_v2(df_original)
                 
                 journals = match.recommend(
                     titulo=titulo_artigo,
                     resumo=resumo_artigo,
-                    area_usuario=area_ia if area_ia != "Todas" else "",
-                    idioma=st.session_state.idioma,
+                    order_by="probability",  # Default: Estimated Acceptance Probability
                     top_n=num_recomendacoes
                 )
                 
-                st.session_state.backend_usado = "match_journal"
+                st.session_state.backend_usado = "match_journal_v2"
+                st.session_state.order_by = "probability"
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
