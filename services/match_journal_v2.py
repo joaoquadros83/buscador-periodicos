@@ -179,11 +179,11 @@ class MatchJournalV2:
         # --- CAMADA 6: Top 40 ---
         df_tertiary = df_secondary.head(40).copy()
 
-        # --- CAMADA 7: Ordenar por probability (default) ---
-        df_tertiary = df_tertiary.sort_values("probability", ascending=False)
+        # --- CAMADA 7: Ordenar por adherence_score (grau de afinidade) ---
+        df_tertiary = df_tertiary.sort_values("adherence_score", ascending=False)
 
         # --- CAMADA 8: Output Top 20 ---
-        top_results = df_tertiary[df_tertiary["probability"] > 60].head(top_n)
+        top_results = df_tertiary[df_tertiary["adherence_score"] > 60].head(top_n)
 
         results = []
         for idx, row in top_results.iterrows():
