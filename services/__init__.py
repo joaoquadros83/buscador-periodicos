@@ -56,3 +56,9 @@ def get_cache_manager():
     """Factory para CacheManager"""
     from services.cache_manager import CacheManager
     return CacheManager()
+
+
+def get_match_journal(df_local, ollama_model="llama3"):
+    """Factory para MatchJournal - Sistema AI-Driven de recomendação"""
+    from services.match_journal import MatchJournal
+    return MatchJournal(df_local=df_local, ollama_model=ollama_model)
