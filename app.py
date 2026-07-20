@@ -2644,77 +2644,22 @@ with tab_ia:
                 
                 tempo_inicio = time.time()
                 
-                # 1. Tenta API Híbrida (FastAPI + pgvector) se configurada
-                # 2. Fallback: Discovery Recommender local (Gemini/Ollama/algoritmo)
+                # 1. Usa MatchJournal (local, sem scraping, 100% gratuito)
                 journals = None
                 error = None
-                backend = "local"
+                backend = "match_journal"
                 
-                hybrid_api_url = os.getenv("HYBRID_API_URL")
-                if not hybrid_api_url:
-                    try:
-                        hybrid_api_url = st.secrets.get("HYBRID_API_URL", "")
-                    except Exception:
-                        hybrid_api_url = ""
+                match = get_match_journal(df_original)
                 
-                if hybrid_api_url:
-                    try:
-                        api_response = call_hybrid_api(
-                            title=titulo_artigo,
-                            abstract=resumo_artigo,
-                            api_url=hybrid_api_url.rstrip("/"),
-                            top_n=num_recomendacoes,
-                            min_year=2021,
-                            max_apc_usd=None,
-                            max_decision_days=None,
-                            require_oa=False
-                        )
-                        api_results = api_response.get("results", [])
-                        journals = []
-                        for r in api_results:
-                            meta = r.get("metadata", {})
-                            journals.append({
-                                "nome": r["title"],
-                                "issn": r.get("issn", "-"),
-                                "homepage": meta.get("homepage", "-"),
-                                "grande_area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
-                                "area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
-                                "subarea": "-",
-                                "indexador": "-",
-                                "jif": meta.get("jif", "-"),
-                                "quartil_jcr": meta.get("quartil_jcr", "-"),
-                                "sjr": meta.get("sjr", "-"),
-                                "sjr_quartile": meta.get("sjr_quartile", "-"),
-                                "h_index": meta.get("h_index", "-"),
-                                "h5_link": meta.get("h5_link", "-"),
-                                "aderencia": round(r["match_score"], 1),
-                                "justificativa": r.get("justification") or f"Match score: {r['match_score']:.1f}",
-                                "probabilidade_aceitacao": round(r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4, 1),
-                                "fonte_dados": "hybrid_api"
-                            })
-                        backend = "hybrid_api"
-                        st.session_state.backend_usado = backend
-                    except Exception as e_api:
-                        st.warning(f"API híbrida indisponível ({e_api}). Usando motor local como fallback.")
-                        journals = None
+                journals = match.recommend(
+                    titulo=titulo_artigo,
+                    resumo=resumo_artigo,
+                    area_usuario=area_ia if area_ia != "Todas" else "",
+                    idioma=st.session_state.idioma,
+                    top_n=num_recomendacoes
+                )
                 
-                if not journals:
-                    recommender = get_discovery_recommender(
-                        df_local=df_original,
-                        api_key_gemini=api_key_ativa if api_key_ativa else None
-                    )
-                    
-                    use_ollama = not api_key_ativa
-                    journals, error = recommender.recommend(
-                        titulo=titulo_artigo,
-                        resumo=resumo_artigo,
-                        idioma=st.session_state.idioma,
-                        top_n=num_recomendacoes,
-                        use_ollama=use_ollama
-                    )
-                    
-                    backend = recommender.get_backend_name()
-                    st.session_state.backend_usado = backend
+                st.session_state.backend_usado = "match_journal"
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
