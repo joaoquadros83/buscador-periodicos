@@ -1,17 +1,19 @@
 # Match Journal V2 - Pipeline Refinado (Semantic Kernel Style)
 
 """
-Camada 1: Ingestao, Semantic Fingerprinting e Selecao por Knowledge Area
-Camada 2: Similaridade Vetorial + Similaridade LLM (Top 300)
-Camada 3: Estimated Acceptance Probability (Top 40)
-Camada 4: Ordenamento Dinamico + Output (Top 20)
+Match Journal V2 - Recomendacao Inteligente de Periodicos
+
+Pipeline:
+1. Knowledge Area via LLM (Ollama)
+2. Filtro por Knowledge Area + Adherence Score
+3. Top 300 por score
+4. Estimated Acceptance Probability (Top 40)
+5. Ordenamento por probability (default)
+6. Output Top 20 com probability > 60% + justificativa textual
 """
 
-import os
-import json
-import re
-from typing import List, Dict, Optional, Tuple
 import logging
+from typing import List, Dict
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -22,123 +24,95 @@ logger = logging.getLogger(__name__)
 
 
 class SemanticKernelStyle:
-    """
-    Orquestrador semelhante ao Semantic Kernel para LLMs
-    Usa Ollama/Gemini local (100% gratuito)
-    """
+    """Orquestrador LLM - usando TF-IDF e Ollama (100% gratuito)"""
 
     def __init__(self, model: str = "llama3"):
         self.model = model
         self.vectorizer = TfidfVectorizer(max_features=512, stop_words=None)
 
     def _classify_knowledge_area(self, titulo: str, resumo: str) -> str:
-        """Camada 1: Classifica Knowledge Area via LLM"""
+        """Camada 1: Classifica Knowledge Area"""
         prompt = f"""
-Classifique o artigo abaixo em uma unica "Knowledge Area" (Subarea do Conhecimento):
-
-Lista de Knowledge Areas:
-- Computer Science / Medicine / Education / Arts / Engineering
-- Biological Sciences / Social Sciences / Health Sciences
-- Agricultural Sciences / Exact Sciences / Linguistics
-- Psychology / Law / Economics / Music / Philosophy
-- History / Geography / Physics / Chemistry / Mathematics
-- Materials Science / Environmental Science / Neuroscience
-- Nursing / Dentistry / Veterinary / Pharmacy
-- Physical Education / Nutrition / Public Health
-- Biotechnology / Agronomy / Forestry / Fisheries
-- Architecture / Urban Planning / Demography
-- Political Science / Anthropology / Sociology
-- Theology / Communications / Information Science
-- Multidisciplinary
-
+Classifique o artigo abaixo em uma unica "Knowledge Area":
+Lista: Education / Music / Computer Science / Medicine / Health Sciences / Social Sciences / Psychology / Engineering / Biological Sciences / Arts / Economics / Law / Physics / Chemistry / Mathematics / Agronomy / Veterinary / Philosophy / History / Geography / Linguistics / Multidisciplinary
 Titulo: {titulo}
-Resumo: {resumo[:800]}
-
-Retorne APENAS o nome da Knowledge Area em ingles.
+Resumo: {resumo[:600]}
+Retorne APENAS o nome da Knowledge Area.
 """
         try:
             import ollama
-            response = ollama.generate(model=self.model, prompt=prompt, stream=False)
-            return response.get("response", "").strip()
-        except Exception:
+            resp = ollama.generate(model=self.model, prompt=prompt, stream=False)
+            return resp.get("response", "").strip()
+        except:
             text = f"{titulo} {resumo}".lower()
-            mapping = {
-                "education": "Education", "music": "Music",
-                "computer": "Computer Science", "medicine": "Medicine",
-                "health": "Health Sciences", "social": "Social Sciences",
-                "psychology": "Psychology", "engineering": "Engineering",
-                "biology": "Biological Sciences", "arts": "Arts",
-                "law": "Law", "economics": "Economics",
-                "physics": "Physics",
-            }
-            for kw, area in mapping.items():
+            mapping = [
+                ("education", "Education"), ("musica", "Music"), ("music", "Music"),
+                ("computer", "Computer Science"), ("computacao", "Computer Science"),
+                ("medicine", "Medicine"), ("medical", "Medicine"),
+                ("saude", "Health Sciences"), ("health", "Health Sciences"),
+                ("social", "Social Sciences"), ("psicologia", "Psychology"),
+                ("engineering", "Engineering"), ("arte", "Arts"),
+                ("economia", "Economics"), ("direito", "Law"),
+                ("fisica", "Physics"), ("biologia", "Biological Sciences"),
+            ]
+            for kw, area in mapping:
                 if kw in text:
                     return area
-            return "Multidisciplinary"
+            return "Social Sciences"
 
-    def _calculate_adherence_score(self, query_text: str, aims_scope: str) -> float:
-        """Camada 2: Similaridade Vetorial (Cosseno)"""
+    def _similarity(self, text_a: str, text_b: str) -> float:
+        """Similaridade cosseno entre dois textos"""
         try:
-            if not aims_scope or aims_scope == "":
+            if not text_a.strip() or not text_b.strip():
                 return 30.0
-            combined = [query_text, aims_scope]
-            vecs = self.vectorizer.fit_transform(combined).toarray()
+            vecs = self.vectorizer.fit_transform([text_a, text_b]).toarray()
             sim = cosine_similarity([vecs[0]], [vecs[1]])[0][0]
-            return round(max(30, min(95, sim * 100 + 30)), 2)
-        except Exception:
-            return 50.0
+            return round(max(0, min(95, sim * 100)), 2)
+        except:
+            return 30.0
 
 
 class MatchJournalV2:
     """
-    Match Journal V2 - Pipeline Refinado:
-
-    Camada 1: Knowledge Area via LLM
-    Camada 2: Filtro por Knowledge Area
-    Camada 3: Adherence Score (todas as revistas)
-    Camada 4: Top 300 (conjunto secundario)
-    Camada 5: Estimated Acceptance Probability
-    Camada 6: Top 40 (conjunto terciario)
-    Camada 7: Ordenamento Dinamico
-    Camada 8: Output Top 20 (probability > 60%)
+    Pipeline completo de 8 camadas.
+    Dados disponiveis: Titulo, Grande Area, Area do Conhecimento,
+    Subarea, Indexador, Quartil JCR, SJR, H index, Indice h5
     """
 
     def __init__(self, df_local: pd.DataFrame, llm_model: str = "llama3"):
         self.df = df_local.copy()
         self.kernel = SemanticKernelStyle(model=llm_model)
-        self._normalize_columns()
+        # Mapeia colunas para nomes normalizados (sem acentos para matching)
+        self.col_map = {}
+        for c in self.df.columns:
+            k = c.strip()
+            # Corrige encoding corrompido
+            k = k.replace('\ufffd', 'a').replace('\ufffd', 'a')
+            self.col_map[c] = k
 
-    def _normalize_columns(self):
-        col_map = {
-            'Grande Area': 'Grande Area',
-            'Area do Conhecimento': 'Area do Conhecimento',
-            'Subarea do Conhecimento': 'Subarea do Conhecimento',
-        }
-        for old, new in col_map.items():
-            if old in self.df.columns:
-                self.df = self.df.rename(columns={old: new})
-
-    def _get_col(self, row: pd.Series, *candidates: str) -> str:
-        for col in candidates:
-            if col in row.index:
-                val = row.get(col, "")
-                if pd.notna(val):
-                    return str(val).strip()
+    def _col(self, row: pd.Series, *nomes: str) -> str:
+        """Busca valor na coluna por nome alternativo"""
+        for nome in nomes:
+            for col_orig, col_norm in self.col_map.items():
+                if col_norm.lower().strip() == nome.lower().strip():
+                    val = row.get(col_orig, "")
+                    if pd.notna(val) and str(val).strip() not in ["", "-", "nan", "None"]:
+                        return str(val).strip()
         return ""
 
     def recommend(self, titulo: str, resumo: str,
                   order_by: str = "probability", top_n: int = 20) -> List[Dict]:
         """
-        Pipeline completo V2:
+        Pipeline completo:
 
-        Etapa 1: Classifica Knowledge Area via LLM
-        Etapa 2: Filtra revistas pela Knowledge Area
-        Etapa 3: Calcula Adherence Score para todas
-        Etapa 4: Refina para Top 300
-        Etapa 5: Calcula Estimated Acceptance Probability
-        Etapa 6: Refina para Top 40
-        Etapa 7: Ordena por criterio escolhido
-        Etapa 8: Retorna Top 20 com probability > 60%
+        1. Knowledge Area via LLM
+        2. Filtro por Knowledge Area nas colunas Grande Area / Area do Conhecimento / Subarea
+        3. Adherence Score via similaridade cosseno com nome + area + subarea
+        4. Top 300
+        5. Estimated Acceptance Probability (adherence x fator quartil)
+        6. Top 40
+        7. Ordenar por probability (desc)
+        8. Output Top 20 com justificativa textual
         """
         query_text = f"{titulo} {resumo}"
 
@@ -147,98 +121,92 @@ class MatchJournalV2:
         logger.info(f"Knowledge Area: {knowledge_area}")
 
         # --- CAMADA 2: Filtro por Knowledge Area ---
-        df_filtered = self.df[
-            self.df["Subarea do Conhecimento"].str.lower().str.contains(
-                knowledge_area.lower(), na=False
-            ) |
-            self.df["Area do Conhecimento"].str.lower().str.contains(
-                knowledge_area.lower(), na=False
-            )
-        ].copy()
+        ka_lower = knowledge_area.lower()
+        mask = pd.Series(False, index=self.df.index)
+        for col in self.df.columns:
+            cn = self.col_map[col].lower()
+            if "grande area" in cn or "conhecimento" in cn or "subarea" in cn or "area do" in cn:
+                mask = mask | self.df[col].astype(str).str.lower().str.contains(ka_lower, na=False)
+                mask = mask | self.df[col].astype(str).str.lower().str.contains(ka_lower.split()[-1], na=False)
 
+        df_filtered = self.df[mask].copy()
         if df_filtered.empty:
-            df_filtered = self.df[
-                self.df["Grande Area"].str.lower().str.contains(
-                    knowledge_area.lower(), na=False
-                )
-            ].copy()
+            logger.warning(f"Knowledge Area '{knowledge_area}' nao encontrada. Fallback.")
+            df_filtered = self.df.head(300).copy()
 
-        if df_filtered.empty:
-            logger.warning(f"Knowledge Area '{knowledge_area}' nao encontrada. Fallback top 500.")
-            df_filtered = self.df.head(500).copy()
-
-        # --- CAMADA 3: Adherence Score (Similaridade Vetorial) ---
-        adherence_scores = []
+        # --- CAMADA 3: Adherence Score ---
+        scores = []
         for idx, row in df_filtered.iterrows():
-            aims_scope = self._get_col(row, "Aims e Escopo", "aims_scope", "")
-            nome_rev = self._get_col(row, "Titulo da Revista", "title", "")
-            area = self._get_col(row, "Area do Conhecimento", "Area do Conhecimento", "")
-            score_scope = self.kernel._calculate_adherence_score(query_text, aims_scope)
-            texto_revista = f"{nome_rev} {area}"
-            score_nome = self.kernel._calculate_adherence_score(query_text, texto_revista)
-            score_combinado = round(score_scope * 0.7 + score_nome * 0.3, 2)
-            adherence_scores.append(score_combinado)
+            nome = self._col(row, "Titulo da Revista", "title")
+            grande_area = self._col(row, "Grande Area", "grande area")
+            area = self._col(row, "Area do Conhecimento", "area do conhecimento")
+            subarea = self._col(row, "Subarea do Conhecimento", "subarea do conhecimento")
+            indexador = self._col(row, "Indexador", "indexador")
 
-        df_filtered["adherence_score"] = adherence_scores
+            # Texto combinado da revista para similaridade
+            texto_revista = f"{nome} {grande_area} {area} {subarea} {indexador}"
 
-        # --- CAMADA 4: Top 300 (conjunto secundario) ---
-        df_filtered = df_filtered.sort_values(by="adherence_score", ascending=False)
+            # Similaridade cosseno entre artigo e revista
+            score = self.kernel._similarity(query_text, texto_revista)
+            scores.append(score)
+
+        df_filtered["adherence_score"] = scores
+
+        # --- CAMADA 4: Top 300 ---
+        df_filtered = df_filtered.sort_values("adherence_score", ascending=False)
         df_secondary = df_filtered.head(300).copy()
 
         # --- CAMADA 5: Estimated Acceptance Probability ---
-        probabilities = []
+        probs = []
         for idx, row in df_secondary.iterrows():
             adh = row["adherence_score"]
-            quartil = str(self._get_col(row, "Quartil JCR", "")).upper()
-            quartile_factor = {"Q1": 0.65, "Q2": 0.78, "Q3": 0.88, "Q4": 0.95}.get(quartil, 0.82)
-            prob = min(95, max(30, round(adh * quartile_factor - 5, 1)))
-            probabilities.append(prob)
+            q = self._col(row, "Quartil JCR", "quartil jcr").upper()
+            fator = {"Q1": 0.65, "Q2": 0.78, "Q3": 0.88, "Q4": 0.95}.get(q, 0.82)
+            p = min(95, max(10, round(adh * fator, 1)))
+            probs.append(p)
 
-        df_secondary["probability"] = probabilities
+        df_secondary["probability"] = probs
 
-        # --- CAMADA 6: Top 40 (conjunto terciario) ---
+        # --- CAMADA 6: Top 40 ---
         df_tertiary = df_secondary.head(40).copy()
 
-        # --- CAMADA 7: Ordenamento Dinamico ---
-        order_map = {
-            "az": ("Titulo da Revista", True),
-            "adherence": ("adherence_score", False),
-            "probability": ("probability", False),
-        }
-        col_order, asc = order_map.get(order_by, ("probability", False))
-        if col_order in df_tertiary.columns:
-            df_tertiary = df_tertiary.sort_values(by=col_order, ascending=asc)
+        # --- CAMADA 7: Ordenar por probability (default) ---
+        df_tertiary = df_tertiary.sort_values("probability", ascending=False)
 
-        # --- CAMADA 8: Output Top 20 com probability > 60% ---
+        # --- CAMADA 8: Output Top 20 ---
         top_results = df_tertiary[df_tertiary["probability"] > 60].head(top_n)
 
         results = []
         for idx, row in top_results.iterrows():
-            nome = self._get_col(row, "Titulo da Revista", "title", "")
-            quartil = self._get_col(row, "Quartil JCR", "N/A")
+            nome = self._col(row, "Titulo da Revista", "title")
+            grande_area = self._col(row, "Grande Area", "grande area")
+            area = self._col(row, "Area do Conhecimento", "area do conhecimento")
+            quartil = self._col(row, "Quartil JCR", "quartil jcr")
+            indexador = self._col(row, "Indexador", "indexador")
             adh = row.get("adherence_score", 50)
             prob = row.get("probability", 50)
 
-            justificativa = (
-                f"Knowledge Area: {knowledge_area}. "
-                f"Adherence: {adh}%. "
-                f"Quartil: {quartil}. "
-                f"Probability: {prob}%."
-            )
+            # Justificativa textual (ate 4 linhas)
+            just = f"A revista {nome} (Quartil {quartil}, {indexador}) apresenta forte alinhamento tematico com sua pesquisa em {area}."
+            just += f" O escopo editorial cobre temas como {grande_area}, "
+            just += f"compativel com o enfoque do seu artigo. "
+            just += f"Score de aderencia: {adh}%. "
+            just += f"Probabilidade estimada de aceitacao: {prob}%."
 
             results.append({
                 "nome": nome,
-                "issn": self._get_col(row, "ISSN", ""),
-                "grande_area": self._get_col(row, "Grande Area", ""),
-                "area": self._get_col(row, "Area do Conhecimento", ""),
-                "subarea": self._get_col(row, "Subarea do Conhecimento", ""),
+                "issn": self._col(row, "ISSN", "issn"),
+                "grande_area": grande_area,
+                "area": area,
+                "subarea": self._col(row, "Subarea do Conhecimento", "subarea do conhecimento"),
                 "quartil": quartil,
-                "sjr": self._get_col(row, "SJR", ""),
-                "indexador": self._get_col(row, "Indexador", ""),
-                "h5_link": self._get_col(row, "Indice h5", ""),
+                "sjr": self._col(row, "SJR", "sjr"),
+                "indexador": indexador,
+                "h5_link": self._col(row, "Indice h5"),
                 "adherence_score": adh,
                 "probability": prob,
-                "justificativa": justificativa,
+                "justificativa": just,
+                "knowledge_area": knowledge_area,
             })
 
         return results
