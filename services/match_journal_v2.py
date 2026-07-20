@@ -106,10 +106,10 @@ class MatchJournalV2:
         Pipeline completo:
 
         1. Knowledge Area via LLM
-        2. Filtro por Knowledge Area nas colunas Grande Area / Area do Conhecimento / Subarea
-        3. Adherence Score via similaridade cosseno com nome + area + subarea
+        2. Filtro por Knowledge Area
+        3. Adherence Score com Aims & Scope (prioridade) ou fallback para nome/area
         4. Top 300
-        5. Estimated Acceptance Probability (adherence x fator quartil)
+        5. Estimated Acceptance Probability
         6. Top 40
         7. Ordenar por probability (desc)
         8. Output Top 20 com justificativa textual
@@ -134,17 +134,19 @@ class MatchJournalV2:
             logger.warning(f"Knowledge Area '{knowledge_area}' nao encontrada. Fallback.")
             df_filtered = self.df.head(300).copy()
 
-        # --- CAMADA 3: Adherence Score ---
+        # --- CAMADA 3: Adherence Score com Aims & Scope ---
         scores = []
         for idx, row in df_filtered.iterrows():
+            aims_scope = self._col(row, "Aims and Scope", "aims", "scope")
             nome = self._col(row, "Titulo da Revista", "title")
             grande_area = self._col(row, "Grande Area", "grande area")
             area = self._col(row, "Area do Conhecimento", "area do conhecimento")
-            subarea = self._col(row, "Subarea do Conhecimento", "subarea do conhecimento")
-            indexador = self._col(row, "Indexador", "indexador")
 
-            # Texto combinado da revista para similaridade
-            texto_revista = f"{nome} {grande_area} {area} {subarea} {indexador}"
+            # Prioriza Aims & Scope, senão usa nome + area
+            if aims_scope and len(aims_scope) > 20:
+                texto_revista = aims_scope
+            else:
+                texto_revista = f"{nome} {grande_area} {area}"
 
             # Similaridade cosseno entre artigo e revista
             score = self.kernel._similarity(query_text, texto_revista)
