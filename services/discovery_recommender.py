@@ -1,7 +1,7 @@
 """
 Discovery Recommender (Semantic & Vector Matcher for SciPubs)
 Arquitetura em 4 Camadas:
-  1. INGESTÃO & KNOWLEDGE AREA CLASSIFICATION (Gemini / LLM)
+  1. INGESTÃO & KNOWLEDGE AREA CLASSIFICATION (Gemini / LLM ou Fallback Local)
   2. VETORIZAÇÃO E ADHERENCE SCORE (Cosseno no Aims & Scope -> Top 300)
   3. ESTIMATED ACCEPTANCE PROBABILITY ENGINE (Top 40)
   4. ORDENAÇÃO DINÂMICA & JUSTIFICATIVA CONTEXTUAL (3-4 linhas) -> Top 20
@@ -14,7 +14,6 @@ import requests
 from typing import List, Dict, Optional, Tuple
 import logging
 import pandas as pd
-from difflib import SequenceMatcher
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -38,12 +37,9 @@ class DiscoveryRecommender:
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
         self._backend_used = "semantic_engine"
-        
-        # Usa toda a base de dados - Aims & Scope será priorizado quando disponível
+
+        # Usa toda a base de dados
         self.df_scoped = self.df_local.copy()
-            
-        if len(self.df_scoped) == 0:
-            self.df_scoped = self.df_local.copy()
 
     def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -77,23 +73,39 @@ class DiscoveryRecommender:
                 rename_map[col] = "Índice h5"
             elif any(x in col_lower for x in ["mediana h5", "h5 median"]):
                 rename_map[col] = "Mediana h5"
-            elif any(x in col_lower for x in ["aims and scope", "aims e escopo", "escopo"]):
+            elif any(x in col_lower for x in ["aims and scope", "aims e escopo", "escopo", "aims & scope"]):
                 rename_map[col] = "Aims e Escopo"
         df.rename(columns=rename_map, inplace=True)
         return df
 
     def _classify_knowledge_area_llm(self, titulo: str, resumo: str) -> str:
-        """Camada 1: Identifica a Knowledge Area / Broad Area do manuscrito via LLM."""
+        """Camada 1: Identifica a Knowledge Area / Broad Area do manuscrito via Gemini ou Fallback Local."""
         if not self.api_key_gemini:
+            # Fallback local usando regex/keywords para classificar em áreas principais
+            text = f"{titulo} {resumo}".lower()
+            if any(w in text for w in ["medicine", "health", "clinical", "patient", "disease", "treatment", "therapy", "saúde", "médica"]):
+                return "Medicine & Health Sciences"
+            if any(w in text for w in ["computer", "software", "algorithm", "intelligence", "network", "security", "data", "computação"]):
+                return "Computer Science"
+            if any(w in text for w in ["education", "teaching", "learning", "student", "school", "pedagogy", "ensino", "escola"]):
+                return "Education"
+            if any(w in text for w in ["economic", "business", "market", "finance", "management", "corporate", "economia", "negócios"]):
+                return "Business & Economics"
+            if any(w in text for w in ["social", "society", "human", "culture", "political", "policy", "social", "sociedade"]):
+                return "Social Sciences"
+            if any(w in text for w in ["energy", "material", "chemical", "physics", "earth", "environment", "climate", "física", "química"]):
+                return "Exact & Earth Sciences"
+            if any(w in text for w in ["dna", "protein", "cell", "biological", "gene", "evolution", "species", "biologia", "célula"]):
+                return "Biological Sciences"
             return "General"
 
         prompt = f"""
-        Classifique o manuscrito científico abaixo em uma única Knowledge Area primária (ex: Computer Science, Medicine, Education, Arts, Psychology, Social Sciences, Engineering, Biological Sciences, Business):
+        Classifique o manuscrito científico abaixo em uma única Knowledge Area primária em inglês (ex: Computer Science, Medicine, Education, Arts, Psychology, Social Sciences, Engineering, Biological Sciences, Business):
 
         TÍTULO: {titulo}
         RESUMO: {resumo}
 
-        Responda apenas com o nome da Knowledge Area em inglês.
+        Responda apenas com o nome da área em inglês.
         """
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.api_key_gemini}"
@@ -107,29 +119,42 @@ class DiscoveryRecommender:
         return "General"
 
     def _compute_vector_adherence(self, titulo: str, resumo: str) -> List[Tuple[int, float]]:
-        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) entre o manuscrito e os Aims & Scope das revistas."""
+        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) priorizando o Aims & Scope das revistas."""
         user_text = f"{titulo} {resumo}"
-        
+
         col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
         scopes = self.df_scoped[col_scope].astype(str).tolist()
         titles = self.df_scoped["title"].astype(str).tolist()
-        
-        # Concatena título + escopo para enriquecimento vetorial
-        corpus = [f"{t} {s}" for t, s in zip(titles, scopes)]
-        
+
+        # Priorização de Aims & Scope: Repete o escopo editorial (s) para dobrar seu peso no vetor TF-IDF
+        corpus = []
+        for t, s in zip(titles, scopes):
+            scope_clean = s.strip()
+            if not scope_clean or scope_clean.lower() in ["nan", "none", ""]:
+                corpus.append(t)
+            else:
+                corpus.append(f"{t} {scope_clean} {scope_clean}")
+
         try:
             vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
             tfidf_matrix = vectorizer.fit_transform(corpus)
             user_vector = vectorizer.transform([user_text])
-            
+
             sims = cosine_similarity(user_vector, tfidf_matrix).flatten()
-            
+
             results = []
             for idx, score in enumerate(sims):
                 # Normaliza para escala 0 - 100%
-                norm_score = min(98.0, max(45.0, score * 100 * 2.8 + 45.0))
-                results.append((idx, round(norm_score, 1)))
+                norm_score = score * 100 * 2.8 + 45.0
                 
+                # Penalidade de -15.0 se a revista não possuir Aims & Scope cadastrado
+                s_val = scopes[idx].strip()
+                if not s_val or s_val.lower() in ["nan", "none", "", "-"]:
+                    norm_score -= 15.0
+
+                norm_score = min(98.0, max(15.0, norm_score))
+                results.append((idx, round(norm_score, 1)))
+
             results.sort(key=lambda x: -x[1])
             return results
         except Exception as e:
@@ -156,14 +181,24 @@ class DiscoveryRecommender:
         else:
             base_prob = 50.0
 
-        # Ponderação: 60% Aderência Semântica + 40% Fator Quartil/Aceitação Base
+        # Ponderação: 55% Aderência Semântica + 45% Fator Quartil/Aceitação Base
         prob = (adherence_score * 0.55) + (base_prob * 0.45)
         return round(min(95.0, max(15.0, prob)), 1)
 
-    def _generate_3line_justification(self, titulo: str, resumo: str, journal_name: str, scope: str, adherence: float) -> str:
-        """Gera uma justificativa dissertativa contextual de até 4 linhas relacionando o artigo com o escopo da revista."""
+    def _generate_3line_justification(self, titulo: str, resumo: str, journal_name: str, scope: str, adherence: float, row: pd.Series) -> str:
+        """Gera uma justificativa dissertativa de exatamente 3 a 4 linhas via Gemini ou algoritmo local."""
         if not self.api_key_gemini:
-            return f"A revista {journal_name} apresenta {adherence}% de aderência semântica. Seu escopo editorial cobre a linha temática do artigo, proporcionando boa receptividade para publicação."
+            # Algoritmo Local Dinâmico e Contextualizado
+            title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
+            keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
+            
+            area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
+            just = (
+                f"Com base na análise temática local, o manuscrito apresenta forte sinergia de {adherence}% com a revista {journal_name}. "
+                f"A pesquisa aborda tópicos diretamente alinhados a {keywords}, o que condiz perfeitamente com a cobertura editorial da revista "
+                f"na área de {area}. Esse acoplamento garante um público leitor altamente qualificado e interessado para o seu trabalho."
+            )
+            return just
 
         prompt = f"""
         Como parecerista acadêmico, escreva uma justificativa dissertativa de EXATAMENTE 3 a 4 linhas explicando por que o artigo abaixo é recomendado para a revista '{journal_name}'.
@@ -187,8 +222,16 @@ class DiscoveryRecommender:
                 return just
         except Exception as e:
             logger.warning(f"Erro ao gerar justificativa textual via Gemini: {e}")
-            
-        return f"A revista {journal_name} apresenta {adherence}% de aderência semântica com a pesquisa proposta. Seu escopo editorial contempla abordagens metodológicas e teóricas similares às desenvolvidas no manuscrito, garantindo visibilidade e público leitor qualificado."
+
+        # Fallback se a API falhar
+        title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
+        keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
+        area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
+        return (
+            f"Com base na análise temática local, o manuscrito apresenta forte sinergia de {adherence}% com a revista {journal_name}. "
+            f"A pesquisa aborda tópicos diretamente alinhados a {keywords}, o que condiz perfeitamente com a cobertura editorial da revista "
+            f"na área de {area}. Esse acoplamento garante um público leitor altamente qualificado e interessado para o seu trabalho."
+        )
 
     def recommend(
         self,
@@ -198,23 +241,32 @@ class DiscoveryRecommender:
         top_n: int = 20,
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
-        
-        logger.info(f"Iniciando recomendação semântica para catálogo de {len(self.df_scoped)} revistas com Aims & Scope.")
-        
-        # Camada 1: Classificação por Knowledge Area
-        knowledge_area = self._classify_knowledge_area_llm(titulo, resumo)
-        logger.info(f"Knowledge Area identificada via LLM: {knowledge_area}")
 
-        # Camada 2: Similaridade Vetorial Cosseno (Top 300)
+        logger.info(f"Iniciando recomendação semântica para catálogo de {len(self.df_scoped)} revistas.")
+
+        # Camada 1: Classificação por Knowledge Area (Gemini ou Fallback Local)
+        knowledge_area = self._classify_knowledge_area_llm(titulo, resumo)
+        logger.info(f"Knowledge Area identificada: {knowledge_area}")
+
+        # Camada 2: Vetorização TF-IDF + Adherence Score (Cosseno no Aims & Scope -> Top 300)
         vector_matches = self._compute_vector_adherence(titulo, resumo)
         top_300_indices = vector_matches[:300]
 
-        # Camada 3: Motor de Cálculo da Estimated Acceptance Probability (Top 40)
+        # Camada 3: Motor de Probabilidade de Aceitação (Aplicado apenas sobre o Top 40 por Adherence Score)
+        # Filtra o Top 40 com maior Adherence Score antes de rodar os motores de probabilidade e justificativas
+        top_40_adherence = top_300_indices[:40]
         top_40_candidates = []
-        for idx_scoped, score_adherence in top_300_indices:
+
+        for idx_scoped, score_adherence in top_40_adherence:
             row = self.df_scoped.iloc[idx_scoped]
-            prob_aceitacao = self._calculate_estimated_acceptance_probability(score_adherence, row)
             
+            # Integração da Camada 1: bonifica a aderência se bater com a Knowledge Area identificada
+            area_lower = knowledge_area.lower()
+            if any(w in str(row.get("Grande Área", "")).lower() or w in str(row.get("Área do Conhecimento", "")).lower() for w in area_lower.split() if len(w) > 3):
+                score_adherence = min(98.0, score_adherence + 4.0)
+
+            prob_aceitacao = self._calculate_estimated_acceptance_probability(score_adherence, row)
+
             top_40_candidates.append({
                 "idx_scoped": idx_scoped,
                 "row": row,
@@ -222,11 +274,13 @@ class DiscoveryRecommender:
                 "probabilidade_aceitacao": prob_aceitacao
             })
 
-        # Seleciona as 40 com maior Adherence Score e ordena por Adherence Score (Decrescente)
+        # Ordena decrescente por Adherence Score e seleciona o Top 20 para gerar justificativas
         top_40_candidates.sort(key=lambda x: -x["aderencia"])
-        selected_candidates = top_40_candidates[:40]
+        
+        # Filtra estritamente o Top 20 para a entrega final
+        selected_candidates = top_40_candidates[:20]
 
-        # Camada 4: Justificativa Textual Contextual e Formatação para Top 20
+        # Camada 4: Justificativa dissertativa contextualizada (exclusivamente para o Top 20 final)
         final_journals = []
         col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
 
@@ -248,12 +302,12 @@ class DiscoveryRecommender:
             h5_med = str(row.get("Mediana h5", "-"))
             scope_text = str(row.get(col_scope, ""))
 
-            # Link do Scholar para h5 se não houver link direto
+            # Link de backup para h5 do Google Scholar
             h5_link = f"https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq={requests.utils.quote(nome_rev)}&btnG="
 
             # Gera a justificativa de 3-4 linhas
             justificativa = self._generate_3line_justification(
-                titulo, resumo, nome_rev, scope_text, item["aderencia"]
+                titulo, resumo, nome_rev, scope_text, item["aderencia"], row
             )
 
             j_dict = {
@@ -283,7 +337,7 @@ class DiscoveryRecommender:
             }
             final_journals.append(j_dict)
 
-        # Ordena decrescente por Adherence Score (grau de afinidade)
+        # Ordena decrescente por Adherence Score (afinidade temática)
         final_journals.sort(key=lambda x: -x["adherence_score"])
         return final_journals[:top_n], None
 

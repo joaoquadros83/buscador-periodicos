@@ -309,144 +309,6 @@ def enrich_batch(req: BatchEnrichRequest):
     return {"source": "openalex", "results": results}
 
 
-# =============================================================================
-# DISCOVERY-FIRST ENDPOINT (classificação de área + busca vetorial + proxy)
-# =============================================================================
-
-class DiscoveryRequest(BaseModel):
-    title: str = Field(..., min_length=5)
-    abstract: str = Field(..., min_length=50)
-    top_n: int = Field(default=20, ge=1, le=40)
-    idioma: str = Field(default="Português", pattern="^(Português|English|Español)$")
-
-
-class DiscoveryJournalResult(BaseModel):
-    nome: str
-    issn: str
-    aderencia: float
-    probabilidade_aceitacao: float
-    quartil_jcr: str
-    sjr: Optional[float]
-    h_index: Optional[float]
-    indexador: str
-    grande_area: str
-    area: str
-    justificativa: Optional[str]
-    homepage: str
-    h5_link: str
-
-
-class DiscoveryResponse(BaseModel):
-    query_title: str
-    query_abstract: str
-    area_classificada: str
-    backend: str
-    results: List[DiscoveryJournalResult]
-
-
-@app.post("/recommend/discovery", response_model=DiscoveryResponse)
-def recommend_discovery(req: DiscoveryRequest):
-    """
-    Discovery-First: classifica área do artigo + busca vetorial + proxy de aceitação.
-    """
-    try:
-        import pandas as pd
-        from services.discovery_recommender import DiscoveryRecommender
-        from services.openalex_client import get_openalex_client
-
-        db = _db_client
-
-        # 1. Carrega dados do banco para DataFrame
-        journals = db.execute("""
-            SELECT j.id, j.title, j.issn, j.homepage, j.subjects, j.quartil_jcr, j.sjr,
-                   j.h_index, j.jif, j.is_open_access, j.apc_value_usd, je.model_name
-            FROM journals j
-            JOIN journal_embeddings je ON je.journal_id = j.id
-            WHERE je.model_name = 'sentence-transformers/all-MiniLM-L6-v2'
-            LIMIT 10000
-        """, fetch=True)
-
-        if not journals:
-            raise HTTPException(status_code=404, detail="Nenhuma revista encontrada no banco.")
-
-        df = pd.DataFrame(journals)
-        print(f"Discovery: {len(df)} revistas carregadas do banco")
-
-        # 2. Inicializa recommender (sem API key, modo vetorial puro)
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        recommender = DiscoveryRecommender(
-            df_local=df,
-            api_key_gemini=gemini_key,
-            ollama_model="llama3",
-            embeddings_model="nomic-embed-text",
-            h_index_author=5
-        )
-
-        # 3. Gera recomendações
-        results, error = recommender.recommend(
-            titulo=req.title,
-            resumo=req.abstract,
-            idioma=req.idioma,
-            top_n=req.top_n,
-            use_ollama=False
-        )
-
-        if error:
-            raise HTTPException(status_code=500, detail=error)
-
-        # 4. Enriquece com OpenAlex (h-index real)
-        openalex = get_openalex_client(email=os.getenv("OPENALEX_EMAIL", "scipubs@example.com"))
-        for j in results:
-            if j.get("issn") and j["issn"] not in ["-", "", "N/A"]:
-                try:
-                    enriched = openalex.get_journal_by_issn(j["issn"])
-                    if enriched and enriched.get("h_index"):
-                        j["h_index"] = enriched["h_index"]
-                except Exception:
-                    pass
-
-        # 5. Extrai área classificada
-        classificacao = results[0].get("classificacao_area", {}) if results else {}
-        area_classificada = classificacao.get("grande_area", "Não classificado")
-
-        discovery_results = [
-            DiscoveryJournalResult(
-                nome=j.get("nome", ""),
-                issn=j.get("issn", ""),
-                aderencia=float(j.get("aderencia", 0)),
-                probabilidade_aceitacao=float(j.get("probabilidade_aceitacao", 0)),
-                quartil_jcr=str(j.get("quartil_jcr", "-")),
-                sjr=float(j["sjr"]) if j.get("sjr") and str(j["sjr"]) not in ["-", "", "N/A", "nan"] else None,
-                h_index=float(j["h_index"]) if j.get("h_index") and str(j["h_index"]) not in ["-", "", "N/A", "nan"] else None,
-                indexador=str(j.get("indexador", "-")),
-                grande_area=str(j.get("grande_area", "-")),
-                area=str(j.get("area", "-")),
-                justificativa=j.get("justificativa"),
-                homepage=str(j.get("homepage", "-")),
-                h5_link=str(j.get("h5_link", "-")),
-            )
-            for j in results
-        ]
-
-        return DiscoveryResponse(
-            query_title=req.title,
-            query_abstract=req.abstract,
-            area_classificada=area_classificada,
-            backend=recommender.get_backend_name(),
-            results=discovery_results
-        )
-
-    except HTTPException:
-        raise
-    except HTTPException:
-        raise
-    except Exception as e:
-        import traceback
-        error_detail = f"Erro no Discovery-First: {str(e)}"
-        print(error_detail)
-        raise HTTPException(status_code=500, detail=error_detail)
-
-
 @app.post("/recommend", response_model=RecommendResponse)
 def recommend(req: RecommendRequest):
     """
@@ -542,10 +404,8 @@ def recommend(req: RecommendRequest):
 
     except HTTPException:
         raise
-    except HTTPException:
-        raise
     except Exception as e:
         import traceback
-        error_detail = f"Erro interno: {str(e)}"
+        error_detail = f"Erro interno: {str(e)}\n{traceback.format_exc()}"
         print(error_detail)
         raise HTTPException(status_code=500, detail=error_detail)

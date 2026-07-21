@@ -2690,7 +2690,7 @@ with tab_ia:
 
     # RENDERIZAÇÃO DOS RESULTADOS
     if st.session_state.get("aviso_filtro"):
-        st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
+                st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
         st.error(t['ia_erro'])
         st.caption(f"Detalhes: {st.session_state.erro_ia}")
@@ -2721,31 +2721,24 @@ with tab_ia:
                     st.markdown(f"- **{art.get('titulo', '')}**")
                     st.caption(f"  {art.get('revista_nome', '')} ({art.get('ano', '')}) — {art.get('citacao_count', 0)} citações")
         
-        # Componente Visual de Ordenação Dinâmica (Camada 4) - Padrão por Adherence Score
+        # Componente Visual de Ordenação Dinâmica
         st.markdown("#### 🔀 Critério de Ordenamento dos Resultados:")
         sort_option = st.radio(
             "Selecione o critério de ordenamento:",
-            ["Adherence score (Aderência)", "Estimated Acceptance Probability", "A - Z (Nome da Revista)"],
+            ["Estimated Acceptance Probability (Maior para o menor)", "Scope Adherence (Maior para o menor)", "Ordem alfabética (A-Z)", "Ordem alfabética (Z-A)"],
             index=0,
             horizontal=True
         )
         
-        # Aplica a ordenação escolhida dinamicamente (padrão: Adherence Score)
-        if "Adherence" in sort_option:
-            st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))
-        elif "Estimated Acceptance" in sort_option:
+        # Aplica a ordenação escolhida dinamicamente (padrão: Estimated Acceptance Probability)
+        if sort_option == "Estimated Acceptance Probability (Maior para o menor)":
             st.session_state.recomendacoes.sort(key=lambda x: -x.get("probability", x.get("probabilidade_aceitacao", 0)))
-        elif "A - Z" in sort_option:
+        elif sort_option == "Scope Adherence (Maior para o menor)":
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))
+        elif sort_option == "Ordem alfabética (A-Z)":
             st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
-
-        # Aplica a ordenação escolhida dinamicamente
-        if "Estimated Acceptance" in sort_option:
-            st.session_state.recomendacoes.sort(key=lambda x: -x.get("probabilidade_aceitacao", 0))
-        elif "Adherence" in sort_option:
-            st.session_state.recomendacoes.sort(key=lambda x: -x.get("aderencia", 0))
-        elif "A - Z" in sort_option:
-            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
-        
+        elif sort_option == "Ordem alfabética (Z-A)":
+            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower(), reverse=True)
         # Renderiza cards de cada revista recomendada
         for rec in st.session_state.recomendacoes:
             nome_rev = rec.get("nome", rec.get("revista_nome", ""))
