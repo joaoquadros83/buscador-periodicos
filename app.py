@@ -2721,14 +2721,22 @@ with tab_ia:
                     st.markdown(f"- **{art.get('titulo', '')}**")
                     st.caption(f"  {art.get('revista_nome', '')} ({art.get('ano', '')}) — {art.get('citacao_count', 0)} citações")
         
-        # Componente Visual de Ordenação Dinâmica (Camada 4)
+        # Componente Visual de Ordenação Dinâmica (Camada 4) - Padrão por Adherence Score
         st.markdown("#### 🔀 Critério de Ordenamento dos Resultados:")
         sort_option = st.radio(
             "Selecione o critério de ordenamento:",
-            ["Estimated Acceptance Probability", "Adherence score (Aderência)", "A - Z (Nome da Revista)"],
+            ["Adherence score (Aderência)", "Estimated Acceptance Probability", "A - Z (Nome da Revista)"],
             index=0,
             horizontal=True
         )
+        
+        # Aplica a ordenação escolhida dinamicamente (padrão: Adherence Score)
+        if "Adherence" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))
+        elif "Estimated Acceptance" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("probability", x.get("probabilidade_aceitacao", 0)))
+        elif "A - Z" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
 
         # Aplica a ordenação escolhida dinamicamente
         if "Estimated Acceptance" in sort_option:
