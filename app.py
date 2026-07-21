@@ -1,24 +1,12 @@
+    
 import streamlit as st
 import sys
 import os
 
+# Adiciona diretório atual ao path para imports locais
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Safe lazy imports for services
-def _safe_import(name):
-    try:
-        __import__(name)
-        return True
-    except Exception:
-        return False
 
-_discovery_ok = _safe_import("services.discovery_recommender")
-_similar_ok = _safe_import("services.similar_articles_finder")
-_evaluator_ok = _safe_import("services.article_evaluator")
-_cache_ok = _safe_import("services.cache_manager")
-_logger_ok = _safe_import("utils.logger")
-
-    
 
 def get_texto_termos(lang):
     if st.session_state.get("idioma", "English") == "English":
@@ -295,6 +283,16 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # Imports diretos dos módulos de serviço (evita dependência do __init__.py no GitHub)
+from services.discovery_recommender import DiscoveryRecommender
+from services.similar_articles_finder import SimilarArticlesFinder
+from services.article_evaluator import ArticleEvaluator
+from services.cache_manager import CacheManager
+from utils.logger import AnonymousLogger, get_anonymous_logger
+
+
+def get_discovery_recommender(df_local, api_key_gemini=None, h_index_author=5):
+    return DiscoveryRecommender(df_local=df_local, api_key_gemini=api_key_gemini, h_index_author=h_index_author)
+
 
 def call_hybrid_api(title: str, abstract: str, api_url: str, top_n: int = 10,
                     min_year: int = 2021, max_apc_usd: float = None,
@@ -316,71 +314,16 @@ def call_hybrid_api(title: str, abstract: str, api_url: str, top_n: int = 10,
     return response.json()
 
 
-def call_discovery_api(title: str, abstract: str, api_url: str, top_n: int = 20,
-                       idioma: str = "Português") -> dict:
-    """
-    Chama a API Discovery-First /recommend/discovery.
-    Usa classificação de área + busca vetorial + proxy de aceitação.
-    """
-    import requests
-    payload = {
-        "title": title,
-        "abstract": abstract,
-        "top_n": top_n,
-        "idioma": idioma
-    }
-    response = requests.post(f"{api_url}/recommend/discovery", json=payload, timeout=120)
-    response.raise_for_status()
-    return response.json()
-
-
 def get_similar_articles_finder(email_openalex=None):
-    from services.similar_articles_finder import SimilarArticlesFinder; return SimilarArticlesFinder(email_openalex=email_openalex)
+    return SimilarArticlesFinder(email_openalex=email_openalex)
 
 
 def get_article_evaluator(df_local, ollama_model="llama3"):
-    from services.article_evaluator import ArticleEvaluator; return ArticleEvaluator(df_local=df_local, ollama_model=ollama_model)
+    return ArticleEvaluator(df_local=df_local, ollama_model=ollama_model)
 
 
 def get_cache_manager():
-    try:
-        from services.cache_manager import CacheManager
-        return CacheManager()
-    except Exception:
-        return None
-    from services.cache_manager import CacheManager
-
-
-class RecommendationCache:
-    """Cache simples em memória com TTL para recomendações Discovery-First."""
-
-    def __init__(self, ttl_seconds: int = 86400):
-        self._store: dict = {}
-        self._ttl = ttl_seconds
-
-    def _key(self, title: str, abstract: str, top_n: int, idioma: str) -> str:
-        return f"discovery:{hash(title + abstract + str(top_n) + idioma)}"
-
-    def get(self, title: str, abstract: str, top_n: int, idioma: str):
-        k = self._key(title, abstract, top_n, idioma)
-        entry = self._store.get(k)
-        if not entry:
-            return None
-        timestamp, value = entry
-        if time.time() - timestamp > self._ttl:
-            self._store.pop(k, None)
-            return None
-        return value
-
-    def set(self, title: str, abstract: str, top_n: int, idioma: str, value):
-        k = self._key(title, abstract, top_n, idioma)
-        self._store[k] = (time.time(), value)
-
-    def clear(self):
-        self._store.clear()
-
-
-recommendation_cache = RecommendationCache(ttl_seconds=86400)
+    return CacheManager()
 
 # 1. Função para inicializar o Firebase com segurança e cache
 @st.cache_resource
@@ -1368,10 +1311,7 @@ def carregar_dados():
 df_original, arquivo_usado = carregar_dados()
 
 cache_manager = get_cache_manager()
-try:
-    anonymous_logger = get_anonymous_logger()
-except Exception:
-    anonymous_logger = None
+anonymous_logger = get_anonymous_logger()
 
 # --- 5. MONTAGEM DA SIDEBAR (LINKS E COMPONENTES) ---
 # Inicializa o estado de registro se não existir
@@ -2644,22 +2584,77 @@ with tab_ia:
                 
                 tempo_inicio = time.time()
                 
-                # 1. Usa MatchJournalV2 (Semantic Kernel Style)
+                # 1. Tenta API Híbrida (FastAPI + pgvector) se configurada
+                # 2. Fallback: Discovery Recommender local (Gemini/Ollama/algoritmo)
                 journals = None
                 error = None
-                backend = "match_journal_v2"
+                backend = "local"
                 
-                match = get_match_journal_v2(df_original)
+                hybrid_api_url = os.getenv("HYBRID_API_URL")
+                if not hybrid_api_url:
+                    try:
+                        hybrid_api_url = st.secrets.get("HYBRID_API_URL", "")
+                    except Exception:
+                        hybrid_api_url = ""
                 
-                journals = match.recommend(
-                    titulo=titulo_artigo,
-                    resumo=resumo_artigo,
-                    order_by="probability",  # Default: Estimated Acceptance Probability
-                    top_n=num_recomendacoes
-                )
+                if hybrid_api_url:
+                    try:
+                        api_response = call_hybrid_api(
+                            title=titulo_artigo,
+                            abstract=resumo_artigo,
+                            api_url=hybrid_api_url.rstrip("/"),
+                            top_n=num_recomendacoes,
+                            min_year=2021,
+                            max_apc_usd=None,
+                            max_decision_days=None,
+                            require_oa=False
+                        )
+                        api_results = api_response.get("results", [])
+                        journals = []
+                        for r in api_results:
+                            meta = r.get("metadata", {})
+                            journals.append({
+                                "nome": r["title"],
+                                "issn": r.get("issn", "-"),
+                                "homepage": meta.get("homepage", "-"),
+                                "grande_area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
+                                "area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
+                                "subarea": "-",
+                                "indexador": "-",
+                                "jif": meta.get("jif", "-"),
+                                "quartil_jcr": meta.get("quartil_jcr", "-"),
+                                "sjr": meta.get("sjr", "-"),
+                                "sjr_quartile": meta.get("sjr_quartile", "-"),
+                                "h_index": meta.get("h_index", "-"),
+                                "h5_link": meta.get("h5_link", "-"),
+                                "aderencia": round(r["match_score"], 1),
+                                "justificativa": r.get("justification") or f"Match score: {r['match_score']:.1f}",
+                                "probabilidade_aceitacao": round(r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4, 1),
+                                "fonte_dados": "hybrid_api"
+                            })
+                        backend = "hybrid_api"
+                        st.session_state.backend_usado = backend
+                    except Exception as e_api:
+                        st.warning(f"API híbrida indisponível ({e_api}). Usando motor local como fallback.")
+                        journals = None
                 
-                st.session_state.backend_usado = "match_journal_v2"
-                st.session_state.order_by = "probability"
+                if not journals:
+                    recommender = get_discovery_recommender(
+                        df_local=df_original,
+                        api_key_gemini=api_key_ativa if api_key_ativa else None
+                    )
+                    
+                    use_ollama = not api_key_ativa
+                    journals, error = recommender.recommend(
+                        titulo=titulo_artigo,
+                        resumo=resumo_artigo,
+                        idioma=st.session_state.idioma,
+                        top_n=num_recomendacoes,
+                        use_ollama=use_ollama
+                    )
+                    
+                    backend = recommender.get_backend_name()
+                    st.session_state.backend_usado = backend
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
@@ -2726,6 +2721,23 @@ with tab_ia:
                     st.markdown(f"- **{art.get('titulo', '')}**")
                     st.caption(f"  {art.get('revista_nome', '')} ({art.get('ano', '')}) — {art.get('citacao_count', 0)} citações")
         
+        # Componente Visual de Ordenação Dinâmica (Camada 4)
+        st.markdown("#### 🔀 Critério de Ordenamento dos Resultados:")
+        sort_option = st.radio(
+            "Selecione o critério de ordenamento:",
+            ["Estimated Acceptance Probability", "Adherence score (Aderência)", "A - Z (Nome da Revista)"],
+            index=0,
+            horizontal=True
+        )
+
+        # Aplica a ordenação escolhida dinamicamente
+        if "Estimated Acceptance" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("probabilidade_aceitacao", 0))
+        elif "Adherence" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("aderencia", 0))
+        elif "A - Z" in sort_option:
+            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
+        
         # Renderiza cards de cada revista recomendada
         for rec in st.session_state.recomendacoes:
             nome_rev = rec.get("nome", rec.get("revista_nome", ""))
@@ -2737,6 +2749,8 @@ with tab_ia:
             quartil = rec.get("quartil_jcr", "N/A")
             sjr = rec.get("sjr", "N/A")
             h_index = rec.get("h_index", "-")
+            h5_index = rec.get("h5_index", rec.get("Índice h5", "-"))
+            h5_median = rec.get("h5_median", rec.get("Mediana h5", "-"))
             h5_link = rec.get("h5_link", "-")
             aderencia = rec.get("aderencia", rec.get("revista_aderencia", 0))
             probabilidade = rec.get("probabilidade_aceitacao", max(10, aderencia - 5))
@@ -2746,7 +2760,7 @@ with tab_ia:
             if not registro_revista.empty:
                 try:
                     row = registro_revista.iloc[0]
-                    if not homepage or homepage in ["-", "", "nan", "None"]:
+                    if not homepage or homepage in ["nan", "-", "None", ""]:
                         homepage = str(row.get("Homepage", ""))
                     if issn in ["N/A", "-"]:
                         issn = str(row.get("ISSN", "N/A"))
@@ -2758,20 +2772,15 @@ with tab_ia:
                         sjr = str(row.get("SJR", "N/A"))
                     if h_index in ["-"]:
                         h_index = str(row.get("H index", row.get("h-index", "-")))
-                    if h5_link in ["-"]:
-                        h5_link = str(row.get("Índice h5", "-"))
+                    if h5_index in ["-"]:
+                        h5_index = str(row.get("Índice h5", "-"))
+                    if h5_median in ["-"]:
+                        h5_median = str(row.get("Mediana h5", "-"))
                 except Exception:
                     pass
             
-            # Obtém avaliação do artigo para esta revista
             aderencia_escopo = aderencia
             justificativa_metricas = justificativa
-            
-            if nome_rev in avaliacoes:
-                ev = avaliacoes[nome_rev]
-                aderencia_escopo = ev.get("aderencia_escopo", aderencia)
-                probabilidade = ev.get("probabilidade_aceitacao", probabilidade)
-                justificativa_metricas = ev.get("justificativa_metricas", justificativa)
             
             with st.container(border=True):
                 # Título da revista + botões Homepage e h5 ao lado
@@ -2787,7 +2796,7 @@ with tab_ia:
                     if h5_link and h5_link not in ["nan", "-", "None", ""]:
                         st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
                 
-                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index}")
+                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index} | **Índice h5:** {h5_index} | **Mediana h5:** {h5_median}")
                 
                 # Barras de progresso para métricas
                 col_m1, col_m2 = st.columns(2)
@@ -2802,8 +2811,8 @@ with tab_ia:
                 
                 st.caption(f"*{t['ia_probabilidade_nota']}*")
                 
-                # Justificativa dissertativa das métricas
-                with st.expander(f"📖 {t['ia_justificativa_tit']}", expanded=True):
+                # Justificativa dissertativa contextualizada de 3-4 linhas
+                with st.expander(f"📖 Justificativa do Match & Afinidade Semântica", expanded=True):
                     st.markdown(justificativa_metricas)
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================

@@ -103,19 +103,20 @@ class MatchJournalV2:
         return ""
 
     def recommend(self, titulo: str, resumo: str,
-                  order_by: str = "probability", top_n: int = 20,
-                  only_with_aims: bool = False) -> List[Dict]:
+                  order_by: str = "probability", top_n: int = 20) -> List[Dict]:
         """
-        Pipeline completo:
-
+        Pipeline completo de 8 camadas.
+        Usa Aims & Scope (quando disponível) para calcular Adherence Score.
+        
+        Pipeline:
         1. Knowledge Area via LLM
         2. Filtro por Knowledge Area
-        3. Adherence Score com Aims & Scope (prioridade) ou fallback para nome/area
-        4. Top 300
+        3. Adherence Score com Aims & Scope (prioridade) ou fallback
+        4. Top 300 por adherence_score
         5. Estimated Acceptance Probability
         6. Top 40
-        7. Ordenar por probability (desc)
-        8. Output Top 20 com justificativa textual
+        7. Ordenar por adherence_score (desc)
+        8. Output Top 20 com adherence_score > 60% + justificativa textual
         """
         query_text = f"{titulo} {resumo}"
 
@@ -157,13 +158,7 @@ class MatchJournalV2:
 
         df_filtered["adherence_score"] = scores
 
-        # --- Filtro Opcional: Apenas revistas com Aims & Scope ---
-        if only_with_aims:
-            mask_aims = df_filtered["Aims and Scope"].astype(str).str.len().gt(20)
-            df_filtered = df_filtered[mask_aims].copy()
-            logger.info(f"Apenas revistas com Aims: {len(df_filtered)}")
-
-        # --- CAMADA 4: Top 300 ---
+        # --- CAMADA 4: Top 300 por adherence_score ---
         df_filtered = df_filtered.sort_values("adherence_score", ascending=False)
         df_secondary = df_filtered.head(300).copy()
 
