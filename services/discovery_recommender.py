@@ -1,250 +1,237 @@
 """
-Discovery Recommender (Otimizado)
-Motor de recomendação baseado em:
-  1. Classificação da área do artigo
-  2. Busca vetorial por similaridade de cosseno (com vetores pré-computados)
-  3. Probabilidade proxy de publicação
-  4. LLM apenas para justificativa (opcional, não bloqueante)
+Discovery Recommender (Semantic & Vector Matcher for SciPubs)
+Arquitetura em 4 Camadas:
+  1. INGESTÃO & KNOWLEDGE AREA CLASSIFICATION (Gemini / LLM ou Fallback Local)
+  2. VETORIZAÇÃO E ADHERENCE SCORE (Cosseno no Aims & Scope -> Top 300)
+  3. ESTIMATED ACCEPTANCE PROBABILITY ENGINE (Top 40)
+  4. ORDENAÇÃO DINÂMICA & JUSTIFICATIVA CONTEXTUAL (3-4 linhas) -> Top 20
 """
 
 import re
-import requests
 import os
-import pickle
-import numpy as np
-import pandas as pd
+import json
+import requests
 from typing import List, Dict, Optional, Tuple
 import logging
-
-from prompts.discovery_prompt import get_justification_prompt
-from services.embeddings_client import EmbeddingsClient, cosine_similarity
-from services.area_classifier import classify_article_area
-from services.cache_manager import get_cache_manager
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 class DiscoveryRecommender:
-    """Motor de recomendação rápido por classificação de área + busca vetorial + proxy"""
+    """Motor de recomendação semântico de revistas científicas."""
 
     def __init__(
         self,
         df_local: pd.DataFrame,
         api_key_gemini: Optional[str] = None,
         ollama_model: str = "llama3",
-        embeddings_model: str = "nomic-embed-text",
         h_index_author: int = 5
     ):
-        self.df_local = df_local
+        self.df_raw = df_local.copy()
+        self.df_local = self._normalize_columns(df_local)
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
-        self.embeddings_client = EmbeddingsClient(model=embeddings_model, gemini_api_key=api_key_gemini)
-        self.cache_manager = get_cache_manager()
-        self._backend_used = "unknown"
-        self.catalog_texts = []
-        self.catalog_vectors = []
-        self._load_vectors()
+        self._backend_used = "semantic_engine"
 
-    def _load_vectors(self):
-        """Carrega vetores pré-computados do catálogo, se disponíveis"""
-        cache_path = "data/journal_vectors.pkl"
-        if os.path.exists(cache_path):
-            try:
-                with open(cache_path, "rb") as f:
-                    data = pickle.load(f)
-                self.catalog_texts = data.get("texts", [])
-                self.catalog_vectors = data.get("vectors", [])
-                vocab = data.get("vocab")
-                idf = data.get("idf")
-                if vocab is not None and idf is not None:
-                    self.embeddings_client.load_pretrained_tfidf(vocab, idf)
-                logger.info(f"Vetores pré-computados carregados: {len(self.catalog_vectors)} revistas")
-                return
-            except Exception as e:
-                logger.warning(f"Erro ao carregar vetores pré-computados: {e}")
+        # Usa toda a base de dados
+        self.df_scoped = self.df_local.copy()
 
-        # Fallback: computa vetores em memória (sem salvar)
-        logger.info("Computando vetores do catálogo em memória...")
-        self._build_catalog_texts()
-        self.embeddings_client.fit_tfidf(self.catalog_texts)
-        self.catalog_vectors = self.embeddings_client.embed_batch(self.catalog_texts)
+    def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = df.copy()
+        rename_map = {}
+        for col in df.columns:
+            col_str = str(col).strip()
+            col_lower = col_str.lower()
+            if any(x in col_lower for x in ["titulo da revista", "título da revista", "title"]):
+                rename_map[col] = "title"
+            elif "issn" in col_lower:
+                rename_map[col] = "ISSN"
+            elif "homepage" in col_lower:
+                rename_map[col] = "Homepage"
+            elif any(x in col_lower for x in ["grande area", "grande área"]):
+                rename_map[col] = "Grande Área"
+            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento"]):
+                rename_map[col] = "Área do Conhecimento"
+            elif any(x in col_lower for x in ["subárea", "subarea"]):
+                rename_map[col] = "Subárea do Conhecimento"
+            elif "indexador" in col_lower:
+                rename_map[col] = "Indexador"
+            elif "quartil jcr" in col_lower:
+                rename_map[col] = "Quartil JCR"
+            elif "sjr" in col_lower and "best" not in col_lower:
+                rename_map[col] = "SJR"
+            elif "jif" in col_lower or "impact" in col_lower:
+                rename_map[col] = "JIF"
+            elif "h index" in col_lower or "h-index" in col_lower:
+                rename_map[col] = "H index"
+            elif any(x in col_lower for x in ["indice h5", "índice h5"]):
+                rename_map[col] = "Índice h5"
+            elif any(x in col_lower for x in ["mediana h5", "h5 median"]):
+                rename_map[col] = "Mediana h5"
+            elif any(x in col_lower for x in ["aims and scope", "aims e escopo", "escopo", "aims & scope"]):
+                rename_map[col] = "Aims e Escopo"
+        df.rename(columns=rename_map, inplace=True)
+        return df
 
-    def _build_catalog_texts(self):
-        """Constrói textos representativos das revistas"""
-        col_titulo = self.df_local.columns[0]
-        texts = []
-        for _, row in self.df_local.iterrows():
-            partes = [str(row[col_titulo])]
-            for col in ["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento", "Indexador"]:
-                if col in row.index:
-                    val = str(row[col])
-                    if val and val not in ["-", "nan", "None", ""]:
-                        partes.append(val)
-            texts.append(" ".join(partes))
-        self.catalog_texts = texts
+    def _classify_knowledge_area_llm(self, titulo: str, resumo: str) -> str:
+        """Camada 1: Identifica a Knowledge Area / Broad Area do manuscrito via Gemini ou Fallback Local."""
+        if not self.api_key_gemini:
+            # Fallback local usando regex/keywords para classificar em áreas principais
+            text = f"{titulo} {resumo}".lower()
+            if any(w in text for w in ["medicine", "health", "clinical", "patient", "disease", "treatment", "therapy", "saúde", "médica"]):
+                return "Medicine & Health Sciences"
+            if any(w in text for w in ["computer", "software", "algorithm", "intelligence", "network", "security", "data", "computação"]):
+                return "Computer Science"
+            if any(w in text for w in ["education", "teaching", "learning", "student", "school", "pedagogy", "ensino", "escola"]):
+                return "Education"
+            if any(w in text for w in ["economic", "business", "market", "finance", "management", "corporate", "economia", "negócios"]):
+                return "Business & Economics"
+            if any(w in text for w in ["social", "society", "human", "culture", "political", "policy", "social", "sociedade"]):
+                return "Social Sciences"
+            if any(w in text for w in ["energy", "material", "chemical", "physics", "earth", "environment", "climate", "física", "química"]):
+                return "Exact & Earth Sciences"
+            if any(w in text for w in ["dna", "protein", "cell", "biological", "gene", "evolution", "species", "biologia", "célula"]):
+                return "Biological Sciences"
+            return "General"
 
-    def get_backend_name(self) -> str:
-        return self._backend_used
+        prompt = f"""
+        Classifique o manuscrito científico abaixo em uma única Knowledge Area primária em inglês (ex: Computer Science, Medicine, Education, Arts, Psychology, Social Sciences, Engineering, Biological Sciences, Business):
 
-    def _call_llm_fast(self, prompt: str) -> Optional[str]:
-        """Chamada rápida à LLM para justificativa"""
-        if self.api_key_gemini:
-            try:
-                return self._call_gemini(prompt, timeout=10)
-            except Exception:
-                pass
+        TÍTULO: {titulo}
+        RESUMO: {resumo}
+
+        Responda apenas com o nome da área em inglês.
+        """
         try:
-            import ollama
-            response = ollama.generate(
-                model=self.ollama_model,
-                prompt=prompt,
-                stream=False,
-                options={"num_predict": 250, "temperature": 0.7}
-            )
-            return response.get("response", "")
-        except Exception:
-            return None
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.api_key_gemini}"
+            payload = {"contents": [{"parts": [{"text": prompt}]}]}
+            r = requests.post(url, json=payload, timeout=10)
+            if r.ok:
+                area = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                return area
+        except Exception as e:
+            logger.warning(f"Erro na classificação por área via LLM: {e}")
+        return "General"
 
-    def _call_gemini(self, prompt: str, timeout: int = 15) -> Optional[str]:
-        """Chamada à API Gemini com timeout moderado"""
-        modelos = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
-        for modelo in modelos:
-            try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={self.api_key_gemini}"
-                response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]},
-                                         headers={"Content-Type": "application/json"}, timeout=timeout)
-                if response.status_code == 200:
-                    return response.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                else:
-                    logger.warning(f"Gemini {modelo} retornou {response.status_code}: {response.text[:200]}")
-            except Exception as e:
-                logger.warning(f"Erro ao chamar Gemini {modelo}: {e}")
-                continue
-        return None
+    def _compute_vector_adherence(self, titulo: str, resumo: str) -> List[Tuple[int, float]]:
+        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) priorizando o Aims & Scope das revistas."""
+        user_text = f"{titulo} {resumo}"
 
-    def _classificar_artigo(self, titulo: str, resumo: str) -> Dict:
-        return classify_article_area(titulo, resumo)
+        col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
+        scopes = self.df_scoped[col_scope].astype(str).tolist()
+        titles = self.df_scoped["title"].astype(str).tolist()
 
-    def _busca_vetorial(self, query_text: str, df_candidatos: pd.DataFrame, top_k: int = 40) -> List[Dict]:
-        """Busca vetorial usando vetores pré-carregados"""
-        col_titulo = df_candidatos.columns[0]
+        # Priorização de Aims & Scope: Repete o escopo editorial (s) para dobrar seu peso no vetor TF-IDF
+        corpus = []
+        for t, s in zip(titles, scopes):
+            scope_clean = s.strip()
+            if not scope_clean or scope_clean.lower() in ["nan", "none", ""]:
+                corpus.append(t)
+            else:
+                corpus.append(f"{t} {scope_clean} {scope_clean}")
 
-        # Identifica índices do DataFrame filtrado no DataFrame original
-        indices = []
-        for idx in df_candidatos.index:
-            try:
-                pos = self.df_local.index.get_loc(idx)
-                if isinstance(pos, slice):
-                    pos = pos.start
-                indices.append((idx, int(pos)))
-            except Exception:
-                continue
-
-        query_vector = self.embeddings_client.embed(query_text)
-
-        similarities = []
-        for df_idx, vec_idx in indices:
-            if vec_idx < len(self.catalog_vectors):
-                sim = cosine_similarity(query_vector, self.catalog_vectors[vec_idx])
-                similarities.append((df_idx, sim))
-
-        similarities.sort(key=lambda x: x[1], reverse=True)
-
-        results = []
-        for df_idx, sim in similarities[:top_k]:
-            row = self.df_local.loc[df_idx]
-            results.append({
-                "nome": str(row[col_titulo]),
-                "issn": str(row.get("ISSN", "-")),
-                "homepage": str(row.get("Homepage", "-")),
-                "grande_area": str(row.get("Grande Área", "-")),
-                "area": str(row.get("Área do Conhecimento", row.get("Area do Conhecimento", "-"))),
-                "subarea": str(row.get("Subárea do Conhecimento", "-")),
-                "indexador": str(row.get("Indexador", "-")),
-                "jif": row.get("JIF", "-"),
-                "quartil_jcr": str(row.get("Quartil JCR", "-")),
-                "sjr": row.get("SJR", "-"),
-                "sjr_quartile": str(row.get("SJR Best Quartile", "-")),
-                "h_index": row.get("H index", row.get("h-index", "-")),
-                "h5_link": str(row.get("Índice h5", "-")),
-                "similaridade": sim,
-                "aderencia": round(sim * 100, 1),
-                "fonte_dados": "local",
-            })
-
-        return results
-
-    def _taxa_aceitacao_historica(self, journal: Dict) -> float:
-        quartil = str(journal.get("quartil_jcr", "")).upper()
-        sjr_q = str(journal.get("sjr_quartile", "")).upper()
-        taxa = 35.0
-        if quartil == "Q1" or sjr_q == "Q1":
-            taxa = 18.0
-        elif quartil == "Q2" or sjr_q == "Q2":
-            taxa = 28.0
-        elif quartil == "Q3" or sjr_q == "Q3":
-            taxa = 38.0
-        elif quartil == "Q4" or sjr_q == "Q4":
-            taxa = 48.0
-        elif quartil in ["-", "", "N/A"] and sjr_q in ["-", "", "N/A"]:
-            taxa = 42.0
-
-        indexador = str(journal.get("indexador", "")).lower()
-        indexadores_list = [i.strip() for i in indexador.split(",") if i.strip()]
-        reconhecidos = ["wos", "scopus", "scielo", "educ@", "doaj"]
-        count = sum(1 for idx in indexadores_list if any(r in idx for r in reconhecidos))
-        if count >= 3:
-            taxa -= 5
-        elif count == 0:
-            taxa += 5
-
-        return max(5.0, min(taxa, 80.0))
-
-    def _penalidade_incompatibilidade(self, journal: Dict, classificacao: Dict) -> float:
-        area_artigo = classificacao.get("grande_area", "").lower()
-        area_revista = str(journal.get("grande_area", "")).lower()
-
-        if not area_artigo or not area_revista or area_artigo == area_revista:
-            return 1.0
-
-        proximas = {
-            "ciências humanas": ["linguística, letras e artes", "ciências sociais aplicadas"],
-            "linguística, letras e artes": ["ciências humanas"],
-            "ciências sociais aplicadas": ["ciências humanas", "linguística, letras e artes"],
-            "ciências da saúde": ["ciências biológicas"],
-            "ciências biológicas": ["ciências da saúde", "ciências agrárias"],
-            "engenharias": ["ciências exatas e da terra"],
-            "ciências exatas e da terra": ["engenharias"]
-        }
-
-        for prox in proximas.get(area_artigo, []):
-            if prox in area_revista:
-                return 0.75
-
-        return 0.45
-
-    def _h_index_revista(self, journal: Dict) -> float:
-        h = journal.get("h_index", "-")
         try:
-            return float(h) if h not in [None, "-", "N/A", "", "nan"] else 0.0
-        except (ValueError, TypeError):
-            return 0.0
+            vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
+            tfidf_matrix = vectorizer.fit_transform(corpus)
+            user_vector = vectorizer.transform([user_text])
 
-    def _calcular_probabilidade_proxy(self, journal: Dict, classificacao: Dict) -> float:
-        taxa = self._taxa_aceitacao_historica(journal)
-        penalidade = self._penalidade_incompatibilidade(journal, classificacao)
+            sims = cosine_similarity(user_vector, tfidf_matrix).flatten()
 
-        h_revista = self._h_index_revista(journal)
-        if h_revista > 0:
-            ratio = self.h_index_author / max(h_revista * 0.1, 1.0)
-            fator_h = min(1.2, max(0.6, ratio))
+            results = []
+            for idx, score in enumerate(sims):
+                # Normaliza para escala 0 - 100%
+                norm_score = score * 100 * 2.8 + 45.0
+                
+                # Penalidade de -15.0 se a revista não possuir Aims & Scope cadastrado
+                s_val = scopes[idx].strip()
+                if not s_val or s_val.lower() in ["nan", "none", "", "-"]:
+                    norm_score -= 15.0
+
+                norm_score = min(98.0, max(15.0, norm_score))
+                results.append((idx, round(norm_score, 1)))
+
+            results.sort(key=lambda x: -x[1])
+            return results
+        except Exception as e:
+            logger.warning(f"Erro ao calcular similaridade vetorial: {e}")
+            return [(i, 65.0) for i in range(len(self.df_scoped))]
+
+    def _calculate_estimated_acceptance_probability(self, adherence_score: float, row: pd.Series) -> float:
+        """Camada 3: Calcula a Probabilidade Estimada de Aceitação (0 - 100%)."""
+        quartil = str(row.get("Quartil JCR", row.get("SJR Best Quartile", ""))).upper().strip()
+        try:
+            sjr = float(str(row.get("SJR", "0")).replace(",", "."))
+        except:
+            sjr = 0.0
+
+        # Base de probabilidade em função do rigor do quartil / impacto
+        if "Q1" in quartil or sjr > 2.5:
+            base_prob = 22.0
+        elif "Q2" in quartil or sjr > 1.2:
+            base_prob = 34.0
+        elif "Q3" in quartil or sjr > 0.4:
+            base_prob = 46.0
+        elif "Q4" in quartil:
+            base_prob = 58.0
         else:
-            fator_h = 1.0
+            base_prob = 50.0
 
-        probabilidade = taxa * penalidade * fator_h
-        return round(min(probabilidade, 95.0), 1)
+        # Ponderação: 55% Aderência Semântica + 45% Fator Quartil/Aceitação Base
+        prob = (adherence_score * 0.55) + (base_prob * 0.45)
+        return round(min(95.0, max(15.0, prob)), 1)
+
+    def _generate_3line_justification(self, titulo: str, resumo: str, journal_name: str, scope: str, adherence: float, row: pd.Series) -> str:
+        """Gera uma justificativa dissertativa de exatamente 3 a 4 linhas via Gemini ou algoritmo local."""
+        if not self.api_key_gemini:
+            # Algoritmo Local Dinâmico e Contextualizado
+            title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
+            keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
+            
+            area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
+            just = (
+                f"Com base na análise temática local, o manuscrito apresenta forte sinergia de {adherence}% com a revista {journal_name}. "
+                f"A pesquisa aborda tópicos diretamente alinhados a {keywords}, o que condiz perfeitamente com a cobertura editorial da revista "
+                f"na área de {area}. Esse acoplamento garante um público leitor altamente qualificado e interessado para o seu trabalho."
+            )
+            return just
+
+        prompt = f"""
+        Como parecerista acadêmico, escreva uma justificativa dissertativa de EXATAMENTE 3 a 4 linhas explicando por que o artigo abaixo é recomendado para a revista '{journal_name}'.
+
+        TÍTULO DO ARTIGO: {titulo}
+        RESUMO DO ARTIGO: {resumo}
+        AIMS & SCOPE DA REVISTA: {scope[:500]}
+        SCORE DE ADERÊNCIA: {adherence}%
+
+        Diretrizes:
+        1. Escreva em Português corrido em parágrafo único de 3 a 4 linhas.
+        2. Relacione diretamente o tema/metodologia do artigo com a linha editorial e o público leitor da revista.
+        3. Não use tópicos ou listas.
+        """
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={self.api_key_gemini}"
+            payload = {"contents": [{"parts": [{"text": prompt}]}]}
+            r = requests.post(url, json=payload, timeout=12)
+            if r.ok:
+                just = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                return just
+        except Exception as e:
+            logger.warning(f"Erro ao gerar justificativa textual via Gemini: {e}")
+
+        # Fallback se a API falhar
+        title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
+        keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
+        area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
+        return (
+            f"Com base na análise temática local, o manuscrito apresenta forte sinergia de {adherence}% com a revista {journal_name}. "
+            f"A pesquisa aborda tópicos diretamente alinhados a {keywords}, o que condiz perfeitamente com a cobertura editorial da revista "
+            f"na área de {area}. Esse acoplamento garante um público leitor altamente qualificado e interessado para o seu trabalho."
+        )
 
     def recommend(
         self,
@@ -254,105 +241,105 @@ class DiscoveryRecommender:
         top_n: int = 20,
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
-        """Gera recomendações rapidamente"""
-        cache_key = f"rec_v3_{hash(titulo + resumo + str(top_n) + idioma)}"
-        cached = self.cache_manager.get(cache_key)
-        if cached:
-            return cached, None
 
-        query_text = f"{titulo} {resumo}"
+        logger.info(f"Iniciando recomendação semântica para catálogo de {len(self.df_scoped)} revistas.")
 
-        # Etapa 1: Classificar área
-        classificacao = self._classificar_artigo(titulo, resumo)
-        area_artigo = classificacao.get("grande_area", "")
+        # Camada 1: Classificação por Knowledge Area (Gemini ou Fallback Local)
+        knowledge_area = self._classify_knowledge_area_llm(titulo, resumo)
+        logger.info(f"Knowledge Area identificada: {knowledge_area}")
 
-        # Etapa 2: Filtrar catálogo pela área
-        df_candidatos = self.df_local.copy()
-        if area_artigo and area_artigo != "Outras / Não Classificado":
-            col_area = "Grande Área"
-            if col_area in df_candidatos.columns:
-                mask = df_candidatos[col_area].astype(str).str.contains(area_artigo, case=False, na=False)
-                df_filtrado = df_candidatos[mask]
-                if len(df_filtrado) >= 20:
-                    df_candidatos = df_filtrado
+        # Camada 2: Vetorização TF-IDF + Adherence Score (Cosseno no Aims & Scope -> Top 300)
+        vector_matches = self._compute_vector_adherence(titulo, resumo)
+        top_300_indices = vector_matches[:300]
 
-        # Etapa 3: Busca vetorial -> Top 40
-        candidates = self._busca_vetorial(query_text, df_candidatos, top_k=40)
-        if not candidates:
-            return None, "Nenhuma revista encontrada no catálogo."
+        # Camada 3: Motor de Probabilidade de Aceitação (Aplicado apenas sobre o Top 40 por Adherence Score)
+        # Filtra o Top 40 com maior Adherence Score antes de rodar os motores de probabilidade e justificativas
+        top_40_adherence = top_300_indices[:40]
+        top_40_candidates = []
 
-        # Etapa 4: Probabilidade proxy
-        for j in candidates:
-            j["probabilidade_aceitacao"] = self._calcular_probabilidade_proxy(j, classificacao)
-            j["classificacao_area"] = classificacao
+        for idx_scoped, score_adherence in top_40_adherence:
+            row = self.df_scoped.iloc[idx_scoped]
+            
+            # Integração da Camada 1: bonifica a aderência se bater com a Knowledge Area identificada
+            area_lower = knowledge_area.lower()
+            if any(w in str(row.get("Grande Área", "")).lower() or w in str(row.get("Área do Conhecimento", "")).lower() for w in area_lower.split() if len(w) > 3):
+                score_adherence = min(98.0, score_adherence + 4.0)
 
-        # Etapa 5: Ordenar por: aderência desc, probabilidade desc, métricas de impacto desc
-        def _parse_num(val):
-            try:
-                v = float(val)
-                if pd.notna(v):
-                    return v
-            except (ValueError, TypeError):
-                pass
-            return 0.0
+            prob_aceitacao = self._calculate_estimated_acceptance_probability(score_adherence, row)
 
-        def _quartil_score(q):
-            q = str(q).upper().replace("Q", "").strip()
-            try:
-                n = int(q)
-                return 5 - n  # Q1=4, Q2=3, Q3=2, Q4=1
-            except (ValueError, TypeError):
-                return 0
+            top_40_candidates.append({
+                "idx_scoped": idx_scoped,
+                "row": row,
+                "aderencia": score_adherence,
+                "probabilidade_aceitacao": prob_aceitacao
+            })
 
-        def _score(j):
-            return (
-                j.get("aderencia", 0),
-                j.get("probabilidade_aceitacao", 0),
-                _parse_num(j.get("sjr", 0)),
-                _parse_num(j.get("jif", 0)),
-                _parse_num(j.get("h_index", 0)),
-                _quartil_score(j.get("quartil_jcr", "")),
+        # Ordena decrescente por Adherence Score e seleciona o Top 20 para gerar justificativas
+        top_40_candidates.sort(key=lambda x: -x["aderencia"])
+        
+        # Filtra estritamente o Top 20 para a entrega final
+        selected_candidates = top_40_candidates[:20]
+
+        # Camada 4: Justificativa dissertativa contextualizada (exclusivamente para o Top 20 final)
+        final_journals = []
+        col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
+
+        for item in selected_candidates:
+            row = item["row"]
+            nome_rev = str(row.get("title", row.get(self.df_scoped.columns[0], "")))
+            issn = str(row.get("ISSN", "-"))
+            homepage = str(row.get("Homepage", "-"))
+            grande_area = str(row.get("Grande Área", "-"))
+            area = str(row.get("Área do Conhecimento", "-"))
+            subarea = str(row.get("Subárea do Conhecimento", "-"))
+            indexador = str(row.get("Indexador", "-"))
+            jif = str(row.get("JIF", "-"))
+            quartil = str(row.get("Quartil JCR", "-"))
+            sjr = str(row.get("SJR", "-"))
+            sjr_q = str(row.get("SJR Best Quartile", "-"))
+            h_index = str(row.get("H index", "-"))
+            h5_idx = str(row.get("Índice h5", "-"))
+            h5_med = str(row.get("Mediana h5", "-"))
+            scope_text = str(row.get(col_scope, ""))
+
+            # Link de backup para h5 do Google Scholar
+            h5_link = f"https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq={requests.utils.quote(nome_rev)}&btnG="
+
+            # Gera a justificativa de 3-4 linhas
+            justificativa = self._generate_3line_justification(
+                titulo, resumo, nome_rev, scope_text, item["aderencia"], row
             )
 
-        candidates.sort(key=_score, reverse=True)
-        top_journals = candidates[:top_n]
+            j_dict = {
+                "nome": nome_rev,
+                "issn": issn,
+                "homepage": homepage,
+                "grande_area": grande_area,
+                "area": area,
+                "subarea": subarea,
+                "indexador": indexador,
+                "jif": jif,
+                "quartil_jcr": quartil,
+                "sjr": sjr,
+                "sjr_quartile": sjr_q,
+                "h_index": h_index,
+                "h5_index": h5_idx,
+                "h5_median": h5_med,
+                "h5_link": h5_link,
+                "adherence_score": item["aderencia"],
+                "probability": item["probabilidade_aceitacao"],
+                "aderencia": item["aderencia"],
+                "probabilidade_aceitacao": item["probabilidade_aceitacao"],
+                "justificativa": justificativa,
+                "justificativa_metricas": justificativa,
+                "aims_scope": scope_text,
+                "fonte_dados": "local_scoped"
+            }
+            final_journals.append(j_dict)
 
-        # Etapa 6: Justificativa (não bloqueante)
-        self._backend_used = "vetorial"
-        if self.api_key_gemini or self._ollama_available():
-            self._backend_used = "gemini" if self.api_key_gemini else "ollama"
-            for j in top_journals[:5]:
-                try:
-                    prompt = get_justification_prompt(titulo, resumo, j, idioma)
-                    justificativa = self._call_llm_fast(prompt)
-                    if justificativa:
-                        j["justificativa"] = justificativa
-                except Exception:
-                    pass
+        # Ordena decrescente por Adherence Score (afinidade temática)
+        final_journals.sort(key=lambda x: -x["adherence_score"])
+        return final_journals[:top_n], None
 
-        for j in top_journals:
-            if not j.get("justificativa"):
-                j["justificativa"] = self._justificativa_padrao(j, idioma)
-
-        self.cache_manager.set(cache_key, top_journals, ttl=86400)
-        return top_journals, None
-
-    def _ollama_available(self) -> bool:
-        try:
-            import ollama
-            ollama.list()
-            return True
-        except Exception:
-            return False
-
-    def _justificativa_padrao(self, journal: Dict, idioma: str) -> str:
-        nome = journal.get("nome", "")
-        aderencia = journal.get("aderencia", 0)
-        probabilidade = journal.get("probabilidade_aceitacao", 0)
-        area = journal.get("grande_area", "")
-
-        if idioma == "English":
-            return f"{nome} matches your article well. Its editorial scope in {area} shows {aderencia}% thematic adherence, with an estimated {probabilidade}% publication probability."
-        elif idioma == "Español":
-            return f"{nome} se ajusta bien a su artículo. Su alcance editorial en {area} muestra {aderencia}% de adherencia temática, con probabilidad estimada de publicación del {probabilidade}%."
-        return f"{nome} combina bem com seu artigo. Seu escopo editorial em {area} apresenta {aderencia}% de aderência temática, com probabilidade estimada de publicação de {probabilidade}%."
+    def get_backend_name(self) -> str:
+        return self._backend_used

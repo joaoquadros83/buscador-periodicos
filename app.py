@@ -2690,7 +2690,7 @@ with tab_ia:
 
     # RENDERIZAÇÃO DOS RESULTADOS
     if st.session_state.get("aviso_filtro"):
-        st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
+                st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
     elif st.session_state.get("erro_ia"):
         st.error(t['ia_erro'])
         st.caption(f"Detalhes: {st.session_state.erro_ia}")
@@ -2721,6 +2721,24 @@ with tab_ia:
                     st.markdown(f"- **{art.get('titulo', '')}**")
                     st.caption(f"  {art.get('revista_nome', '')} ({art.get('ano', '')}) — {art.get('citacao_count', 0)} citações")
         
+        # Componente Visual de Ordenação Dinâmica
+        st.markdown("#### 🔀 Critério de Ordenamento dos Resultados:")
+        sort_option = st.radio(
+            "Selecione o critério de ordenamento:",
+            ["Estimated Acceptance Probability (Maior para o menor)", "Scope Adherence (Maior para o menor)", "Ordem alfabética (A-Z)", "Ordem alfabética (Z-A)"],
+            index=0,
+            horizontal=True
+        )
+        
+        # Aplica a ordenação escolhida dinamicamente (padrão: Estimated Acceptance Probability)
+        if sort_option == "Estimated Acceptance Probability (Maior para o menor)":
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("probability", x.get("probabilidade_aceitacao", 0)))
+        elif sort_option == "Scope Adherence (Maior para o menor)":
+            st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))
+        elif sort_option == "Ordem alfabética (A-Z)":
+            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
+        elif sort_option == "Ordem alfabética (Z-A)":
+            st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower(), reverse=True)
         # Renderiza cards de cada revista recomendada
         for rec in st.session_state.recomendacoes:
             nome_rev = rec.get("nome", rec.get("revista_nome", ""))
@@ -2732,6 +2750,8 @@ with tab_ia:
             quartil = rec.get("quartil_jcr", "N/A")
             sjr = rec.get("sjr", "N/A")
             h_index = rec.get("h_index", "-")
+            h5_index = rec.get("h5_index", rec.get("Índice h5", "-"))
+            h5_median = rec.get("h5_median", rec.get("Mediana h5", "-"))
             h5_link = rec.get("h5_link", "-")
             aderencia = rec.get("aderencia", rec.get("revista_aderencia", 0))
             probabilidade = rec.get("probabilidade_aceitacao", max(10, aderencia - 5))
@@ -2741,7 +2761,7 @@ with tab_ia:
             if not registro_revista.empty:
                 try:
                     row = registro_revista.iloc[0]
-                    if not homepage or homepage in ["-", "", "nan", "None"]:
+                    if not homepage or homepage in ["nan", "-", "None", ""]:
                         homepage = str(row.get("Homepage", ""))
                     if issn in ["N/A", "-"]:
                         issn = str(row.get("ISSN", "N/A"))
@@ -2753,20 +2773,15 @@ with tab_ia:
                         sjr = str(row.get("SJR", "N/A"))
                     if h_index in ["-"]:
                         h_index = str(row.get("H index", row.get("h-index", "-")))
-                    if h5_link in ["-"]:
-                        h5_link = str(row.get("Índice h5", "-"))
+                    if h5_index in ["-"]:
+                        h5_index = str(row.get("Índice h5", "-"))
+                    if h5_median in ["-"]:
+                        h5_median = str(row.get("Mediana h5", "-"))
                 except Exception:
                     pass
             
-            # Obtém avaliação do artigo para esta revista
             aderencia_escopo = aderencia
             justificativa_metricas = justificativa
-            
-            if nome_rev in avaliacoes:
-                ev = avaliacoes[nome_rev]
-                aderencia_escopo = ev.get("aderencia_escopo", aderencia)
-                probabilidade = ev.get("probabilidade_aceitacao", probabilidade)
-                justificativa_metricas = ev.get("justificativa_metricas", justificativa)
             
             with st.container(border=True):
                 # Título da revista + botões Homepage e h5 ao lado
@@ -2782,7 +2797,7 @@ with tab_ia:
                     if h5_link and h5_link not in ["nan", "-", "None", ""]:
                         st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
                 
-                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index}")
+                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index} | **Índice h5:** {h5_index} | **Mediana h5:** {h5_median}")
                 
                 # Barras de progresso para métricas
                 col_m1, col_m2 = st.columns(2)
@@ -2797,8 +2812,8 @@ with tab_ia:
                 
                 st.caption(f"*{t['ia_probabilidade_nota']}*")
                 
-                # Justificativa dissertativa das métricas
-                with st.expander(f"📖 {t['ia_justificativa_tit']}", expanded=True):
+                # Justificativa dissertativa contextualizada de 3-4 linhas
+                with st.expander(f"📖 Justificativa do Match & Afinidade Semântica", expanded=True):
                     st.markdown(justificativa_metricas)
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
