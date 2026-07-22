@@ -9,7 +9,24 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Configurações de caminhos
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_CSV_PATH = os.path.join(BASE_DIR, "dados.csv")
-EMBEDDINGS_CACHE_PATH = os.path.join(BASE_DIR, "data", "aims_scope_minilm_vectors.pkl")
+
+def _get_cache_path():
+    """Gera caminho de cache com hash do CSV para invalidar quando o CSV mudar."""
+    import hashlib
+    cache_dir = os.path.join(BASE_DIR, "data")
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    # Calcula hash do CSV
+    csv_hash = ""
+    try:
+        with open(DADOS_CSV_PATH, "rb") as f:
+            csv_hash = hashlib.md5(f.read()).hexdigest()[:8]
+    except Exception:
+        pass
+    
+    return os.path.join(cache_dir, f"aims_scope_minilm_vectors_{csv_hash}.pkl")
+
+EMBEDDINGS_CACHE_PATH = _get_cache_path()
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 def safe_float(val):
@@ -196,10 +213,37 @@ def carregar_embeddings_cache(df, model):
             
     return precomputar_e_salvar_embeddings(df, model)
 
-def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_manual=None, indexador_manual=None):
+
+# NOVA FUNÇÃO: Cache session-aware para embeddings
+def get_session_aware_cache_path():
+    """Gera caminho de cache único por sessão para evitar compartilhamento entre usuários."""
+    import hashlib
+    import streamlit as st
+    
+    # Usa session ID do Streamlit como parte do caminho
+    session_id = st.session_state.get('session_id', 'default')
+    cache_dir = os.path.join(BASE_DIR, "data", "session_cache")
+    os.makedirs(cache_dir, exist_ok=True)
+    
+    # Hash do CSV + session ID
+    csv_hash = ""
+    try:
+        with open(DADOS_CSV_PATH, "rb") as f:
+            csv_hash = hashlib.md5(f.read()).hexdigest()[:8]
+    except Exception:
+        pass
+    
+    return os.path.join(cache_dir, f"embeddings_{csv_hash}_{session_id}.pkl")
+
+def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_manual=None, indexador_manual=None, area=None, indexador=None, **kwargs):
     """
     Executa o algoritmo de recomendação de periódicos científicos com as otimizações.
     """
+    if not area_manual and area:
+        area_manual = area
+    if not indexador_manual and indexador:
+        indexador_manual = indexador
+
     # 1. Carrega e normaliza os dados
     df = carregar_e_normalizar_base()
     
@@ -258,6 +302,9 @@ def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_man
     # 5. Similaridade Semântica (S_text)
     similarities = cosine_similarity(manuscrito_embedding, catalog_embeddings).flatten()
     
+    # Trata NaN que podem ocorrer se embeddings forem corrompidos
+    similarities = np.nan_to_num(similarities, nan=0.0)
+    
     # Atribui S_text ao DataFrame filtrado
     df_filtered["S_text"] = similarities
     
@@ -274,7 +321,7 @@ def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_man
     df_candidates["S_index"] = df_candidates["indexador"].apply(get_s_index)
     
     # Fórmula atualizada com novos pesos (80% S_text + 20% S_index)
-    df_candidates["Score_final"] = 0.80 * df_candidates["S_text"] + 0.20 * df_candidates["S_index"]
+    df_candidates["Score_final"] = (0.80 * df_candidates["S_text"] + 0.20 * df_candidates["S_index"]).fillna(0.0)
     
     # Ordenação e critério de desempate:
     # 1. Score_final (DECRESCENTE)

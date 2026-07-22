@@ -1,6 +1,10 @@
 import streamlit as st
 import sys
 import os
+import recomendar_regras
+import importlib
+importlib.reload(recomendar_regras)
+
 
 # Adiciona diretório atual ao path para imports locais
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -342,6 +346,33 @@ def inicializar_firebase():
         firebase_admin.initialize_app(cred)
         
     return firestore.client()
+
+def _get_csv_hash(filepath):
+    """Calcula hash MD5 do conteúdo do CSV para invalidação robusta de cache."""
+    import hashlib
+    try:
+        with open(filepath, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except Exception:
+        return ""
+
+def _get_code_version_hash():
+    """Calcula hash baseado no timestamp dos arquivos Python críticos."""
+    import hashlib
+    critical_files = [
+        os.path.join(os.path.dirname(__file__), "recomendar_regras.py"),
+        os.path.join(os.path.dirname(__file__), "services", "discovery_recommender.py"),
+        os.path.join(os.path.dirname(__file__), "app.py"),
+    ]
+    try:
+        content = ""
+        for fpath in critical_files:
+            if os.path.exists(fpath):
+                mtime = os.path.getmtime(fpath)
+                content += f"{fpath}:{mtime};"
+        return hashlib.md5(content.encode()).hexdigest()
+    except Exception:
+        return ""
 
 # Inicializa o cliente do Firestore globalmente se os segredos estiverem presentes
 db = None
@@ -1400,6 +1431,7 @@ def _get_code_version_hash():
     critical_files = [
         os.path.join(os.path.dirname(__file__), "recomendar_regras.py"),
         os.path.join(os.path.dirname(__file__), "services", "discovery_recommender.py"),
+        os.path.join(os.path.dirname(__file__), "app.py"),
     ]
     try:
         content = ""
@@ -1411,8 +1443,12 @@ def _get_code_version_hash():
     except Exception:
         return ""
 
-@st.cache_data
+@st.cache_data(
+    ttl=3600,
+    show_spinner="Carregando base de dados...",
+)
 def carregar_dados(csv_hash):
+    """Carrega e processa o CSV de dados com cache de 1 hora."""
     nome_arquivo = "dados.csv"
     if not os.path.exists(nome_arquivo):
         if os.path.exists("Dados.csv"):
@@ -1532,7 +1568,10 @@ def carregar_dados(csv_hash):
             st.error(f"    Erro ao processar a base de dados '{nome_arquivo}'. Detalhes: {e}")
             st.stop()
     else:
-        st.error("    Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
+        st.error(
+            "    Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. "
+            "Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente."
+        )
         st.stop()
 
 # Calcula hash do CSV para invalidação robusta de cache
@@ -1550,7 +1589,6 @@ else:
 
 # Hash da versão do código para invalidar cache quando o código mudar
 code_version_hash = _get_code_version_hash()
-
 df_original, arquivo_usado = carregar_dados(csv_hash + code_version_hash)
 
 cache_manager = get_cache_manager()
