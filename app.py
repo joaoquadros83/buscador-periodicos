@@ -435,15 +435,15 @@ def obter_imagem_local_base64(caminho_arquivo):
         return ""
     return ""
 
-# Busca o favicon/logo em alta resolução
+# Busca o arquivo logo.ico para definir como o ícone oficial da guia do navegador
 try:
     from PIL import Image
-    if os.path.exists("favicon.png"):
+    if os.path.exists("logo.ico"):
+        page_icon_config = Image.open("logo.ico")
+    elif os.path.exists("favicon.png"):
         page_icon_config = Image.open("favicon.png")
     elif os.path.exists("logo.png"):
         page_icon_config = Image.open("logo.png")
-    elif os.path.exists("icon.ico"):
-        page_icon_config = Image.open("icon.ico")
     else:
         page_icon_config = "🎓"
 except Exception:
@@ -461,13 +461,13 @@ st.set_page_config(
     }
 )
 
-# Injeta favicon HD diretamente no cabeçalho HTML para navegadores web
-imagem_base64_icon = obter_imagem_local_base64("favicon.png") or obter_imagem_local_base64("logo.png")
+# Injeta logo.ico HD diretamente no cabeçalho HTML para navegadores web
+imagem_base64_icon = obter_imagem_local_base64("logo.ico") or obter_imagem_local_base64("favicon.png") or obter_imagem_local_base64("logo.png")
 if imagem_base64_icon:
     st.markdown(f"""
         <head>
-            <link rel="shortcut icon" href="data:image/png;base64,{imagem_base64_icon}" type="image/png">
-            <link rel="icon" href="data:image/png;base64,{imagem_base64_icon}" type="image/png">
+            <link rel="shortcut icon" href="data:image/x-icon;base64,{imagem_base64_icon}" type="image/x-icon">
+            <link rel="icon" href="data:image/x-icon;base64,{imagem_base64_icon}" type="image/x-icon">
         </head>
     """, unsafe_allow_html=True)
 
