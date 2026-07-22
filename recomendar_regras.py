@@ -165,25 +165,24 @@ def carregar_e_normalizar_base():
     return df
 
 def obter_modelo_embeddings():
-    """Retorna o modelo de embeddings carregado com resiliência contra falhas de download."""
+    """Retorna o modelo de embeddings carregado com resiliência contra estouro de memória no Streamlit Cloud (FastEmbed ONNX)."""
     try:
-        return SentenceTransformer(MODEL_NAME)
-    except Exception as e:
-        print(f"Aviso: Não foi possível carregar SentenceTransformer ({e}). Usando modelo resiliente...")
+        from fastembed import TextEmbedding
+        class FastEmbedAdapter:
+            def __init__(self):
+                self.model = TextEmbedding("BAAI/bge-small-en-v1.5")
+            def encode(self, texts, batch_size=256, show_progress_bar=False, convert_to_numpy=True):
+                if isinstance(texts, str):
+                    texts = [texts]
+                embeddings = list(self.model.embed(texts))
+                return np.array(embeddings)
+        return FastEmbedAdapter()
+    except Exception as e1:
         try:
-            from fastembed import TextEmbedding
-            class FastEmbedAdapter:
-                def __init__(self):
-                    self.model = TextEmbedding("BAAI/bge-small-en-v1.5")
-                def encode(self, texts, batch_size=256, show_progress_bar=False, convert_to_numpy=True):
-                    if isinstance(texts, str):
-                        texts = [texts]
-                    embeddings = list(self.model.embed(texts))
-                    return np.array(embeddings)
-            return FastEmbedAdapter()
+            return SentenceTransformer(MODEL_NAME)
         except Exception as e2:
-            print(f"Erro ao carregar FastEmbed: {e2}")
-            raise e
+            print(f"Erro ao carregar modelos de embedding: {e1} / {e2}")
+            raise e1
 
 def precomputar_e_salvar_embeddings(df, model):
     """Calcula os embeddings dos escopos e salva em cache."""

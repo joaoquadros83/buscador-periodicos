@@ -2996,7 +2996,8 @@ with tab_ia:
                     journals = _filtrar_journals_ia(journals, area_ia, indexador_ia, t)
                 
                 st.session_state.recomendacoes = journals
-                st.session_state.ia_cache[cache_key] = journals
+                if backend in ["minilm_engine", "fastembed_engine", "hybrid_api"] and journals:
+                    st.session_state.ia_cache[cache_key] = journals
                 
                 tempo_total = time.time() - tempo_inicio
                 
