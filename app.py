@@ -2407,19 +2407,66 @@ with tab_busca:
             s = unicodedata.normalize('NFD', str(s))
             return ''.join(c for c in s if unicodedata.category(c) != 'Mn').lower().strip()
 
+        MULTILINGUAL_DICTIONARY = {
+            "educacao": ["education", "educacion", "educational", "teaching", "pedagogy", "pedagogia", "ensino", "ensenanza"],
+            "education": ["educacao", "educacion", "educational", "teaching", "pedagogy", "pedagogia", "ensino", "ensenanza"],
+            "educacion": ["education", "educacao", "educational", "teaching", "pedagogy", "pedagogia", "ensino", "ensenanza"],
+            "musica": ["music", "musical", "musicology", "musicologia"],
+            "music": ["musica", "musical", "musicology", "musicologia"],
+            "saude": ["health", "salud", "healthcare", "sanidad", "medical", "medicina"],
+            "health": ["saude", "salud", "healthcare", "sanidad", "medical", "medicina"],
+            "salud": ["saude", "health", "healthcare", "sanidad", "medical", "medicina"],
+            "ciencia": ["science", "scientific", "cientifica", "cientifico"],
+            "science": ["ciencia", "scientific", "cientifica", "cientifico"],
+            "humana": ["human", "humanas", "humanities", "humanidades", "humanizacao", "humanization"],
+            "human": ["humana", "humanas", "humanities", "humanidades", "humanizacao", "humanization"],
+            "humanities": ["humana", "humanas", "humanities", "humanidades"],
+            "humanidades": ["humana", "humanas", "humanities", "humanidades"],
+            "sociedade": ["society", "social", "sociedad", "sociales", "sociais"],
+            "society": ["sociedade", "social", "sociedad", "sociales", "sociais"],
+            "social": ["sociedade", "society", "sociedad", "sociales", "sociais"],
+            "ambiente": ["environment", "environmental", "ambiental", "medio ambiente"],
+            "environment": ["ambiente", "environmental", "ambiental", "medio ambiente"],
+            "direito": ["law", "legal", "derecho", "juridica", "juridico"],
+            "law": ["direito", "legal", "derecho", "juridica", "juridico"],
+            "derecho": ["direito", "law", "legal", "juridica", "juridico"],
+            "psicologia": ["psychology", "psychological", "psicologica", "psicologico"],
+            "psychology": ["psicologia", "psychological", "psicologica", "psicologico"],
+            "historia": ["history", "historical", "historica", "historico"],
+            "history": ["historia", "historical", "historica", "historico"],
+            "arte": ["art", "arts", "artes", "artistic"],
+            "art": ["arte", "arts", "artes", "artistic"],
+            "arts": ["arte", "art", "artes", "artistic"],
+            "engenharia": ["engineering", "ingenieria", "engineer"],
+            "engineering": ["engenharia", "ingenieria", "engineer"],
+            "ingenieria": ["engenharia", "engineering", "engineer"],
+            "revista": ["journal", "review", "boletin", "bulletin", "acta", "annals", "anales"],
+            "journal": ["revista", "review", "boletin", "bulletin", "acta", "annals", "anales"],
+            "review": ["revista", "journal", "boletin", "bulletin", "acta", "annals", "anales"],
+        }
+
+        def _checar_termo_unico(termo, texto_norm):
+            if not termo:
+                return True
+            if termo in texto_norm:
+                return True
+            if termo in MULTILINGUAL_DICTIONARY:
+                for eq in MULTILINGUAL_DICTIONARY[termo]:
+                    if eq in texto_norm:
+                        return True
+            if len(termo) >= 4:
+                prefix = termo[:4]
+                return any(w.startswith(prefix) or prefix in w for w in texto_norm.split())
+            return False
+
         def _termo_corresponde(termo_busca, texto_norm):
             termo_norm = _remover_acentos_str(termo_busca)
             if not termo_norm:
                 return True
-            if termo_norm in texto_norm:
-                return True
             words = [w for w in termo_norm.split() if w]
             if len(words) > 1:
-                return all(w in texto_norm for w in words)
-            if len(termo_norm) >= 4:
-                prefix = termo_norm[:4]
-                return any(w.startswith(prefix) or prefix in w for w in texto_norm.split())
-            return False
+                return all(_checar_termo_unico(w, texto_norm) for w in words)
+            return _checar_termo_unico(termo_norm, texto_norm)
 
         texto_busca = busca.strip()
         termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
