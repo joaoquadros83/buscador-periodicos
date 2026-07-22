@@ -165,8 +165,25 @@ def carregar_e_normalizar_base():
     return df
 
 def obter_modelo_embeddings():
-    """Retorna o modelo de embeddings carregado."""
-    return SentenceTransformer(MODEL_NAME)
+    """Retorna o modelo de embeddings carregado com resiliência contra falhas de download."""
+    try:
+        return SentenceTransformer(MODEL_NAME)
+    except Exception as e:
+        print(f"Aviso: Não foi possível carregar SentenceTransformer ({e}). Usando modelo resiliente...")
+        try:
+            from fastembed import TextEmbedding
+            class FastEmbedAdapter:
+                def __init__(self):
+                    self.model = TextEmbedding("BAAI/bge-small-en-v1.5")
+                def encode(self, texts, batch_size=256, show_progress_bar=False, convert_to_numpy=True):
+                    if isinstance(texts, str):
+                        texts = [texts]
+                    embeddings = list(self.model.embed(texts))
+                    return np.array(embeddings)
+            return FastEmbedAdapter()
+        except Exception as e2:
+            print(f"Erro ao carregar FastEmbed: {e2}")
+            raise e
 
 def precomputar_e_salvar_embeddings(df, model):
     """Calcula os embeddings dos escopos e salva em cache."""
@@ -196,7 +213,7 @@ def carregar_embeddings_cache(df, model):
             
     return precomputar_e_salvar_embeddings(df, model)
 
-def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True):
+def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_manual=None, indexador_manual=None):
     """
     Executa o algoritmo de recomendação de periódicos científicos com as otimizações.
     """
@@ -205,7 +222,15 @@ def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True):
     
     # 2. Identifica a Grande Área do artigo e filtra se solicitado
     area_msg = ""
-    if filtrar_area:
+    if area_manual and str(area_manual).strip() not in ["Todas", "Todas as Áreas", "Todas as Áreas / Broad Areas", "-"]:
+        mask = df["grande_area"].apply(lambda x: str(area_manual).lower() in str(x).lower())
+        df_filtered = df[mask].copy()
+        if len(df_filtered) == 0:
+            df_filtered = df.copy()
+            indices_validos = list(range(len(df)))
+        else:
+            indices_validos = df_filtered.index.tolist()
+    elif filtrar_area:
         areas_detectadas = identificar_grandes_areas(titulo, resumo)
         area_msg = f"Grande(s) Área(s) detectada(s): {', '.join(areas_detectadas)}"
         print(area_msg)
@@ -226,6 +251,14 @@ def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True):
     else:
         df_filtered = df.copy()
         indices_validos = list(range(len(df)))
+        
+    # Filtra por indexador se especificado
+    if indexador_manual and str(indexador_manual).strip() not in ["Todos", "ia_todos", "Todos os Indexadores", "-"]:
+        mask_idx = df_filtered["indexador"].apply(lambda x: str(indexador_manual).lower() in str(x).lower())
+        df_idx = df_filtered[mask_idx].copy()
+        if len(df_idx) > 0:
+            df_filtered = df_idx
+            indices_validos = df_filtered.index.tolist()
         
     # 3. Carrega modelo e embeddings do catálogo
     model = obter_modelo_embeddings()

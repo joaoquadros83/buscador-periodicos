@@ -2914,7 +2914,9 @@ with tab_ia:
                             titulo=titulo_artigo,
                             resumo=resumo_artigo,
                             top_n=num_recomendacoes,
-                            filtrar_area=True
+                            filtrar_area=(area_ia == "Todas"),
+                            area_manual=area_ia if area_ia != "Todas" else None,
+                            indexador_manual=indexador_ia if indexador_ia not in ["Todos", t.get("ia_todos", "Todos")] else None
                         )
                         journals = []
                         for _, row in df_rec.iterrows():
