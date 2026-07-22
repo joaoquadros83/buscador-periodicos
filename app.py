@@ -1170,28 +1170,32 @@ def traduzir_grande_area(area_original, t_dict):
     if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
         return "-"
     
+    texto_orig = str(area_original).strip()
     mapeamento = t_dict.get("areas_trad", {})
-    sub_areas = [a.strip() for a in str(area_original).split(",") if a.strip()]
     
-    import unicodedata
-    def clean_str(s):
-        s = str(s).lower().strip()
-        s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
-        s = ''.join(c for c in s if c.isalnum() or c.isspace())
-        return ' '.join(s.split())
+    cnpq_padrao = [
+        ("Ciências Exatas e da Terra", "Exact and Earth Sciences", "Ciencias Exactas y de la Tierra"),
+        ("Ciências Biológicas", "Biological Sciences", "Ciencias Biológicas"),
+        ("Engenharias", "Engineering", "Ingenierías"),
+        ("Ciências da Saúde", "Health Sciences", "Ciencias de la Salud"),
+        ("Ciências Agrárias", "Agricultural Sciences", "Ciencias Agrarias"),
+        ("Ciências Sociais Aplicadas", "Applied Social Sciences", "Ciencias Sociales Aplicadas"),
+        ("Ciências Humanas", "Humanities", "Ciencias Humanas"),
+        ("Linguística, Letras e Artes", "Linguistics, Letters and Arts", "Lingüística, Letras y Artes"),
+        ("Outras / Não Classificado", "Others / Unclassified", "Otras / No Clasificado")
+    ]
+    
+    areas_traduzidas = []
+    for pt, en, es in cnpq_padrao:
+        if pt in texto_orig or en in texto_orig or es in texto_orig:
+            trad = mapeamento.get(pt, pt)
+            if trad not in areas_traduzidas:
+                areas_traduzidas.append(trad)
+                
+    if not areas_traduzidas:
+        return texto_orig
         
-    sub_areas_traduzidas = []
-    for sa in sub_areas:
-        trad = mapeamento.get(sa, None)
-        if not trad:
-            sa_clean = clean_str(sa)
-            for k, v in mapeamento.items():
-                if clean_str(k) == sa_clean:
-                    trad = v
-                    break
-        sub_areas_traduzidas.append(trad if trad else sa)
-        
-    return ", ".join(sub_areas_traduzidas)
+    return ", ".join(areas_traduzidas)
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
