@@ -84,23 +84,23 @@ class DiscoveryRecommender:
     def _classify_knowledge_area_llm(self, titulo: str, resumo: str) -> str:
         """Camada 1: Identifica a Knowledge Area / Broad Area do manuscrito via Gemini ou Fallback Local."""
         if not self.api_key_gemini:
-            # Fallback local usando regex/keywords para classificar em áreas principais
+            # Fallback local usando regex/keywords para classificar em áreas principais (em português para compatibilidade)
             text = f"{titulo} {resumo}".lower()
             if any(w in text for w in ["medicine", "health", "clinical", "patient", "disease", "treatment", "therapy", "saúde", "médica"]):
-                return "Medicine & Health Sciences"
+                return "Ciências da Saúde"
             if any(w in text for w in ["computer", "software", "algorithm", "intelligence", "network", "security", "data", "computação"]):
-                return "Computer Science"
+                return "Ciências Exatas e da Terra"
             if any(w in text for w in ["education", "teaching", "learning", "student", "school", "pedagogy", "ensino", "escola"]):
-                return "Education"
+                return "Ciências Humanas"
             if any(w in text for w in ["economic", "business", "market", "finance", "management", "corporate", "economia", "negócios"]):
-                return "Business & Economics"
+                return "Ciências Sociais Aplicadas"
             if any(w in text for w in ["social", "society", "human", "culture", "political", "policy", "social", "sociedade"]):
-                return "Social Sciences"
+                return "Ciências Humanas"
             if any(w in text for w in ["energy", "material", "chemical", "physics", "earth", "environment", "climate", "física", "química"]):
-                return "Exact & Earth Sciences"
+                return "Ciências Exatas e da Terra"
             if any(w in text for w in ["dna", "protein", "cell", "biological", "gene", "evolution", "species", "biologia", "célula"]):
-                return "Biological Sciences"
-            return "General"
+                return "Ciências Biológicas"
+            return "Ciências Humanas"
 
         prompt = f"""
         Classifique o manuscrito científico abaixo em uma única Knowledge Area primária em inglês (ex: Computer Science, Medicine, Education, Arts, Psychology, Social Sciences, Engineering, Biological Sciences, Business):
@@ -122,8 +122,11 @@ class DiscoveryRecommender:
         return "General"
 
     def _compute_vector_adherence(self, titulo: str, resumo: str) -> List[Tuple[int, float]]:
-        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) priorizando o Aims & Scope das revistas."""
-        user_text = f"{titulo} {resumo}"
+        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) priorizando o Aims & Scope das revistas.
+        Ponderação temática 80/20: o título é repetido 3x para valorizar aspectos temáticos sobre metodológicos.
+        """
+        # Repete o título 3x para aumentar o peso temático vs. termos metodológicos do resumo (proporção 80/20)
+        user_text = f"{titulo} {titulo} {titulo} {resumo}"
 
         col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
         scopes = self.df_scoped[col_scope].astype(str).tolist()
@@ -184,8 +187,8 @@ class DiscoveryRecommender:
         else:
             base_prob = 50.0
 
-        # Ponderação: 55% Aderência Semântica + 45% Fator Quartil/Aceitação Base
-        prob = (adherence_score * 0.55) + (base_prob * 0.45)
+        # Ponderação 80/20: 80% Aderência Semântica + 20% Fator Quartil/Aceitação Base
+        prob = (adherence_score * 0.80) + (base_prob * 0.20)
         return round(min(95.0, max(15.0, prob)), 1)
 
     def _generate_3line_justification(self, titulo: str, resumo: str, journal_name: str, scope: str, adherence: float, row: pd.Series) -> str:
@@ -282,7 +285,14 @@ class DiscoveryRecommender:
             garea_val = str(list_garea[idx_scoped]).lower()
             area_val = str(list_area[idx_scoped]).lower()
             
-            if any(w in garea_val or w in area_val for w in area_words):
+            # Verifica se a área do periódico corresponde à área detectada (busca por substring)
+            area_match = False
+            for word in area_words:
+                if len(word) > 3 and (word in garea_val or word in area_val):
+                    area_match = True
+                    break
+            
+            if area_match:
                 score_adherence = min(98.0, score_adherence + 4.0)
 
             # Probabilidade
@@ -296,55 +306,21 @@ class DiscoveryRecommender:
                 "probabilidade_aceitacao": prob_aceitacao
             })
 
-        # Seleção Híbrida do Top 20:
-        # - 8 vagas de maior afinidade (Web of Science)
-        # - 6 vagas de maior afinidade (Scopus)
-        # - 6 vagas de maior afinidade temática pura
+        # Seleção do Top 20 por Score Final (ranking unificado 80/20 sem grupos fixos)
         selected_candidates = []
         selected_ids = set()
 
-        # Certifica que all_candidates está ordenado por Adherence Score (aderencia) decrescente
+        # Ordena todos os candidatos por aderência semântica (ja calculada com bonificação de área)
         all_candidates.sort(key=lambda x: -x["aderencia"])
 
-        # 1. Grupo A: 8 vagas de maior afinidade (Web of Science)
-        grupo_a = []
+        # Seleciona os Top 20 sem restrição de indexador (respeitando apenas a área)
         for c in all_candidates:
-            if len(grupo_a) >= 8:
+            if len(selected_candidates) >= 20:
                 break
             idx = c["idx_scoped"]
-            indexador = str(list_indexador[idx]).lower()
-            is_wos = any(x in indexador for x in ["web of science", "wos", "scie", "ssci", "ahci", "esci"])
-            if is_wos:
-                grupo_a.append(c)
+            if idx not in selected_ids:
+                selected_candidates.append(c)
                 selected_ids.add(idx)
-        selected_candidates.extend(grupo_a)
-
-        # 2. Grupo B: 6 vagas de maior afinidade (Scopus)
-        grupo_b = []
-        for c in all_candidates:
-            if len(grupo_b) >= 6:
-                break
-            idx = c["idx_scoped"]
-            if idx in selected_ids:
-                continue
-            indexador = str(list_indexador[idx]).lower()
-            is_scopus = "scopus" in indexador
-            if is_scopus:
-                grupo_b.append(c)
-                selected_ids.add(idx)
-        selected_candidates.extend(grupo_b)
-
-        # 3. Grupo C: 6 vagas de maior afinidade temática pura
-        grupo_c = []
-        for c in all_candidates:
-            if len(grupo_c) >= 6:
-                break
-            idx = c["idx_scoped"]
-            if idx in selected_ids:
-                continue
-            grupo_c.append(c)
-            selected_ids.add(idx)
-        selected_candidates.extend(grupo_c)
 
         # Fallback se não completou 20
         if len(selected_candidates) < 20:

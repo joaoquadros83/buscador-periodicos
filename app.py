@@ -1,4 +1,3 @@
-    
 import streamlit as st
 import sys
 import os
@@ -289,6 +288,9 @@ from services.article_evaluator import ArticleEvaluator
 from services.cache_manager import CacheManager
 from utils.logger import AnonymousLogger, get_anonymous_logger
 
+# Motor principal de recomendação (MiniLM sentence-transformers + filtro de Grande Área + 80/20)
+from recomendar_regras import recomendar_periodicos as _recomendar_periodicos
+
 
 def get_discovery_recommender(df_local, api_key_gemini=None, h_index_author=5):
     return DiscoveryRecommender(df_local=df_local, api_key_gemini=api_key_gemini, h_index_author=h_index_author)
@@ -417,10 +419,58 @@ st.set_page_config(
     page_title="O Portal do Pesquisador",
     page_icon=novo_page_icon, 
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': None,
+        'Report a bug': None,
+        'About': None
+    }
 )
 
-# --- INJEÇÃO DE TEMA DINÂMICO (DIURNO / NOTURNO) ---
+# --- INJEÇÃO DE TEMA DINÂMICO E OCULTAÇÃO DE CONFIGURAÇÕES ---
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        /* Botão do menu lateral com preenchimento PRETO (#000000) e ícones/setas BRANCAS (#FFFFFF) */
+        [data-testid="stHeader"] {
+            background: transparent !important;
+        }
+        [data-testid="collapsedControl"], 
+        button[data-testid="stSidebarCollapseButton"],
+        [data-testid="stHeader"] button,
+        button[title*="sidebar"],
+        button[aria-label*="sidebar"],
+        [data-testid="collapsedControl"] button {
+            visibility: visible !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+            border: 1.5px solid #333333 !important;
+            border-radius: 8px !important;
+            padding: 6px 10px !important;
+            z-index: 999999 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+        }
+        [data-testid="collapsedControl"] svg, 
+        button[data-testid="stSidebarCollapseButton"] svg,
+        [data-testid="stHeader"] button svg,
+        [data-testid="collapsedControl"] path, 
+        button[data-testid="stSidebarCollapseButton"] path,
+        [data-testid="stHeader"] button path {
+            fill: #FFFFFF !important;
+            color: #FFFFFF !important;
+            stroke: #FFFFFF !important;
+        }
+        button[title="View app settings"],
+        button[title="Options"] {
+            display: none !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 if st.session_state.get("dark_mode", False):
     st.markdown("""
         <style>
@@ -468,19 +518,37 @@ if st.session_state.get("dark_mode", False):
         </style>
     """, unsafe_allow_html=True)
 
-# --- 2. SISTEMA DE TRADUÇÃO MULTIL NGUE ---
+# --- 2. SISTEMA DE TRADUÇÃO MULTILÍNGUE ---
 if 'idioma' not in st.session_state:
-    st.session_state.idioma = "Português"
+    st.session_state.idioma = "English"
+
+# Logo na parte superior do menu lateral, acima do seletor de idioma
+_logo_file = "logo.png"
+if st.session_state.get("idioma") == "English" and os.path.exists("logo_en.png"):
+    _logo_file = "logo_en.png"
+elif st.session_state.get("idioma") == "Español" and os.path.exists("logo_es.png"):
+    _logo_file = "logo_es.png"
+
+if os.path.exists(_logo_file):
+    import base64
+    with open(_logo_file, "rb") as f_logo:
+        _logo_b64 = base64.b64encode(f_logo.read()).decode("utf-8")
+    st.sidebar.markdown(
+        f'''<div style="text-align: center; margin-top: 10px; margin-bottom: 10px;">
+            <img src="data:image/png;base64,{_logo_b64}" style="width: calc(100% - 60px); max-width: 220px; height: auto;" />
+        </div>''',
+        unsafe_allow_html=True
+    )
 
 # Seletor de idioma fixado na barra lateral
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.session_state.idioma = st.sidebar.selectbox(
-    "  Language / Idioma:",
+    "🌐 Language / Idioma:",
     ["English", "Español", "Português"], index=0
 )
 
 # --- BOTÃO DE CONTATO (GLOBAL) ---
-_lang = st.session_state.get('idioma', 'Português')
+_lang = st.session_state.get('idioma', 'English')
 _btn_contato_text = "✉️ Fale conosco"
 if _lang == 'English':
     _btn_contato_text = "✉️ Contact Us"
@@ -520,11 +588,26 @@ dic = {
         "buscar_reg": "Buscar registro específico:",
         "aba_escopo": "📂 Escopo Acadêmico & CNPq",
         "aba_impacto": "📈 Métricas de Performance & Quartis",
-        "subarea_lbl": "Subárea do Conhecimento (CNPq):",
-        "base_lbl": "Bases Detentoras:",
-        "jcr_lbl": "Quartil JCR (Clarivate):",
+        "subarea_lbl": "Grande Área:",
+        "base_lbl": "Bases de Dados:",
+        "jcr_lbl": "Quartil JCR (WoS):",
         "sjr_lbl": "Quartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
+        "opt_sort_title": "Título da Revista",
+        "opt_sort_index": "Base de Dados",
+        "opt_sort_jcr": "Quartil JCR",
+        "opt_sort_sjr": "Quartil SJR",
+        "col_titulo_rev": "Título da Revista",
+        "col_grande_area": "Grande Área",
+        "col_indexador": "Base de Dados",
+        "sub_modal_title": "Inscrever-se na Newsletter",
+        "sub_header": "### Junte-se à nossa Comunidade VIP! 🚀",
+        "sub_desc": "Deixe seu e-mail para receber dicas de publicação e atualizações da plataforma. Sem spam, prometemos.",
+        "sub_nome": "Nome Completo:",
+        "sub_email": "E-mail:",
+        "sub_btn": "Inscrever-se",
+        "sub_sucesso": "Obrigado por se inscrever!",
+        "sub_erro": "Por favor, preencha o Nome e o E-mail.",
         "m_selecionadas": "Revistas Selecionadas",
         "m_hindex": "H-Index Topo",
         "m_jif": "Fator JIF Máximo",
@@ -549,7 +632,7 @@ dic = {
         "gov_tit": "SITES GOVERNAMENTAIS",
         "inst_tit": "INFORMAÇÕES INSTITUCIONAIS",
         "pessoal_lbl": "👤 Site pessoal",
-        "indexadores_tit": "INDEXADORES",
+        "indexadores_tit": "BASES DE DADOS",
         "repositorios_tit": "REPOSITÓRIOS",
         "ia_tit": "IA ACADÊMICA",
         "btn_desktop": "💻 Baixar Versão para Windows",
@@ -571,19 +654,19 @@ dic = {
         "ia_fallback_local": "Resultado gerado pelo algoritmo local de relevância temática (Ollama indisponível).",
         "ia_artigos_similares": "Artigos semanticamente similares",
         "ia_artigos_similares_hint": "Referências publicadas com temática próxima ao seu resumo (OpenAlex).",
-        "ia_aderencia_escopo": "Aderência ao Escopo",
+        "ia_aderencia_escopo": "Score de Similaridade Semântica",
         "ia_probabilidade": "Probabilidade Estimada de Aceitação",
-        "ia_probabilidade_nota": "Estimativa baseada em aderência temática, prestígio da revista e artigos similares publicados.",
+        "ia_probabilidade_nota": "Estimativa baseada em similaridade semântica, prestígio da revista e artigos similares publicados.",
         "ia_justificativa_tit": "Por que esta revista foi recomendada",
         "ia_classificacao_area": "Classificação CAPES do artigo",
         "ia_card_motivo": "Por que publicar aqui:",
-        "ia_card_aderencia": "Grau de Aderência:",
+        "ia_card_aderencia": "Score de Similaridade Semântica:",
         "ia_card_site": "  Visitar Homepage Oficial",
         "ia_card_sem_site": "Site indisponível na base",
         "filtro_area": "Grande Área",
-        "filtro_indexador": "Indexador",
+        "filtro_indexador": "Base de Dados",
         "ia_credencial_tit": "🔑 IA Motor",
-        "ia_como_obter_titulo": "ℹ  Sobre os modos de IA",
+        "ia_como_obter_titulo": "ℹ️ Sobre os modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 1. A IA analisa semanticamente seu título e resumo<br>
@@ -593,6 +676,26 @@ dic = {
 5. Caso não tenha ou não queira usar essa opção, você poderá realizar a busca deixando em branco essa janela e usando o Ollama (Llama 3) como IA.
 </div>
         """,
+        "ia_como_obter_chave_gemini_tit": "🔑 Como obter chave Gemini gratuita?",
+        "ia_como_obter_chave_gemini_texto": """1. Acesse [aistudio.google.com](https://aistudio.google.com)
+2. Faça login com sua conta Google
+3. Clique em "Get API Key" → "Create API Key"
+4. Copie a chave e cole acima""",
+        "ia_chave_gemini_label": "🔑 Chave Gemini (opcional)",
+        "ia_chave_gemini_ph": "Deixe em branco para usar Ollama local ou algoritmo local",
+        "ia_chave_gemini_help": "Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas.",
+        "ia_ollama_status_ok": "✅ Ollama local detectado e disponível",
+        "ia_gemini_status_ok": "🔑 Chave Gemini API configurada",
+        "ia_modo_local_info": "⚙️ Modo local (algoritmo de relevância)",
+        "ia_criterio_ordenamento_tit": "🔀 Critério de Ordenamento dos Resultados:",
+        "ia_criterio_ordenamento_sub": "Selecione o critério de ordenamento:",
+        "ia_opt_probabilidade": "Probabilidade Estimada de Aceitação (Maior para o menor)",
+        "ia_opt_aderencia": "Score de Similaridade Semântica (Maior para o menor)",
+        "ia_opt_alfabetica_az": "Ordem alfabética (A-Z)",
+        "ia_opt_alfabetica_za": "Ordem alfabética (Z-A)",
+        "ia_nenhum_filtro_aviso": "⚠️ Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.",
+        "ia_gemini_backend_msg": "✅ Recomendações via Gemini API",
+        "ia_ollama_backend_msg": "🦙 Recomendações via Ollama local",
         "ia_refinar_pesquisa": "🎯 Refinar Pesquisa",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### Bem-vindo(a) ao SciPubs!",
@@ -667,11 +770,26 @@ dic = {
         "buscar_reg": "Search specific record:",
         "aba_escopo": "📂 Academic Scope & CNPq",
         "aba_impacto": "📈 Performance Metrics & Quartiles",
-        "subarea_lbl": "Subarea of Knowledge (CNPq):",
-        "base_lbl": "Holding Databases:",
-        "jcr_lbl": "JCR%20Quartile%20(Clarivate):", # URL encoded helper
+        "subarea_lbl": "Broad Area:",
+        "base_lbl": "Database:",
+        "jcr_lbl": "JCR Quartile (WoS):",
         "sjr_lbl": "SJR Quartile (Scopus):",
         "ordem_lbl": "Sort Results by:",
+        "opt_sort_title": "Journal Title",
+        "opt_sort_index": "Database",
+        "opt_sort_jcr": "JCR Quartile",
+        "opt_sort_sjr": "SJR Quartile",
+        "col_titulo_rev": "Journal Title",
+        "col_grande_area": "Broad Area",
+        "col_indexador": "Database",
+        "sub_modal_title": "Subscribe to Newsletter",
+        "sub_header": "### Join our VIP Community! 🚀",
+        "sub_desc": "Leave your email to receive publication tips and platform updates. No spam, we promise.",
+        "sub_nome": "Full Name:",
+        "sub_email": "Email:",
+        "sub_btn": "Subscribe",
+        "sub_sucesso": "Thank you for subscribing!",
+        "sub_erro": "Please fill in both Name and Email.",
         "m_selecionadas": "Selected Journals",
         "m_hindex": "Top H-Index",
         "m_jif": "Max JIF Factor",
@@ -695,7 +813,7 @@ dic = {
         "gov_tit": "GOVERNMENT WEBSITES",
         "inst_tit": "INSTITUTIONAL INFORMATION",
         "pessoal_lbl": "👤 Personal website",
-        "indexadores_tit": "INDEXERS",
+        "indexadores_tit": "DATABASES",
         "repositorios_tit": "DIRECTORIES",
         "ia_tit": "ACADEMIC AI",
         "btn_desktop": "💻 Download Windows Version",
@@ -717,19 +835,19 @@ dic = {
         "ia_fallback_local": "Result generated by the local thematic relevance algorithm (Ollama unavailable).",
         "ia_artigos_similares": "Semantically similar articles",
         "ia_artigos_similares_hint": "Published references with themes close to your abstract (OpenAlex).",
-        "ia_aderencia_escopo": "Scope Adherence",
+        "ia_aderencia_escopo": "Semantic Similarity Score",
         "ia_probabilidade": "Estimated Acceptance Probability",
         "ia_probabilidade_nota": "Estimate based on thematic fit, journal prestige, and similar published articles.",
         "ia_justificativa_tit": "Why this journal was recommended",
         "ia_classificacao_area": "CAPES classification of the article",
         "ia_card_motivo": "Why publish here:",
-        "ia_card_aderencia": "Adherence Score:",
+        "ia_card_aderencia": "Semantic Similarity Score:",
         "ia_card_site": "  Visit Official Homepage",
         "ia_card_sem_site": "Website not available in database",
         "filtro_area": "Broad Area",
-        "filtro_indexador": "Indexer",
+        "filtro_indexador": "Database",
         "ia_credencial_tit": "🔑 AI Engine",
-        "ia_como_obter_titulo": "ℹ  About AI modes",
+        "ia_como_obter_titulo": "ℹ️ About AI modes",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 1. AI semantically analyzes your title and abstract<br>
@@ -739,13 +857,33 @@ dic = {
 5. If you don't have or don't want to use this option, you can run the search leaving this field blank and using Ollama (Llama 3) as the AI.
 </div>
         """,
+        "ia_como_obter_chave_gemini_tit": "🔑 How to get a free Gemini key?",
+        "ia_como_obter_chave_gemini_texto": """1. Go to [aistudio.google.com](https://aistudio.google.com)
+2. Log in with your Google account
+3. Click "Get API Key" → "Create API Key"
+4. Copy the key and paste it above""",
+        "ia_chave_gemini_label": "🔑 Gemini Key (optional)",
+        "ia_chave_gemini_ph": "Leave blank to use local Ollama or local algorithm",
+        "ia_chave_gemini_help": "If you have a free Google Gemini key, paste it here for more accurate recommendations.",
+        "ia_ollama_status_ok": "✅ Local Ollama detected and available",
+        "ia_gemini_status_ok": "🔑 Gemini API key configured",
+        "ia_modo_local_info": "⚙️ Local mode (relevance algorithm)",
+        "ia_criterio_ordenamento_tit": "🔀 Result Sorting Criteria:",
+        "ia_criterio_ordenamento_sub": "Select the sorting criterion:",
+        "ia_opt_probabilidade": "Estimated Acceptance Probability (Highest to lowest)",
+        "ia_opt_aderencia": "Semantic Similarity Score (Highest to lowest)",
+        "ia_opt_alfabetica_az": "Alphabetical order (A-Z)",
+        "ia_opt_alfabetica_za": "Alphabetical order (Z-A)",
+        "ia_nenhum_filtro_aviso": "⚠️ No journal in the catalog matches the selected Broad Area and Database filters. Please adjust the filters.",
+        "ia_gemini_backend_msg": "✅ Recommendations via Gemini API",
+        "ia_ollama_backend_msg": "🦙 Recommendations via local Ollama",
         "ia_refinar_pesquisa": "🎯 Refine Targets",
         "ia_todos": "All",
         "reg_boas_vindas": "### Welcome to the SciPubs: The Researcher's Portal!",
         "reg_apresentacao": "This is a high-tech scientific platform designed to simplify the search and selection of high-impact journals for your publication. Join forces with data science and AI.",
         "reg_beneficios_tit": "✨ Why use SciPubs?",
         "reg_beneficio_1_tit": "  Traditional Search",
-        "reg_beneficio_1_desc": "Filters by CNPq subareas, indexers (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
+        "reg_beneficio_1_desc": "Filters by CNPq subareas, databases (Scopus, Web of Science, SciELO, Educ@), and consolidated metrics.",
         "reg_beneficio_2_tit": "📊 Unified Metrics",
         "reg_beneficio_2_desc": "JCR/SJR quartiles, H-Index, and impact shortcuts on Google Scholar at your fingertips.",
         "reg_beneficio_3_tit": "   AI Recommender",
@@ -785,8 +923,8 @@ dic = {
         "reg_titulo_form": "  Create Academic Account",
         "reg_nome_sobrenome": "First and Last Name:",
         "reg_pais": "Country:",
-	"reg_idade": "Date of Birth",
-	"reg_sexo": "Sex",
+        "reg_idade": "Date of Birth",
+        "reg_sexo": "Sex",
         "reg_raca": "Race/Ethnicity",
         "reg_telefone": "Phone:",
         "reg_senha": "Password:",
@@ -816,11 +954,26 @@ dic = {
         "buscar_reg": "Buscar registro específico:",
         "aba_escopo": "📂 Alcance Académico y CNPq",
         "aba_impacto": "📈 Métricas de Rendimiento y Cuartiles",
-        "subarea_lbl": "Subárea del Conocimiento (CNPq):",
-        "base_lbl": "Bases de Datos Detentoras:",
-        "jcr_lbl": "Cuartil JCR (Clarivate):",
+        "subarea_lbl": "Gran Área:",
+        "base_lbl": "Bases de Datos:",
+        "jcr_lbl": "Cuartil JCR (WoS):",
         "sjr_lbl": "Cuartil SJR (Scopus):",
         "ordem_lbl": "Ordenar Resultados por:",
+        "opt_sort_title": "Título de la Revista",
+        "opt_sort_index": "Base de Datos",
+        "opt_sort_jcr": "Cuartil JCR",
+        "opt_sort_sjr": "Cuartil SJR",
+        "col_titulo_rev": "Título de la Revista",
+        "col_grande_area": "Gran Área",
+        "col_indexador": "Base de Datos",
+        "sub_modal_title": "Suscribirse al Boletín",
+        "sub_header": "### ¡Únete a nuestra Comunidad VIP! 🚀",
+        "sub_desc": "Deja tu correo electrónico para recibir consejos de publicación y actualizaciones de la plataforma. Sin spam, lo prometemos.",
+        "sub_nome": "Nombre Completo:",
+        "sub_email": "Correo Electrónico:",
+        "sub_btn": "Suscribirse",
+        "sub_sucesso": "¡Gracias por suscribirte!",
+        "sub_erro": "Por favor, complete el Nombre y el Correo Electrónico.",
         "m_selecionadas": "Revistas Selecionadas",
         "m_hindex": "H-Index Máximo",
         "m_jif": "Factor JIF Máximo",
@@ -844,7 +997,7 @@ dic = {
         "gov_tit": "SITIOS DEL GOBIERNO",
         "inst_tit": "INFORMACIÓN INSTITUCIONAL",
         "pessoal_lbl": "👤 Sitio personal",
-        "indexadores_tit": "INDEXADORES",
+        "indexadores_tit": "BASES DE DATOS",
         "repositorios_tit": "DIRECTORIOS",
         "ia_tit": "IA ACADÉMICA",
         "btn_desktop": "💻 Descargar Versión para Windows",
@@ -866,19 +1019,19 @@ dic = {
         "ia_fallback_local": "Resultado generado por el algoritmo local de relevancia temática (Ollama no disponible).",
         "ia_artigos_similares": "Artículos semánticamente similares",
         "ia_artigos_similares_hint": "Referencias publicadas con temática próxima a su resumen (OpenAlex).",
-        "ia_aderencia_escopo": "Adherencia al Alcance",
+        "ia_aderencia_escopo": "Score de Similitud Semántica",
         "ia_probabilidade": "Probabilidad Estimada de Aceptación",
-        "ia_probabilidade_nota": "Estimación basada en adherencia temática, prestigio de la revista y artículos similares publicados.",
+        "ia_probabilidade_nota": "Estimación basada en similitud semántica, prestigio de la revista y artículos similares publicados.",
         "ia_justificativa_tit": "Por qué se recomendó esta revista",
         "ia_classificacao_area": "Clasificación CAPES del artículo",
         "ia_card_motivo": "Por qué publicar aqui:",
-        "ia_card_aderencia": "Grado de Adherencia:",
+        "ia_card_aderencia": "Score de Similitud Semántica:",
         "ia_card_site": "  Visitar Homepage Oficial",
         "ia_card_sem_site": "Sitio no disponible en la base",
-        "filtro_area": "Gran  rea",
-        "filtro_indexador": "Indexador",
+        "filtro_area": "Gran Área",
+        "filtro_indexador": "Base de Datos",
         "ia_credencial_tit": "🔑 Motor IA",
-        "ia_como_obter_titulo": "ℹ  Sobre los modos de IA",
+        "ia_como_obter_titulo": "ℹ️ Sobre los modos de IA",
         "ia_como_obter_texto": """
 <div style="font-size: 14px; line-height: 1.5; font-family: inherit;">
 1. La IA analiza semánticamente su título y resumen<br>
@@ -888,6 +1041,26 @@ dic = {
 5. Si no tiene o no desea usar esta opción, puede realizar la búsqueda dejando en blanco esta ventana y usando Ollama (Llama 3) como IA.
 </div>
         """,
+        "ia_como_obter_chave_gemini_tit": "🔑 ¿Cómo obtener una clave Gemini gratuita?",
+        "ia_como_obter_chave_gemini_texto": """1. Visite [aistudio.google.com](https://aistudio.google.com)
+2. Inicie sesión con su cuenta de Google
+3. Haga clic en "Get API Key" → "Create API Key"
+4. Copie la clave y péguela arriba""",
+        "ia_chave_gemini_label": "🔑 Clave Gemini (opcional)",
+        "ia_chave_gemini_ph": "Deje en blanco para usar Ollama local o algoritmo local",
+        "ia_chave_gemini_help": "Si tiene una clave gratuita de Google Gemini, péguela aquí para obtener recomendaciones más precisas.",
+        "ia_ollama_status_ok": "✅ Ollama local detectado y disponible",
+        "ia_gemini_status_ok": "🔑 Clave Gemini API configurada",
+        "ia_modo_local_info": "⚙️ Modo local (algoritmo de relevancia)",
+        "ia_criterio_ordenamento_tit": "🔀 Criterio de Ordenación de Resultados:",
+        "ia_criterio_ordenamento_sub": "Seleccione el criterio de ordenación:",
+        "ia_opt_probabilidade": "Probabilidad Estimada de Aceptación (Mayor a menor)",
+        "ia_opt_aderencia": "Score de Similitud Semántica (Mayor a menor)",
+        "ia_opt_alfabetica_az": "Orden alfabético (A-Z)",
+        "ia_opt_alfabetica_za": "Orden alfabético (Z-A)",
+        "ia_nenhum_filtro_aviso": "⚠️ Ninguna revista del catálogo coincide con los filtros de Gran Área e Indexador seleccionados. Por favor, ajuste los filtros.",
+        "ia_gemini_backend_msg": "✅ Recomendaciones vía Gemini API",
+        "ia_ollama_backend_msg": "🦙 Recomendaciones vía Ollama local",
         "ia_refinar_pesquisa": "🎯 Refinar Búsqueda",
         "ia_todos": "Todos",
         "reg_boas_vindas": "### ¡Bienvenido a SciPubs: El Portal del Investigador!",
@@ -906,8 +1079,8 @@ dic = {
         "reg_escolaridade": "Titulación:",
         "reg_instituicao": "Institución de Vínculo:",
         "reg_inst_outra": "Especifique su Institución:",
-	"reg_idade": "Fecha de Nacimiento",
-	"reg_sexo": "Sexo",
+        "reg_idade": "Fecha de Nacimiento",
+        "reg_sexo": "Sexo",
         "reg_raca": "Raza/Etnía",
         "reg_area_interesse": "Gran Area de Interés Predominante:",
         "reg_btn_enviar": "Registrarse y Acceder al Buscador ➔",
@@ -959,9 +1132,24 @@ dic = {
     }
 }
 # Correção do seletor em inglês caso venha codificado
-if st.session_state.idioma not in dic:
-    st.session_state.idioma = "Português"
 t = dic[st.session_state.idioma]
+
+# Função auxiliar global para traduzir as Grandes Áreas nos seletores e tabelas
+def traduzir_grande_area(area_original, t_dict):
+    if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
+        return "-"
+    import unicodedata
+    def clean_str(s):
+        s = str(s).lower().strip()
+        s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+        s = ''.join(c for c in s if c.isalnum() or c.isspace())
+        return ' '.join(s.split())
+    area_clean = clean_str(area_original)
+    mapeamento = t_dict.get("areas_trad", {})
+    for chave_original, valor_traduzido in mapeamento.items():
+        if clean_str(chave_original) == area_clean:
+            return valor_traduzido
+    return str(area_original).strip()
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
@@ -973,105 +1161,83 @@ st.markdown("""
     document.getElementsByTagName('head')[0].appendChild(meta);
     document.body.classList.add('notranslate');
     document.body.setAttribute('translate', 'no');
+
+    // Ajusta a viewport para navegação responsiva direta em dispositivos móveis
+    let vpMeta = document.querySelector('meta[name="viewport"]');
+    if (!vpMeta) {
+        vpMeta = document.createElement('meta');
+        vpMeta.name = 'viewport';
+        document.getElementsByTagName('head')[0].appendChild(vpMeta);
+    }
+    vpMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes');
 </script>
 <style>
 
-    /* =========================================
-       📱 DESIGN MOBILE (UX/UI PREMIUM RESPONSIVO)
-       ========================================= */
+    /* Mantém a disposição de colunas do Streamlit 100% idêntica ao Desktop no computador */
+    div[data-testid="stHorizontalBlock"] {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+
+    /* Reorganização exclusiva do Banner Hero para Celular (Logo no topo, Título abaixo, Subtítulo abaixo) */
     @media (max-width: 768px) {
-        /* 1. Header (Hero) Redesenhado para Celular */
         .premium-hero {
-            text-align: center !important;
-            padding: 12px 10px !important;
-            margin-bottom: 15px !important;
-            border-left: none !important;
-            border-top: 5px solid #FF2B2B !important;
             flex-direction: column !important;
             align-items: center !important;
-            gap: 15px !important;
+            text-align: center !important;
+            padding: 20px 15px !important;
+            gap: 10px !important;
         }
-        
-        .premium-hero img {
+        .premium-hero img, .premium-hero .emoji-logo {
             display: block !important;
-            max-width: 240px !important; /* Logo em tamanho harmônico */
-            margin: 0 auto !important;
-            margin-bottom: 10px !important;
+            margin: 0 auto 5px auto !important;
+            height: 190px !important; /* Aumentado em 30px para celular */
+            width: auto !important;
         }
-        
-        .premium-title {
-            font-size: 1.5rem !important; /* Texto cabendo em telas finas */
-            line-height: 1.1 !important;
-            margin-bottom: 8px !important;
-            text-align: center !important;
-        }
-        
-            .premium-subtitle {
-        color: #FFD700 !important; /* Amarelo Dourado */
-        font-size: 0.8rem !important; /* Fonte pequena */
-        text-shadow: 1px 1px 0px #b39700, 2px 2px 0px #806b00, 3px 3px 4px rgba(0,0,0,0.6) !important; /* Efeito 3D */
-        max-width: 280px; /* Força quebra em duas linhas */
-        margin: 0 auto !important; /* Centraliza */
-        line-height: 1.4;
-        margin-top: 5px !important;
-    }
-        
         .premium-text-block {
+            display: flex !important;
+            flex-direction: column !important;
             align-items: center !important;
-        }
-
-        /* 2. Redução de Espaços e Margens Brancas do Streamlit */
-        .block-container {
-            padding-top: 2rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        
-        /* 3. Cards de Métricas em Coluna */
-        div[data-testid="stMetric"] {
-            padding: 18px 15px !important;
-            margin-bottom: 5px !important;
             text-align: center !important;
-            border-radius: 12px !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
         }
-        
-        div[data-testid="stMetricValue"] {
-            font-size: 1.8rem !important;
+        .premium-title {
+            font-size: 1.6rem !important;
+            text-align: center !important;
+            margin-bottom: 6px !important;
+            line-height: 1.2 !important;
         }
-
-        /* 4. Tabelas Inteligentes (Rolagem horizontal confinada) */
-        div[data-testid="stDataFrame"] {
-            overflow-x: auto !important;
-            width: 100% !important;
-            border-radius: 8px !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
-        }
-        
-        /* 5. Inputs Touch-Friendly (Gordos) */
-        .stTextInput input, .stSelectbox div[data-baseweb="select"] {
-            height: 50px !important;
-            font-size: 16px !important; /* 16px evita o zoom automático no iOS */
-        }
-        
-        /* 6. Botões Arredondados e Full Width no Sidebar e Menu */
-        .btn-custom-menu {
-            justify-content: center !important;
-            padding: 14px !important;
-            border-radius: 25px !important; /* Estilo pílula */
-            font-size: 1.05rem !important;
-        }
-        
-        button[data-baseweb="tab"] {
-            padding: 10px 12px !important;
-            font-size: 0.85rem !important;
+        .premium-subtitle {
+            font-size: 0.88rem !important;
+            text-align: center !important;
+            max-width: 95% !important;
+            line-height: 1.35 !important;
+            margin-top: 4px !important;
         }
     }
-    
-    /* Telas Muito Pequenas (iPhone SE) */
-    @media (max-width: 480px) {
-        .premium-title { font-size: 1.8rem !important; }
-        .premium-subtitle { font-size: 1rem !important; }
+
+    /* Estilização para os botões Donate e Subscribe cobrirem 100% da largura da tela lado a lado no celular */
+    .header-buttons-wrapper {
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+    .header-buttons-wrapper div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+    .header-buttons-wrapper div[data-testid="column"] {
+        flex: 1 1 50% !important;
+        width: 50% !important;
+        min-width: 0 !important;
+    }
+    .header-buttons-wrapper button {
+        width: 100% !important;
+        padding: 10px 4px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+        text-align: center !important;
     }
 
     /* Força o fundo do menu lateral com a cor definida */
@@ -1192,8 +1358,34 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
+def _get_csv_hash(filepath):
+    """Calcula hash MD5 do conteúdo do CSV para invalidação robusta de cache."""
+    import hashlib
+    try:
+        with open(filepath, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except Exception:
+        return ""
+
+def _get_code_version_hash():
+    """Calcula hash baseado no timestamp dos arquivos Python críticos para invalidar cache quando o código mudar."""
+    import hashlib
+    critical_files = [
+        os.path.join(os.path.dirname(__file__), "recomendar_regras.py"),
+        os.path.join(os.path.dirname(__file__), "services", "discovery_recommender.py"),
+    ]
+    try:
+        content = ""
+        for fpath in critical_files:
+            if os.path.exists(fpath):
+                mtime = os.path.getmtime(fpath)
+                content += f"{fpath}:{mtime};"
+        return hashlib.md5(content.encode()).hexdigest()
+    except Exception:
+        return ""
+
 @st.cache_data
-def carregar_dados(file_mtime, file_size):
+def carregar_dados(csv_hash):
     nome_arquivo = "dados.csv"
     if not os.path.exists(nome_arquivo):
         if os.path.exists("Dados.csv"):
@@ -1217,14 +1409,12 @@ def carregar_dados(file_mtime, file_size):
             # Renomeia as colunas do CSV para garantir a acentuação correta utilizada no código
             df = df.rename(columns={
                 "Grande Area": "Grande Área",
-                "Grande Area": "Grande Área",
-                "Area do Conhecimento": "Área do Conhecimento",
                 "Area do Conhecimento": "Área do Conhecimento",
                 "Subarea do Conhecimento": "Subárea do Conhecimento",
-                "Subarea do Conhecimento": "Subárea do Conhecimento",
                 "Título da Revista": "Título da Revista",
-                "Título da Revista": "Título da Revista",
-                "Índice h5": "Índice h5"
+                "Index-h5 ": "Índice h5",
+                "Index-h5": "Índice h5",
+                "Index-h": "H index"
             })
 
             
@@ -1233,6 +1423,8 @@ def carregar_dados(file_mtime, file_size):
                 if col in df.columns:
                     df[col] = df[col].astype(str).str.replace(',', '.').str.strip()
                     df[col] = pd.to_numeric(df[col], errors='coerce')
+                    # Garante que NaN seja substituído por 0.0 para consistência
+                    df[col] = df[col].fillna(0.0)
                     
             # Identifica colunas não numéricas e substitui vazios por "-"
             for col in df.columns:
@@ -1256,7 +1448,15 @@ def carregar_dados(file_mtime, file_size):
             
             # Funções de agregação personalizadas
             def agg_indexadores(series):
-                vals = sorted(list(set([str(val).strip() for val in series if str(val).strip() not in ["-", "", "None", "nan"]])))
+                set_idx = set()
+                for val in series:
+                    val_str = str(val).strip()
+                    if val_str not in ["-", "", "None", "nan"]:
+                        for item in val_str.split(","):
+                            item_clean = item.strip()
+                            if item_clean and item_clean not in ["-", "", "None", "nan"]:
+                                set_idx.add(item_clean)
+                vals = sorted(list(set_idx))
                 return ", ".join(vals) if vals else "-"
                 
             def agg_primeiro_valido(series):
@@ -1308,7 +1508,7 @@ def carregar_dados(file_mtime, file_size):
         st.error("    Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
         st.stop()
 
-# Calcula tamanho e mtime de dados.csv para forçar invalidação do cache do Streamlit se o arquivo mudar
+# Calcula hash do CSV para invalidação robusta de cache
 dados_csv_path = "dados.csv"
 if not os.path.exists(dados_csv_path):
     if os.path.exists("Dados.csv"):
@@ -1317,13 +1517,14 @@ if not os.path.exists(dados_csv_path):
         dados_csv_path = "DADOS.CSV"
 
 if os.path.exists(dados_csv_path):
-    file_mtime = os.path.getmtime(dados_csv_path)
-    file_size = os.path.getsize(dados_csv_path)
+    csv_hash = _get_csv_hash(dados_csv_path)
 else:
-    file_mtime = 0.0
-    file_size = 0.0
+    csv_hash = ""
 
-df_original, arquivo_usado = carregar_dados(file_mtime, file_size)
+# Hash da versão do código para invalidar cache quando o código mudar
+code_version_hash = _get_code_version_hash()
+
+df_original, arquivo_usado = carregar_dados(csv_hash + code_version_hash)
 
 cache_manager = get_cache_manager()
 anonymous_logger = get_anonymous_logger()
@@ -1355,16 +1556,7 @@ if "abrir_configuracoes" not in st.session_state:
 if "is_admin" not in st.session_state:
     st.session_state.is_admin = False
 
-# Botão de Configurações
-btn_conf_text = "⚙ Configs"
-btn_conf_help = "Configurações"
-if st.session_state.get("idioma", "English") == "English":
-    btn_conf_text = "⚙ Settings"
-    btn_conf_help = "Settings"
-elif st.session_state.get("idioma", "English") == "Español":
-    btn_conf_text = "⚙ Config."
-    btn_conf_help = "Configuración"
-
+# Botão de Configurações desativado / invisível conforme solicitado
 # if st.sidebar.button(btn_conf_text, key="btn_config_gear_sidebar", help=btn_conf_help, use_container_width=True):
 #     st.session_state.abrir_configuracoes = not st.session_state.get("abrir_configuracoes", False)
 #     st.rerun()
@@ -1685,16 +1877,15 @@ elif st.session_state.idioma == "Español":
 
 imagem_base64 = obter_imagem_local_base64(nome_logo)
 if imagem_base64:
-    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 220px; width: auto; object-fit: contain;">'
+    tag_imagem = f'<img src="data:image/png;base64,{imagem_base64}" style="height: 280px; width: auto; object-fit: contain;">'
 else:
-    tag_imagem = '<span class="emoji-logo" style="font-size: 6.5rem; line-height: 1; margin-right: 15px;">📚</span>'
+    tag_imagem = '<span class="emoji-logo" style="font-size: 8.5rem; line-height: 1; margin-right: 15px;">📚</span>'
 
-st.markdown(f'''<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 30px; padding: 25px 35px;">
+st.markdown(f'''<div class="premium-hero" style="display: flex; align-items: center; flex-wrap: nowrap; gap: 20px; padding: 25px 35px;">
 {tag_imagem}
-<div class="divider-line" style="width: 2px; height: 140px; background-color: rgba(255,255,255,0.15);"></div>
 <div class="premium-text-block">
 <h1 class="premium-title" style="margin: 0 !important; padding: 0 !important; font-size: 2.3rem !important; font-weight: 800 !important; letter-spacing: -0.5px;">{t['titulo']}</h1>
-<p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.1rem !important; opacity: 0.85;">{t['subtitulo']}</p>
+<p class="premium-subtitle" style="margin: 5px 0 0 0 !important; padding: 0 !important; font-size: 1.05rem !important; opacity: 0.85; max-width: 650px; line-height: 1.35;">{t['subtitulo']}</p>
 </div>
 </div>''', unsafe_allow_html=True)
 
@@ -1965,7 +2156,40 @@ if st.session_state.get("abrir_configuracoes", False):
                 st.info(f"Link: `{url_portal}`")
                 st.success(ts['suc_copiar'])
 
-    st.stop()
+# Modal de Inscrição Traduzido e de Alta Performance
+@st.dialog(t.get('sub_modal_title', 'Subscribe'))
+def show_subscribe_modal_dialog(t_dict):
+    st.markdown(t_dict.get('sub_header', '### VIP Community'))
+    st.markdown(t_dict.get('sub_desc', 'Leave your email.'))
+    with st.form("subscribe_form_dialog"):
+        nome = st.text_input(t_dict.get('sub_nome', 'Name:'))
+        email = st.text_input(t_dict.get('sub_email', 'Email:'))
+        if st.form_submit_button(t_dict.get('sub_btn', 'Subscribe'), type="primary", use_container_width=True):
+            if nome and email:
+                import pandas as pd
+                import os
+                import datetime
+                
+                caminho = "usuarios.csv"
+                novo_usuario = pd.DataFrame([{
+                    "Data/Hora": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "Nome": nome,
+                    "Email": email.lower().strip(),
+                    "Assinante": True
+                }])
+                if os.path.exists(caminho):
+                    try:
+                        df_existente = pd.read_csv(caminho, sep=";")
+                        df_novo = pd.concat([df_existente, novo_usuario], ignore_index=True)
+                        df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    except:
+                        novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                else:
+                    novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
+                    
+                st.success(t_dict.get('sub_sucesso', 'Thank you!'))
+            else:
+                st.error(t_dict.get('sub_erro', 'Please fill all fields.'))
 
 # Textos informativos traduzidos
 if st.session_state.idioma == "Português":
@@ -2000,22 +2224,18 @@ else: # Español
 ### ¡Bienvenido al SciPubs: El Portal del Investigador!
 Esta es una herramienta desarrollada con el objetivo de optimizar la búsqueda de revistas científicas de alto impacto.
  
-####     ¿Qué puedes fazer aquí?
-1. **Búsqueda Avanzada y Booleana:** Busque términos exactos usando comillas (por ejemplo: `"educación musical"`) o combine múltiples criterios usando los operadores lógicos `AND`, `OR` y `NOT` (por ejemplo: `music AND education NOT medicine`).
-2. **Filtros por Subárea (CNPq):** Encuentre revistas perfectamente alineadas con su subárea específica de conocimiento.
-3. **Métricas de Impacto:** Analise el prestigio internacional a través de cuartiles e indicadores consolidados de las bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** y el enlace directo al **Índice h5 (Google Scholar)**.
-4. **Recomendador Inteligente (IA):** Use el motor de IA de Google Gemini para obtener sugerencias temáticas personalizadas basadas en el título y resumen de su artículo.
-5. **Exportación de Dados:** Filtre los resultados según sus necesidades y descargue la tabla personalizada inmediatamente.
+####     ¿Qué puedes fazer aqui?
+1. **Búsqueda Avanzada y Booleana:** Busque termos exatos usando comillas (por exemplo: `"educación musical"`) ou combine múltiplos critérios usando os operadores lógicos `AND`, `OR` e `NOT` (por exemplo: `music AND education NOT medicine`).
+2. **Filtros por Subárea (CNPq):** Encontre revistas perfeitamente alinhadas com sua subárea específica de atuação e conhecimento.
+3. **Métricas de Impacto:** Analise o prestígio internacional através de quartis e indicadores consolidados das bases **JCR (Clarivate)**, **SJR (Scopus)**, **H-Index** e o link direto para o **Índice h5 (Google Scholar)**.
+4. **Recomendador Inteligente (IA):** Use o motor de IA do Google Gemini para colar o título e resumo do seu artigo e obter as recomendações de revistas ideais com justificativa e link direto.
+5. **Exportação de Dados:** Filtre os resultados de acordo com sua necessidade e faça o download da tabela customizada imediatamente.
 """
 
 with st.expander(expander_titulo, expanded=False):
     st.markdown(sobre_texto)
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-# --- 10. INTERFACE PRINCIPAL MULTI-ABAS ---
-
-# --- HEADER BUTTONS ---
+# --- HEADER BUTTONS (Donate e Subscribe posicionados abaixo do expander) ---
 _lang = st.session_state.get('idioma', 'English')
 
 _btn_donate = "☕ Donate"
@@ -2024,26 +2244,27 @@ if _lang == 'Português':
     _btn_donate = "☕ Doações"
     _btn_sub = "✉️ Inscrever-se"
 elif _lang == 'Español':
-    _btn_donate = "☕ Doacciones"
+    _btn_donate = "☕ Donaciones"
     _btn_sub = "✉️ Suscribirse"
 
-col_title, col_btns = st.columns([1, 1])
-with col_title:
-    st.markdown(t['filtros_tit'])
-with col_btns:
-    bcol1, bcol2 = st.columns(2)
-    with bcol1:
-        st.markdown(
-            f"""<a href="https://buymeacoffee.com/scipubs" target="_blank" style="text-decoration: none;">
-                <button style="width: 100%; background-color: #FFDD00; color: #000000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.backgroundColor='#e6c700'" onmouseout="this.style.backgroundColor='#FFDD00'">
-                    {_btn_donate}
-                </button>
-            </a>""", unsafe_allow_html=True
-        )
-    with bcol2:
-        if st.button(_btn_sub, use_container_width=True, type="primary"):
-            st.session_state.show_sub = True
-            st.rerun()
+# Botões posicionados diretamente abaixo do expander "About SciPubs & How to Use", cobrindo 100% da extensão do banner
+st.markdown('<div class="header-buttons-wrapper" style="width: 100%;">', unsafe_allow_html=True)
+bcol1, bcol2 = st.columns(2)
+with bcol1:
+    st.markdown(
+        f"""<a href="https://buymeacoffee.com/scipubs" target="_blank" style="text-decoration: none; width: 100%; display: block;">
+            <button style="width: 100%; background-color: #FFDD00; color: #000000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.backgroundColor='#e6c700'" onmouseout="this.style.backgroundColor='#FFDD00'">
+                {_btn_donate}
+            </button>
+        </a>""", unsafe_allow_html=True
+    )
+with bcol2:
+    if st.button(_btn_sub, use_container_width=True, type="primary"):
+        show_subscribe_modal_dialog(t)
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown(t['filtros_tit'])
 
 
 # Define as abas com base na presença do parâmetro ?admin=true ou ?visitas=true na URL ou se o usuário logado for Admin
@@ -2062,15 +2283,22 @@ with tab_busca:
     with aba_escopo:
         col_f1, col_f2 = st.columns(2)
         with col_f1:
-            col_subarea = "Subárea do Conhecimento"
-            set_subareas = set()
-            if col_subarea in df_original.columns:
-                for x in df_original[col_subarea].unique():
-                    if str(x).strip() not in ["", "-", "nan", "None"]:
-                        for sub in str(x).split(","):
-                            set_subareas.add(sub.strip())
-            lista_subareas = sorted(list(set_subareas))
-            subarea_sel = st.selectbox(t['subarea_lbl'], [t['todas']] + lista_subareas)
+            col_subarea = "Grande Área" if "Grande Área" in df_original.columns else "Grande Area"
+            grandes_areas_filtro = [
+                "Ciências Humanas",
+                "Ciências Biológicas",
+                "Ciências Exatas e da Terra",
+                "Ciências da Saúde",
+                "Ciências Sociais Aplicadas",
+                "Linguística, Letras e Artes"
+            ]
+            area_opcoes = {t['todas']: "Todas"}
+            for area in grandes_areas_filtro:
+                area_traduzida = traduzir_grande_area(area, t)
+                area_opcoes[area_traduzida] = area
+
+            area_exibicao = st.selectbox(t['subarea_lbl'], list(area_opcoes.keys()))
+            subarea_sel = area_opcoes[area_exibicao]
         with col_f2:
             col_indexador = "Indexador" if "Indexador" in df_original.columns else None
             if col_indexador:
@@ -2087,22 +2315,19 @@ with tab_busca:
         col_f4, col_f5, col_f6 = st.columns(3)
         with col_f4:
             col_q_jcr = "Quartil JCR"
-            opcoes_jcr = sorted([str(x).strip() for x in df_original[col_q_jcr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_jcr in df_original.columns else []
-            if not opcoes_jcr: 
-                opcoes_jcr = ["Q1", "Q2", "Q3", "Q4"]
-            q_jcr_sel = st.multiselect(t['jcr_lbl'], opcoes_jcr)
+            opcoes_jcr = [t['todas'], "Q1", "Q2", "Q3", "Q4"]
+            q_jcr_sel = st.selectbox(t['jcr_lbl'], opcoes_jcr)
         with col_f5:
             col_q_sjr = "SJR Best Quartile"
-            opcoes_sjr = sorted([str(x).strip() for x in df_original[col_q_sjr].unique() if str(x).strip() not in ["", "-", "nan", "None"]]) if col_q_sjr in df_original.columns else []
-            if not opcoes_sjr: 
-                opcoes_sjr = ["Q1", "Q2", "Q3", "Q4"]
-            q_sjr_sel = st.multiselect(t['sjr_lbl'], opcoes_sjr)
+            opcoes_sjr = [t['todas'], "Q1", "Q2", "Q3", "Q4"]
+            q_sjr_sel = st.selectbox(t['sjr_lbl'], opcoes_sjr)
         with col_f6:
-            opcoes_ordenacao = ["Título"]
-            if "SJR" in df_original.columns: 
-                opcoes_ordenacao.append("SJR (Prestígio)")
-            if "JIF" in df_original.columns: 
-                opcoes_ordenacao.append("JIF (Fator de Impacto)")
+            opcoes_ordenacao = [
+                t['opt_sort_title'],
+                t['opt_sort_index'],
+                t['opt_sort_jcr'],
+                t['opt_sort_sjr']
+            ]
             criterio_ordem = st.selectbox(t['ordem_lbl'], options=opcoes_ordenacao)
 
     # FILTRAGEM SEQUENCIAL DE DADOS
@@ -2173,22 +2398,31 @@ with tab_busca:
             )
         ]
 
-    if col_subarea in df_filtrado.columns and subarea_sel != t['todas']:
-        df_filtrado = df_filtrado[df_filtrado[col_subarea].astype(str).str.contains(subarea_sel, case=False, na=False)]
+    if subarea_sel != "Todas" and subarea_sel != t['todas']:
+        col_ga = "Grande Área" if "Grande Área" in df_filtrado.columns else ("Grande Area" if "Grande Area" in df_filtrado.columns else df_filtrado.columns[0])
+        subarea_trad = traduzir_grande_area(subarea_sel, t)
+        pat = f"{re.escape(subarea_sel)}|{re.escape(subarea_trad)}"
+        df_filtrado = df_filtrado[df_filtrado[col_ga].astype(str).str.contains(pat, case=False, na=False)]
 
     if col_indexador and len(indexador_sel) > 0:
         df_filtrado = df_filtrado[df_filtrado[col_indexador].astype(str).str.contains("|".join(indexador_sel), na=False)]
 
-    if col_q_jcr in df_filtrado.columns and len(q_jcr_sel) > 0:
-        df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().isin(q_jcr_sel)]
+    if col_q_jcr in df_filtrado.columns and q_jcr_sel != "Todas" and q_jcr_sel != t['todas']:
+        df_filtrado = df_filtrado[df_filtrado[col_q_jcr].astype(str).str.strip().str.contains(re.escape(q_jcr_sel), case=False, na=False)]
 
-    if col_q_sjr in df_filtrado.columns and len(q_sjr_sel) > 0:
-        df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().isin(q_sjr_sel)]
+    if col_q_sjr in df_filtrado.columns and q_sjr_sel != "Todas" and q_sjr_sel != t['todas']:
+        df_filtrado = df_filtrado[df_filtrado[col_q_sjr].astype(str).str.strip().str.contains(re.escape(q_sjr_sel), case=False, na=False)]
 
-    mapa_ordem = {"SJR (Prestígio)": ("SJR", False), "JIF (Fator de Impacto)": ("JIF", False), "Título": (df_filtrado.columns[0], True)}
-    col_ordenar, ascendente = mapa_ordem[criterio_ordem]
-    if col_ordenar in df_filtrado.columns: 
-        df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
+    mapa_ordem = {
+        t['opt_sort_title']: (df_filtrado.columns[0], True),
+        t['opt_sort_index']: ("Indexador" if "Indexador" in df_filtrado.columns else df_filtrado.columns[0], True),
+        t['opt_sort_jcr']: ("Quartil JCR" if "Quartil JCR" in df_filtrado.columns else df_filtrado.columns[0], True),
+        t['opt_sort_sjr']: ("SJR Best Quartile" if "SJR Best Quartile" in df_filtrado.columns else ("SJR" if "SJR" in df_filtrado.columns else df_filtrado.columns[0]), True)
+    }
+    if criterio_ordem in mapa_ordem:
+        col_ordenar, ascendente = mapa_ordem[criterio_ordem]
+        if col_ordenar in df_filtrado.columns: 
+            df_filtrado = df_filtrado.sort_values(by=col_ordenar, ascending=ascendente)
 
 
 
@@ -2209,8 +2443,11 @@ with tab_busca:
         fim = inicio + itens_por_pagina
         df_da_pagina = df_filtrado.iloc[inicio:fim].copy()
         
-        # Remove as colunas de área para simplificar a exibição na tabela e evitar crashes de mapeamento do PyArrow
-        df_exibir = df_da_pagina.drop(columns=["Grande Área", "Área do Conhecimento", "Subárea do Conhecimento"], errors="ignore")
+        # Remove colunas ocultas (N, Aims and Scope, Categoria e subáreas) e mantêm Grande Área visível
+        df_exibir = df_da_pagina.drop(
+            columns=["N", "Aims and Scope", "Aims & Scope", "aims_scope", "Categoria", "Área do Conhecimento", "Área de Conhecimento", "Subárea do Conhecimento"],
+            errors="ignore"
+        )
         
         # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
@@ -2227,18 +2464,27 @@ with tab_busca:
             def format_h5(val):
                 val_str = str(val).strip()
                 if val_str not in ["-", "", "None", "nan"]:
-                    return val_str + "#🎯 Acessar h5"
+                    return val_str + "#🎯 Ver Index-H5"
                 return "-"
             df_exibir["Índice h5"] = df_exibir["Índice h5"].apply(format_h5)
         
         # Reconstrução ultra-defensiva para descartar qualquer metadado do pandas que confunda o PyArrow
         df_exibir = pd.DataFrame({col: df_exibir[col].tolist() for col in df_exibir.columns})
         
-        # EXIBIÇÃO DA HOMEPAGE NA TABELA COM LINK CLIC VEL
+        # EXIBIÇÃO DA TABELA DE PERIÓDICOS
         st.dataframe(
             df_exibir, 
             hide_index=True,
             column_config={
+                "Título da Revista": st.column_config.Column(
+                    t['col_titulo_rev']
+                ),
+                "Grande Área": st.column_config.Column(
+                    t['col_grande_area']
+                ),
+                "Indexador": st.column_config.Column(
+                    t['col_indexador']
+                ),
                 "Homepage": st.column_config.LinkColumn(
                     "Homepage",
                     help="Clique para visitar o site oficial da revista",
@@ -2248,19 +2494,21 @@ with tab_busca:
                     alignment="center"
                 ),
                 "Quartil JCR": st.column_config.Column(
+                    "JCR Quartile",
                     alignment="center"
                 ),
                 "SJR": st.column_config.Column(
                     alignment="center"
                 ),
                 "SJR Best Quartile": st.column_config.Column(
+                    "SJR Quartile",
                     alignment="center"
                 ),
                 "H index": st.column_config.Column(
                     alignment="center"
                 ),
                 "Índice h5": st.column_config.LinkColumn(
-                    t['col_h5'],
+                    "Index-H5",
                     help="Clique para abrir o índice h5 no Google Scholar",
                     display_text=r"#(.+)$",
                     alignment="center"
@@ -2516,60 +2764,64 @@ with tab_ia:
         
         # Campo para chave Gemini do usuário (opcional)
         user_gemini_key = st.text_input(
-            "🔑 Chave Gemini (opcional)",
+            t['ia_chave_gemini_label'],
             type="password",
-            placeholder="Deixe em branco para usar Ollama local ou algoritmo local",
-            help="Se você tiver uma chave gratuita do Google Gemini, cole aqui para recomendações mais precisas. Sem chave, o app tenta usar o Ollama (Llama 3) instalado localmente; caso contrário, usa o algoritmo local de relevância."
+            placeholder=t['ia_chave_gemini_ph'],
+            help=t['ia_chave_gemini_help']
         )
         
-                # Define chave ativa
+        # Define chave ativa
         api_key_ativa = user_gemini_key.strip() if user_gemini_key else (str(chave_global_gemini).strip() if chave_global_gemini else "")
         
-        # Status do sistema
+        # Status do sistema - verifica todos os motores disponíveis
+        ollama_ok, ollama_msg = check_ollama()
+        if ollama_ok:
+            st.success(t['ia_ollama_status_ok'])
         if api_key_ativa:
-            st.success("🔑 Chave Gemini configurada")
-            # Instrução para obter chave (recolhida)
-            with st.expander("ℹ️ Como obter chave gratuita?", expanded=False):
-                st.markdown("""
-                1. Acesse [aistudio.google.com](https://aistudio.google.com)
-                2. Faça login com sua conta Google
-                3. Clique em "Get API Key" → "Create API Key"
-                4. Copie a chave e cole acima
-                """)
-        else:
-            ollama_ok, _ = check_ollama()
-            if ollama_ok:
-                st.success(f"✅ Ollama local detectado")
-            else:
-                st.info("⚙️ Modo local (algoritmo de relevância)")
-            with st.expander("ℹ️ Sobre os modos de IA", expanded=False):
-                st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
-            with st.expander("🔑 Como obter chave Gemini gratuita?", expanded=False):
-                st.markdown("""
-                1. Acesse [aistudio.google.com](https://aistudio.google.com)
-                2. Faça login com sua conta Google
-                3. Clique em "Get API Key" → "Create API Key"
-                4. Copie a chave e cole no campo acima
-                """)
+            st.success(t['ia_gemini_status_ok'])
+        if not ollama_ok and not api_key_ativa:
+            st.info(t['ia_modo_local_info'])
+        
+        # Instruções para obtenção de chave (sempre visíveis)
+        with st.expander(t['ia_como_obter_titulo'], expanded=False):
+            st.markdown(t['ia_como_obter_texto'], unsafe_allow_html=True)
+        with st.expander(t['ia_como_obter_chave_gemini_tit'], expanded=False):
+            st.markdown(t['ia_como_obter_chave_gemini_texto'])
         
         st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
-        grandes_areas_originais = sorted(list(df_original["Grande Área"].dropna().unique()))
+        grandes_areas_padrao = [
+            "Ciências Humanas",
+            "Ciências Biológicas",
+            "Ciências Exatas e da Terra",
+            "Ciências da Saúde",
+            "Ciências Sociais Aplicadas",
+            "Linguística, Letras e Artes",
+        ]
         area_ia_opcoes = {t['todas']: "Todas"}
-        for area in grandes_areas_originais:
+        for area in grandes_areas_padrao:
             area_traduzida = traduzir_grande_area(area, t)
             area_ia_opcoes[area_traduzida] = area
-            
+
         area_ia_exibicao = st.selectbox(f"{t['filtro_area']} (IA)", list(area_ia_opcoes.keys()))
         area_ia = area_ia_opcoes[area_ia_exibicao]
-        
-        indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + list(df_original["Indexador"].dropna().unique()))
-        
+
+        indexadores_padrao = [
+            "Web of Science - SSCI",
+            "Web of Science - AHCI",
+            "Web of Science - ESCI",
+            "Web of Science - SCIE",
+            "Scopus",
+            "Scielo",
+            "Educ@",
+        ]
+        indexador_ia = st.selectbox(f"{t['filtro_indexador']} (IA)", [t['ia_todos']] + indexadores_padrao)
+
         num_recomendacoes = st.slider(
-            t['ia_num_rec'], 
-            min_value=3, 
-            max_value=20, 
-            value=5, 
+            t['ia_num_rec'],
+            min_value=3,
+            max_value=20,
+            value=20,
             step=1
         )
         
@@ -2612,8 +2864,9 @@ with tab_ia:
                     except Exception:
                         hybrid_api_url = ""
                 
-                # Desativado para forçar o uso do motor local com todas as 33.921 revistas do dados.csv
-                if False: # hybrid_api_url:
+                # 1. Tenta API Híbrida (FastAPI + pgvector) se configurada
+                # 2. Fallback: Motor local MiniLM + recomendar_regras.py
+                if hybrid_api_url:
                     try:
                         api_response = call_hybrid_api(
                             title=titulo_artigo,
@@ -2636,7 +2889,7 @@ with tab_ia:
                                 "grande_area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
                                 "area": meta.get("subjects", ["-"])[0] if meta.get("subjects") else "-",
                                 "subarea": "-",
-                                "indexador": "-",
+                                "indexador": meta.get("indexer", "-"),
                                 "jif": meta.get("jif", "-"),
                                 "quartil_jcr": meta.get("quartil_jcr", "-"),
                                 "sjr": meta.get("sjr", "-"),
@@ -2645,7 +2898,7 @@ with tab_ia:
                                 "h5_link": meta.get("h5_link", "-"),
                                 "aderencia": round(r["match_score"], 1),
                                 "justificativa": r.get("justification") or f"Match score: {r['match_score']:.1f}",
-                                "probabilidade_aceitacao": round(r.get("semantic_score", 0) * 0.6 + r.get("business_score", 0) * 0.4, 1),
+                                "probabilidade_aceitacao": round(r.get("semantic_score", 0) * 0.8 + r.get("business_score", 0) * 0.2, 1),
                                 "fonte_dados": "hybrid_api"
                             })
                         backend = "hybrid_api"
@@ -2655,22 +2908,78 @@ with tab_ia:
                         journals = None
                 
                 if not journals:
-                    recommender = get_discovery_recommender(
-                        df_local=df_original,
-                        api_key_gemini=api_key_ativa if api_key_ativa else None
-                    )
-                    
-                    use_ollama = not api_key_ativa
-                    journals, error = recommender.recommend(
-                        titulo=titulo_artigo,
-                        resumo=resumo_artigo,
-                        idioma=st.session_state.idioma,
-                        top_n=num_recomendacoes,
-                        use_ollama=use_ollama
-                    )
-                    
-                    backend = recommender.get_backend_name()
-                    st.session_state.backend_usado = backend
+                    # Motor principal: recomendar_regras.py (MiniLM sentence-transformers + filtro de Grande Área + 80/20)
+                    try:
+                        df_rec = _recomendar_periodicos(
+                            titulo=titulo_artigo,
+                            resumo=resumo_artigo,
+                            top_n=num_recomendacoes,
+                            filtrar_area=True
+                        )
+                        journals = []
+                        for _, row in df_rec.iterrows():
+                            scope_text = str(row.get("aims_scope", ""))
+                            nome_rev = str(row.get("titulo_revista", ""))
+                            indexador = str(row.get("indexador", "-"))
+                            s_text = float(row.get("S_text", 0.0))
+                            score_final = float(row.get("Score_final", 0.0))
+                            # Converte S_text (0–1) para escala percentual (0–100) como aderência
+                            aderencia = round(s_text * 100, 1)
+                            # Probabilidade de aceitação estimada proporcional ao score final
+                            prob_aceitacao = round(min(95.0, max(15.0, score_final * 100 * 0.9)), 1)
+
+                            # Gera justificativa simples baseada no escopo
+                            scope_preview = scope_text[:200].strip() if scope_text else ""
+                            justificativa = (
+                                f"O manuscrito apresenta alta afinidade temática com a revista {nome_rev} "
+                                f"(aderência semântica de {aderencia}%). "
+                                f"Escopo: {scope_preview}..."
+                            ) if scope_preview else f"Afinidade semântica de {aderencia}% com a revista {nome_rev}."
+
+                            journals.append({
+                                "nome": nome_rev,
+                                "issn": str(row.get("issn", "-")),
+                                "homepage": str(row.get("homepage", "-")),
+                                "grande_area": str(row.get("grande_area", "-")),
+                                "area": str(row.get("grande_area", "-")),
+                                "subarea": "-",
+                                "indexador": indexador,
+                                "jif": str(row.get("jif", "-")),
+                                "quartil_jcr": "-",
+                                "sjr": str(row.get("sjr", "-")),
+                                "sjr_quartile": "-",
+                                "h_index": "-",
+                                "h5_index": "-",
+                                "h5_median": "-",
+                                "h5_link": f"https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq={nome_rev}&btnG=",
+                                "adherence_score": aderencia,
+                                "aderencia": aderencia,
+                                "probability": prob_aceitacao,
+                                "probabilidade_aceitacao": prob_aceitacao,
+                                "justificativa": justificativa,
+                                "justificativa_metricas": justificativa,
+                                "aims_scope": scope_text,
+                                "fonte_dados": "minilm_engine"
+                            })
+                        backend = "minilm_engine"
+                        st.session_state.backend_usado = backend
+                    except Exception as e_minilm:
+                        # Fallback: DiscoveryRecommender (TF-IDF) se o motor MiniLM falhar
+                        st.warning(f"Motor MiniLM indisponível ({e_minilm}). Usando motor TF-IDF como fallback.")
+                        recommender = get_discovery_recommender(
+                            df_local=df_original,
+                            api_key_gemini=api_key_ativa if api_key_ativa else None
+                        )
+                        use_ollama = not api_key_ativa
+                        journals, error = recommender.recommend(
+                            titulo=titulo_artigo,
+                            resumo=resumo_artigo,
+                            idioma=st.session_state.idioma,
+                            top_n=num_recomendacoes,
+                            use_ollama=use_ollama
+                        )
+                        backend = recommender.get_backend_name()
+                        st.session_state.backend_usado = backend
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
@@ -2706,16 +3015,16 @@ with tab_ia:
 
     # RENDERIZAÇÃO DOS RESULTADOS
     if st.session_state.get("aviso_filtro"):
-                st.warning("    Nenhum periódico no catálogo atende aos filtros de Grande Área e Indexador selecionados. Por favor, ajuste os filtros.")
+        st.warning(t['ia_nenhum_filtro_aviso'])
     elif st.session_state.get("erro_ia"):
         st.error(t['ia_erro'])
         st.caption(f"Detalhes: {st.session_state.erro_ia}")
     elif st.session_state.get("recomendacoes") is not None:
         backend = st.session_state.get("backend_usado", "local")
         if backend == "gemini":
-            st.success(f"✅ Recomendações via Gemini API")
+            st.success(t['ia_gemini_backend_msg'])
         elif backend == "ollama":
-            st.info(f"🦙 Recomendações via Ollama local")
+            st.info(t['ia_ollama_backend_msg'])
         else:
             st.info(f"ℹ️ {t['ia_fallback_local']}")
         
@@ -2738,22 +3047,27 @@ with tab_ia:
                     st.caption(f"  {art.get('revista_nome', '')} ({art.get('ano', '')}) — {art.get('citacao_count', 0)} citações")
         
         # Componente Visual de Ordenação Dinâmica
-        st.markdown("#### 🔀 Critério de Ordenamento dos Resultados:")
+        st.markdown(f"#### {t['ia_criterio_ordenamento_tit']}")
         sort_option = st.radio(
-            "Selecione o critério de ordenamento:",
-            ["Estimated Acceptance Probability (Maior para o menor)", "Scope Adherence (Maior para o menor)", "Ordem alfabética (A-Z)", "Ordem alfabética (Z-A)"],
+            t['ia_criterio_ordenamento_sub'],
+            [
+                t['ia_opt_probabilidade'],
+                t['ia_opt_aderencia'],
+                t['ia_opt_alfabetica_az'],
+                t['ia_opt_alfabetica_za']
+            ],
             index=0,
             horizontal=True
         )
         
         # Aplica a ordenação escolhida dinamicamente (padrão: Estimated Acceptance Probability)
-        if sort_option == "Estimated Acceptance Probability (Maior para o menor)":
+        if sort_option == t['ia_opt_probabilidade']:
             st.session_state.recomendacoes.sort(key=lambda x: -x.get("probability", x.get("probabilidade_aceitacao", 0)))
-        elif sort_option == "Scope Adherence (Maior para o menor)":
+        elif sort_option == t['ia_opt_aderencia']:
             st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))
-        elif sort_option == "Ordem alfabética (A-Z)":
+        elif sort_option == t['ia_opt_alfabetica_az']:
             st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower())
-        elif sort_option == "Ordem alfabética (Z-A)":
+        elif sort_option == t['ia_opt_alfabetica_za']:
             st.session_state.recomendacoes.sort(key=lambda x: str(x.get("nome", "")).lower(), reverse=True)
         # Renderiza cards de cada revista recomendada
         for rec in st.session_state.recomendacoes:
@@ -2813,7 +3127,7 @@ with tab_ia:
                     if h5_link and h5_link not in ["nan", "-", "None", ""]:
                         st.link_button("🎯 Índice h5", h5_link, type="secondary", use_container_width=True)
                 
-                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index} | **Índice h5:** {h5_index} | **Mediana h5:** {h5_median}")
+                st.caption(f"**ISSN:** {issn} | **Indexador:** {indexador} | **Quartil:** {quartil} | **SJR:** {sjr} | **H-index:** {h_index}")
                 
                 # Barras de progresso para métricas
                 col_m1, col_m2 = st.columns(2)
@@ -2826,11 +3140,8 @@ with tab_ia:
                     st.progress(min(probabilidade / 100, 1.0))
                     st.markdown(f"<p style='text-align: center; font-size: 1.2rem; font-weight: bold;'>{probabilidade}%</p>", unsafe_allow_html=True)
                 
-                st.caption(f"*{t['ia_probabilidade_nota']}*")
-                
-                # Justificativa dissertativa contextualizada de 3-4 linhas
-                with st.expander(f"📖 Justificativa do Match & Afinidade Semântica", expanded=True):
-                    st.markdown(justificativa_metricas)
+                if t.get('ia_probabilidade_nota', ''):
+                    st.caption(f"*{t['ia_probabilidade_nota']}*")
 
 # ==================== ABA 3: ESTAT STICAS DE ACESSOS (SÓ PARA ADMIN) ====================
 if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_admin", False):
@@ -2908,41 +3219,4 @@ if "admin" in params_url or "visitas" in params_url or st.session_state.get("is_
             st.info("Nenhum usuário cadastrado encontrado na base.")
 
 
-# --- MODALS & BUTTONS ACTIONS ---
-@st.dialog("Subscribe / Inscrever-se")
-def show_subscribe_modal():
-    st.markdown("### Join our VIP Community! 🚀")
-    st.markdown("Leave your email to receive publication tips and platform updates. No spam, we promise.")
-    with st.form("subscribe_form"):
-        nome = st.text_input("Name:")
-        email = st.text_input("Email:")
-        if st.form_submit_button("Subscribe", type="primary", use_container_width=True):
-            if nome and email:
-                import pandas as pd
-                import os
-                import datetime
-                
-                caminho = "usuarios.csv"
-                novo_usuario = pd.DataFrame([{
-                    "Data/Hora": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "Nome": nome,
-                    "Email": email.lower().strip(),
-                    "Assinante": True
-                }])
-                if os.path.exists(caminho):
-                    try:
-                        df_existente = pd.read_csv(caminho, sep=";")
-                        df_novo = pd.concat([df_existente, novo_usuario], ignore_index=True)
-                        df_novo.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                    except:
-                        novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                else:
-                    novo_usuario.to_csv(caminho, index=False, sep=";", encoding="utf-8-sig")
-                    
-                st.success("Thank you for subscribing!")
-            else:
-                st.error("Please fill in both Name and Email.")
 
-if 'show_sub' in st.session_state and st.session_state.show_sub:
-    show_subscribe_modal()
-    st.session_state.show_sub = False
