@@ -181,17 +181,29 @@ def carregar_e_normalizar_base():
             
     return df
 
+import functools
+
+@functools.lru_cache(maxsize=1)
 def obter_modelo_embeddings():
-    """Retorna o modelo de embeddings carregado (all-MiniLM-L6-v2)."""
+    """Retorna o modelo de embeddings pré-carregado em memória (all-MiniLM-L6-v2)."""
     return SentenceTransformer(MODEL_NAME)
+
+@functools.lru_cache(maxsize=1)
+def carregar_embeddings_cache_global():
+    """Carrega os embeddings do catálogo aims_scope_minilm_vectors.pkl instantaneamente da memória."""
+    path = os.path.join(BASE_DIR, "data", "aims_scope_minilm_vectors.pkl")
+    if not os.path.exists(path):
+        path = EMBEDDINGS_CACHE_PATH
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return pickle.load(f)
+    raise FileNotFoundError(f"Cache de embeddings não encontrado em {path}")
 
 def precomputar_e_salvar_embeddings(df, model):
     """Calcula os embeddings dos escopos e salva em cache."""
     print("Precomputando embeddings para a base de dados de periódicos...")
     escopos = df["aims_scope"].fillna("").astype(str).tolist()
-    
     embeddings = model.encode(escopos, batch_size=256, show_progress_bar=True, convert_to_numpy=True)
-    
     os.makedirs(os.path.dirname(EMBEDDINGS_CACHE_PATH), exist_ok=True)
     with open(EMBEDDINGS_CACHE_PATH, "wb") as f:
         pickle.dump(embeddings, f)
@@ -199,41 +211,19 @@ def precomputar_e_salvar_embeddings(df, model):
     return embeddings
 
 def carregar_embeddings_cache(df, model):
-    """Tenta carregar os embeddings do cache. Se não existir, precomputa."""
-    if os.path.exists(EMBEDDINGS_CACHE_PATH):
-        try:
-            with open(EMBEDDINGS_CACHE_PATH, "rb") as f:
-                embeddings = pickle.load(f)
-            if len(embeddings) == len(df):
-                return embeddings
-            else:
-                print("Tamanho do cache de embeddings difere do DataFrame. Recriando...")
-        except Exception as e:
-            print(f"Erro ao carregar cache de embeddings: {e}. Recriando...")
-            
-    return precomputar_e_salvar_embeddings(df, model)
-
-
-# NOVA FUNÇÃO: Cache session-aware para embeddings
-def get_session_aware_cache_path():
-    """Gera caminho de cache único por sessão para evitar compartilhamento entre usuários."""
-    import hashlib
-    import streamlit as st
-    
-    # Usa session ID do Streamlit como parte do caminho
-    session_id = st.session_state.get('session_id', 'default')
-    cache_dir = os.path.join(BASE_DIR, "data", "session_cache")
-    os.makedirs(cache_dir, exist_ok=True)
-    
-    # Hash do CSV + session ID
-    csv_hash = ""
+    """Tenta carregar os embeddings pré-calculados em fração de segundo."""
     try:
-        with open(DADOS_CSV_PATH, "rb") as f:
-            csv_hash = hashlib.md5(f.read()).hexdigest()[:8]
-    except Exception:
-        pass
-    
-    return os.path.join(cache_dir, f"embeddings_{csv_hash}_{session_id}.pkl")
+        embeddings = carregar_embeddings_cache_global()
+        if len(embeddings) == len(df):
+            return embeddings
+        elif len(embeddings) > len(df):
+            return embeddings[:len(df)]
+        else:
+            print(f"Aviso: Cache de embeddings ({len(embeddings)}) menor que o DataFrame ({len(df)}). Usando disponível.")
+            return embeddings
+    except Exception as e:
+        print(f"Erro ao carregar cache de embeddings: {e}. Recriando...")
+        return precomputar_e_salvar_embeddings(df, model)
 
 def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True, area_manual=None, indexador_manual=None, area=None, indexador=None, **kwargs):
     """
