@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Configurações de caminhos
-BASE_DIR = r"C:\Users\jquad\Documents\app-revista"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_CSV_PATH = os.path.join(BASE_DIR, "dados.csv")
 EMBEDDINGS_CACHE_PATH = os.path.join(BASE_DIR, "data", "aims_scope_minilm_vectors.pkl")
 MODEL_NAME = "all-MiniLM-L6-v2"

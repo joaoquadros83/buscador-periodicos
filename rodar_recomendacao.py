@@ -3,7 +3,9 @@ import os
 import json
 import pandas as pd
 
-sys.path.append(r"C:\Users\jquad\Documents\app-revista")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 from recomendar_regras import recomendar_periodicos
 
 titulo = "Humane: estudo piloto para validação de instrumento sobre Humanização na Educação Musical"
@@ -24,7 +26,7 @@ print("Iniciando a recomendação otimizada (com filtro de Grande Área e novos 
 df_res = recomendar_periodicos(titulo=titulo, resumo=resumo, top_n=100, filtrar_area=True)
 
 # Salva resultados
-output_path = r"C:\Users\jquad\Documents\app-revista\resultados_recomendacao.csv"
+output_path = os.path.join(BASE_DIR, "resultados_recomendacao.csv")
 df_res.to_csv(output_path, index=False, encoding="utf-8-sig")
 print(f"Resultados completos salvos em: {output_path}")
 
