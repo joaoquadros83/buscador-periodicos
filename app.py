@@ -2612,7 +2612,8 @@ with tab_ia:
                     except Exception:
                         hybrid_api_url = ""
                 
-                if hybrid_api_url:
+                # Desativado para forçar o uso do motor local com todas as 33.921 revistas do dados.csv
+                if False: # hybrid_api_url:
                     try:
                         api_response = call_hybrid_api(
                             title=titulo_artigo,
