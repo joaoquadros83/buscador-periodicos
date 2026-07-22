@@ -56,9 +56,9 @@ class DiscoveryRecommender:
                 rename_map[col] = "ISSN"
             elif "homepage" in col_lower:
                 rename_map[col] = "Homepage"
-            elif any(x in col_lower for x in ["subárea", "subarea"]):
+            elif any(x in col_lower for x in ["subárea", "subarea", "categoria"]):
                 rename_map[col] = "Subárea do Conhecimento"
-            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento"]):
+            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento", "area de conhecimento", "área de conhecimento"]):
                 rename_map[col] = "Área do Conhecimento"
             elif any(x in col_lower for x in ["grande area", "grande área"]):
                 rename_map[col] = "Grande Área"
@@ -70,10 +70,10 @@ class DiscoveryRecommender:
                 rename_map[col] = "SJR"
             elif "jif" in col_lower or "impact" in col_lower:
                 rename_map[col] = "JIF"
-            elif "h index" in col_lower or "h-index" in col_lower:
-                rename_map[col] = "H index"
-            elif any(x in col_lower for x in ["indice h5", "índice h5"]):
+            elif any(x in col_lower for x in ["indice h5", "índice h5", "index-h5", "h5 index"]):
                 rename_map[col] = "Índice h5"
+            elif any(x in col_lower for x in ["h index", "h-index", "index-h"]):
+                rename_map[col] = "H index"
             elif any(x in col_lower for x in ["mediana h5", "h5 median"]):
                 rename_map[col] = "Mediana h5"
             elif any(x in col_lower for x in ["aims and scope", "aims e escopo", "escopo", "aims & scope"]):
