@@ -2895,7 +2895,7 @@ with tab_ia:
             st.warning("    Preencha o Título e o Resumo do seu artigo científico para rodar a recomendação.")
         else:
             cache_key = hashlib.md5(
-                f"{titulo_artigo.strip().lower()}|{resumo_artigo.strip().lower()}|{num_recomendacoes}|{area_ia}|{indexador_ia}".encode("utf-8")
+                f"v6_a2z_minilm_{titulo_artigo.strip().lower()}|{resumo_artigo.strip().lower()}|{num_recomendacoes}|{area_ia}|{indexador_ia}".encode("utf-8")
             ).hexdigest()
             
             if cache_key in st.session_state.ia_cache:
@@ -2975,12 +2975,13 @@ with tab_ia:
                 if not journals:
                     # Motor principal: recomendar_regras.py (MiniLM sentence-transformers + filtro de Grande Área + 80/20)
                     try:
+                        is_todas = area_ia in ["Todas", "Todas as Áreas", t.get("ia_todas", "Todas")]
                         df_rec = _recomendar_periodicos(
                             titulo=titulo_artigo,
                             resumo=resumo_artigo,
                             top_n=num_recomendacoes,
-                            filtrar_area=(area_ia == "Todas"),
-                            area_manual=area_ia if area_ia != "Todas" else None,
+                            filtrar_area=(not is_todas),
+                            area_manual=area_ia if not is_todas else None,
                             indexador_manual=indexador_ia if indexador_ia not in ["Todos", t.get("ia_todos", "Todos")] else None
                         )
                         journals = []
