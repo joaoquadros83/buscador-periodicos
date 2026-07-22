@@ -165,24 +165,8 @@ def carregar_e_normalizar_base():
     return df
 
 def obter_modelo_embeddings():
-    """Retorna o modelo de embeddings carregado com resiliência contra estouro de memória no Streamlit Cloud (FastEmbed ONNX)."""
-    try:
-        from fastembed import TextEmbedding
-        class FastEmbedAdapter:
-            def __init__(self):
-                self.model = TextEmbedding("BAAI/bge-small-en-v1.5")
-            def encode(self, texts, batch_size=256, show_progress_bar=False, convert_to_numpy=True):
-                if isinstance(texts, str):
-                    texts = [texts]
-                embeddings = list(self.model.embed(texts))
-                return np.array(embeddings)
-        return FastEmbedAdapter()
-    except Exception as e1:
-        try:
-            return SentenceTransformer(MODEL_NAME)
-        except Exception as e2:
-            print(f"Erro ao carregar modelos de embedding: {e1} / {e2}")
-            raise e1
+    """Retorna o modelo de embeddings carregado (all-MiniLM-L6-v2)."""
+    return SentenceTransformer(MODEL_NAME)
 
 def precomputar_e_salvar_embeddings(df, model):
     """Calcula os embeddings dos escopos e salva em cache."""

@@ -2966,22 +2966,9 @@ with tab_ia:
                         backend = "minilm_engine"
                         st.session_state.backend_usado = backend
                     except Exception as e_minilm:
-                        # Fallback: DiscoveryRecommender (TF-IDF) se o motor MiniLM falhar
-                        st.warning(f"Motor MiniLM indisponível ({e_minilm}). Usando motor TF-IDF como fallback.")
-                        recommender = get_discovery_recommender(
-                            df_local=df_original,
-                            api_key_gemini=api_key_ativa if api_key_ativa else None
-                        )
-                        use_ollama = not api_key_ativa
-                        journals, error = recommender.recommend(
-                            titulo=titulo_artigo,
-                            resumo=resumo_artigo,
-                            idioma=st.session_state.idioma,
-                            top_n=num_recomendacoes,
-                            use_ollama=use_ollama
-                        )
-                        backend = recommender.get_backend_name()
-                        st.session_state.backend_usado = backend
+                        st.error(f"Erro ao processar recomendações por IA: {e_minilm}")
+                        journals = []
+                        backend = "error"
                 
                 # Busca artigos similares via OpenAlex (desativada por padrão para agilidade)
                 similar_articles = []
