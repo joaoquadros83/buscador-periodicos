@@ -435,20 +435,23 @@ def obter_imagem_local_base64(caminho_arquivo):
         return ""
     return ""
 
-# Busca sequencial do favicon/logo para definir o page_icon
-imagem_base64_icon = obter_imagem_local_base64("favicon.png")
-if not imagem_base64_icon:
-    imagem_base64_icon = obter_imagem_local_base64("logo.png")
-if not imagem_base64_icon:
-    imagem_base64_icon = obter_imagem_local_base64("st_static/favicon.png")
-if not imagem_base64_icon:
-    imagem_base64_icon = obter_imagem_local_base64("st_static/logo.png")
-
-novo_page_icon = f"data:image/png;base64,{imagem_base64_icon}" if imagem_base64_icon else "📚"
+# Busca o favicon/logo em alta resolução
+try:
+    from PIL import Image
+    if os.path.exists("favicon.png"):
+        page_icon_config = Image.open("favicon.png")
+    elif os.path.exists("logo.png"):
+        page_icon_config = Image.open("logo.png")
+    elif os.path.exists("icon.ico"):
+        page_icon_config = Image.open("icon.ico")
+    else:
+        page_icon_config = "🎓"
+except Exception:
+    page_icon_config = "🎓"
 
 st.set_page_config(
-    page_title="O Portal do Pesquisador",
-    page_icon=novo_page_icon, 
+    page_title="SciPubs | O Portal do Pesquisador",
+    page_icon=page_icon_config, 
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -457,6 +460,16 @@ st.set_page_config(
         'About': None
     }
 )
+
+# Injeta favicon HD diretamente no cabeçalho HTML para navegadores web
+imagem_base64_icon = obter_imagem_local_base64("favicon.png") or obter_imagem_local_base64("logo.png")
+if imagem_base64_icon:
+    st.markdown(f"""
+        <head>
+            <link rel="shortcut icon" href="data:image/png;base64,{imagem_base64_icon}" type="image/png">
+            <link rel="icon" href="data:image/png;base64,{imagem_base64_icon}" type="image/png">
+        </head>
+    """, unsafe_allow_html=True)
 
 # --- INJEÇÃO DE TEMA DINÂMICO E OCULTAÇÃO DE CONFIGURAÇÕES ---
 st.markdown("""
