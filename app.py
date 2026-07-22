@@ -2624,6 +2624,11 @@ with tab_busca:
         # Limpa o index para evitar falhas de segmentação em índices não contíguos (bug do PyArrow pós-filtragem)
         df_exibir = df_exibir.reset_index(drop=True)
         
+        # Traduz os valores da coluna "Grande Área" para o idioma ativo (Português, Inglês, Espanhol)
+        col_ga_tb = "Grande Área" if "Grande Área" in df_exibir.columns else ("Grande Area" if "Grande Area" in df_exibir.columns else None)
+        if col_ga_tb:
+            df_exibir[col_ga_tb] = df_exibir[col_ga_tb].apply(lambda x: traduzir_grande_area(x, t))
+        
         # Formata links com fragmentos hash para permitir exibição seletiva (e traço "-" nas células vazias)
         if "Homepage" in df_exibir.columns:
             def format_homepage(val):
