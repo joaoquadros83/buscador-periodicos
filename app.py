@@ -2399,6 +2399,28 @@ with tab_busca:
     df_filtrado = df_original.copy()
 
     if busca:
+        import unicodedata
+        
+        def _remover_acentos_str(s):
+            if not s:
+                return ""
+            s = unicodedata.normalize('NFD', str(s))
+            return ''.join(c for c in s if unicodedata.category(c) != 'Mn').lower().strip()
+
+        def _termo_corresponde(termo_busca, texto_norm):
+            termo_norm = _remover_acentos_str(termo_busca)
+            if not termo_norm:
+                return True
+            if termo_norm in texto_norm:
+                return True
+            words = [w for w in termo_norm.split() if w]
+            if len(words) > 1:
+                return all(w in texto_norm for w in words)
+            if len(termo_norm) >= 4:
+                prefix = termo_norm[:4]
+                return any(w.startswith(prefix) or prefix in w for w in texto_norm.split())
+            return False
+
         texto_busca = busca.strip()
         termos_exatos = re.findall(r'"([^"]*)"', texto_busca)
         
@@ -2406,16 +2428,25 @@ with tab_busca:
         for i, termo in enumerate(termos_exatos):
             texto_processado = texto_processado.replace(f'"{termo}"', f'__EXACT_{i}__')
             
-        if not any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"]):
+        has_boolean = any(op in texto_processado.upper() for op in ["AND", "OR", "NOT"])
+        if not has_boolean:
             palavras = [p.strip() for p in texto_processado.split() if p.strip()]
             texto_processado = " AND ".join(palavras)
 
-        def avaliar_busca_avancada(linha_texto, expressao_logica, lista_exatos):
-            linha_texto = str(linha_texto).lower()
+        def avaliar_busca_avancada(row_dict, expressao_logica, lista_exatos):
+            title = str(row_dict.get(df_filtrado.columns[0], ""))
+            issn = str(row_dict.get("ISSN", ""))
+            scope = str(row_dict.get("Aims and Scope", row_dict.get("Aims & Scope", row_dict.get("aims_scope", ""))))
+            area = str(row_dict.get("Grande Área", row_dict.get("Grande Area", "")))
+            cat = str(row_dict.get("Área do Conhecimento", row_dict.get("Área de Conhecimento", "")))
+            
+            texto_full = f"{title} {issn} {scope} {area} {cat}"
+            linha_texto_norm = _remover_acentos_str(texto_full)
+            
             tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
             
-            resultado_final = False
-            operador_atual = "OR"
+            resultado_final = True if not has_boolean else False
+            operador_atual = "AND" if not has_boolean else "OR"
             inverter_proximo = False
             
             for token in tokens:
@@ -2435,11 +2466,11 @@ with tab_busca:
                     match_exact = re.match(r'__EXACT_(\d+)__', token_clean)
                     if match_exact:
                         idx = int(match_exact.group(1))
-                        termo_real = lista_exatos[idx].lower()
-                        possui_termo = termo_real in linha_texto
+                        termo_real = lista_exatos[idx]
                     else:
-                        termo_real = token_clean.lower()
-                        possui_termo = termo_real in linha_texto
+                        termo_real = token_clean
+                    
+                    possui_termo = _termo_corresponde(termo_real, linha_texto_norm)
                     
                     if inverter_proximo:
                         possui_termo = not possui_termo
@@ -2455,7 +2486,7 @@ with tab_busca:
         df_filtrado = df_filtrado[
             df_filtrado.apply(
                 lambda row: avaliar_busca_avancada(
-                    f"{row[df_filtrado.columns[0]]} {row['ISSN']}", 
+                    row.to_dict(), 
                     texto_processado, 
                     termos_exatos
                 ), 
@@ -2855,21 +2886,8 @@ with tab_ia:
         
         st.markdown(f"#### {t['ia_refinar_pesquisa']}")
         
-        grandes_areas_padrao = [
-            "Ciências Humanas",
-            "Ciências Biológicas",
-            "Ciências Exatas e da Terra",
-            "Ciências da Saúde",
-            "Ciências Sociais Aplicadas",
-            "Linguística, Letras e Artes",
-        ]
-        area_ia_opcoes = {t['todas']: "Todas"}
-        for area in grandes_areas_padrao:
-            area_traduzida = traduzir_grande_area(area, t)
-            area_ia_opcoes[area_traduzida] = area
-
-        area_ia_exibicao = st.selectbox(f"{t['filtro_area']} (IA)", list(area_ia_opcoes.keys()))
-        area_ia = area_ia_opcoes[area_ia_exibicao]
+        # Filtro de Broad Area removido conforme instrução do usuário
+        area_ia = "Todas"
 
         indexadores_padrao = [
             "Web of Science - SSCI",
