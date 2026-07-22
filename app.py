@@ -2483,11 +2483,9 @@ with tab_busca:
         def avaliar_busca_avancada(row_dict, expressao_logica, lista_exatos):
             title = str(row_dict.get(df_filtrado.columns[0], ""))
             issn = str(row_dict.get("ISSN", ""))
-            scope = str(row_dict.get("Aims and Scope", row_dict.get("Aims & Scope", row_dict.get("aims_scope", ""))))
-            area = str(row_dict.get("Grande Área", row_dict.get("Grande Area", "")))
-            cat = str(row_dict.get("Área do Conhecimento", row_dict.get("Área de Conhecimento", "")))
             
-            texto_full = f"{title} {issn} {scope} {area} {cat}"
+            # Pesquisa concentrada no Título da Revista e ISSN
+            texto_full = f"{title} {issn}"
             linha_texto_norm = _remover_acentos_str(texto_full)
             
             tokens = re.split(r'(\bAND\b|\bOR\b|\bNOT\b)', expressao_logica, flags=re.IGNORECASE)
