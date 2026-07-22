@@ -2448,15 +2448,26 @@ with tab_busca:
         def _checar_termo_unico(termo, texto_norm):
             if not termo:
                 return True
-            if termo in texto_norm:
+            
+            words_in_text = texto_norm.split()
+            
+            # 1. Correspondência exata da palavra no texto
+            if termo in words_in_text:
                 return True
+                
+            # 2. Dicionário trilingue (equivalentes exatos PT / EN / ES)
             if termo in MULTILINGUAL_DICTIONARY:
                 for eq in MULTILINGUAL_DICTIONARY[termo]:
-                    if eq in texto_norm:
+                    if eq in words_in_text:
                         return True
-            if len(termo) >= 4:
-                prefix = termo[:4]
-                return any(w.startswith(prefix) or prefix in w for w in texto_norm.split())
+                        
+            # 3. Regra de Prefixo Estrito:
+            # Se o usuário digitou um termo mais curto (ex: "music"), permite encontrar palavras mais longas que COMEÇAM com esse prefixo (ex: "musical", "musicais", "musicales").
+            # Se o usuário digitou um termo completo (ex: "musical"), impede a inclusão de palavras mais curtas (ex: "music") ou com terminações diferentes (ex: "musicais").
+            for w in words_in_text:
+                if w.startswith(termo) and len(w) >= len(termo):
+                    return True
+                    
             return False
 
         def _termo_corresponde(termo_busca, texto_norm):
