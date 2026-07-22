@@ -296,75 +296,63 @@ class DiscoveryRecommender:
                 "probabilidade_aceitacao": prob_aceitacao
             })
 
-        # Seleção Híbrida do Top 20 (8 afinidade pura, 6 WoS JCR + afinidade, 6 Scopus SJR + afinidade)
+        # Seleção Híbrida do Top 20:
+        # - 8 vagas de maior afinidade (Web of Science)
+        # - 6 vagas de maior afinidade (Scopus)
+        # - 6 vagas de maior afinidade temática pura
         selected_candidates = []
         selected_ids = set()
 
-        # 1. Grupo A: 8 por Pure Affinity (Adherence Score)
-        # Como vector_matches já veio ordenado por Adherence, ordenamos all_candidates decrescente por aderencia
+        # Certifica que all_candidates está ordenado por Adherence Score (aderencia) decrescente
         all_candidates.sort(key=lambda x: -x["aderencia"])
-        
+
+        # 1. Grupo A: 8 vagas de maior afinidade (Web of Science)
         grupo_a = []
         for c in all_candidates:
             if len(grupo_a) >= 8:
                 break
-            grupo_a.append(c)
-            selected_ids.add(c["idx_scoped"])
-        
-        selected_candidates.extend(grupo_a)
-
-        # 2. Grupo B: 6 por JCR + Afinidade (Web of Science)
-        wos_candidates = []
-        for c in all_candidates:
-            if c["idx_scoped"] in selected_ids:
-                continue
             idx = c["idx_scoped"]
             indexador = str(list_indexador[idx]).lower()
             is_wos = any(x in indexador for x in ["web of science", "wos", "scie", "ssci", "ahci", "esci"])
             if is_wos:
-                jif_val = safe_float(list_jif[idx])
-                combined_score = c["aderencia"] + (jif_val * 5.0)
-                wos_candidates.append((c, combined_score))
-        
-        wos_candidates.sort(key=lambda x: -x[1])
+                grupo_a.append(c)
+                selected_ids.add(idx)
+        selected_candidates.extend(grupo_a)
+
+        # 2. Grupo B: 6 vagas de maior afinidade (Scopus)
         grupo_b = []
-        for c, score in wos_candidates:
+        for c in all_candidates:
             if len(grupo_b) >= 6:
                 break
-            grupo_b.append(c)
-            selected_ids.add(c["idx_scoped"])
-            
-        selected_candidates.extend(grupo_b)
-
-        # 3. Grupo C: 6 por SJR + Afinidade (Scopus)
-        scopus_candidates = []
-        for c in all_candidates:
-            if c["idx_scoped"] in selected_ids:
-                continue
             idx = c["idx_scoped"]
+            if idx in selected_ids:
+                continue
             indexador = str(list_indexador[idx]).lower()
             is_scopus = "scopus" in indexador
             if is_scopus:
-                sjr_val = safe_float(list_sjr[idx])
-                combined_score = c["aderencia"] + (sjr_val * 15.0)
-                scopus_candidates.append((c, combined_score))
-                
-        scopus_candidates.sort(key=lambda x: -x[1])
+                grupo_b.append(c)
+                selected_ids.add(idx)
+        selected_candidates.extend(grupo_b)
+
+        # 3. Grupo C: 6 vagas de maior afinidade temática pura
         grupo_c = []
-        for c, score in scopus_candidates:
+        for c in all_candidates:
             if len(grupo_c) >= 6:
                 break
+            idx = c["idx_scoped"]
+            if idx in selected_ids:
+                continue
             grupo_c.append(c)
-            selected_ids.add(c["idx_scoped"])
-            
+            selected_ids.add(idx)
         selected_candidates.extend(grupo_c)
 
-        # Preenchimento se faltar WoS/Scopus
+        # Fallback se não completou 20
         if len(selected_candidates) < 20:
             for c in all_candidates:
-                if c["idx_scoped"] not in selected_ids:
+                idx = c["idx_scoped"]
+                if idx not in selected_ids:
                     selected_candidates.append(c)
-                    selected_ids.add(c["idx_scoped"])
+                    selected_ids.add(idx)
                     if len(selected_candidates) >= 20:
                         break
 
