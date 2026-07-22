@@ -966,15 +966,15 @@ dic = {
         "log_erro_invalido": "    Incorrect email or password.",
         "log_google_sucesso": "🚀 Connected with Google! Redirecting...",
         "areas_trad": {
-            "Engenharias": "Engineering",
-            "Linguística, Letras e Artes": "Linguistics, Literature & Arts",
+            "Ciências Exatas e da Terra": "Exact and Earth Sciences",
             "Ciências Biológicas": "Biological Sciences",
-            "Ciências Exatas e da Terra": "Exact & Earth Sciences",
-            "Outras / Não Classificado": "Others / Unclassified",
+            "Engenharias": "Engineering",
             "Ciências da Saúde": "Health Sciences",
-            "Ciências Sociais Aplicadas": "Applied Social Sciences",
             "Ciências Agrárias": "Agricultural Sciences",
-            "Ciências Humanas": "Human Sciences"
+            "Ciências Sociais Aplicadas": "Applied Social Sciences",
+            "Ciências Humanas": "Humanities",
+            "Linguística, Letras e Artes": "Linguistics, Letters and Arts",
+            "Outras / Não Classificado": "Others / Unclassified"
         }
     },
     "Español": {
@@ -1165,22 +1165,33 @@ dic = {
 # Correção do seletor em inglês caso venha codificado
 t = dic[st.session_state.idioma]
 
-# Função auxiliar global para traduzir as Grandes Áreas nos seletores e tabelas
+# Função auxiliar global para traduzir as Grandes Áreas nos seletores e tabelas (suporta múltiplas áreas)
 def traduzir_grande_area(area_original, t_dict):
     if not area_original or str(area_original).strip() in ["-", "None", "nan"]:
         return "-"
+    
+    mapeamento = t_dict.get("areas_trad", {})
+    sub_areas = [a.strip() for a in str(area_original).split(",") if a.strip()]
+    
     import unicodedata
     def clean_str(s):
         s = str(s).lower().strip()
         s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
         s = ''.join(c for c in s if c.isalnum() or c.isspace())
         return ' '.join(s.split())
-    area_clean = clean_str(area_original)
-    mapeamento = t_dict.get("areas_trad", {})
-    for chave_original, valor_traduzido in mapeamento.items():
-        if clean_str(chave_original) == area_clean:
-            return valor_traduzido
-    return str(area_original).strip()
+        
+    sub_areas_traduzidas = []
+    for sa in sub_areas:
+        trad = mapeamento.get(sa, None)
+        if not trad:
+            sa_clean = clean_str(sa)
+            for k, v in mapeamento.items():
+                if clean_str(k) == sa_clean:
+                    trad = v
+                    break
+        sub_areas_traduzidas.append(trad if trad else sa)
+        
+    return ", ".join(sub_areas_traduzidas)
 
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
@@ -2350,12 +2361,15 @@ with tab_busca:
         with col_f1:
             col_subarea = "Grande Área" if "Grande Área" in df_original.columns else "Grande Area"
             grandes_areas_filtro = [
-                "Ciências Humanas",
-                "Ciências Biológicas",
                 "Ciências Exatas e da Terra",
+                "Ciências Biológicas",
+                "Engenharias",
                 "Ciências da Saúde",
+                "Ciências Agrárias",
                 "Ciências Sociais Aplicadas",
-                "Linguística, Letras e Artes"
+                "Ciências Humanas",
+                "Linguística, Letras e Artes",
+                "Outras / Não Classificado"
             ]
             area_opcoes = {t['todas']: "Todas"}
             for area in grandes_areas_filtro:
