@@ -1154,6 +1154,13 @@ def traduzir_grande_area(area_original, t_dict):
 # --- 3. CSS CUSTOMIZADO CORRIGIDO (Design Responsivo e Premium) ---
 st.markdown("""
 <script>
+    // Previne que a página seja restaurada com conexões congeladas pelo Back-Forward Cache (bfcache) do navegador
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
     // Previne que ferramentas de tradução automática corrompam o DOM do React/Streamlit
     const meta = document.createElement('meta');
     meta.name = 'google';
