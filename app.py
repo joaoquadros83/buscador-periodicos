@@ -2480,8 +2480,14 @@ with tab_busca:
             palavras = [p.strip() for p in texto_processado.split() if p.strip()]
             texto_processado = " AND ".join(palavras)
 
+        col_titulo = "Título da Revista"
+        for c in df_filtrado.columns:
+            if any(x in str(c).lower() for x in ["titulo da revista", "título da revista", "title"]):
+                col_titulo = c
+                break
+
         def avaliar_busca_avancada(row_dict, expressao_logica, lista_exatos):
-            title = str(row_dict.get(df_filtrado.columns[0], ""))
+            title = str(row_dict.get(col_titulo, row_dict.get("Título da Revista", row_dict.get("title", ""))))
             issn = str(row_dict.get("ISSN", ""))
             
             # Pesquisa concentrada no Título da Revista e ISSN
