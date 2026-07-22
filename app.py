@@ -570,7 +570,7 @@ st.sidebar.markdown(
             cursor: pointer;
             transition: background 0.3s ease;
             margin-top: 15px;
-        " onmouseover="this.style.backgroundColor='#cc2222'" onmouseout="this.style.backgroundColor='#FF2B2B'">
+        " class="btn-red-sidebar">
             {_btn_contato_text}
         </button>
     </a>
@@ -1247,6 +1247,26 @@ st.markdown("""
         text-align: center !important;
     }
 
+    .btn-donate-header {
+        width: 100% !important;
+        background-color: #FFDD00 !important;
+        color: #000000 !important;
+        border: none !important;
+        padding: 10px 15px !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        font-size: 0.95rem !important;
+        cursor: pointer !important;
+        transition: background 0.3s ease !important;
+    }
+    .btn-donate-header:hover {
+        background-color: #e6c700 !important;
+    }
+
+    .btn-red-sidebar:hover {
+        background-color: #cc2222 !important;
+    }
+
     /* Força o fundo do menu lateral com a cor definida */
     [data-testid="stSidebar"] {
         background-color: #F8F0E3 !important;
@@ -1866,7 +1886,7 @@ st.sidebar.markdown(
             cursor: pointer;
             transition: background 0.3s ease;
             margin-bottom: 15px;
-        " onmouseover="this.style.backgroundColor='#cc2222'" onmouseout="this.style.backgroundColor='#FF2B2B'">
+        " class="btn-red-sidebar">
             {texto_botao}
         </button>
     </a>
@@ -2260,7 +2280,7 @@ bcol1, bcol2 = st.columns(2)
 with bcol1:
     st.markdown(
         f"""<a href="https://buymeacoffee.com/scipubs" target="_blank" style="text-decoration: none; width: 100%; display: block;">
-            <button style="width: 100%; background-color: #FFDD00; color: #000000; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.backgroundColor='#e6c700'" onmouseout="this.style.backgroundColor='#FFDD00'">
+            <button class="btn-donate-header">
                 {_btn_donate}
             </button>
         </a>""", unsafe_allow_html=True
