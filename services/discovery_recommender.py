@@ -43,6 +43,9 @@ class DiscoveryRecommender:
 
     def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
+        if "Aims and Scope" in df.columns and "Aims e Escopo" in df.columns:
+            df.drop(columns=["Aims e Escopo"], inplace=True)
+            
         rename_map = {}
         for col in df.columns:
             col_str = str(col).strip()
@@ -53,12 +56,12 @@ class DiscoveryRecommender:
                 rename_map[col] = "ISSN"
             elif "homepage" in col_lower:
                 rename_map[col] = "Homepage"
-            elif any(x in col_lower for x in ["grande area", "grande área"]):
-                rename_map[col] = "Grande Área"
-            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento"]):
-                rename_map[col] = "Área do Conhecimento"
             elif any(x in col_lower for x in ["subárea", "subarea"]):
                 rename_map[col] = "Subárea do Conhecimento"
+            elif any(x in col_lower for x in ["area do conhecimento", "área do conhecimento"]):
+                rename_map[col] = "Área do Conhecimento"
+            elif any(x in col_lower for x in ["grande area", "grande área"]):
+                rename_map[col] = "Grande Área"
             elif "indexador" in col_lower:
                 rename_map[col] = "Indexador"
             elif "quartil jcr" in col_lower:
