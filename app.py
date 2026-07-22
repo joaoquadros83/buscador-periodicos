@@ -1193,7 +1193,7 @@ st.markdown("""
 
 # --- 4. FUNÇÃO ÚNICA DE CARREGAMENTO DE DADOS (Focado apenas em dados.csv) ---
 @st.cache_data
-def carregar_dados():
+def carregar_dados(file_mtime, file_size):
     nome_arquivo = "dados.csv"
     if not os.path.exists(nome_arquivo):
         if os.path.exists("Dados.csv"):
@@ -1308,7 +1308,22 @@ def carregar_dados():
         st.error("    Base de dados não encontrada. O arquivo 'dados.csv' não foi localizado na raiz do projeto. Por favor, certifique-se de fazer o download do arquivo no repositório GitHub correspondente.")
         st.stop()
 
-df_original, arquivo_usado = carregar_dados()
+# Calcula tamanho e mtime de dados.csv para forçar invalidação do cache do Streamlit se o arquivo mudar
+dados_csv_path = "dados.csv"
+if not os.path.exists(dados_csv_path):
+    if os.path.exists("Dados.csv"):
+        dados_csv_path = "Dados.csv"
+    elif os.path.exists("DADOS.CSV"):
+        dados_csv_path = "DADOS.CSV"
+
+if os.path.exists(dados_csv_path):
+    file_mtime = os.path.getmtime(dados_csv_path)
+    file_size = os.path.getsize(dados_csv_path)
+else:
+    file_mtime = 0.0
+    file_size = 0.0
+
+df_original, arquivo_usado = carregar_dados(file_mtime, file_size)
 
 cache_manager = get_cache_manager()
 anonymous_logger = get_anonymous_logger()

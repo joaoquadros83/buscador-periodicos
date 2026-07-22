@@ -249,39 +249,126 @@ class DiscoveryRecommender:
 
         # Camada 1: Classificação por Knowledge Area (Gemini ou Fallback Local)
         knowledge_area = self._classify_knowledge_area_llm(titulo, resumo)
-        logger.info(f"Knowledge Area identificada: {knowledge_area}")
-
-        # Camada 2: Vetorização TF-IDF + Adherence Score (Cosseno no Aims & Scope -> Top 300)
+        # Camada 2: Vetorização TF-IDF + Adherence Score (Cosseno no Aims & Scope)
         vector_matches = self._compute_vector_adherence(titulo, resumo)
-        top_300_indices = vector_matches[:300]
 
-        # Camada 3: Motor de Probabilidade de Aceitação (Aplicado apenas sobre o Top 40 por Adherence Score)
-        # Filtra o Top 40 com maior Adherence Score antes de rodar os motores de probabilidade e justificativas
-        top_40_adherence = top_300_indices[:40]
-        top_40_candidates = []
+        # Otimização: Converte colunas relevantes do pandas para listas python para evitar overhead de iloc
+        col_indexador = "Indexador" if "Indexador" in self.df_scoped.columns else self.df_scoped.columns[0]
+        col_jif = "JIF" if "JIF" in self.df_scoped.columns else self.df_scoped.columns[0]
+        col_sjr = "SJR" if "SJR" in self.df_scoped.columns else self.df_scoped.columns[0]
+        col_garea = "Grande Área" if "Grande Área" in self.df_scoped.columns else self.df_scoped.columns[0]
+        col_area = "Área do Conhecimento" if "Área do Conhecimento" in self.df_scoped.columns else self.df_scoped.columns[0]
 
-        for idx_scoped, score_adherence in top_40_adherence:
-            row = self.df_scoped.iloc[idx_scoped]
+        list_indexador = self.df_scoped[col_indexador].tolist()
+        list_jif = self.df_scoped[col_jif].tolist()
+        list_sjr = self.df_scoped[col_sjr].tolist()
+        list_garea = self.df_scoped[col_garea].tolist()
+        list_area = self.df_scoped[col_area].tolist()
+
+        # Helper para conversão numérica segura
+        def safe_float(val):
+            try:
+                return float(str(val).replace(",", ".").strip())
+            except:
+                return 0.0
+
+        # Camada 3: Motor de Probabilidade de Aceitação - Processa todos os candidatos de forma otimizada
+        all_candidates = []
+        area_lower = knowledge_area.lower()
+        area_words = [w for w in area_lower.split() if len(w) > 3]
+
+        for idx_scoped, score_adherence in vector_matches:
+            # Camada 1: bonificação se bater com a Knowledge Area identificada
+            garea_val = str(list_garea[idx_scoped]).lower()
+            area_val = str(list_area[idx_scoped]).lower()
             
-            # Integração da Camada 1: bonifica a aderência se bater com a Knowledge Area identificada
-            area_lower = knowledge_area.lower()
-            if any(w in str(row.get("Grande Área", "")).lower() or w in str(row.get("Área do Conhecimento", "")).lower() for w in area_lower.split() if len(w) > 3):
+            if any(w in garea_val or w in area_val for w in area_words):
                 score_adherence = min(98.0, score_adherence + 4.0)
 
+            # Probabilidade
+            row = self.df_scoped.iloc[idx_scoped]
             prob_aceitacao = self._calculate_estimated_acceptance_probability(score_adherence, row)
 
-            top_40_candidates.append({
+            all_candidates.append({
                 "idx_scoped": idx_scoped,
                 "row": row,
                 "aderencia": score_adherence,
                 "probabilidade_aceitacao": prob_aceitacao
             })
 
-        # Ordena decrescente por Adherence Score e seleciona o Top 20 para gerar justificativas
-        top_40_candidates.sort(key=lambda x: -x["aderencia"])
+        # Seleção Híbrida do Top 20 (8 afinidade pura, 6 WoS JCR + afinidade, 6 Scopus SJR + afinidade)
+        selected_candidates = []
+        selected_ids = set()
+
+        # 1. Grupo A: 8 por Pure Affinity (Adherence Score)
+        # Como vector_matches já veio ordenado por Adherence, ordenamos all_candidates decrescente por aderencia
+        all_candidates.sort(key=lambda x: -x["aderencia"])
         
-        # Filtra estritamente o Top 20 para a entrega final
-        selected_candidates = top_40_candidates[:20]
+        grupo_a = []
+        for c in all_candidates:
+            if len(grupo_a) >= 8:
+                break
+            grupo_a.append(c)
+            selected_ids.add(c["idx_scoped"])
+        
+        selected_candidates.extend(grupo_a)
+
+        # 2. Grupo B: 6 por JCR + Afinidade (Web of Science)
+        wos_candidates = []
+        for c in all_candidates:
+            if c["idx_scoped"] in selected_ids:
+                continue
+            idx = c["idx_scoped"]
+            indexador = str(list_indexador[idx]).lower()
+            is_wos = any(x in indexador for x in ["web of science", "wos", "scie", "ssci", "ahci", "esci"])
+            if is_wos:
+                jif_val = safe_float(list_jif[idx])
+                combined_score = c["aderencia"] + (jif_val * 5.0)
+                wos_candidates.append((c, combined_score))
+        
+        wos_candidates.sort(key=lambda x: -x[1])
+        grupo_b = []
+        for c, score in wos_candidates:
+            if len(grupo_b) >= 6:
+                break
+            grupo_b.append(c)
+            selected_ids.add(c["idx_scoped"])
+            
+        selected_candidates.extend(grupo_b)
+
+        # 3. Grupo C: 6 por SJR + Afinidade (Scopus)
+        scopus_candidates = []
+        for c in all_candidates:
+            if c["idx_scoped"] in selected_ids:
+                continue
+            idx = c["idx_scoped"]
+            indexador = str(list_indexador[idx]).lower()
+            is_scopus = "scopus" in indexador
+            if is_scopus:
+                sjr_val = safe_float(list_sjr[idx])
+                combined_score = c["aderencia"] + (sjr_val * 15.0)
+                scopus_candidates.append((c, combined_score))
+                
+        scopus_candidates.sort(key=lambda x: -x[1])
+        grupo_c = []
+        for c, score in scopus_candidates:
+            if len(grupo_c) >= 6:
+                break
+            grupo_c.append(c)
+            selected_ids.add(c["idx_scoped"])
+            
+        selected_candidates.extend(grupo_c)
+
+        # Preenchimento se faltar WoS/Scopus
+        if len(selected_candidates) < 20:
+            for c in all_candidates:
+                if c["idx_scoped"] not in selected_ids:
+                    selected_candidates.append(c)
+                    selected_ids.add(c["idx_scoped"])
+                    if len(selected_candidates) >= 20:
+                        break
+
+        selected_candidates = selected_candidates[:20]
 
         # Camada 4: Justificativa dissertativa contextualizada (exclusivamente para o Top 20 final)
         final_journals = []
