@@ -436,13 +436,13 @@ def obter_imagem_local_base64(caminho_arquivo):
     return ""
 
 # --- FAVICON E TÍTULO DA PLATAFORMA ---
-RAW_PNG_URL = "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/favicon.png"
+# Utiliza ESTRITAMENTE E EXCLUSIVAMENTE o arquivo logo.ico em toda a aplicação
 RAW_ICO_URL = "https://raw.githubusercontent.com/joaoquadros83/buscador-periodicos/main/logo.ico"
 
-# 1. Configuração nativa de página do Streamlit
+# 1. Configuração nativa de página do Streamlit usando EXCLUSIVAMENTE logo.ico
 st.set_page_config(
     page_title="SciPubs | O Portal do Pesquisador",
-    page_icon=RAW_PNG_URL, 
+    page_icon=RAW_ICO_URL, 
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -452,9 +452,9 @@ st.set_page_config(
     }
 )
 
-# 2. Injeção dinâmica do Favicon em HTML Head e JavaScript para forçar atualização no navegador do usuário
-imagem_base64_icon = obter_imagem_local_base64("logo.ico") or obter_imagem_local_base64("favicon.png") or obter_imagem_local_base64("logo.png")
-favicon_data_url = f"data:image/x-icon;base64,{imagem_base64_icon}" if imagem_base64_icon else RAW_ICO_URL
+# 2. Injeção dinâmica do logo.ico em HTML Head e JavaScript em 3 estágios
+imagem_base64_ico = obter_imagem_local_base64("logo.ico")
+favicon_data_url = f"data:image/x-icon;base64,{imagem_base64_ico}" if imagem_base64_ico else RAW_ICO_URL
 
 st.markdown(f"""
     <head>
@@ -464,32 +464,28 @@ st.markdown(f"""
     </head>
     <script>
         (function() {{
-            function forceFavicon() {{
+            function forceLogoIco() {{
                 var links = document.querySelectorAll("link[rel*='icon']");
                 if (links.length > 0) {{
                     links.forEach(function(l) {{
+                        l.type = 'image/x-icon';
+                        l.rel = 'shortcut icon';
                         l.href = '{favicon_data_url}';
                     }});
                 }} else {{
-                    var link1 = document.createElement('link');
-                    link1.type = 'image/x-icon';
-                    link1.rel = 'shortcut icon';
-                    link1.href = '{favicon_data_url}';
-                    document.getElementsByTagName('head')[0].appendChild(link1);
-
-                    var link2 = document.createElement('link');
-                    link2.type = 'image/png';
-                    link2.rel = 'icon';
-                    link2.href = '{RAW_PNG_URL}';
-                    document.getElementsByTagName('head')[0].appendChild(link2);
+                    var link = document.createElement('link');
+                    link.type = 'image/x-icon';
+                    link.rel = 'shortcut icon';
+                    link.href = '{favicon_data_url}';
+                    document.getElementsByTagName('head')[0].appendChild(link);
                 }}
             }}
-            forceFavicon();
+            forceLogoIco();
             if (document.readyState === 'loading') {{
-                document.addEventListener('DOMContentLoaded', forceFavicon);
+                document.addEventListener('DOMContentLoaded', forceLogoIco);
             }}
-            setTimeout(forceFavicon, 500);
-            setTimeout(forceFavicon, 1500);
+            setTimeout(forceLogoIco, 500);
+            setTimeout(forceLogoIco, 1500);
         }})();
     </script>
 """, unsafe_allow_html=True)
