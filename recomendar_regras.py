@@ -140,17 +140,27 @@ def carregar_e_normalizar_base():
             rename_map[col] = "indexador"
         elif col_lower == "jif":
             rename_map[col] = "jif"
-        elif col_lower == "sjr":
-            rename_map[col] = "sjr"
+        elif col_lower == "issn":
+            rename_map[col] = "issn"
+        elif col_lower == "homepage":
+            rename_map[col] = "homepage"
+        elif "quartil jcr" in col_lower or "jcr quartil" in col_lower or "jcr quartile" in col_lower:
+            rename_map[col] = "quartil_jcr"
+        elif "sjr best quartile" in col_lower or "sjr quartile" in col_lower:
+            rename_map[col] = "sjr_quartile"
+        elif "index-h" in col_lower or "h-index" in col_lower or "h index" in col_lower:
+            rename_map[col] = "h_index"
+        elif "index-h5" in col_lower or "h5" in col_lower:
+            rename_map[col] = "h5_link"
         elif "grande área" in col_lower or "grande area" in col_lower:
             rename_map[col] = "grande_area"
             
     df.rename(columns=rename_map, inplace=True)
     
     # Garante que as colunas essenciais existem
-    for col in ["titulo_revista", "aims_scope", "indexador", "jif", "sjr", "grande_area"]:
+    for col in ["titulo_revista", "aims_scope", "indexador", "jif", "sjr", "grande_area", "issn", "homepage", "quartil_jcr", "sjr_quartile", "h_index", "h5_link"]:
         if col not in df.columns:
-            df[col] = ""
+            df[col] = "-"
             
     return df
 
@@ -261,7 +271,7 @@ def recomendar_periodicos(titulo, resumo, top_n=100, filtrar_area=True):
     
     # Seleciona as colunas finais relevantes para exibição
     cols_to_show = [
-        "titulo_revista", "aims_scope", "indexador", "jif", "sjr", "grande_area",
+        "titulo_revista", "issn", "homepage", "aims_scope", "indexador", "jif", "quartil_jcr", "sjr", "sjr_quartile", "h_index", "h5_link", "grande_area",
         "S_text", "S_index", "fator_impacto", "Score_final"
     ]
     
