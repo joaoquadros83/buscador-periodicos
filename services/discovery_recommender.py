@@ -427,8 +427,8 @@ class DiscoveryRecommender:
             }
             final_journals.append(j_dict)
 
-        # Ordena decrescente por Adherence Score (afinidade temática)
-        final_journals.sort(key=lambda x: -x["adherence_score"])
+        # Ordena decrescente por Estimated Acceptance Probability (probabilidade de aceitação)
+        final_journals.sort(key=lambda x: -x["probability"])
         return final_journals[:top_n], None
 
     def get_backend_name(self) -> str:
