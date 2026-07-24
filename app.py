@@ -752,6 +752,7 @@ dic = {
         "ia_modo_local_info": "⚙️ Modo local (algoritmo de relevância)",
         "ia_criterio_ordenamento_tit": "🔀 Critério de Ordenamento dos Resultados:",
         "ia_criterio_ordenamento_sub": "Selecione o critério de ordenamento:",
+        "ia_opt_score_final": "Score Final (Maior para o menor)",
         "ia_opt_probabilidade": "Probabilidade Estimada de Aceitação (Maior para o menor)",
         "ia_opt_aderencia": "Score de Similaridade Semântica (Maior para o menor)",
         "ia_opt_alfabetica_az": "Ordem alfabética (A-Z)",
@@ -933,6 +934,7 @@ dic = {
         "ia_modo_local_info": "⚙️ Local mode (relevance algorithm)",
         "ia_criterio_ordenamento_tit": "🔀 Result Sorting Criteria:",
         "ia_criterio_ordenamento_sub": "Select the sorting criterion:",
+        "ia_opt_score_final": "Final Score (Highest to lowest)",
         "ia_opt_probabilidade": "Estimated Acceptance Probability (Highest to lowest)",
         "ia_opt_aderencia": "Semantic Similarity Score (Highest to lowest)",
         "ia_opt_alfabetica_az": "Alphabetical order (A-Z)",
@@ -1117,6 +1119,7 @@ dic = {
         "ia_modo_local_info": "⚙️ Modo local (algoritmo de relevancia)",
         "ia_criterio_ordenamento_tit": "🔀 Criterio de Ordenación de Resultados:",
         "ia_criterio_ordenamento_sub": "Seleccione el criterio de ordenación:",
+        "ia_opt_score_final": "Score Final (Mayor a menor)",
         "ia_opt_probabilidade": "Probabilidad Estimada de Aceptación (Mayor a menor)",
         "ia_opt_aderencia": "Score de Similitud Semántica (Mayor a menor)",
         "ia_opt_alfabetica_az": "Orden alfabético (A-Z)",
@@ -3190,6 +3193,7 @@ with tab_ia:
         sort_option = st.radio(
             t['ia_criterio_ordenamento_sub'],
             [
+                t['ia_opt_score_final'],
                 t['ia_opt_probabilidade'],
                 t['ia_opt_aderencia'],
                 t['ia_opt_alfabetica_az'],
@@ -3199,8 +3203,10 @@ with tab_ia:
             horizontal=True
         )
         
-        # Aplica a ordenação escolhida dinamicamente (padrão: Estimated Acceptance Probability)
-        if sort_option == t['ia_opt_probabilidade']:
+        # Aplica a ordenação escolhida dinamicamente (padrão: Score Final)
+        if sort_option == t['ia_opt_score_final']:
+            st.session_state.recomendacoes.sort(key=lambda x: (-x.get("score_final", 0.0), -x.get("fator_impacto", 0.0), -x.get("s_text", 0.0)))
+        elif sort_option == t['ia_opt_probabilidade']:
             st.session_state.recomendacoes.sort(key=lambda x: -x.get("probability", x.get("probabilidade_aceitacao", 0)))
         elif sort_option == t['ia_opt_aderencia']:
             st.session_state.recomendacoes.sort(key=lambda x: -x.get("adherence_score", x.get("aderencia", 0)))

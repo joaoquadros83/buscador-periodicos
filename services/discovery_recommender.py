@@ -1,21 +1,22 @@
 """
 Discovery Recommender (Semantic & Vector Matcher for SciPubs)
-Arquitetura em 4 Camadas:
-  1. INGESTÃO & KNOWLEDGE AREA CLASSIFICATION (Gemini / LLM ou Fallback Local)
-  2. VETORIZAÇÃO E ADHERENCE SCORE (Cosseno no Aims & Scope -> Top 300)
-  3. ESTIMATED ACCEPTANCE PROBABILITY ENGINE (Top 40)
-  4. ORDENAÇÃO DINÂMICA & JUSTIFICATIVA CONTEXTUAL (3-4 linhas) -> Top 20
+Implementação rigorosa seguindo as instruções de sistema:
+  1. Similaridade Semântica (S_text) via SentenceTransformer (all-MiniLM-L6-v2)
+  2. Pontuação de Indexadores (S_index): WoS (1.0), Scopus (0.8), SciELO (0.6), Educ@ (0.4), Outros (0.0)
+  3. Score Final = 0.50 * S_text + 0.15 * S_index
+  4. Ordenação por Score Final, Fator de Impacto e S_text decrescentes.
 """
 
 import re
 import os
 import json
 import requests
-from typing import List, Dict, Optional, Tuple
 import logging
+import pickle
+import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from typing import List, Dict, Optional, Tuple
+from sentence_transformers import SentenceTransformer, util
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,10 +37,62 @@ class DiscoveryRecommender:
         self.api_key_gemini = api_key_gemini
         self.ollama_model = ollama_model
         self.h_index_author = h_index_author
-        self._backend_used = "semantic_engine"
+        self._backend_used = "local_transformer"
 
         # Usa toda a base de dados
         self.df_scoped = self.df_local.copy()
+
+        # Inicializa o modelo de embeddings e carrega o cache
+        self.model_name = "all-MiniLM-L6-v2"
+        self.embeddings_path = "data/aims_scope_minilm_vectors_eb28cffa.pkl"
+        self.embeddings = None
+        self.model = None
+
+        self._load_or_build_embeddings()
+
+    def _load_or_build_embeddings(self):
+        """Carrega os embeddings pré-calculados do arquivo pkl ou gera dinamicamente."""
+        os.makedirs("data", exist_ok=True)
+        if os.path.exists(self.embeddings_path):
+            try:
+                with open(self.embeddings_path, "rb") as f:
+                    vectors = pickle.load(f)
+                if len(vectors) == len(self.df_scoped):
+                    self.embeddings = vectors
+                    logger.info(f"Embeddings carregados do cache: {self.embeddings_path} (shape: {vectors.shape})")
+                    return
+                else:
+                    logger.warning("Tamanho do cache de embeddings diferente do DataFrame. Recalculando...")
+            except Exception as e:
+                logger.warning(f"Erro ao carregar cache de embeddings: {e}. Recalculando...")
+
+        # Fallback: Recalcula na hora usando fastembed ou sentence-transformers
+        try:
+            logger.info("Inicializando SentenceTransformer para codificar escopos...")
+            self.model = SentenceTransformer(self.model_name)
+            
+            col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
+            scopes = self.df_scoped[col_scope].astype(str).tolist()
+            titles = self.df_scoped["title"].astype(str).tolist()
+            
+            corpus = []
+            for t, s in zip(titles, scopes):
+                scope_clean = s.strip()
+                if not scope_clean or scope_clean.lower() in ["nan", "none", "", "-", "n/a"]:
+                    corpus.append(t)
+                else:
+                    corpus.append(scope_clean)
+            
+            logger.info(f"Codificando {len(corpus)} escopos. Aguarde...")
+            self.embeddings = self.model.encode(corpus, show_progress_bar=False, batch_size=128)
+            
+            with open(self.embeddings_path, "wb") as f:
+                pickle.dump(self.embeddings, f)
+            logger.info(f"Embeddings salvos com sucesso em {self.embeddings_path}")
+        except Exception as e:
+            logger.error(f"Erro crítico ao gerar embeddings de escopos: {e}")
+            # Cria matriz vazia de backup
+            self.embeddings = np.zeros((len(self.df_scoped), 384), dtype=np.float32)
 
     def _normalize_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -84,7 +137,6 @@ class DiscoveryRecommender:
     def _classify_knowledge_area_llm(self, titulo: str, resumo: str) -> str:
         """Camada 1: Identifica a Knowledge Area / Broad Area do manuscrito via Gemini ou Fallback Local."""
         if not self.api_key_gemini:
-            # Fallback local usando regex/keywords para classificar em áreas principais (em português para compatibilidade)
             text = f"{titulo} {resumo}".lower()
             if any(w in text for w in ["medicine", "health", "clinical", "patient", "disease", "treatment", "therapy", "saúde", "médica"]):
                 return "Ciências da Saúde"
@@ -98,8 +150,6 @@ class DiscoveryRecommender:
                 return "Ciências Humanas"
             if any(w in text for w in ["energy", "material", "chemical", "physics", "earth", "environment", "climate", "física", "química"]):
                 return "Ciências Exatas e da Terra"
-            if any(w in text for w in ["dna", "protein", "cell", "biological", "gene", "evolution", "species", "biologia", "célula"]):
-                return "Ciências Biológicas"
             return "Ciências Humanas"
 
         prompt = f"""
@@ -121,61 +171,43 @@ class DiscoveryRecommender:
             logger.warning(f"Erro na classificação por área via LLM: {e}")
         return "General"
 
-    def _compute_vector_adherence(self, titulo: str, resumo: str) -> List[Tuple[int, float]]:
-        """Camada 2: Calcula a Similaridade de Cosseno (TF-IDF Vector Matcher) priorizando o Aims & Scope das revistas.
-        Ponderação temática 80/20: o título é repetido 3x para valorizar aspectos temáticos sobre metodológicos.
-        """
-        # Repete o título 3x para aumentar o peso temático vs. termos metodológicos do resumo (proporção 80/20)
-        user_text = f"{titulo} {titulo} {titulo} {resumo}"
+    def _calculate_indexer_score(self, indexador: str) -> float:
+        """Regra de Pontuação de Indexadores (S_index): Retorna o maior score individual do periódico."""
+        if not indexador or pd.isna(indexador):
+            return 0.0
+        idx_lower = str(indexador).lower()
+        scores = [0.0]
+        if any(x in idx_lower for x in ["web of science", "wos", "scie", "ssci", "ahci", "esci"]):
+            scores.append(1.0)
+        if "scopus" in idx_lower:
+            scores.append(0.8)
+        if "scielo" in idx_lower:
+            scores.append(0.6)
+        if "educ@" in idx_lower or "educa" in idx_lower:
+            scores.append(0.4)
+        return max(scores)
 
-        col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
-        scopes = self.df_scoped[col_scope].astype(str).tolist()
-        titles = self.df_scoped["title"].astype(str).tolist()
-
-        # Priorização de Aims & Scope: Repete o escopo editorial (s) para dobrar seu peso no vetor TF-IDF
-        corpus = []
-        for t, s in zip(titles, scopes):
-            scope_clean = s.strip()
-            if not scope_clean or scope_clean.lower() in ["nan", "none", ""]:
-                corpus.append(t)
-            else:
-                corpus.append(f"{t} {scope_clean} {scope_clean}")
-
-        try:
-            vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
-            tfidf_matrix = vectorizer.fit_transform(corpus)
-            user_vector = vectorizer.transform([user_text])
-
-            sims = cosine_similarity(user_vector, tfidf_matrix).flatten()
-
-            results = []
-            for idx, score in enumerate(sims):
-                # Normaliza para escala 0 - 100%
-                norm_score = score * 100 * 2.8 + 45.0
-                
-                # Penalidade de -15.0 se a revista não possuir Aims & Scope cadastrado
-                s_val = scopes[idx].strip()
-                if not s_val or s_val.lower() in ["nan", "none", "", "-"]:
-                    norm_score -= 15.0
-
-                norm_score = min(98.0, max(15.0, norm_score))
-                results.append((idx, round(norm_score, 1)))
-
-            results.sort(key=lambda x: -x[1])
-            return results
-        except Exception as e:
-            logger.warning(f"Erro ao calcular similaridade vetorial: {e}")
-            return [(i, 65.0) for i in range(len(self.df_scoped))]
+    def _get_fator_impacto(self, row: pd.Series) -> float:
+        """Retorna o fator de impacto para fins de desempate, sendo o máximo entre JIF e SJR."""
+        def safe_float(val):
+            try:
+                if not val or pd.isna(val) or str(val).strip() in ["-", "N/A", "nan", ""]:
+                    return 0.0
+                return float(str(val).replace(",", ".").strip())
+            except:
+                return 0.0
+        jif_val = safe_float(row.get("JIF", 0.0))
+        sjr_val = safe_float(row.get("SJR", 0.0))
+        return max(jif_val, sjr_val)
 
     def _calculate_estimated_acceptance_probability(self, adherence_score: float, row: pd.Series) -> float:
-        """Camada 3: Calcula a Probabilidade Estimada de Aceitação (0 - 100%)."""
+        """Calcula a Probabilidade Estimada de Aceitação (0 - 100%)."""
         quartil = str(row.get("Quartil JCR", row.get("SJR Best Quartile", ""))).upper().strip()
         try:
             sjr = float(str(row.get("SJR", "0")).replace(",", "."))
         except:
             sjr = 0.0
 
-        # Base de probabilidade em função do rigor do quartil / impacto
         if "Q1" in quartil or sjr > 2.5:
             base_prob = 22.0
         elif "Q2" in quartil or sjr > 1.2:
@@ -187,24 +219,20 @@ class DiscoveryRecommender:
         else:
             base_prob = 50.0
 
-        # Ponderação 80/20: 80% Aderência Semântica + 20% Fator Quartil/Aceitação Base
         prob = (adherence_score * 0.80) + (base_prob * 0.20)
         return round(min(95.0, max(15.0, prob)), 1)
 
     def _generate_3line_justification(self, titulo: str, resumo: str, journal_name: str, scope: str, adherence: float, row: pd.Series) -> str:
         """Gera uma justificativa dissertativa de exatamente 3 a 4 linhas via Gemini ou algoritmo local."""
         if not self.api_key_gemini:
-            # Algoritmo Local Dinâmico e Contextualizado
             title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
             keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
-            
             area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
-            just = (
+            return (
                 f"Com base na análise temática local, o manuscrito apresenta forte sinergia de {adherence}% com a revista {journal_name}. "
                 f"A pesquisa aborda tópicos diretamente alinhados a {keywords}, o que condiz perfeitamente com a cobertura editorial da revista "
                 f"na área de {area}. Esse acoplamento garante um público leitor altamente qualificado e interessado para o seu trabalho."
             )
-            return just
 
         prompt = f"""
         Como parecerista acadêmico, escreva uma justificativa dissertativa de EXATAMENTE 3 a 4 linhas explicando por que o artigo abaixo é recomendado para a revista '{journal_name}'.
@@ -229,7 +257,7 @@ class DiscoveryRecommender:
         except Exception as e:
             logger.warning(f"Erro ao gerar justificativa textual via Gemini: {e}")
 
-        # Fallback se a API falhar
+        # Fallback local
         title_words = [w for w in re.findall(r'\b\w{5,}\b', titulo.lower()) if w not in ['artigo', 'pesquisa', 'estudo', 'analise']]
         keywords = ", ".join(title_words[:3]) if title_words else "a temática proposta"
         area = row.get("Área do Conhecimento", row.get("Grande Área", "sua respectiva linha editorial"))
@@ -248,93 +276,64 @@ class DiscoveryRecommender:
         use_ollama: bool = False
     ) -> Tuple[Optional[List[Dict]], Optional[str]]:
 
-        logger.info(f"Iniciando recomendação semântica para catálogo de {len(self.df_scoped)} revistas.")
+        logger.info(f"Iniciando recomendação semântica baseada nas novas instruções para {len(self.df_scoped)} revistas.")
 
-        # Camada 1: Classificação por Knowledge Area (Gemini ou Fallback Local)
-        knowledge_area = self._classify_knowledge_area_llm(titulo, resumo)
-        # Camada 2: Vetorização TF-IDF + Adherence Score (Cosseno no Aims & Scope)
-        vector_matches = self._compute_vector_adherence(titulo, resumo)
-
-        # Otimização: Converte colunas relevantes do pandas para listas python para evitar overhead de iloc
-        col_indexador = "Indexador" if "Indexador" in self.df_scoped.columns else self.df_scoped.columns[0]
-        col_jif = "JIF" if "JIF" in self.df_scoped.columns else self.df_scoped.columns[0]
-        col_sjr = "SJR" if "SJR" in self.df_scoped.columns else self.df_scoped.columns[0]
-        col_garea = "Grande Área" if "Grande Área" in self.df_scoped.columns else self.df_scoped.columns[0]
-        col_area = "Área do Conhecimento" if "Área do Conhecimento" in self.df_scoped.columns else self.df_scoped.columns[0]
-
-        list_indexador = self.df_scoped[col_indexador].tolist()
-        list_jif = self.df_scoped[col_jif].tolist()
-        list_sjr = self.df_scoped[col_sjr].tolist()
-        list_garea = self.df_scoped[col_garea].tolist()
-        list_area = self.df_scoped[col_area].tolist()
-
-        # Helper para conversão numérica segura
-        def safe_float(val):
+        # Carrega o modelo de embeddings na primeira consulta se necessário
+        if self.model is None and self.embeddings is None:
             try:
-                return float(str(val).replace(",", ".").strip())
-            except:
-                return 0.0
+                self.model = SentenceTransformer(self.model_name)
+            except Exception as e:
+                logger.error(f"Erro ao carregar o modelo SentenceTransformer: {e}")
 
-        # Camada 3: Motor de Probabilidade de Aceitação - Processa todos os candidatos de forma otimizada
+        # 1. Gera embedding do manuscrito (Título + Resumo)
+        user_text = f"{titulo} {resumo}"
+        try:
+            if self.model is None:
+                self.model = SentenceTransformer(self.model_name)
+            query_vector = self.model.encode([user_text], show_progress_bar=False)[0]
+            
+            if self.embeddings is None:
+                self._load_or_build_embeddings()
+                
+            sims = util.cos_sim(query_vector, self.embeddings).flatten().numpy()
+        except Exception as e:
+            logger.warning(f"Erro no cálculo de similaridade semântica: {e}. Usando similaridades zeradas.")
+            sims = np.zeros(len(self.df_scoped), dtype=np.float32)
+
+        # 2. Processa TODOS os periódicos sem filtragem
         all_candidates = []
-        area_lower = knowledge_area.lower()
-        area_words = [w for w in area_lower.split() if len(w) > 3]
+        for idx in range(len(self.df_scoped)):
+            row = self.df_scoped.iloc[idx]
 
-        for idx_scoped, score_adherence in vector_matches:
-            # Camada 1: bonificação se bater com a Knowledge Area identificada
-            garea_val = str(list_garea[idx_scoped]).lower()
-            area_val = str(list_area[idx_scoped]).lower()
-            
-            # Verifica se a área do periódico corresponde à área detectada (busca por substring)
-            area_match = False
-            for word in area_words:
-                if len(word) > 3 and (word in garea_val or word in area_val):
-                    area_match = True
-                    break
-            
-            if area_match:
-                score_adherence = min(98.0, score_adherence + 4.0)
+            # Similaridade Semântica S_text em [0, 1]
+            s_text = max(0.0, min(1.0, float(sims[idx])))
 
-            # Probabilidade
-            row = self.df_scoped.iloc[idx_scoped]
-            prob_aceitacao = self._calculate_estimated_acceptance_probability(score_adherence, row)
+            # Score de Indexador S_index
+            s_index = self._calculate_indexer_score(str(row.get("Indexador", "")))
+
+            # Score Final = 0.50 * S_text + 0.15 * S_index
+            score_final = (0.50 * s_text) + (0.15 * s_index)
+
+            # Fator de Impacto (para desempate)
+            fator_impacto = self._get_fator_impacto(row)
 
             all_candidates.append({
-                "idx_scoped": idx_scoped,
+                "idx_scoped": idx,
                 "row": row,
-                "aderencia": score_adherence,
-                "probabilidade_aceitacao": prob_aceitacao
+                "s_text": s_text,
+                "s_index": s_index,
+                "score_final": score_final,
+                "fator_impacto": fator_impacto
             })
 
-        # Seleção do Top 20 por Score Final (ranking unificado 80/20 sem grupos fixos)
-        selected_candidates = []
-        selected_ids = set()
+        # 3. ORDENAÇÃO E CRITÉRIO DE DESEMPATE RIGOROSO
+        # Prioridade 1: Score_final decrescente
+        # Prioridade 2: fator_impacto decrescente
+        # Prioridade 3: S_text decrescente
+        all_candidates.sort(key=lambda x: (-x["score_final"], -x["fator_impacto"], -x["s_text"]))
 
-        # Ordena todos os candidatos por aderência semântica (ja calculada com bonificação de área)
-        all_candidates.sort(key=lambda x: -x["aderencia"])
-
-        # Seleciona os Top 20 sem restrição de indexador (respeitando apenas a área)
-        for c in all_candidates:
-            if len(selected_candidates) >= 20:
-                break
-            idx = c["idx_scoped"]
-            if idx not in selected_ids:
-                selected_candidates.append(c)
-                selected_ids.add(idx)
-
-        # Fallback se não completou 20
-        if len(selected_candidates) < 20:
-            for c in all_candidates:
-                idx = c["idx_scoped"]
-                if idx not in selected_ids:
-                    selected_candidates.append(c)
-                    selected_ids.add(idx)
-                    if len(selected_candidates) >= 20:
-                        break
-
-        selected_candidates = selected_candidates[:20]
-
-        # Camada 4: Justificativa dissertativa contextualizada (exclusivamente para o Top 20 final)
+        # 4. Seleciona o Top 20 e gera metadados/justificativas
+        selected_candidates = all_candidates[:top_n]
         final_journals = []
         col_scope = "Aims e Escopo" if "Aims e Escopo" in self.df_scoped.columns else "title"
 
@@ -359,10 +358,16 @@ class DiscoveryRecommender:
             # Link de backup para h5 do Google Scholar
             h5_link = f"https://scholar.google.com/citations?hl=pt-BR&view_op=search_venues&vq={requests.utils.quote(nome_rev)}&btnG="
 
-            # Gera a justificativa de 3-4 linhas
+            # Adherence Score visual (S_text em escala de 0 a 100%)
+            adherence_score_visual = round(item["s_text"] * 100, 1)
+
+            # Gera a justificativa de 3-4 linhas baseada nas métricas reais
             justificativa = self._generate_3line_justification(
-                titulo, resumo, nome_rev, scope_text, item["aderencia"], row
+                titulo, resumo, nome_rev, scope_text, adherence_score_visual, row
             )
+
+            # Probabilidade baseada no escopo semântico e quartil
+            probability = self._calculate_estimated_acceptance_probability(adherence_score_visual, row)
 
             j_dict = {
                 "nome": nome_rev,
@@ -380,10 +385,14 @@ class DiscoveryRecommender:
                 "h5_index": h5_idx,
                 "h5_median": h5_med,
                 "h5_link": h5_link,
-                "adherence_score": item["aderencia"],
-                "probability": item["probabilidade_aceitacao"],
-                "aderencia": item["aderencia"],
-                "probabilidade_aceitacao": item["probabilidade_aceitacao"],
+                "s_text": item["s_text"],
+                "s_index": item["s_index"],
+                "score_final": item["score_final"],
+                "fator_impacto": item["fator_impacto"],
+                "adherence_score": adherence_score_visual,
+                "probability": probability,
+                "aderencia": adherence_score_visual,
+                "probabilidade_aceitacao": probability,
                 "justificativa": justificativa,
                 "justificativa_metricas": justificativa,
                 "aims_scope": scope_text,
@@ -391,9 +400,8 @@ class DiscoveryRecommender:
             }
             final_journals.append(j_dict)
 
-        # Ordena decrescente por Estimated Acceptance Probability (probabilidade de aceitação)
-        final_journals.sort(key=lambda x: -x["probability"])
-        return final_journals[:top_n], None
+        # Retorna na ordem rigorosa calculada (a ordenação secundária por rádio pode ser aplicada depois)
+        return final_journals, None
 
     def get_backend_name(self) -> str:
         return self._backend_used
