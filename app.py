@@ -3168,7 +3168,7 @@ with tab_ia:
         elif backend == "ollama":
             st.info(t['ia_ollama_backend_msg'])
         else:
-            st.info(f"ℹ️ {t['ia_fallback_local']}")
+            pass
         
         st.success(t['ia_sucesso'])
         
