@@ -699,6 +699,7 @@ dic = {
         "repositorios_tit": "REPOSITÓRIOS",
         "ia_tit": "IA ACADÊMICA",
         "btn_desktop": "💻 Baixar Versão para Windows",
+        "btn_android": "📱 Baixar APK Android",
         "busca_cat": "  Catálogo de Periódicos",
         "busca_ia": "   Recomendador Inteligente (IA)",
         "ia_titulo": "Recomendação Temática com Inteligência Artificial",
@@ -881,6 +882,7 @@ dic = {
         "repositorios_tit": "DIRECTORIES",
         "ia_tit": "ACADEMIC AI",
         "btn_desktop": "💻 Download Windows Version",
+        "btn_android": "📱 Download Android APK",
         "busca_cat": "  Journal Catalog",
         "busca_ia": "   Smart Recommender (AI)",
         "ia_titulo": "Thematic Recommendation with Artificial Intelligence",
@@ -1066,6 +1068,7 @@ dic = {
         "repositorios_tit": "DIRECTORIOS",
         "ia_tit": "IA ACADÉMICA",
         "btn_desktop": "💻 Descargar Versión para Windows",
+        "btn_android": "📱 Descargar APK Android",
         "busca_cat": "  Catálogo de Revistas",
         "busca_ia": "   Recomendador Inteligente (IA)",
         "ia_titulo": "Recomendación Temática con Inteligencia Artificial",
@@ -1955,6 +1958,32 @@ st.sidebar.markdown(f"""
         {t['direitos_autor']}
     </div>
 """, unsafe_allow_html=True)
+
+# --- 7.5 BOTÃO DE DOWNLOAD DO APK ANDROID ---
+texto_botao_apk = t.get("btn_android", "📱 Baixar APK Android")
+
+st.sidebar.markdown(
+    f"""
+    <a href="https://drive.google.com/file/d/19r_aUpqzMS_6mfpfX5R-xV_mVCSgg1NI/view?usp=drive_link" target="_blank" style="text-decoration: none;">
+        <button style="
+            width: 100%;
+            background-color: #1E3A8A;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-bottom: 15px;
+        " class="btn-blue-sidebar">
+            {texto_botao_apk}
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True
+)
 
 # --- 8. BOTÃO DE DOWNLOAD DA VERSÃO DESKTOP ---
 texto_botao = t.get("btn_desktop", "💻 Baixar Versão para Windows")
