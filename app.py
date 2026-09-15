@@ -1990,7 +1990,7 @@ texto_botao = t.get("btn_desktop", "💻 Baixar Versão para Windows")
 
 st.sidebar.markdown(
     f"""
-    <a href="https://drive.google.com/..." target="_blank" style="text-decoration: none;">
+    <a href="https://drive.google.com/drive/folders/10FKqCE2bftqD27gCGROVcxqIDbZ9oXz5?usp=sharing" target="_blank" style="text-decoration: none;">
         <button style="
             width: 100%;
             background-color: #FF2B2B;
